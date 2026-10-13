@@ -1,0 +1,68 @@
+/*
+ * Contrato de tokens. Todo tema y toda paleta del layout escriben estas variables;
+ * las secciones solo leen var(--…). Valores por defecto neutros.
+ */
+:root {
+  /* Color */
+  --color-bg: #f7f5f0;
+  --color-text: #2d2a26;
+  --color-primary: #8a6d3b;
+  --color-primary-strong: #a8823f;
+  --color-primary-soft: #d9c08a;
+  --color-accent: #7aa7c7;
+  --color-accent-soft: #c9dbe8;
+  --color-surface: #ffffff;
+  --color-frame: #b8c6d4;
+  --color-error: #b3261e;
+  /* Versión oscura de una tarjeta (Dress Code con "cambio de color") */
+  --color-night: #111111;
+  --color-on-night: #ffffff;
+  /* Fondos que se turnan los paneles (el tema dice cuáles usa en manifest.panels) */
+  --color-panel: #ffffff;
+  --color-panel-alt: #eef3f8;
+  --color-panel-warm: #f8f1e3;
+
+  /* Tipografía por rol */
+  --font-script: cursive;
+  --font-script-mono: cursive;
+  --font-serif: Georgia, serif;
+  --font-caps: Georgia, serif;
+  --font-display: Georgia, serif;
+  --font-button: Georgia, serif;
+
+  /* Escala (columna de ~460 px, como el diseño de Canva; en escritorio, dos columnas) */
+  --section-max-width: 460px;
+  --page-max-width: 1200px;
+  --bg-tile-size: 450px; /* ancho de cada repetición de un fondo en mosaico */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.5rem;
+  --space-5: 4rem;
+  /* Secciones: cada una es un panel; entre panel y panel (y a las orillas), este espacio */
+  --section-gap: 1rem;
+  /* cqi = % del ancho de la sección (ver SectionShell), no de la pantalla */
+  --text-title: clamp(2.6rem, 13cqi, 3.6rem);
+  --text-body: clamp(1.15rem, 5cqi, 1.4rem);
+  --text-small: clamp(0.85rem, 3.7cqi, 0.95rem);
+
+  /* Materiales */
+  --radius-card: 12px;
+  --shadow-card: 0 8px 24px rgb(0 0 0 / 0.08);
+  --panel-radius: var(--radius-card);
+  --panel-shadow: 0 4px 16px rgb(0 0 0 / 0.06);
+  --panel-border: none; /* línea fina por dentro del panel, p. ej. 1px solid … */
+  --button-gradient: linear-gradient(
+    180deg,
+    var(--color-primary-soft) 0%,
+    var(--color-primary-strong) 55%,
+    var(--color-primary) 100%
+  );
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /*
+   * Velocidad de todos los efectos: multiplica cada duración y cada retraso. 1 = como se
+   * diseñaron; 1.1 = 10 % más lentos; 0.9 = 10 % más rápidos. (Los temporizadores de JS lo
+   * leen con motionScale().)
+   */
+  --motion-scale: 1.1;
+}

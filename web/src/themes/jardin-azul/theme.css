@@ -1,0 +1,26 @@
+/*
+ * Jardín azul (NAT). Valores de docs/plan-invitaciones/02-diseno-nat/ficha-diseno.md.
+ * La pestaña "paleta" del layout puede sobrescribir cualquiera de estos colores.
+ */
+:root[data-theme='jardin-azul'] {
+  --color-bg: #f3f1ec;
+  --color-text: #523c0b;
+  --color-primary: #96792c;
+  --color-primary-strong: #c0902c;
+  --color-primary-soft: #e2c77a;
+  --color-accent: #8cc0e8;
+  --color-accent-soft: #c8ddee;
+  --color-surface: #f6f6f6;
+  --color-frame: #abc1d9;
+  --color-lino: #f0ede8;
+  /* Paneles: papel blanco, cielo y crema dorada, sobre el papel de la página */
+  --color-panel: #fcfbf8;
+  --color-panel-alt: #e9f2fa;
+  --color-panel-warm: #f8f0de;
+
+  --shadow-card: 0 8px 24px rgb(82 60 11 / 0.12);
+  --shadow-button: 0 2px 4px rgb(82 60 11 / 0.35);
+  --panel-radius: 18px;
+  --panel-shadow: 0 6px 20px rgb(82 60 11 / 0.09);
+  --panel-border: 1px solid rgb(150 121 44 / 0.22);
+}

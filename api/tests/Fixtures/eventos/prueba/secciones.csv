@@ -1,0 +1,4 @@
+﻿orden,seccion,titulo,fondo,overlay,fijo,efectos,visible,escritorio,fondo_ajuste
+2,itinerario,Itinerario,,,,aparecer linea,SI,mitad,
+1,portada,,papel.webp,0.2,SI,flotar,SI,,mosaico
+3,confirmacion,Confirmación,,,,,NO,,

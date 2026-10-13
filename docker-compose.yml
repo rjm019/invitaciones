@@ -1,0 +1,59 @@
+# Entorno de desarrollo del monorepo: invitaciones (api + web) y recepción (buscador).
+# Sin base de datos: todo el estado vive en archivos CSV (layouts).
+# Arranque: docker compose up -d --build
+# Puertos del host configurables (API_PORT, WEB_PORT, RECEPCION_PORT) para no chocar con otros proyectos.
+name: invitaciones
+
+services:
+  api:
+    build: ./api
+    volumes:
+      - ./api:/var/www/api
+      - ./eventos:/var/www/eventos   # layouts por evento (xlsx/CSV): la "base de datos"
+    ports:
+      - "${API_PORT:-8010}:8000"
+
+  web:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    environment:
+      # Vacío = la API por el mismo origen de la web (Vite la reenvía con VITE_API_PROXY):
+      # funciona igual en la Mac (localhost:5173) que en un celular de la red (<ip>:5173).
+      VITE_API_URL: ${VITE_API_URL:-}
+      VITE_API_PROXY: ${VITE_API_PROXY:-http://api:8000}
+      VITE_USE_POLLING: ${VITE_USE_POLLING:-0}
+    volumes:
+      - ./web:/app
+      - web-node-modules:/app/node_modules
+    ports:
+      - "${WEB_PORT:-5173}:5173"
+
+  # Vista previa: la invitación tal como se publica (build de producción), sin el recargado
+  # automático del modo desarrollo. Para revisarla en un celular sin que se refresque sola.
+  # docker compose --profile vista-previa up -d preview  →  http://<ip-de-la-mac>:4173
+  # (después de cada cambio: docker compose restart preview)
+  preview:
+    image: node:22-alpine
+    profiles: [vista-previa]
+    working_dir: /app
+    command: sh -c "[ -d node_modules/vite ] || npm install; npx vite build && npx vite preview --host 0.0.0.0 --port 4173"
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-}
+      VITE_API_PROXY: ${VITE_API_PROXY:-http://api:8000}
+    volumes:
+      - ./web:/app
+      - web-node-modules:/app/node_modules
+    ports:
+      - "${PREVIEW_PORT:-4173}:4173"
+
+  # Buscador de invitados (modo archivo, sin backend). Su backend pasará a Laravel después.
+  recepcion:
+    image: nginx:alpine
+    volumes:
+      - ./recepcion/public:/usr/share/nginx/html:ro
+    ports:
+      - "${RECEPCION_PORT:-8090}:80"
+
+volumes:
+  web-node-modules:
