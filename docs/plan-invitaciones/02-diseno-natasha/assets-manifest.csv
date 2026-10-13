@@ -1,0 +1,44 @@
+orden,seccion,archivo,tamano_natural,y,x,ancho,alto,descripcion,reutilizar_en_codigo,notas
+1,global,39a0373d0e46c334a6cdee9c8be12eb8.png,1600x2400,0,-1328,3711,5566,Textura de papel crema (fondo de toda la pagina),si-si-es-tuyo,Usar como background-repeat o reemplazar por textura propia en WebP
+2,global,0908fbc518e8ae9518e351cf5fb7b12e.jpg (_assets/video),400x864,-2122,-608,1980,4261,Poster de un video fuera de pantalla (no visible),no,Revisar en Canva si hay un video de fondo oculto; probablemente sobrante
+3,01-portada,bb2dd17ad6358e64c5f61872a9d61bf0.png,1105x1600,96,289,412,597,Sobre azul + tarjeta de papel (tambien se reutiliza en dress code),si-si-es-tuyo,Ideal separarlo en 2 capas (sobre / tarjeta) para animar la apertura
+4,01-portada,f555f1393f76a8f0041d9b8107da732d.png,697x800,47,314,224,257,Ramo de rosas azules acuarela (esquina sup. izq.),si-si-es-tuyo,Tambien se usa en Confirmacion (y=5285)
+5,01-portada,7878c460837b78055ad3eb9d66fd121b.png,655x1118,-15,268,513,876,Lettering o capa decorativa grande de portada,revisar,Posible lettering 'Nat' como imagen; confirmar en el editor
+6,01-portada,ca2fd4a340d25b4abd55bd38e7d46710.png,800x391,162,501,55,27,Corona dorada pequena,si-si-es-tuyo,Tambien icono de 'Entrada oficial' en itinerario
+7,01-portada,ab87f4bde4fefd8e66bad8281ebd5aea.png,800x600,448,609,134,101,Mariposas azules,si-si-es-tuyo,Candidato a animacion 'flotar'
+8,02-musica,blob:c2f8343a-6372-456e-b665-3d949c000b40,1600x587,617,319,412,150,Grafico del reproductor (barra + shuffle/prev/play/next/repeat),no,En codigo se reemplaza por reproductor funcional con iconos SVG/FA
+9,03-bendicion,faa7cfc2462fac6d90fa9442eee903fc.png,900x1600,762,286,468,832,Fondo toile floral azul,si-si-es-tuyo,
+10,03-bendicion,4715b36fd5bebe928714eabced9eb2bc.png,1282x1600,836,336,393,491,Tarjeta en arco (lino crema),si-si-es-tuyo,Puede hacerse en CSS (border-radius 50% arriba + textura)
+11,03-bendicion,7821f44eec874f0c20b9c1a1d03af027.png,544x800,885,518,23,33,Ornamento de hojas doradas,si-si-es-tuyo,
+12,03-bendicion,56d0b760fa2eba456f168e097380dd1f.png,800x34,1110,387,284,13,Divisor dorado fino,si-si-es-tuyo,Puede hacerse en SVG
+13,03-bendicion,c23897232857839396f662c20bce2a53.png,645x800,1269,477,98,122,Mono/lazo azul acuarela,si-si-es-tuyo,
+14,04-save-the-date,984df800f34c31e209a545ac732ceda8.png,800x800,1334,396,273,273,Brillo/glitter dorado detras de 'Save the date',si-si-es-tuyo,
+15,04-save-the-date,blob:3f27b0f9-8d70-4f51-831e-f51b1a4b6513,800x294,1549,410,241,88,Corazones azules (se usa 2 veces),no,Reemplazar por SVG de corazon con color --azul
+16,04-save-the-date,f2f4928f42bb1898142867f0caf6de1f.png,890x1024,1422,305,438,504,Calendario de noviembre como IMAGEN,no,En codigo se genera el calendario a partir de la fecha del evento
+17,05-foto,blob:81e5b1cc-d572-40d0-8f78-0b65d2b852d7,1600x386,1807,668,441,106,Destellos/estrellas doradas,no,Reemplazar por SVG/CSS
+18,05-foto,deba747a194e18440ad653d142c5e607.png,703x1517,1911,347,338,730,Marco/arco dorado de la foto,si-si-es-tuyo,
+19,05-foto,c29ecf3052ed62441dad45eb7d180be1.png,764x800,1938,343,140,146,Estrellas doradas,si-si-es-tuyo,
+20,05-foto,0155b9f7764f1b630bd1df795cfdf725.png,1055x1600,1968,295,451,683,FOTO DE LA FESTEJADA (persona real/menor),NO,No descargar ni subir a repositorios; en el tema va un placeholder y la foto se carga por evento
+21,05-foto,d60435063a22c11e567895238c54b2a7.png,724x800,2311,472,304,314,Mariposas doradas,si-si-es-tuyo,
+22,06-ubicacion,1d82f297a98bf060256e1356edd79705.png,619x800,2729,518,19,24,Pin de ubicacion dorado,no,Reemplazar por icono (Font Awesome location-dot) con color --oro
+23,06-ubicacion,cd3d22850960e0a489b7524eb4f9cb49.png,800x189,2852,461,141,33,Fondo dorado del boton 'VER EN MAPS',no,Hacer en CSS con degradado dorado
+24,06-ubicacion,8eda0346bf665563d656b747a30dc96a.png,1080x1080,2792,300,452,452,Foto de fachada del salon,dato-del-evento,Va en el contenido del evento (no en el tema)
+25,07-frase,566b7050874d375bb8315e22c2913055.png,800x44,3359,289,467,26,Divisor de laurel dorado,si-si-es-tuyo,
+26,08-itinerario,a2e72d34536eee69cf86bd149d9e76e0.png,1024x1536,3415,325,406,609,Marco ornamental azul/plata con moño,si-si-es-tuyo,
+27,08-itinerario,blob:f7f754c3-7547-4101-a738-df5ad434a103,30x800,3596,526,14,344,Linea vertical con puntos,no,En codigo: linea animada que se llena con el scroll (efecto del repo)
+28,08-itinerario,ca2fd4a340d25b4abd55bd38e7d46710.png,800x391,3628,603,50,24,Icono corona (Entrada oficial),si-si-es-tuyo,
+29,08-itinerario,blob:089c91ec-927d-48a8-a1b6-e74784c39ebd,800x581,3718,418,43,31,Icono cubiertos (Banquete),no,Font Awesome utensils
+30,08-itinerario,47bf10287a4cffe8711e09edf3b02f26.png,579x800,3792,610,28,39,Icono copas (Protocolo),si-si-es-tuyo,O Font Awesome champagne-glasses
+31,08-itinerario,ecccc3d180f36aed91f72457a2ac7a6e.png,800x603,3837,410,62,47,Icono bola disco (Fiesta),si-si-es-tuyo,
+32,09-dress-code,blob:bdd48b82-9557-4cd9-841f-6ab44d09c2f2,1343x1343,4064,196,672,672,Marco cuadrado azul polvo,no,Hacer en CSS (div con padding y background --azul-polvo)
+33,09-dress-code,bf8d620142c3a85c74aa3b4146d154e4.png,800x788,4081,499,66,65,Sello de lacre azul,si-si-es-tuyo,
+34,09-dress-code,bb2dd17ad6358e64c5f61872a9d61bf0.png,1105x1600,4097,243,510,739,Tarjeta de papel (reutilizada),si-si-es-tuyo,
+35,09-dress-code,e37676aefe496be1af96163f0073fd88.png,252x800,4337,559,49,155,Figura mujer vestido negro,si-si-es-tuyo,
+36,09-dress-code,bd142ff303a4099e5a2d67d1cd0669f7.png,247x800,4343,448,44,143,Figura hombre traje negro,si-si-es-tuyo,
+37,09-dress-code,blob:af430310-4b5d-4828-a8a7-2d3997033f1d,67x92,4648,514,34,46,Circulo negro (muestra de color),no,CSS
+38,10-cuenta-regresiva,1b59caa76509afdab1cc887276c432b9.png,623x800,4807,710,23,30,Mariposa azul pequena,si-si-es-tuyo,
+39,10-cuenta-regresiva,(iframe canva-embed.com -> /countdown/11504943/my-countdown),-,4816,321,406,101,Widget externo de cuenta regresiva,no,En codigo: componente Countdown calculado desde la fecha del evento
+40,10-cuenta-regresiva,blob:6a783bf2-b279-471d-be2d-32905475d7ca,800x96,4958,363,325,39,Divisor con corona,no,SVG
+41,11-confirmacion,92d5764b35fd7bdc72add413590b2e25.png,1280x832,5191,315,405,266,Tarjeta ovalada de lino,si-si-es-tuyo,
+42,11-confirmacion,f555f1393f76a8f0041d9b8107da732d.png,697x800,5285,607,138,158,Ramo de rosas azules (reutilizado),si-si-es-tuyo,
+43,11-confirmacion,a62132ccf0852efec04034f708a8a2cc.png,797x239,5376,433,159,48,Fondo del boton 'Confirma aqui',no,CSS

@@ -1,0 +1,86 @@
+{
+  "$schema": "../03-arquitectura-objetivo/evento.schema.json",
+  "theme": "jardin-azul",
+  "event": {
+    "slug": "xv-ejemplo",
+    "type": "xv",
+    "title": "Mis XV años",
+    "subtitle": "mis xv años",
+    "celebrant": {
+      "full_name": "Nombre Apellido",
+      "short_name": "Nombre"
+    },
+    "starts_at": "2026-11-28T17:00:00",
+    "timezone": "America/Mexico_City",
+    "rsvp_deadline": "2026-11-06",
+    "venue": {
+      "name": "Salón Ejemplo",
+      "display_name": "SALÓN DE EVENTOS EJEMPLO",
+      "city": "Ciudad, Estado",
+      "address": "Calle 123, Colonia, CP 00000",
+      "maps_url": "https://maps.google.com/?q=Salon+Ejemplo",
+      "photo": "/storage/eventos/xv-ejemplo/salon.webp"
+    }
+  },
+  "music": {
+    "label": "DALE PLAY",
+    "audio_url": "/storage/eventos/xv-ejemplo/cancion.mp3",
+    "spotify_playlist_url": null
+  },
+  "media": {
+    "portrait": "/themes/jardin-azul/placeholder-retrato.webp"
+  },
+  "texts": {
+    "blessing": "Con la bendición de Dios y todo el cariño tenemos el honor de invitarte a este día tan especial para mí",
+    "quote": "Hoy comienza el capítulo más bonito de mi historia",
+    "closing_quote": "Hay momentos en la vida que son especiales por sí solos, pero compartirlos con las personas que quieres los convierte en inolvidables",
+    "closing": "¡Te esperamos!"
+  },
+  "family": [
+    { "role": "Mi mamá", "names": ["Nombre Apellido"] },
+    { "role": "Mi papá", "names": ["Nombre Apellido"] },
+    { "role": "Mis padrinos", "names": ["Nombre Apellido", "Nombre Apellido"] }
+  ],
+  "locations": [
+    {
+      "label": "Recepción",
+      "name": "Salón Ejemplo",
+      "time": "17:00",
+      "address": "Calle 123, Colonia, CP 00000",
+      "maps_url": "https://maps.google.com/?q=Salon+Ejemplo",
+      "photo": "/storage/eventos/xv-ejemplo/salon.webp"
+    }
+  ],
+  "itinerary": [
+    { "label": "Recepción", "time": "17:00", "icon": "door-open" },
+    { "label": "Entrada oficial", "time": "17:50", "icon": "crown" },
+    { "label": "Banquete", "time": "18:00", "icon": "utensils" },
+    { "label": "Protocolo", "time": "19:15", "icon": "champagne-glasses" },
+    { "label": "Fiesta", "time": "20:00", "icon": "disco" }
+  ],
+  "dress_code": {
+    "title": "VESTIMENTA FORMAL EN COLOR NEGRO",
+    "text": "Para crear una atmósfera única y especial te invitamos a acompañarnos vistiendo únicamente de color negro",
+    "colors": ["#000000"]
+  },
+  "rsvp": {
+    "mode": "token",
+    "whatsapp_number": null,
+    "ask_song": true,
+    "ask_message": true
+  },
+  "sections": [
+    "hero-envelope",
+    "music-player",
+    "blessing",
+    "save-the-date",
+    "photo-arch",
+    "location",
+    "quote",
+    "itinerary",
+    "dress-code",
+    "countdown",
+    "rsvp",
+    "closing"
+  ]
+}

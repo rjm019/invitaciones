@@ -1,0 +1,218 @@
+/*
+ * Efectos por nombre. SectionShell pone la clase fx-<efecto> en la sección cuando el
+ * layout lo pide (columna "efectos"). Solo se anima transform y opacity, y todo se
+ * apaga con prefers-reduced-motion.
+ */
+
+/* aparecer (reveal): lo controla la directiva v-reveal */
+.fx-reveal-target {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity calc(0.8s * var(--motion-scale)) var(--ease-out),
+    transform calc(0.8s * var(--motion-scale)) var(--ease-out);
+}
+.fx-reveal-target.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* flotar: decoraciones marcadas con .decor-float */
+.fx-float .decor-float {
+  animation: fx-float calc(7s * var(--motion-scale)) ease-in-out infinite;
+}
+.fx-float .decor-float:nth-of-type(2n) {
+  animation-duration: calc(9s * var(--motion-scale));
+  animation-delay: calc(-2s * var(--motion-scale));
+}
+@keyframes fx-float {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(6px, -8px) rotate(-4deg);
+  }
+}
+
+/* brillo: botones marcados con .btn-shine */
+.fx-shine .btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.fx-shine .btn-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.55) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  animation: fx-shine calc(4s * var(--motion-scale)) ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes fx-shine {
+  0%,
+  70% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+/* destellos que titilan (decoraciones marcadas con .decor-twinkle) */
+.decor-twinkle {
+  animation: fx-twinkle calc(2.4s * var(--motion-scale)) ease-in-out infinite;
+}
+@keyframes fx-twinkle {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* cascada: con la sección "solo cascada" el bloque no se desvanece; entran sus elementos */
+.fx-reveal-target.is-cascade-only {
+  opacity: 1;
+  transform: none;
+}
+.fx-cascade .fx-reveal-target:not(.is-visible) :is(li, article, [data-cascade]) {
+  opacity: 0;
+}
+.fx-cascade .fx-reveal-target.is-visible :is(li, article, [data-cascade]) {
+  /* backwards: al terminar vuelve a su propio translate (algunos elementos lo usan) */
+  animation: fx-cascade calc(0.7s * var(--motion-scale)) var(--ease-out) backwards;
+}
+/* El retraso escalonado va con más especificidad que la regla de arriba (que lo pondría en 0). */
+.fx-cascade .is-visible :is(li, article, [data-cascade]):nth-child(2) {
+  animation-delay: calc(0.08s * var(--motion-scale));
+}
+.fx-cascade .is-visible :is(li, article, [data-cascade]):nth-child(3) {
+  animation-delay: calc(0.16s * var(--motion-scale));
+}
+.fx-cascade .is-visible :is(li, article, [data-cascade]):nth-child(4) {
+  animation-delay: calc(0.24s * var(--motion-scale));
+}
+.fx-cascade .is-visible :is(li, article, [data-cascade]):nth-child(5) {
+  animation-delay: calc(0.32s * var(--motion-scale));
+}
+.fx-cascade .is-visible :is(li, article, [data-cascade]):nth-child(6) {
+  animation-delay: calc(0.4s * var(--motion-scale));
+}
+.fx-cascade .is-visible :is(li, article, [data-cascade]):nth-child(7) {
+  animation-delay: calc(0.48s * var(--motion-scale));
+}
+.fx-cascade .is-visible :is(li, article, [data-cascade]):nth-child(n + 8) {
+  animation-delay: calc(0.56s * var(--motion-scale));
+}
+@keyframes fx-cascade {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+    scale: 0.96;
+  }
+}
+
+/* destellos: estrellas de 4 puntas que titilan (las pinta SectionShell) */
+.fx-sparkle-star {
+  position: absolute;
+  aspect-ratio: 1;
+  background: radial-gradient(
+    circle,
+    #fff 0 18%,
+    var(--color-primary-soft) 40%,
+    var(--color-primary) 100%
+  );
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+  opacity: 0;
+  animation: fx-sparkle calc(3.2s * var(--motion-scale)) ease-in-out infinite;
+}
+@keyframes fx-sparkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.3) rotate(0deg);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1) rotate(45deg);
+  }
+}
+
+/* acercamiento: fotos que se acercan muy despacio (marcadas con .fx-photo) */
+.fx-ken-burns .fx-photo {
+  overflow: hidden;
+}
+.fx-ken-burns .fx-photo img {
+  animation: fx-ken-burns calc(16s * var(--motion-scale)) ease-in-out infinite alternate;
+}
+@keyframes fx-ken-burns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.09) translate(-1.5%, -1%);
+  }
+}
+
+/*
+ * cambio de color (color-shift): el fondo de la sección pasa despacio por los tonos del
+ * tema (cielo y champaña). Son dos capas de color que aparecen y se van a destiempo (solo
+ * opacity); cada tono se queda un rato antes de fundirse con el siguiente.
+ */
+.fx-color-shift .section__tint-layer {
+  opacity: 0;
+  background: var(--fx-tint-a, var(--color-accent));
+  animation: fx-tint calc(12s * var(--motion-scale)) ease-in-out infinite;
+}
+.fx-color-shift .section__tint-layer + .section__tint-layer {
+  background: var(
+    --fx-tint-b,
+    color-mix(in srgb, var(--color-primary-soft) 45%, var(--color-surface))
+  );
+  animation-delay: calc(-6s * var(--motion-scale));
+}
+@keyframes fx-tint {
+  0%,
+  12%,
+  88%,
+  100% {
+    opacity: 0;
+  }
+  38%,
+  62% {
+    opacity: 0.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-cascade .fx-reveal-target :is(li, article, [data-cascade]) {
+    opacity: 1;
+    animation: none;
+  }
+  .fx-sparkle-star {
+    opacity: 0.6;
+    animation: none;
+  }
+  .fx-ken-burns .fx-photo img,
+  .fx-color-shift .section__tint-layer {
+    animation: none;
+  }
+  .fx-reveal-target {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .fx-float .decor-float,
+  .fx-shine .btn-shine::after,
+  .decor-twinkle {
+    animation: none;
+  }
+}

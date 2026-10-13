@@ -1,0 +1,22 @@
+# Secretos y entornos
+.env
+**/.env
+!**/.env.example
+
+# Dependencias
+**/node_modules/
+**/vendor/
+
+# Datos reales de personas: nunca al repo
+docs/plan-invitaciones/02-diseno-natasha/privado/
+recepcion/ejemplos/
+recepcion/prototipo/
+recepcion/data/
+api/storage/app/public/eventos/
+# Layouts de eventos: datos reales (contenido, fotos, familias, respuestas). Nunca al repo.
+eventos/*
+!eventos/README.md
+
+# Sistema y editores
+.DS_Store
+.idea/

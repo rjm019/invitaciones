@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recepción de invitados</title>
+<link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<!-- Pantalla de importación: se muestra cuando no hay lista cargada -->
+<section id="pantalla-importar" class="pantalla">
+  <div class="importar-caja">
+    <h1>Recepción de invitados</h1>
+    <p class="sutil">Carga el acomodo de mesas para empezar (<b>.xlsx</b> o <b>.csv</b>).
+       Acepta el layout en rejilla, la lista agrupada por titular
+       (<i>Mesa · Nombre · No. Personas · Niños</i>) y un CSV ya generado por el sistema.</p>
+
+    <div id="zona-suelta" class="zona-suelta">
+      <div class="zona-icono">📄</div>
+      <p><b>Arrastra el archivo aquí</b></p>
+      <p class="sutil">o</p>
+      <button id="btn-elegir" class="boton primario">Elegir archivo</button>
+      <input type="file" id="archivo" accept=".csv,.xlsx,.xlsm,.xls,.xlsb" hidden>
+    </div>
+
+    <div id="informe" class="informe" hidden></div>
+  </div>
+</section>
+
+<!-- Aplicación -->
+<div id="app" hidden>
+
+  <header id="encabezado">
+    <div class="fila fila-titulo">
+      <h1 id="titulo">Invitados <span id="contador" class="sutil"></span></h1>
+      <button id="btn-campana" class="campana" aria-label="Notas">
+        <span aria-hidden="true">🔔</span>
+        <span id="globo" class="globo" hidden></span>
+      </button>
+    </div>
+
+    <div class="buscador">
+      <input type="search" id="q" placeholder="Buscar nombre, mesa o nota…"
+             autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button id="btn-limpiar" class="limpiar" aria-label="Limpiar">&times;</button>
+    </div>
+
+    <div class="barra"><i id="barra-avance"></i></div>
+
+    <div class="fila">
+      <div id="pills-estado" class="pills"></div>
+      <nav class="tabs">
+        <button class="tab activa" data-vista="lista">Lista</button>
+        <button class="tab" data-vista="mesas">Mesas</button>
+      </nav>
+    </div>
+
+    <div class="fila">
+      <div id="pills-categoria" class="pills"></div>
+    </div>
+
+    <div id="mesa-activa" class="mesabar" hidden>
+      <span id="mesa-activa-txt"></span>
+      <button id="btn-mas-lugar">+ Lugar</button>
+      <button id="btn-ver-todas">Ver todas</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="vista-lista"></section>
+    <section id="vista-mesas" hidden></section>
+  </main>
+
+  <footer id="acciones">
+    <button id="btn-exportar" class="boton">Exportar CSV</button>
+    <button id="btn-resumen" class="boton">Resumen mesas</button>
+    <button id="btn-importar" class="boton">Cargar layout</button>
+    <button id="btn-reiniciar" class="boton peligro">Reiniciar</button>
+  </footer>
+</div>
+
+<!-- Panel de notas (campanita) -->
+<aside id="panel-notas" class="panel" hidden>
+  <div class="panel-caja">
+    <div class="panel-cabeza">
+      <h2>Notas</h2>
+      <button id="btn-cerrar-notas" class="limpiar" aria-label="Cerrar">&times;</button>
+    </div>
+    <div id="lista-notas" class="panel-cuerpo"></div>
+  </div>
+</aside>
+
+<script src="vendor/sweetalert2.min.js"></script>
+<script src="vendor/xlsx.full.min.js"></script>
+
+<script src="js/services/CsvService.js"></script>
+<script src="js/services/LayoutService.js"></script>
+<script src="js/services/ArchivoService.js"></script>
+<script src="js/services/AlmacenService.js"></script>
+
+<script src="js/models/Invitado.js"></script>
+<script src="js/models/Mesa.js"></script>
+<script src="js/models/ListaInvitados.js"></script>
+
+<script src="js/views/EncabezadoView.js"></script>
+<script src="js/views/ListaView.js"></script>
+<script src="js/views/MesasView.js"></script>
+<script src="js/views/NotasView.js"></script>
+<script src="js/views/ImportarView.js"></script>
+
+<script src="js/controllers/ImportacionController.js"></script>
+<script src="js/controllers/InvitadosController.js"></script>
+<script src="js/controllers/MesasController.js"></script>
+<script src="js/controllers/NotasController.js"></script>
+<script src="js/controllers/AppController.js"></script>
+
+<script src="js/main.js"></script>
+</body>
+</html>

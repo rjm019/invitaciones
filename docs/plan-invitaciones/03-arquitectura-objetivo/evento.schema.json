@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Desactualizado (13-oct-2026): describe la forma original del config. La forma real está en web/src/types/event.ts y la arma api/app/Services/Layout/EventConfigBuilder.php desde el layout del evento (eventos/README.md).",
+  "$id": "evento.schema.json",
+  "title": "Configuración de un evento (events.config)",
+  "type": "object",
+  "required": ["theme", "event", "texts", "sections"],
+  "properties": {
+    "theme": { "type": "string", "enum": ["jardin-azul", "new-york-noir", "boda-salvia"] },
+    "event": {
+      "type": "object",
+      "required": ["slug", "type", "celebrant", "starts_at", "timezone", "venue"],
+      "properties": {
+        "slug": { "type": "string", "pattern": "^[a-z0-9-]{3,60}$" },
+        "type": { "type": "string", "enum": ["xv", "boda", "bautizo", "cumple", "otro"] },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "celebrant": {
+          "type": "object",
+          "required": ["short_name"],
+          "properties": {
+            "full_name": { "type": "string" },
+            "short_name": { "type": "string", "maxLength": 14 },
+            "partner_name": { "type": "string", "description": "Para bodas" }
+          }
+        },
+        "starts_at": { "type": "string", "format": "date-time" },
+        "timezone": { "type": "string", "default": "America/Mexico_City" },
+        "rsvp_deadline": { "type": "string", "format": "date" },
+        "venue": {
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": { "type": "string" },
+            "display_name": { "type": "string" },
+            "city": { "type": "string" },
+            "address": { "type": ["string", "null"] },
+            "maps_url": { "type": "string", "format": "uri" },
+            "photo": { "type": ["string", "null"] }
+          }
+        }
+      }
+    },
+    "music": {
+      "type": "object",
+      "properties": {
+        "label": { "type": "string", "default": "DALE PLAY" },
+        "audio_url": { "type": ["string", "null"] },
+        "spotify_playlist_url": { "type": ["string", "null"], "pattern": "^https://open\\.spotify\\.com/(playlist|album|track)/[A-Za-z0-9]+" }
+      }
+    },
+    "media": {
+      "type": "object",
+      "properties": {
+        "portrait": { "type": ["string", "null"] },
+        "gallery": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "texts": {
+      "type": "object",
+      "properties": {
+        "blessing": { "type": "string" },
+        "quote": { "type": "string" },
+        "closing_quote": { "type": "string" },
+        "closing": { "type": "string" }
+      }
+    },
+    "family": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["role", "names"],
+        "properties": {
+          "role": { "type": "string" },
+          "names": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+        }
+      }
+    },
+    "locations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["label", "name", "maps_url"],
+        "properties": {
+          "label": { "type": "string" },
+          "name": { "type": "string" },
+          "time": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+          "address": { "type": ["string", "null"] },
+          "maps_url": { "type": "string", "format": "uri" },
+          "photo": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "itinerary": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["label", "time"],
+        "properties": {
+          "label": { "type": "string" },
+          "time": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+          "icon": { "type": "string" }
+        }
+      }
+    },
+    "dress_code": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "text": { "type": "string" },
+        "colors": { "type": "array", "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }, "maxItems": 4 },
+        "reserved_colors": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "hotels": {
+      "type": "array",
+      "items": { "type": "object", "properties": { "name": { "type": "string" }, "url": { "type": "string" }, "photo": { "type": "string" } } }
+    },
+    "rsvp": {
+      "type": "object",
+      "properties": {
+        "mode": { "type": "string", "enum": ["token", "open", "whatsapp", "off"], "default": "token" },
+        "whatsapp_number": { "type": ["string", "null"], "pattern": "^52[0-9]{10}$" },
+        "ask_song": { "type": "boolean", "default": true },
+        "ask_message": { "type": "boolean", "default": true },
+        "allow_late": { "type": "boolean", "default": false }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["hero-envelope", "music-player", "blessing", "save-the-date", "photo-arch", "location", "quote", "itinerary", "dress-code", "no-kids", "countdown", "hotels", "weather", "spotify", "rsvp", "dedications", "closing"]
+      }
+    }
+  }
+}

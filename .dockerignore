@@ -1,0 +1,21 @@
+# Imagen de producción (Dockerfile de la raíz). Nada de datos reales ni secretos:
+# los eventos viven en el disco de Fly (/data/eventos), nunca en la imagen.
+.git
+**/.env
+**/.DS_Store
+eventos/
+docs/
+recepcion/
+**/node_modules
+**/vendor
+api/tests/
+api/storage/logs/*
+api/storage/framework/cache/*
+api/storage/framework/sessions/*
+api/storage/framework/testing/*
+api/storage/framework/views/*
+api/bootstrap/cache/*.php
+web/dist
+# Lo de la boda original (fotos reales y una canción con derechos) no se publica.
+web/public/*
+!web/public/favicon.ico

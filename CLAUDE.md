@@ -1,0 +1,75 @@
+# CLAUDE.md — Motor de invitaciones digitales + recepción
+
+## Proyecto
+
+Monorepo con tres apps que **no dependen entre sí en tiempo de ejecución**:
+
+- `api/`: Laravel 13 y PHP 8.3, **sin base de datos**. El estado vive en layouts CSV por evento (contenido, paleta, secciones, familias/pases y respuestas).
+- `web/`: Vue 3, Vite y TypeScript; invitación pública (y más adelante el panel).
+- `recepcion/`: buscador de invitados para la puerta del evento. JS plano, sin build, funciona sin internet. Hoy se sirve estático; su backend pasará a Laravel más adelante.
+
+El plan completo está en `docs/plan-invitaciones/`. **Lee primero** `docs/plan-invitaciones/README.md` y la fase en curso.
+
+## Fase en curso
+
+- **Fase actual:** Pasos 2a, 3 y 2b terminados, más el **panel del dueño** (`/panel/:slug`, entra con `clave_panel` del layout): genera enlaces por número de invitados, lista de invitaciones y de invitados con su mesa, se actualiza en vivo (consulta de versión cada 5 s), fecha límite cambiable hasta 3 veces. La invitación personal (`/i/:token`) muestra un campo por invitado; los nombres enviados quedan fijos. Secciones `clima` (Open-Meteo: típico y luego pronóstico) y `playlist`; la música puede salir de un MP3 o de Spotify (`musica_fuente`). Cada sección es un panel con su fondo y el mismo espacio entre todas (`--section-gap`); secciones `sin_ninos` y `dedicatoria` (una por enlace, `dedicatorias.csv`, pestaña en el panel); efecto `cambio_de_color`. Todo en CSV. La publicación espera. Formato: `eventos/README.md`.
+- **Prioridad:** invitaciones (XV NATASHA: RSVP cierra 6-nov-2026, evento 28-nov-2026). El buscador espera.
+- **Rama de trabajo:** `refactor/motor-invitaciones`.
+
+## Comandos (todo corre en Docker)
+
+```bash
+docker compose up -d --build          # api (8010), web (5173), recepcion (8090); no hay contenedor de BD
+docker compose logs -f api            # logs
+
+# API
+docker compose exec api php artisan test
+docker compose exec api ./vendor/bin/pint
+
+# Web
+docker compose exec web npm run test
+docker compose exec web npm run lint
+docker compose exec web npm run build   # el build corre en Linux: atrapa mayúsculas mal escritas en imports
+
+# Recepción (pruebas del importador y modelos)
+docker run --rm -v "$PWD/recepcion":/app -w /app node:20-alpine node tests/importador.test.js
+```
+
+Los puertos del host se cambian con `API_PORT`, `WEB_PORT` y `RECEPCION_PORT` (8000 y 8080 ya los usan otros proyectos en esta máquina).
+
+## Reglas del proyecto
+
+1. **Nunca** versionar datos reales de personas (nombres, fotos, teléfonos), ni `.env`, ni audios con derechos. Los datos reales viven en `docs/plan-invitaciones/02-diseno-natasha/privado/`, `recepcion/ejemplos/` y `recepcion/prototipo/` y los layouts de eventos reales (todos en `.gitignore`).
+2. Las invitaciones se identifican por un **token aleatorio**; nunca por familia o número en la URL.
+3. Toda regla de negocio del RSVP (límite de pases, deadline, idempotencia) se valida **en el servidor**.
+4. **Frontend (`web/`):**
+   - `<script setup lang="ts">` en todo lo nuevo.
+   - `services/` es lógica pura en TS (sin Vue ni DOM global) y lleva pruebas; `composables/` solo envuelven servicios y limpian en `onBeforeUnmount`.
+   - Las secciones (`components/sections/`) solo usan **tokens CSS** (`var(--color-…)`, `var(--font-…)`); fondos, overlays y efectos los pinta `SectionShell`. Los temas viven en `src/themes/<id>/`.
+   - Los datos del evento llegan por props desde el `config`; nada de textos, fechas ni colores fijos.
+5. **Efectos:**
+   - Animar solo `transform` y `opacity`.
+   - Limpiar listeners, observers e intervalos en `onBeforeUnmount`.
+   - Respetar `prefers-reduced-motion`.
+   - No reimplementar el scroll (nada de `wheel` + `preventDefault`).
+   - Toda duración y retraso pasa por la velocidad de la invitación: `calc(0.8s * var(--motion-scale))` en CSS y `motionTime()` en estilos en línea; los temporizadores de JS multiplican por `motionScale()`. El token vive en `themes/tokens.css` (hoy 1.1).
+6. **Configuración por entorno:** URLs con `VITE_API_URL` y `FRONTEND_URL`, nunca `127.0.0.1` fijo.
+7. **Pruebas:** cada endpoint nuevo lleva una prueba Feature; cada servicio o composable nuevo, una prueba en Vitest.
+8. **Sin base de datos:** todo dato persistente es un archivo CSV (UTF-8 con BOM, CRLF) que se puede abrir en Excel. Las escrituras son atómicas (tmp + rename) y con `flock`; antes de sobrescribir, se respalda con fecha.
+9. **Idiomas:** la interfaz y los mensajes al usuario van en **español (México)**. El código de `api/` y `web/` va en inglés; `recepcion/` se queda en español (ya está escrito así).
+
+## Referencias rápidas
+
+| Tema | Archivo |
+|---|---|
+| Avance, cambios contra el plan y lo que falta | `docs/plan-invitaciones/09-avance.md` |
+| Decisiones y preguntas abiertas | `docs/plan-invitaciones/08-decisiones-pendientes.md` |
+| Bugs actuales con archivo:línea | `docs/plan-invitaciones/01-analisis-codigo/bugs-y-riesgos.md` |
+| Efectos reutilizables | `docs/plan-invitaciones/01-analisis-codigo/efectos-reutilizables.md` |
+| Plan del buscador (recepción) | `docs/plan-invitaciones/01-analisis-codigo/PLAN-Buscador-Invitados.md` |
+| Modelo de datos | `docs/plan-invitaciones/03-arquitectura-objetivo/modelo-datos.md` |
+| Contrato de API | `docs/plan-invitaciones/03-arquitectura-objetivo/api-contrato.md` |
+| Frontend y temas | `docs/plan-invitaciones/03-arquitectura-objetivo/frontend.md` |
+| Schema del `config` del evento | `docs/plan-invitaciones/03-arquitectura-objetivo/evento.schema.json` |
+| Diseño a clonar (NATASHA) | `docs/plan-invitaciones/02-diseno-natasha/` (ficha, secciones, assets, capturas) |
+| QA antes de publicar | `docs/plan-invitaciones/05-calidad/checklist-qa.md` |
