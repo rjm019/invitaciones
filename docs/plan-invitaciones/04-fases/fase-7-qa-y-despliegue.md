@@ -17,14 +17,14 @@
   - **Opción A:** ruta web de Laravel `GET /i/{token}` que devuelve un HTML mínimo con `og:title`, `og:image` y `og:description` del evento, y redirige (meta refresh o JS) a la SPA.
   - **Opción B:** función edge en Netlify o Vercel que inyecta las OG tags.
   - **Recomendada:** A, porque usa tu stack.
-- [ ] Ajustar `../06-despliegue/despliegue.md` al modelo sin base de datos y desplegar.
+- [x] Ajustar `../06-despliegue/despliegue.md` al modelo sin base de datos y desplegar. *Fly.io (13-oct): https://invitaciones-jiro.fly.dev, un contenedor con API e invitación y un disco para `eventos/`.*
 - [ ] **Smoke test en producción:**
   - Abrir el link por token desde WhatsApp en Android y en iPhone.
   - Confirmar.
   - Ver la respuesta en el panel.
   - Descargar el PDF.
-- [ ] **Respaldo:** cron diario de la carpeta `eventos/`, con sus CSV, `layout.xlsx` y `media/`. ~~`mysqldump` + copia de `storage/app/public/eventos`.~~ *La API ya guarda una copia del día en `eventos/<slug>/respaldos/` antes de cada cambio, pero en el mismo disco.*
-- [x] Documentar en `README.md` de la raíz cómo correr el proyecto y en `eventos/README.md` cómo crear un evento. *Falta cómo desplegar.*
+- [ ] **Respaldo:** *Fly hace un snapshot diario del volumen; falta bajar los CSV antes y después del evento (`fly ssh sftp get`).* ~~Cron diario de la carpeta `eventos/`, con sus CSV, `layout.xlsx` y `media/`. ~~`mysqldump` + copia de `storage/app/public/eventos`.~~ *La API ya guarda una copia del día en `eventos/<slug>/respaldos/` antes de cada cambio, pero en el mismo disco.*
+- [x] Documentar en `README.md` de la raíz cómo correr el proyecto y en `eventos/README.md` cómo crear un evento. Cómo desplegar está en `../06-despliegue/despliegue.md`.
 
 ## Después del evento
 

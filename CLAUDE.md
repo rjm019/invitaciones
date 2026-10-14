@@ -12,9 +12,9 @@ El plan completo está en `docs/plan-invitaciones/`. **Lee primero** `docs/plan-
 
 ## Fase en curso
 
-- **Fase actual:** Pasos 2a, 3 y 2b terminados, más el **panel del dueño** (`/panel/:slug`, entra con `clave_panel` del layout): genera enlaces por número de invitados, lista de invitaciones y de invitados con su mesa, se actualiza en vivo (consulta de versión cada 5 s), fecha límite cambiable hasta 3 veces. La invitación personal (`/i/:token`) muestra un campo por invitado; los nombres enviados quedan fijos. Secciones `clima` (Open-Meteo: típico y luego pronóstico) y `playlist`; la música puede salir de un MP3 o de Spotify (`musica_fuente`). Cada sección es un panel con su fondo y el mismo espacio entre todas (`--section-gap`); secciones `sin_ninos` y `dedicatoria` (una por enlace, `dedicatorias.csv`, pestaña en el panel); efecto `cambio_de_color`. Todo en CSV. La publicación espera. Formato: `eventos/README.md`.
+- **Fase actual:** Pasos 2a, 3 y 2b terminados, más el **panel del dueño** (`/panel/:slug`, entra con `clave_panel` del layout): genera enlaces por número de invitados, lista de invitaciones y de invitados con su mesa, se actualiza en vivo (consulta de versión cada 5 s), fecha límite cambiable hasta 3 veces. La invitación personal (`/i/:token`) muestra un campo por invitado; los nombres enviados quedan fijos. Secciones `clima` (Open-Meteo: típico y luego pronóstico) y `playlist`; la música puede salir de un MP3 o de Spotify (`musica_fuente`). Cada sección es un panel con su fondo y el mismo espacio entre todas (`--section-gap`); secciones `sin_ninos` y `dedicatoria` (una por enlace, `dedicatorias.csv`, pestaña en el panel); efecto `cambio_de_color`. Todo en CSV. **Publicado en Fly.io** (`https://invitaciones-jiro.fly.dev`, ver `docs/plan-invitaciones/06-despliegue/despliegue.md`). Formato: `eventos/README.md`.
 - **Prioridad:** invitaciones (XV NAT: RSVP cierra 6-nov-2026, evento 28-nov-2026). El buscador espera.
-- **Rama de trabajo:** `refactor/motor-invitaciones`.
+- **Rama de trabajo:** `main` (el motor ya está en `origin/main`).
 
 ## Comandos (todo corre en Docker)
 
@@ -34,6 +34,8 @@ docker compose exec web npm run build   # el build corre en Linux: atrapa mayús
 # Recepción (pruebas del importador y modelos)
 docker run --rm -v "$PWD/recepcion":/app -w /app node:20-alpine node tests/importador.test.js
 ```
+
+Producción (Fly.io, cuenta `tu cuenta personal`): `fly deploy --ha=false` publica el código; `deploy/subir-evento.sh <slug>` sube layout y media al disco sin pisar los CSV que escribe la app.
 
 Los puertos del host se cambian con `API_PORT`, `WEB_PORT` y `RECEPCION_PORT` (8000 y 8080 ya los usan otros proyectos en esta máquina).
 

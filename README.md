@@ -31,6 +31,15 @@ docker compose --profile vista-previa up -d preview   # http://<ip-de-la-mac>:41
 docker compose restart preview                        # después de cada cambio (vuelve a construir)
 ```
 
+## Producción
+
+Publicado en Fly.io: https://invitaciones-jiro.fly.dev (por ejemplo `/e/nat` y `/panel/nat`). Un solo contenedor (`Dockerfile` de la raíz) con la API y la invitación, y un disco para `eventos/`. Detalle: `docs/plan-invitaciones/06-despliegue/despliegue.md`.
+
+```bash
+fly deploy --ha=false              # publicar el código
+deploy/subir-evento.sh <slug>      # subir layout y media de un evento (no pisa respuestas)
+```
+
 ## Pruebas
 
 ```bash
