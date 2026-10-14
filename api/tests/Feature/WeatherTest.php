@@ -6,6 +6,7 @@ use App\Services\Weather\VenueLocator;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Sleep;
 use Tests\Concerns\CopiesEventFixtures;
 use Tests\TestCase;
 
@@ -15,6 +16,9 @@ class WeatherTest extends TestCase
 
     /** Open-Meteo deja de responder (500) cuando se prende. */
     private bool $down = false;
+
+    /** Cuántas veces responde 429 ("demasiadas a la vez") el histórico antes de contestar. */
+    private int $throttled = 0;
 
     protected function setUp(): void
     {
@@ -55,6 +59,18 @@ class WeatherTest extends TestCase
         // La segunda visita sale de la caché.
         $this->getJson('/api/public/events/prueba/weather')->assertOk();
         Http::assertSentCount(1 + 10);
+    }
+
+    public function test_the_history_is_asked_one_year_at_a_time_and_retried_when_open_meteo_is_busy(): void
+    {
+        CarbonImmutable::setTestNow('2026-10-13 12:00:00 America/Mexico_City');
+        Sleep::fake();
+        $this->throttled = 2;
+
+        $this->getJson('/api/public/events/prueba/weather')->assertOk()->assertJsonPath('weather.kind', 'typical');
+
+        Http::assertSentCount(1 + 10 + 2); // lugar + 10 años + 2 reintentos
+        Sleep::assertSleptTimes(2);
     }
 
     public function test_from_16_days_before_it_shows_the_forecast_and_refreshes_it_every_half_hour(): void
@@ -219,6 +235,12 @@ class WeatherTest extends TestCase
                         'is_day' => array_map(fn ($h) => $h >= 7 && $h < 18 ? 1 : 0, $hours),
                     ],
                 ]);
+            }
+
+            if ($this->throttled > 0) {
+                $this->throttled--;
+
+                return Http::response(['error' => true, 'reason' => 'Too many concurrent requests'], 429);
             }
 
             // Histórico: 7 días.

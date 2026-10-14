@@ -7,7 +7,9 @@
 set -eu
 
 slug="${1:?Uso: deploy/subir-evento.sh <slug>}"
-cd "$(dirname "$0")/../eventos/$slug"
+root="$(cd "$(dirname "$0")/.." && pwd)"
+config="$root/fly.toml"
+cd "$root/eventos/$slug"
 
 files=""
 for f in layout.xlsx evento.csv paleta.csv tipografia.csv secciones.csv familia.csv itinerario.csv ubicaciones.csv; do
@@ -21,7 +23,7 @@ tmp="$(mktemp -t evento)"
 COPYFILE_DISABLE=1 tar -czf "$tmp" --exclude 'media/originales' --exclude '.DS_Store' $files
 
 echo "Subiendo eventos/$slug ($(du -h "$tmp" | cut -f1))…"
-fly machine start >/dev/null 2>&1 || true   # por si estaba apagada
-fly ssh console -C "sh -c 'mkdir -p /data/eventos/$slug && tar -xzf - -C /data/eventos/$slug && chown -R www-data:www-data /data/eventos/$slug'" < "$tmp"
+fly --config "$config" machine start >/dev/null 2>&1 || true   # por si estaba apagada
+fly --config "$config" ssh console -C "sh -c 'mkdir -p /data/eventos/$slug && tar -xzf - -C /data/eventos/$slug && chown -R www-data:www-data /data/eventos/$slug'" < "$tmp"
 rm -f "$tmp"
-fly ssh console -C "ls -la /data/eventos/$slug"
+fly --config "$config" ssh console -C "ls -la /data/eventos/$slug"
