@@ -5,6 +5,7 @@ import { linkedImagePdf } from '@/services/cardPdfService'
 import {
   CARD_HEIGHT,
   CARD_WIDTH,
+  cardStyle,
   drawShareCard,
   shareCardText,
   shareFileName,
@@ -12,7 +13,6 @@ import {
   shareRoute,
   type CardContext,
   type CardImage,
-  type CardStyle,
   type QrMatrix,
 } from '@/services/shareCardService'
 import { themeAssets } from '@/themes'
@@ -41,8 +41,15 @@ function loadImage(url: string | null): Promise<CardImage | null> {
   })
 }
 
-function cssVar(name: string, fallback: string): string {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback
+/** Los colores de la invitación que el panel puso en el documento (`--color-*`). */
+function documentColors(): Record<string, string> {
+  const style = getComputedStyle(document.documentElement)
+  return Object.fromEntries(
+    ['bg', 'text', 'primary', 'primary-soft', 'accent-strong'].map((t) => [
+      t,
+      style.getPropertyValue(`--color-${t}`).trim(),
+    ]),
+  )
 }
 
 /**
@@ -55,24 +62,20 @@ export function useShareCard() {
   const urls = new Set<string>()
   onBeforeUnmount(() => urls.forEach((u) => URL.revokeObjectURL(u)))
 
+  /**
+   * `colors`: la paleta ya calculada (token → color). Sin ella se leen del documento, donde
+   * el panel pone los de la invitación; el gestor, que tiene los suyos, la pasa.
+   */
   async function render(
     brand: PanelBrand,
     theme: ThemeManifest,
     fonts: Record<string, ThemeFont>,
-    invitation: PanelInvitation,
+    invitation: Pick<PanelInvitation, 'id' | 'label' | 'passes' | 'url'>,
+    colors?: Record<string, string>,
   ): Promise<ShareCard> {
     const resolve = createAssetResolver(brand.assets ?? {}, themeAssets(theme.id))
     const decor = theme.sections['hero-envelope']?.decor ?? {}
-    const style: CardStyle = {
-      bg: cssVar('--color-bg', '#f3f1ec'),
-      text: cssVar('--color-text', '#523c0b'),
-      primary: cssVar('--color-primary', '#96792c'),
-      primarySoft: cssVar('--color-primary-soft', '#e2c77a'),
-      accent: cssVar('--color-accent-strong', '#3d6a92'),
-      script: fonts.script?.family ?? 'cursive',
-      serif: fonts.serif?.family ?? 'Georgia',
-      engraved: fonts.engraved?.family ?? fonts.caps?.family ?? 'Georgia',
-    }
+    const style = cardStyle(colors ?? documentColors(), fonts)
 
     // Sin las fuentes cargadas, el lienzo usaría la letra del sistema.
     const fontsReady = Promise.all(

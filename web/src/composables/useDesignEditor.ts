@@ -21,6 +21,7 @@ import type {
   ManagerSettings,
 } from '@/types/design'
 import type { EventConfig } from '@/types/event'
+import type { PanelBrand } from '@/types/panel'
 
 export type SaveStatus = 'loading' | 'saved' | 'dirty' | 'saving' | 'offline' | 'error' | 'conflict'
 
@@ -45,7 +46,7 @@ export function useDesignEditor(slug: string, withSession: WithSession) {
   const source = ref<DesignPayload['source']>('live')
   const config = shallowRef<EventConfig | null>(null)
   const issues = ref<DesignIssue[]>([])
-  const brand = shallowRef<Record<string, unknown> | null>(null)
+  const brand = shallowRef<PanelBrand | null>(null)
   const changes = ref<DesignChange[]>([])
   const hasDraft = ref(false)
   const pending = ref(false)

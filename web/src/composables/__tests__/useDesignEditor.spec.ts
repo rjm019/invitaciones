@@ -38,7 +38,7 @@ const payload = (d = design(), version = 'b-1'): DesignPayload => ({
   changes: [],
   config: { theme: 'jardin-azul' } as DesignPayload['config'],
   issues: [],
-  brand: { title: 'XV de Ana' },
+  brand: { title: 'XV de Ana', theme: 'jardin-azul', palette: {}, fonts: {} },
   warnings: [],
   settings: {
     published: false,
@@ -56,7 +56,7 @@ const built = (version: string): DesignBuild => ({
   changes: [{ type: 'section', key: 'itinerario', change: 'changed' }],
   config: { theme: 'jardin-azul' } as DesignBuild['config'],
   issues: [],
-  brand: { title: 'XV de Ana' },
+  brand: { title: 'XV de Ana', theme: 'jardin-azul', palette: {}, fonts: {} },
 })
 
 /** Una promesa que la prueba resuelve cuando quiere (una petición "en camino"). */
@@ -105,7 +105,7 @@ describe('useDesignEditor', () => {
     expect(editor.status.value).toBe('saved')
     expect(editor.design.value).toEqual(design())
     expect(editor.version.value).toBe('b-1')
-    expect(editor.brand.value).toEqual({ title: 'XV de Ana' })
+    expect(editor.brand.value?.title).toBe('XV de Ana')
     expect(editor.canUndo.value).toBe(false)
   })
 

@@ -6,6 +6,7 @@ import { useToasts } from '@/composables/useToasts'
 import type { ManagerSettings } from '@/types/design'
 import FieldInput from './FieldInput.vue'
 import ManagerIcon from './ManagerIcon.vue'
+import SharePreview from './SharePreview.vue'
 
 /**
  * "Datos generales": lo del evento (nombres, fecha, salón, confirmaciones, música, el
@@ -234,6 +235,7 @@ async function copyText(text: string, what: string): Promise<void> {
             <p v-if="sampleMessage" class="general__sample">{{ sampleMessage }}</p>
           </div>
         </template>
+        <SharePreview v-if="g.label === 'Compartir' && !settings?.template" />
       </section>
     </div>
   </div>

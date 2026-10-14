@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   addressLines,
+  cardStyle,
   drawQr,
   drawShareCard,
   fitFont,
@@ -111,6 +112,23 @@ describe('shareCardService', () => {
     ).toMatchObject({ guest: null, passes: '1 invitado', phrase: '', text: '' })
   })
 
+  it('toma los colores y las letras de la invitación; lo que falta, del tema base', () => {
+    const style = cardStyle(
+      { bg: '#ffffff', primary: '#112233', 'accent-strong': '#445566', text: '' },
+      { script: { family: 'Great Vibes' }, caps: { family: 'Cinzel' } },
+    )
+    expect(style).toMatchObject({
+      bg: '#ffffff',
+      primary: '#112233',
+      accent: '#445566',
+      text: '#523c0b',
+      primarySoft: '#e2c77a',
+      script: 'Great Vibes',
+      serif: 'Georgia',
+      engraved: 'Cinzel',
+    })
+  })
+
   it('achica la letra hasta que el texto cabe', () => {
     const { ctx } = fakeContext()
     expect(fitFont(ctx, 'abcdefghij', (s) => `${s}px x`, 40, 1000)).toBe(40)
@@ -120,7 +138,11 @@ describe('shareCardService', () => {
 
   /** QR de mentira de 21 × 21 (versión 1), todo oscuro: así se cuentan los puntos. */
   const qr = { size: 21, data: new Array(21 * 21).fill(1) }
-  const background = { image: { fondo: true } as unknown as CanvasImageSource, width: 1024, height: 1536 }
+  const background = {
+    image: { fondo: true } as unknown as CanvasImageSource,
+    width: 1024,
+    height: 1536,
+  }
   const seal = { image: { lacre: true } as unknown as CanvasImageSource, width: 800, height: 788 }
 
   it('la imagen lleva el nombre, para quién es, la frase y la fecha; el enlace no se ve', () => {
@@ -140,7 +162,9 @@ describe('shareCardService', () => {
       'toca o escanea para abrir',
     ])
     expect(written.some((t) => t.includes('Tok3nDePrueba'))).toBe(false)
-    expect(texts.find((t) => t.text === 'NAT')?.font).toBe('400 250px "Cormorant Garamond", Georgia, serif')
+    expect(texts.find((t) => t.text === 'NAT')?.font).toBe(
+      '400 250px "Cormorant Garamond", Georgia, serif',
+    )
     expect(texts.find((t) => t.text === 'MIS XV AÑOS')?.font).toContain('"Cormorant Garamond"')
     expect(texts.find((t) => t.text === 'Familia Pérez')?.font).toContain('"Pinyon Script"')
   })
