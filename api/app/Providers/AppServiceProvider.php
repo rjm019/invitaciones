@@ -27,5 +27,9 @@ class AppServiceProvider extends ServiceProvider
         // Entrar al panel: 5 intentos por minuto por IP y evento (contra adivinar la clave).
         RateLimiter::for('panel-login', fn (Request $request) => Limit::perMinute(5)
             ->by($request->ip().'|'.$request->route('slug')));
+
+        // Entrar al gestor: 5 intentos por minuto por IP.
+        RateLimiter::for('manager-login', fn (Request $request) => Limit::perMinute(5)
+            ->by('manager|'.$request->ip()));
     }
 }

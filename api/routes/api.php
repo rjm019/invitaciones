@@ -2,6 +2,12 @@
 
 use App\Http\Controllers\Admin\PanelController;
 use App\Http\Controllers\Admin\PanelSessionController;
+use App\Http\Controllers\Manager\CatalogController;
+use App\Http\Controllers\Manager\DesignController;
+use App\Http\Controllers\Manager\EventController as ManagerEventController;
+use App\Http\Controllers\Manager\MediaController as ManagerMediaController;
+use App\Http\Controllers\Manager\SessionController as ManagerSessionController;
+use App\Http\Controllers\Manager\TransferController;
 use App\Http\Controllers\Public\DedicationController;
 use App\Http\Controllers\Public\EventController;
 use App\Http\Controllers\Public\InvitationController;
@@ -34,5 +40,32 @@ Route::prefix('admin/events/{slug}')->where(['slug' => '[a-z0-9-]+'])->group(fun
         Route::put('/tables', [PanelController::class, 'updateTables']);
         Route::post('/invitations', [PanelController::class, 'storeInvitation']);
         Route::put('/deadline', [PanelController::class, 'updateDeadline']);
+    });
+});
+
+// Gestor de invitaciones (/gestor): crea y diseña invitaciones. Se entra con GESTOR_CLAVE.
+Route::prefix('manager')->group(function () {
+    Route::post('/session', [ManagerSessionController::class, 'store'])->middleware('throttle:manager-login');
+
+    // 240/min: el editor guarda solo (con pausa de 400 ms) mientras se escribe.
+    Route::middleware(['manager', 'throttle:240,1'])->group(function () {
+        Route::get('/catalog', CatalogController::class);
+        Route::get('/events', [ManagerEventController::class, 'index']);
+        Route::post('/events', [ManagerEventController::class, 'store']);
+
+        Route::prefix('events/{slug}')->where(['slug' => '[a-z0-9-]+'])->group(function () {
+            Route::put('/settings', [ManagerEventController::class, 'settings']);
+            Route::get('/design', [DesignController::class, 'show']);
+            Route::put('/draft', [DesignController::class, 'save']);
+            Route::delete('/draft', [DesignController::class, 'discard']);
+            Route::post('/publish', [DesignController::class, 'publish']);
+            Route::get('/history', [DesignController::class, 'history']);
+            Route::post('/history/{id}/restore', [DesignController::class, 'restore'])->where('id', '[0-9-]+');
+            Route::get('/media', [ManagerMediaController::class, 'index']);
+            Route::post('/media', [ManagerMediaController::class, 'store']);
+            Route::delete('/media/{file}', [ManagerMediaController::class, 'destroy'])->where('file', '[A-Za-z0-9._-]+');
+            Route::get('/export', [TransferController::class, 'export']);
+            Route::post('/import', [TransferController::class, 'import']);
+        });
     });
 });

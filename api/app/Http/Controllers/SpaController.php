@@ -33,7 +33,14 @@ class SpaController extends Controller
         }
 
         // private: en /i/{token} la página lleva los nombres de esa invitación.
-        return response($html, 200, ['Content-Type' => 'text/html; charset=UTF-8', 'Cache-Control' => 'no-cache, private']);
+        $headers = ['Content-Type' => 'text/html; charset=UTF-8', 'Cache-Control' => 'no-cache, private'];
+        // El gestor nunca se indexa y solo se deja poner dentro de sí mismo (la vista previa es un iframe).
+        if ($request->is('gestor', 'gestor/*')) {
+            $headers['X-Robots-Tag'] = 'noindex, nofollow';
+            $headers['Content-Security-Policy'] = "frame-ancestors 'self'";
+        }
+
+        return response($html, 200, $headers);
     }
 
     /**

@@ -20,6 +20,8 @@ class MediaController extends Controller
         return response()->file($path, [
             'Cache-Control' => 'public, max-age=604800',
             'X-Robots-Tag' => 'noindex, nofollow',
+            // El navegador no "adivina" otro tipo (un archivo disfrazado no se ejecuta como página).
+            'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 }

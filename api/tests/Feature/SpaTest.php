@@ -95,4 +95,16 @@ class SpaTest extends TestCase
     {
         $this->get('/up')->assertOk();
     }
+
+    public function test_the_manager_pages_are_never_indexed_nor_framed_by_others(): void
+    {
+        foreach (['/gestor', '/gestor/vista-previa', '/gestor/nueva'] as $path) {
+            $this->get($path)
+                ->assertOk()
+                ->assertHeader('X-Robots-Tag', 'noindex, nofollow')
+                ->assertHeader('Content-Security-Policy', "frame-ancestors 'self'")
+                ->assertSee('<div id="app"></div>', false);
+        }
+        $this->get('/e/prueba')->assertHeaderMissing('Content-Security-Policy');
+    }
 }
