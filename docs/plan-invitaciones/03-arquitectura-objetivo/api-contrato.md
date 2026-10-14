@@ -4,9 +4,10 @@
 - **Respuestas:** JSON (Laravel API Resources).
 - **Errores de validación:** `422` con `{ message, errors }`.
 - **Autenticación:**
-  - **Panel del dueño:** `clave_panel` del Excel → token cifrado que se manda como `Authorization: Bearer` (ver "Panel del dueño" abajo). Sanctum y Breeze se retiraron el 13-oct.
+  - **Panel del dueño:** `clave_panel` (en `ajustes.csv`, o en el Excel en el formato anterior) → token cifrado que se manda como `Authorization: Bearer` (ver "Panel del dueño" abajo). Sanctum y Breeze se retiraron el 13-oct.
+  - **Gestor:** clave maestra `GESTOR_CLAVE` → token cifrado con alcance `manager` (ver "Gestor" abajo).
   - **Público:** sin login; el **token** de la URL es la credencial.
-- **Almacenamiento:** sin base de datos. El evento sale de `eventos/<slug>/layout.xlsx` (o sus CSV); invitaciones, respuestas, aperturas y ajustes se guardan en CSV en esa carpeta (ver `eventos/README.md`).
+- **Almacenamiento:** sin base de datos. El evento sale de `eventos/<slug>/invitacion.csv` (o, en el formato anterior, de `layout.xlsx`); invitaciones, respuestas, aperturas y ajustes se guardan en CSV en esa carpeta (ver `eventos/README.md`). Una plantilla (`plantilla=SI`) responde 404 en todo lo público y no tiene panel.
 
 ---
 
@@ -116,7 +117,7 @@ PDF con el nombre de la familia, los asistentes y un QR (que contiene el token).
 
 ## Panel del dueño (sin base de datos)
 
-Se entra con la clave del layout (`evento → clave_panel`, mínimo 8 caracteres). La sesión es un token cifrado con `APP_KEY` (12 h; deja de servir si la clave cambia) que se manda como `Authorization: Bearer`.
+Se entra con `clave_panel` (mínimo 8 caracteres): en `ajustes.csv`, donde la pone el gestor, o en el layout (`evento → clave_panel`) en el formato anterior. La sesión es un token cifrado con `APP_KEY` (12 h; deja de servir si la clave cambia) que se manda como `Authorization: Bearer`.
 
 | Método | Ruta | Descripción |
 |---|---|---|
@@ -127,6 +128,33 @@ Se entra con la clave del layout (`evento → clave_panel`, mínimo 8 caracteres
 | PUT | `/admin/events/{slug}/deadline` | `{ deadline: AAAA-MM-DD }` → `{ rsvp }`. Entre hoy y el día del evento; **máximo 3 cambios** (`409` después) |
 | GET | `/admin/events/{slug}/version` | `{ version }`: huella de los archivos del evento. El panel la consulta cada 5 s y recarga solo si cambió (en vivo sin base de datos) |
 | PUT | `/admin/events/{slug}/tables` | `{ assignments: [{ invitation, slot, table: 1…999 \| null }] }` → el panel actualizado. Todo o nada; `422` si el lugar está vacío o la persona no asistirá |
+
+Sin sesión válida: `401` "Tu sesión terminó. Escribe la clave de nuevo."
+
+## Gestor (`/api/manager`)
+
+La clave maestra sale de `GESTOR_CLAVE` (16 caracteres o más; sin ella, todo responde `403`). La sesión es un token cifrado con alcance `manager` (12 h) que se manda como `Authorization: Bearer`; un token del panel no sirve aquí. Todo lo de abajo, salvo la sesión, lleva `throttle:240,1` (el editor guarda solo mientras se escribe).
+
+Lo que viaja es el **diseño**: `{ event, colors, fonts, texts, page, sections: [{ id, fields, items }] }`, las filas de `invitacion.csv` agrupadas. La **versión** es la huella del archivo: `b-…` el borrador, `p-…` lo publicado, `a-…` un evento todavía en el formato anterior.
+
+| Método | Ruta | Cuerpo → respuesta |
+|---|---|---|
+| POST | `/manager/session` | `{ password }` → `{ token, expires_at }` · `422` clave incorrecta · `403` sin `GESTOR_CLAVE` · throttle 5/min por IP |
+| GET | `/manager/catalog` | `{ catalog }`: tipos de sección (campos, lista, adornos, bloques de texto, `hidden_without`), grupos de `evento`, colores, fuentes, efectos, límites |
+| GET | `/manager/events` | `{ events: [{ slug, title, type, celebrant, starts_at, published, template, format: design\|legacy, has_draft, pending, updated_at, cover: { theme, colors, font }, counts: { invitations, guests, attending } }] }` |
+| POST | `/manager/events` | `{ slug, source: blank\|event, from?, template?, event? }` → `201 { slug, panel_password }` (clave nueva; `null` en plantillas) · `409` ya existe · `422` slug inválido o reservado (`vista-previa`, `gestor`, `api`, `media`, `nuevo`). Copia el diseño y `media/` (sin `originales/`); nunca los CSV del sistema, `respaldos/` ni `borrador/`. Nace con `publicado=NO` |
+| GET | `/manager/events/{slug}/design` | `{ slug, design, version, source: draft\|live\|legacy, has_draft, pending, changes, config, issues, brand, settings, warnings, conversion: null\|{ identical, differences, errors } }`. Un evento en el formato anterior llega convertido (todavía sin escribir nada) |
+| PUT | `/manager/events/{slug}/draft` | `{ design, version }` → `{ version, has_draft, pending, changes, config, issues, brand }`. La `config` se arma en modo tolerante (con errores, igual responde). `409 { message, version, design }` si alguien guardó antes · `422` si el diseño pasa de los límites |
+| DELETE | `/manager/events/{slug}/draft` | Descarta el borrador → lo mismo que `GET design` |
+| POST | `/manager/events/{slug}/publish` | `{ version, replace_owner_deadline? }` → `{ published_at, migrated, version }` · `422 { issues }` si hay errores · `409` versión vieja. Respalda lo publicado, escribe atómico, borra el borrador y anota en `respaldos/publicaciones.csv`. Con `replace_owner_deadline`, quita la fecha que movió el cliente |
+| PUT | `/manager/events/{slug}/settings` | `{ panel_password?, published? }` → `{ settings }`. Aplica al instante; el historial anota "(cambiada)", nunca la clave |
+| GET | `/manager/events/{slug}/history` | `{ versions: [{ id, published_at, bytes }] }` (las últimas 50) |
+| POST | `/manager/events/{slug}/history/{id}/restore` | Esa versión pasa al borrador → lo mismo que `GET design` |
+| GET | `/manager/events/{slug}/media` | `{ files: [{ name, url, kind, bytes, width, height, modified, used_in }], total_bytes }` |
+| POST | `/manager/events/{slug}/media` | `multipart: file, purpose?: fondo\|foto\|adorno, trim?` → `201 { file }`. Imágenes jpg, png, webp o gif (≤ 15 MB, revisadas con `finfo`; nunca SVG ni HTML) → WebP con nombre único (`nombre-3f9a.webp`); audio mp3 o m4a (≤ 20 MB) |
+| DELETE | `/manager/events/{slug}/media/{file}` | `204` · `409 { used_in }` si la invitación (publicada o borrador) lo usa |
+| GET | `/manager/events/{slug}/export?format=csv\|xlsx\|zip` | El archivo (`invitacion-<slug>.<formato>`). El zip lleva `invitacion.csv` y `media/`. Nunca la clave |
+| POST | `/manager/events/{slug}/import` | `multipart: file` (csv, xlsx —también del formato anterior— o zip) → lo mismo que `GET design` + `import: { warnings, media }`. Queda en el borrador. Revisa zip-slip, tamaño (200 MB) y cantidad de archivos (300) |
 
 Sin sesión válida: `401` "Tu sesión terminó. Escribe la clave de nuevo."
 
