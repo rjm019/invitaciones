@@ -31,3 +31,10 @@ export function themeAssets(id: string): Record<string, string> {
       .map(([path, url]) => [path.slice(prefix.length), url]),
   )
 }
+
+/** Los temas que existen (para el editor del gestor): id de cada carpeta. */
+export function listThemes(): string[] {
+  return Object.keys(manifests)
+    .map((path) => path.slice(2, -'/manifest.ts'.length))
+    .sort()
+}

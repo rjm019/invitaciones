@@ -54,6 +54,8 @@ const rects = ref<{ hover: DOMRect | null; text: DOMRect | null; selected: DOMRe
 })
 let hoverEl: HTMLElement | null = null
 let textEl: HTMLElement | null = null
+/** Una sección recién agregada aún no está en la página: se busca cuando aparezca. */
+let pendingScroll: string | null = null
 
 const picking = computed(() => display.value.mode === 'select')
 const hoverLabel = computed(() =>
@@ -104,6 +106,7 @@ function onMessage(e: MessageEvent): void {
 
 function scrollToSelected(): void {
   const el = sectionEl(selected.value)
+  pendingScroll = el ? null : selected.value
   if (!el) return
   const tall = el.getBoundingClientRect().height > window.innerHeight * 0.8
   el.scrollIntoView({
@@ -191,6 +194,9 @@ function reportRendered(): void {
     if (joined !== lastRendered) {
       lastRendered = joined
       post({ type: 'rendered', keys })
+    }
+    if (pendingScroll && pendingScroll === selected.value && sectionEl(pendingScroll)) {
+      scrollToSelected()
     }
     const style = getComputedStyle(document.documentElement)
     post({

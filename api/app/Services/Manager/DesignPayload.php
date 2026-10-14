@@ -2,6 +2,7 @@
 
 namespace App\Services\Manager;
 
+use App\Services\Design\Design;
 use App\Services\Design\DesignStore;
 use App\Services\Design\InvitationConfigBuilder;
 use App\Services\Design\LegacyMigrator;
@@ -59,10 +60,45 @@ final class DesignPayload
             'version' => $this->store->version($slug),
             'has_draft' => $current['source'] === 'draft',
             'pending' => $current['source'] === 'legacy' || $this->store->pending($slug),
+            'changes' => $current['source'] === 'draft' ? $this->changes($this->store->published($slug)['design'], $design) : [],
             'config' => $result->config,
             'issues' => $result->issues,
             'brand' => $this->panel->brandFrom($slug, $result->config, fn (string $key) => $design->event($key)),
         ];
+    }
+
+    /**
+     * Qué cambió en el borrador contra lo publicado (para "Publicar").
+     *
+     * @return list<array{type: 'block'|'section'|'order', key: ?string, change: 'added'|'removed'|'changed'}>
+     */
+    public function changes(Design $published, Design $draft): array
+    {
+        $out = [];
+        foreach (['evento', 'colores', 'fuentes', 'textos', 'pagina'] as $block) {
+            if ($published->block($block) != $draft->block($block)) {
+                $out[] = ['type' => 'block', 'key' => $block, 'change' => 'changed'];
+            }
+        }
+        $before = array_map(fn ($s) => $s->id, $published->sections);
+        $after = array_map(fn ($s) => $s->id, $draft->sections);
+        foreach ($draft->sections as $section) {
+            $old = $published->section($section->id);
+            if ($old === null) {
+                $out[] = ['type' => 'section', 'key' => $section->id, 'change' => 'added'];
+            } elseif ($old->fields != $section->fields || $old->items != $section->items) {
+                $out[] = ['type' => 'section', 'key' => $section->id, 'change' => 'changed'];
+            }
+        }
+        foreach (array_diff($before, $after) as $id) {
+            $out[] = ['type' => 'section', 'key' => $id, 'change' => 'removed'];
+        }
+        $common = array_values(array_intersect($after, $before));
+        if ($common !== array_values(array_intersect($before, $after))) {
+            $out[] = ['type' => 'order', 'key' => null, 'change' => 'changed'];
+        }
+
+        return $out;
     }
 
     /**

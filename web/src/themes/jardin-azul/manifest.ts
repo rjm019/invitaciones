@@ -11,6 +11,7 @@ import type { ThemeManifest } from '../types'
  */
 const theme: ThemeManifest = {
   id: 'jardin-azul',
+  label: 'Jardín azul',
   fonts: {
     script: { family: 'Pinyon Script' },
     'script-mono': { family: 'Sacramento' },

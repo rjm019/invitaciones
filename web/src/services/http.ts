@@ -6,6 +6,8 @@ export class ApiError extends Error {
     message: string,
     public readonly status: number,
     public readonly errors: Record<string, string[]> | string[] = [],
+    /** El cuerpo de la respuesta (p. ej. el 409 del gestor trae la versión actual). */
+    public readonly data: unknown = null,
   ) {
     super(message)
     this.name = 'ApiError'
@@ -18,6 +20,7 @@ const SERVER_MESSAGE = [403, 409, 422]
 const MESSAGES: Record<number, string> = {
   401: 'Tu sesión terminó. Escribe la clave de nuevo.',
   404: 'No encontramos esta invitación.',
+  413: 'El archivo es demasiado grande para subirlo.',
   422: 'Revisa los datos e inténtalo de nuevo.',
   429: 'Demasiados intentos. Espera un minuto e inténtalo de nuevo.',
   503: 'La invitación no está disponible por ahora.',
@@ -41,6 +44,13 @@ http.interceptors.response.use(
           MESSAGES[status] ??
           error.response?.data?.message ??
           'Algo salió mal. Inténtalo de nuevo.')
-    return Promise.reject(new ApiError(message, status, error.response?.data?.errors ?? []))
+    return Promise.reject(
+      new ApiError(
+        message,
+        status,
+        error.response?.data?.errors ?? [],
+        error.response?.data ?? null,
+      ),
+    )
   },
 )
