@@ -86,14 +86,16 @@ onBeforeUnmount(() => clearTimeout(timer))
       <div class="hero__envelope">
         <img v-if="decor.envelope" :src="decor.envelope" alt="" class="hero__envelope-back" />
 
-        <div class="hero__card" :style="cardStyle" @animationend="onAnimationEnd">
-          <img v-if="decor.crown" :src="decor.crown" alt="" class="hero__crown" />
-          <p v-if="event.subtitle" class="hero__subtitle">{{ event.subtitle }}</p>
-          <h1 class="hero__name">{{ name }}</h1>
-          <p v-if="event.venue.name || event.venue.city" class="hero__venue">
-            <span v-if="event.venue.name">{{ event.venue.name }}</span>
-            <span v-if="event.venue.city">{{ event.venue.city }}</span>
-          </p>
+        <div class="hero__slot">
+          <div class="hero__card" :style="cardStyle" @animationend="onAnimationEnd">
+            <img v-if="decor.crown" :src="decor.crown" alt="" class="hero__crown" />
+            <p v-if="event.subtitle" class="hero__subtitle">{{ event.subtitle }}</p>
+            <h1 class="hero__name">{{ name }}</h1>
+            <p v-if="event.venue.name || event.venue.city" class="hero__venue">
+              <span v-if="event.venue.name">{{ event.venue.name }}</span>
+              <span v-if="event.venue.city">{{ event.venue.city }}</span>
+            </p>
+          </div>
         </div>
 
         <!-- La bolsa del sobre, recortada, va enfrente de la tarjeta: así parece guardada adentro. -->
@@ -166,11 +168,22 @@ onBeforeUnmount(() => clearTimeout(timer))
   z-index: 3;
   pointer-events: none;
 }
-/* Recorta abajo (la tarjeta guardada no debe asomar bajo el sobre), nunca arriba. */
 .hero__envelope {
   position: absolute;
   inset: 0;
-  clip-path: inset(-60% -20% 0 -20%);
+  isolation: isolate; /* sus capas (tarjeta, bolsa, lacre) no se mezclan con las de la sección */
+}
+/*
+ * La tarjeta guardada no debe asomar bajo el sobre: se recorta abajo (nunca arriba, por
+ * donde sale) un poco antes de la orilla. La orilla del papel es semitransparente y el
+ * navegador puede pintar algún píxel de más; esa franja queda tapada por la bolsa, así que
+ * el corte no se ve. El sobre no se recorta: conserva su orilla suave.
+ */
+.hero__slot {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  clip-path: inset(-60% -20% 3% -20%);
 }
 .hero__envelope-back,
 .hero__pocket {
@@ -328,7 +341,10 @@ onBeforeUnmount(() => clearTimeout(timer))
   }
 }
 
-/* Sin sobre en el tema: solo la tarjeta. */
+/* Sin sobre en el tema: solo la tarjeta, sin recorte. */
+.hero--no-envelope .hero__slot {
+  clip-path: none;
+}
 .hero--no-envelope .hero__card {
   inset: 0;
   width: 100%;

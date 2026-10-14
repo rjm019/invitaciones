@@ -266,6 +266,18 @@ Pedidos sobre capturas del celular:
 - Excel: antes de escribir se respaldó en `respaldos/`, y se comparó celda por celda con el original. Solo cambió lo de arriba; la clave del panel quedó como la dejaste.
 - Pruebas: API 78 y web 175 en verde; lint, type-check y build limpios.
 
+### Panel más discreto, imagen para WhatsApp más limpia y sobre sin texto asomado (13-oct, noche)
+
+- **Resumen del panel:** ya no son 5 tarjetas grandes (en el celular ocupaban casi toda la primera pantalla). Ahora es una franja delgada: número arriba y etiqueta chica abajo, separados por líneas finas. En el celular cabe en un renglón (~50 px de alto).
+- **Imagen y PDF para WhatsApp, más sutiles:**
+  - "MIS XV AÑOS" y "NAT" en letra fina: Cormorant Garamond (rol de fuente nuevo `engraved`; se probaron Marcellus, Cinzel, Italiana y Forum sobre el fondo real). Dorado más suave y estrellas con líneas más finas.
+  - Abajo, menos ruido: solo la estrella, la fecha en dorado y el QR. Se quitaron "Celebremos juntos" y "esta etapa tan especial" (en el Excel, `tarjeta_frase` y `tarjeta_texto` quedaron vacías; si se llenan, vuelven a salir).
+  - **QR integrado:** puntos redondos y esquinas redondeadas en el azul de la invitación (`acento_fuerte`), sobre un halo blanco que se desvanece en el mármol, sin recuadro blanco. Lo dibuja `drawQr` con los módulos de la librería `qrcode`, con corrección "Q" (aguanta 25 % de daño).
+  - Comprobado con `zbarimg`: el QR da exactamente el enlace de la invitación en la imagen y en el PDF, incluso con el PDF a 36 ppp (más chico que una miniatura en el celular).
+- **Sobre de la portada:** bajo la orilla del sobre cerrado se asomaba una línea con la parte de arriba de las letras del salón (la tarjeta guardada). La orilla del papel es semitransparente y el recorte quedaba justo en el borde. Ahora la tarjeta tiene su propio recorte, un poco arriba de la orilla (`.hero__slot`, detrás de la bolsa, así que no se ve), y el sobre ya no se recorta: conserva su orilla suave. Al abrir, la tarjeta sale completa.
+- **Fly:** se queda como está, la máquina se suspende y despierta sola (pregunta 23).
+- Pruebas web: 177 en verde; lint y build limpios.
+
 ### Invitación personal y confirmación
 
 - Cada enlace (`/i/<token>`) muestra la misma invitación. Lo que cambia es el formulario: **un campo de nombre por invitado**, con "Asistiré / Lo siento, no asistiré".

@@ -13,6 +13,7 @@ import {
   type CardContext,
   type CardImage,
   type CardStyle,
+  type QrMatrix,
 } from '@/services/shareCardService'
 import { themeAssets } from '@/themes'
 import type { ThemeFont, ThemeManifest } from '@/themes/types'
@@ -69,16 +70,19 @@ export function useShareCard() {
       primarySoft: cssVar('--color-primary-soft', '#e2c77a'),
       accent: cssVar('--color-accent-strong', '#3d6a92'),
       script: fonts.script?.family ?? 'cursive',
-      scriptMono: fonts['script-mono']?.family ?? fonts.script?.family ?? 'cursive',
-      caps: fonts.caps?.family ?? 'serif',
       serif: fonts.serif?.family ?? 'Georgia',
+      engraved: fonts.engraved?.family ?? fonts.caps?.family ?? 'Georgia',
     }
 
     // Sin las fuentes cargadas, el lienzo usaría la letra del sistema.
     const fontsReady = Promise.all(
-      [style.script, style.scriptMono, style.caps, style.serif].map((f) =>
-        document.fonts.load(`40px "${f}"`).catch(() => []),
-      ),
+      [
+        `40px "${style.script}"`,
+        `40px "${style.serif}"`,
+        `italic 40px "${style.serif}"`,
+        `400 40px "${style.engraved}"`,
+        `500 40px "${style.engraved}"`,
+      ].map((font) => document.fonts.load(font).catch(() => [])),
     )
     // El fondo propio del evento (con el sobre); si no hay, el papel del tema y su lacre.
     const own = resolve(brand.card?.background)
@@ -89,13 +93,9 @@ export function useShareCard() {
     ])
     await fontsReady
 
-    const qrCanvas = document.createElement('canvas')
-    await QRCode.toCanvas(qrCanvas, invitation.url, {
-      width: 420,
-      margin: 0,
-      errorCorrectionLevel: 'M',
-      color: { dark: style.text, light: '#ffffff' },
-    })
+    // Corrección "Q" (aguanta 25 % de daño): se lee aunque la pantalla brille o esté rayada.
+    const { modules } = QRCode.create(invitation.url, { errorCorrectionLevel: 'Q' })
+    const qr: QrMatrix = { size: modules.size, data: modules.data }
 
     const canvas = document.createElement('canvas')
     canvas.width = CARD_WIDTH
@@ -104,7 +104,7 @@ export function useShareCard() {
     if (!ctx) throw new Error('Este navegador no puede crear la imagen.')
     drawShareCard(
       ctx as unknown as CardContext,
-      { background, paper, seal, qr: { image: qrCanvas, width: 420, height: 420 } },
+      { background, paper, seal, qr },
       shareCardText(brand, invitation),
       style,
     )
