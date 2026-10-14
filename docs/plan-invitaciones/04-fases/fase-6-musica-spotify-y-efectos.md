@@ -8,7 +8,7 @@
 
 ## Música
 
-- [ ] Recodificar el audio. *Pendiente: falta el MP3 del evento. Hoy hay un tono de prueba en la copia `natasha-prueba`.* Este comando recorta a 3 min con fade de entrada y salida, y queda en ≈2.8 MB; con `-b:a 96k` baja a ≈2 MB:
+- [ ] Recodificar el audio. *Pendiente: falta el MP3 del evento. Hoy hay un tono de prueba en la copia `nat-prueba`.* Este comando recorta a 3 min con fade de entrada y salida, y queda en ≈2.8 MB; con `-b:a 96k` baja a ≈2 MB:
   ```bash
   ffmpeg -i original.mp3 -ac 2 -b:a 128k -t 180 -af "afade=t=in:d=2,afade=t=out:st=176:d=4" cancion.mp3
   ```

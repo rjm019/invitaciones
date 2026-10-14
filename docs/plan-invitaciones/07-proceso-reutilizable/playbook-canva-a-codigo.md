@@ -87,5 +87,5 @@ flowchart TD
   - El reproductor de música, el calendario y los botones suelen ser imágenes. En código se reconstruyen como componentes funcionales.
   - Algunos elementos se sirven como `blob:` (formas o SVG renderizados), así que no hay URL para descargarlos. Se exportan desde el editor o se recrean en SVG/CSS.
 - **Embeds externos:**
-  - Los countdowns embebidos pueden quedar mal configurados (en NATASHA apuntaba a otra fecha). En código se calculan desde la fecha del evento.
+  - Los countdowns embebidos pueden quedar mal configurados (en NAT apuntaba a otra fecha). En código se calculan desde la fecha del evento.
   - Las playlists de Spotify no cargan en la app Embed de Canva (las canciones sueltas sí). En código, el iframe directo de Spotify funciona sin problema.

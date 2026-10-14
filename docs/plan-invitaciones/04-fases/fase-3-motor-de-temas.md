@@ -28,7 +28,7 @@
   8. [x] `Itinerary` (zigzag + línea)
   9. [x] `DressCode`
   10. [x] `Countdown`
-  11. [ ] `Hotels`. *No está en NATASHA; queda para `boda-salvia`.*
+  11. [x] `Hotels` (sección `hospedaje`, pestaña `hoteles`). *Hecho el 13-oct para Nat: tarjetas con nota, dirección, Maps y Llamar, y efectos.*
   12. [x] `SpotifyEmbed`. *Va dentro de `MusicPlayer` cuando el evento tiene `spotify`.*
   13. [x] ~~`RsvpCard` + `RsvpForm` (modal o bottom sheet).~~ **Cambió:** `RsvpSection` + `RsvpGuestForm` en línea, con un campo por invitado (a pedido tuyo).
   14. [x] `Closing`
@@ -36,7 +36,7 @@
 - [x] ~~Directiva `v-reveal` registrada globalmente.~~ **Cambió:** la aplica `SectionShell` como efecto `aparecer`, por sección, desde el Excel.
 - [x] `sectionRegistry` + props por sección, en `InvitationRenderer`.
 - [x] Carga de fuentes por tema y por evento (pestaña `tipografia`): `themeService` inyecta un solo `<link>` de Google Fonts.
-- [ ] **Tema `boda-salvia`:** pospuesto (la prioridad es NATASHA).
+- [ ] **Tema `boda-salvia`:** pospuesto (la prioridad es NAT).
   - Portar colores, fuentes y decoraciones de `web/src/legacy/BodaLegacy.vue`.
   - Crear un evento de ejemplo con datos ficticios.
   - Validar que se vea equivalente a la boda original.

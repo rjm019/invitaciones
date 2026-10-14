@@ -79,7 +79,8 @@ const classes = computed(() => [
   align-content: center;
   padding: var(--section-padding-block, var(--space-4))
     var(--section-padding-inline, var(--space-2));
-  background-color: var(--section-bg-color, transparent);
+  /* background (no background-color): el color de un panel también puede ser un degradado */
+  background: var(--section-bg-color, transparent);
 }
 /* Sin panel (portada): su contenido es lo que se ve; el espacio lo pone la página. */
 .section:not(.section--panel) {

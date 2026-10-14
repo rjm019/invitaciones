@@ -1,18 +1,31 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useClipboard } from '@/composables/useClipboard'
 import { filterInvitations, invitationProgress, parseTable } from '@/services/panelService'
 import type { PanelInvitation, TableAssignment } from '@/types/panel'
 
 /**
- * Lista completa de enlaces generados: para cuántos invitados es cada uno, quiénes ya
- * están y su mesa. "Mesa para todos" sienta de una vez a los que asisten de esa invitación.
+ * Invitaciones generadas: se despliega al tocar el título (cerrada al entrar, para que el
+ * panel se vea limpio). De cada una: para cuántos invitados es, quiénes ya respondieron, su
+ * mesa y "Enviar" (la imagen para WhatsApp). El enlace no se muestra: solo "copiar link" o
+ * "ver link", discretos.
  */
 const props = defineProps<{
   invitations: PanelInvitation[]
   highlight: string | null
   assign: (assignments: TableAssignment[]) => Promise<void>
 }>()
+const emit = defineEmits<{ send: [invitation: PanelInvitation] }>()
+
+const open = ref(false)
+const revealed = ref<string | null>(null)
+// Al generar una nueva, la lista se abre para que se vea.
+watch(
+  () => props.highlight,
+  (id) => {
+    if (id) open.value = true
+  },
+)
 
 const tableDraft = ref<Record<string, string>>({})
 const tableError = ref<Record<string, string>>({})
@@ -50,11 +63,22 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 </script>
 
 <template>
-  <section class="p-card list" aria-labelledby="list-title">
-    <div class="list__head">
-      <h2 id="list-title" class="p-card__title">
-        Invitaciones generadas ({{ invitations.length }})
-      </h2>
+  <section class="p-card list" :class="{ 'is-open': open }">
+    <h2 class="list__heading">
+      <button
+        type="button"
+        class="list__toggle"
+        :aria-expanded="open"
+        aria-controls="list-body"
+        @click="open = !open"
+      >
+        <span>Invitaciones generadas</span>
+        <span class="list__count">{{ invitations.length }}</span>
+        <span class="list__chevron" aria-hidden="true" />
+      </button>
+    </h2>
+
+    <div v-show="open" id="list-body" class="list__body">
       <input
         v-if="invitations.length > 3"
         v-model="query"
@@ -63,127 +87,172 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
         placeholder="Buscar por nombre o #número"
         aria-label="Buscar invitación"
       />
-    </div>
 
-    <p v-if="!invitations.length" class="p-hint">
-      Todavía no hay enlaces. Genera el primero arriba.
-    </p>
-    <p v-else-if="!shown.length" class="p-hint">Ninguna invitación coincide con «{{ query }}».</p>
+      <p v-if="!invitations.length" class="p-hint">
+        Todavía no hay invitaciones. Genera la primera arriba.
+      </p>
+      <p v-else-if="!shown.length" class="p-hint">Ninguna invitación coincide con «{{ query }}».</p>
 
-    <ol class="list__items">
-      <li
-        v-for="inv in shown"
-        :key="inv.id"
-        class="item"
-        :class="{ 'is-new': inv.id === highlight }"
-      >
-        <div class="item__head">
-          <span class="item__id">#{{ inv.id }}</span>
-          <strong class="item__label">{{ inv.label ?? 'Sin nombre' }}</strong>
-          <span class="item__passes">{{ plural(inv.passes, 'invitado', 'invitados') }}</span>
-        </div>
-
-        <div
-          class="item__progress"
-          :aria-label="`${invitationProgress(inv).filled} de ${inv.passes} lugares con nombre`"
+      <ol class="list__items">
+        <li
+          v-for="inv in shown"
+          :key="inv.id"
+          class="item"
+          :class="{ 'is-new': inv.id === highlight }"
         >
-          <span
-            v-for="n in inv.passes"
-            :key="n"
-            class="item__seat"
-            :class="{
-              'is-yes': inv.guests.find((g) => g.slot === n)?.attending === true,
-              'is-no': inv.guests.find((g) => g.slot === n)?.attending === false,
-            }"
-          />
-          <span class="item__count">{{ invitationProgress(inv).filled }} de {{ inv.passes }}</span>
-        </div>
-
-        <ul v-if="inv.guests.length" class="item__guests">
-          <li v-for="g in inv.guests" :key="g.slot">
-            {{ g.full_name }}
-            <span class="p-chip" :class="g.attending ? 'p-chip--ok' : 'p-chip--no'">{{
-              g.attending ? 'Asistirá' : 'No asistirá'
-            }}</span>
-            <span v-if="g.table" class="item__table">Mesa {{ g.table }}</span>
-          </li>
-        </ul>
-
-        <form
-          v-if="invitationProgress(inv).attending"
-          class="item__seat-all"
-          @submit.prevent="seatAll(inv)"
-        >
-          <label :for="`seat-${inv.id}`">Mesa para todos</label>
-          <input
-            :id="`seat-${inv.id}`"
-            v-model="tableDraft[inv.id]"
-            type="text"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            maxlength="3"
-            placeholder="Núm."
-            :aria-invalid="!!tableError[inv.id]"
-          />
-          <button
-            type="submit"
-            class="p-button p-button--small p-button--ghost"
-            :disabled="tableSaving === inv.id"
-          >
-            {{ tableSaving === inv.id ? 'Guardando…' : 'Asignar' }}
-          </button>
-          <p v-if="tableError[inv.id]" class="p-error item__seat-error">{{ tableError[inv.id] }}</p>
-        </form>
-
-        <div class="item__link">
-          <input
-            :value="inv.url"
-            readonly
-            :aria-label="`Enlace de la invitación ${inv.id}`"
-            @focus="($event.target as HTMLInputElement).select()"
-          />
-          <div class="p-actions">
-            <button type="button" class="p-button p-button--small" @click="copy(inv.url, inv.id)">
-              {{ copied === inv.id ? '¡Copiado!' : 'Copiar' }}
-            </button>
-            <a
-              class="p-button p-button--small p-button--ghost"
-              :href="inv.whatsapp_url"
-              target="_blank"
-              rel="noopener"
-              >WhatsApp</a
-            >
-            <a
-              class="p-button p-button--small p-button--ghost"
-              :href="inv.url"
-              target="_blank"
-              rel="noopener"
-              >Ver</a
-            >
+          <div class="item__head">
+            <span class="item__id">#{{ inv.id }}</span>
+            <strong class="item__label">{{ inv.label ?? 'Sin nombre' }}</strong>
+            <span class="item__passes">{{ plural(inv.passes, 'invitado', 'invitados') }}</span>
           </div>
-        </div>
-        <p class="item__meta">
-          {{ inv.opens ? `Abierta ${plural(inv.opens, 'vez', 'veces')}` : 'Aún no se abre' }}
-        </p>
-      </li>
-    </ol>
+
+          <div
+            class="item__progress"
+            :aria-label="`${invitationProgress(inv).filled} de ${inv.passes} invitados con nombre`"
+          >
+            <span
+              v-for="n in inv.passes"
+              :key="n"
+              class="item__seat"
+              :class="{
+                'is-yes': inv.guests.find((g) => g.slot === n)?.attending === true,
+                'is-no': inv.guests.find((g) => g.slot === n)?.attending === false,
+              }"
+            />
+            <span class="item__count"
+              >{{ invitationProgress(inv).filled }} de {{ inv.passes }}</span
+            >
+            <span class="item__meta">
+              · {{ inv.opens ? `abierta ${plural(inv.opens, 'vez', 'veces')}` : 'aún no se abre' }}
+            </span>
+          </div>
+
+          <ul v-if="inv.guests.length" class="item__guests">
+            <li v-for="g in inv.guests" :key="g.slot">
+              {{ g.full_name }}
+              <span class="p-chip" :class="g.attending ? 'p-chip--ok' : 'p-chip--no'">{{
+                g.attending ? 'Asistirá' : 'No asistirá'
+              }}</span>
+              <span v-if="g.table" class="item__table">Mesa {{ g.table }}</span>
+            </li>
+          </ul>
+
+          <form
+            v-if="invitationProgress(inv).attending"
+            class="item__seat-all"
+            @submit.prevent="seatAll(inv)"
+          >
+            <label :for="`seat-${inv.id}`">Mesa para todos</label>
+            <input
+              :id="`seat-${inv.id}`"
+              v-model="tableDraft[inv.id]"
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="3"
+              placeholder="Núm."
+              :aria-invalid="!!tableError[inv.id]"
+            />
+            <button
+              type="submit"
+              class="p-button p-button--small p-button--ghost"
+              :disabled="tableSaving === inv.id"
+            >
+              {{ tableSaving === inv.id ? 'Guardando…' : 'Asignar' }}
+            </button>
+            <p v-if="tableError[inv.id]" class="p-error item__seat-error">
+              {{ tableError[inv.id] }}
+            </p>
+          </form>
+
+          <div class="item__actions">
+            <button type="button" class="p-button p-button--small" @click="emit('send', inv)">
+              Enviar
+            </button>
+            <button type="button" class="p-link" @click="copy(inv.url, inv.id)">
+              {{ copied === inv.id ? '¡Copiado!' : 'copiar link' }}
+            </button>
+            <button
+              type="button"
+              class="p-link"
+              :aria-expanded="revealed === inv.id"
+              @click="revealed = revealed === inv.id ? null : inv.id"
+            >
+              {{ revealed === inv.id ? 'ocultar link' : 'ver link' }}
+            </button>
+          </div>
+          <a
+            v-if="revealed === inv.id"
+            class="item__url"
+            :href="inv.url"
+            target="_blank"
+            rel="noopener"
+            >{{ inv.url }}</a
+          >
+        </li>
+      </ol>
+    </div>
   </section>
 </template>
 
 <style scoped>
-.list__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
-  margin-bottom: 0.6rem;
-}
-.list__head .p-card__title {
+.list__heading {
   margin: 0;
 }
+.list__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 2.9rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--p-text);
+  font-family: var(--p-font-title);
+  font-size: 1.15rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.list__count {
+  min-width: 1.9rem;
+  padding: 0.05rem 0.55rem;
+  border-radius: 999px;
+  background: var(--p-soft);
+  color: var(--p-accent);
+  font-family: var(--p-font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-align: center;
+}
+/* Flecha que gira al abrir. */
+.list__chevron {
+  width: 0.65rem;
+  height: 0.65rem;
+  margin-left: auto;
+  border-right: 2px solid var(--p-accent);
+  border-bottom: 2px solid var(--p-accent);
+  transform: translateY(-25%) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+.list.is-open .list__chevron {
+  transform: translateY(25%) rotate(225deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .list__chevron {
+    transition: none;
+  }
+}
+.list__body {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
 .list__search {
-  flex: 1 1 14rem;
   max-width: 22rem;
 }
 .list__items {
@@ -195,14 +264,15 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 }
 .item {
   display: grid;
-  gap: 0.6rem;
-  padding: 1rem;
+  gap: 0.55rem;
+  padding: 1rem 1.1rem;
   border: 1px solid var(--p-line);
-  border-radius: 10px;
+  border-radius: 14px;
+  background: var(--p-card);
 }
 .item.is-new {
-  border-color: var(--p-ok);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--p-ok) 25%, transparent);
+  border-color: var(--p-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-accent) 18%, transparent);
 }
 .item__head {
   display: flex;
@@ -216,11 +286,14 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 }
 .item__label {
   flex: 1;
+  font-size: 1.1rem;
 }
 .item__passes {
-  padding: 0.1rem 0.6rem;
+  padding: 0.1rem 0.7rem;
   border-radius: 999px;
-  background: var(--p-bg);
+  background: var(--p-soft);
+  color: var(--p-accent);
+  font-size: 0.92rem;
   font-weight: 600;
 }
 .item__progress {
@@ -230,8 +303,8 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
   gap: 0.3rem;
 }
 .item__seat {
-  width: 0.9rem;
-  height: 0.9rem;
+  width: 0.85rem;
+  height: 0.85rem;
   border: 2px solid var(--p-line);
   border-radius: 50%;
 }
@@ -243,10 +316,13 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
   border-color: var(--p-no);
   background: var(--p-no);
 }
+.item__count,
+.item__meta {
+  color: var(--p-muted);
+  font-size: 0.92rem;
+}
 .item__count {
   margin-left: 0.3rem;
-  color: var(--p-muted);
-  font-size: 0.9rem;
 }
 .item__guests {
   display: grid;
@@ -264,7 +340,7 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 .item__table {
   padding: 0.05rem 0.5rem;
   border-radius: 6px;
-  background: var(--p-bg);
+  background: var(--p-soft);
   font-size: 0.8rem;
   font-weight: 600;
 }
@@ -274,7 +350,7 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
   align-items: center;
   gap: 0.4rem 0.6rem;
   justify-content: start;
-  font-size: 0.92rem;
+  font-size: 0.95rem;
 }
 .item__seat-all input {
   min-height: 2.6rem;
@@ -285,16 +361,15 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
   grid-column: 1 / -1;
   font-size: 0.9rem;
 }
-.item__link {
-  display: grid;
-  gap: 0.5rem;
+.item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1.1rem;
+  margin-top: 0.2rem;
 }
-.item__link input {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.9rem;
-}
-.item__meta {
-  margin: 0;
+.item__url {
+  overflow-wrap: anywhere;
   color: var(--p-muted);
   font-size: 0.85rem;
 }

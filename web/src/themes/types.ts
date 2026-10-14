@@ -18,6 +18,11 @@ export interface ThemeSectionDefaults {
   sprites?: Record<string, DecorSprite>
   /** false = sin panel: la sección va directo sobre el papel (la portada). */
   panel?: boolean
+  /**
+   * Color propio del panel (un token, p. ej. "panel-pearl"). La sección toma su turno en
+   * la rotación de `panels`, así los fondos de las demás no se recorren.
+   */
+  panelColor?: string
 }
 
 /** Decoración que flota en las orillas de la página (mariposas, corazones…). */

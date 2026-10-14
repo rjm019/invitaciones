@@ -1,20 +1,26 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import DeadlineCard from '@/components/panel/DeadlineCard.vue'
 import DedicationList from '@/components/panel/DedicationList.vue'
 import GuestList from '@/components/panel/GuestList.vue'
 import InvitationCreator from '@/components/panel/InvitationCreator.vue'
 import InvitationList from '@/components/panel/InvitationList.vue'
 import PanelLogin from '@/components/panel/PanelLogin.vue'
+import ShareDialog from '@/components/panel/ShareDialog.vue'
 import { usePanel } from '@/composables/usePanel'
+import { usePanelTheme } from '@/composables/usePanelTheme'
 import { usePolling } from '@/composables/usePolling'
 import { deadlineBounds } from '@/services/panelService'
 import type { PanelInvitation } from '@/types/panel'
 
-/** /panel/:slug — panel del dueño del evento: entra con la clave del layout. */
+/**
+ * /panel/:slug — panel del dueño del evento: entra con la clave del layout. Se ve con los
+ * colores y las letras de su invitación (el azul es lo principal) y su título ("XV de Nat").
+ */
 const props = defineProps<{ slug: string }>()
 const panel = usePanel(props.slug)
-const { token, overview, loading, error, live } = panel
+const { token, overview, brand, loading, error, live } = panel
+const { theme, fonts } = usePanelTheme(brand)
 
 // En vivo: cada 5 s pregunta si hay algo nuevo (alguien abrió o confirmó) y solo entonces recarga.
 usePolling(
@@ -25,28 +31,37 @@ usePolling(
 
 const tab = ref<'invitations' | 'guests' | 'dedications'>('invitations')
 const highlight = ref<string | null>(null)
+const sending = ref<PanelInvitation | null>(null)
 const bounds = computed(() =>
   overview.value ? deadlineBounds(overview.value) : { min: '', max: null },
 )
-const title = computed(() => overview.value?.event.title || props.slug)
+const title = computed(() => brand.value?.title || overview.value?.event.title || props.slug)
 
 function onCreated(invitation: PanelInvitation) {
   highlight.value = invitation.id
 }
 
+watch(
+  title,
+  (t) => {
+    document.title = `${t} · Panel`
+  },
+  { immediate: true },
+)
+
 onMounted(() => {
-  document.title = 'Panel de invitaciones'
+  void panel.loadBrand()
   if (token.value) void panel.refresh()
 })
 </script>
 
 <template>
   <div class="panel">
-    <PanelLogin v-if="!token" :title="slug" :notice="error" :login="panel.login" />
+    <PanelLogin v-if="!token" :title="title" :notice="error" :login="panel.login" />
 
     <template v-else>
       <header class="panel__header">
-        <div>
+        <div class="panel__brand">
           <p class="panel__kicker">Panel de invitaciones</p>
           <h1 class="panel__title">{{ title }}</h1>
         </div>
@@ -64,8 +79,8 @@ onMounted(() => {
         </div>
       </header>
 
-      <p v-if="loading && !overview" class="p-hint">Cargando…</p>
-      <p v-if="error" class="p-error" role="alert">{{ error }}</p>
+      <p v-if="loading && !overview" class="p-hint panel__center">Cargando…</p>
+      <p v-if="error" class="p-error panel__center" role="alert">{{ error }}</p>
 
       <template v-if="overview">
         <p v-if="!overview.event.published" class="panel__draft">
@@ -78,7 +93,7 @@ onMounted(() => {
             <dd>{{ overview.summary.invitations }}</dd>
           </div>
           <div>
-            <dt>Lugares</dt>
+            <dt>Invitados</dt>
             <dd>{{ overview.summary.seats }}</dd>
           </div>
           <div class="is-ok">
@@ -90,7 +105,7 @@ onMounted(() => {
             <dd>{{ overview.summary.declined }}</dd>
           </div>
           <div>
-            <dt>Sin llenar</dt>
+            <dt>Pendientes</dt>
             <dd>{{ overview.summary.empty }}</dd>
           </div>
         </dl>
@@ -142,6 +157,7 @@ onMounted(() => {
               :max-passes="overview.max_passes"
               :create="panel.create"
               @created="onCreated"
+              @send="sending = $event"
             />
             <DeadlineCard :rsvp="overview.rsvp" :bounds="bounds" :change="panel.changeDeadline" />
           </div>
@@ -149,6 +165,7 @@ onMounted(() => {
             :invitations="overview.invitations"
             :highlight="highlight"
             :assign="panel.assignTables"
+            @send="sending = $event"
           />
         </div>
 
@@ -169,33 +186,47 @@ onMounted(() => {
         >
           <DedicationList :dedications="overview.dedications" :timezone="overview.event.timezone" />
         </div>
+
+        <ShareDialog
+          v-if="sending && brand && theme && fonts"
+          :key="sending.id"
+          :invitation="sending"
+          :brand="brand"
+          :theme="theme"
+          :fonts="fonts"
+          @close="sending = null"
+        />
       </template>
     </template>
   </div>
 </template>
 
 <style>
-/* Estilos del panel (no usan el tema de la invitación). Sin scoped: los comparten sus componentes. */
+/*
+ * Estilos del panel, con los colores y las letras de la invitación (tokens del tema; si
+ * no cargan, los valores de respaldo). El azul es lo principal; el oro, el adorno. Sin
+ * scoped: los comparten sus componentes.
+ */
 .panel {
-  --p-bg: #f6f4ef;
+  --p-accent: var(--color-accent-strong, #3d6a92);
+  --p-soft: color-mix(in srgb, var(--color-accent-soft, #c9dbe8) 55%, white);
+  --p-gold: var(--color-primary, #96792c);
+  --p-bg: var(--color-panel-alt, #eef3f8);
   --p-card: #ffffff;
-  --p-text: #2d2a26;
-  --p-muted: #6b655c;
-  --p-line: #e2ddd2;
-  --p-accent: #7a5c1e;
+  --p-text: var(--color-text, #2d2a26);
+  --p-muted: color-mix(in srgb, var(--color-text, #2d2a26) 62%, white);
+  --p-line: color-mix(in srgb, var(--color-frame, #abc1d9) 45%, white);
   --p-ok: #2f7d4f;
   --p-no: #a2483a;
+  --p-font-title: var(--font-caps, Georgia, serif);
+  --p-font-script: var(--font-script, cursive);
+  --p-font-body: var(--font-serif, Georgia, serif);
   min-height: 100vh;
   padding: 1rem 1rem 3rem;
-  background: var(--p-bg);
+  background: radial-gradient(120% 60% at 50% 0%, #ffffff 0%, transparent 70%), var(--p-bg);
   color: var(--p-text);
-  font-family:
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
-  font-size: 1rem;
+  font-family: var(--p-font-body);
+  font-size: 1.08rem;
   line-height: 1.45;
 }
 .panel input[type='text'],
@@ -206,9 +237,9 @@ onMounted(() => {
 .panel input:not([type]) {
   width: 100%;
   min-height: 2.9rem;
-  padding: 0.55rem 0.75rem;
+  padding: 0.55rem 0.8rem;
   border: 1px solid var(--p-line);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--p-card);
   color: var(--p-text);
   font: inherit;
@@ -228,14 +259,16 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   min-height: 2.9rem;
-  padding: 0.5rem 1.1rem;
+  padding: 0.5rem 1.3rem;
   border: 1px solid var(--p-accent);
-  border-radius: 8px;
+  border-radius: 999px;
   background: var(--p-accent);
   color: #fff;
   font: inherit;
   font-weight: 600;
+  letter-spacing: 0.02em;
   text-decoration: none;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--p-accent) 28%, transparent);
   cursor: pointer;
 }
 .p-button:disabled {
@@ -243,42 +276,71 @@ onMounted(() => {
   cursor: progress;
 }
 .p-button--small {
-  min-height: 2.6rem;
-  padding: 0.35rem 0.9rem;
-  font-size: 0.95rem;
+  min-height: 2.5rem;
+  padding: 0.3rem 1.1rem;
+  font-size: 0.98rem;
 }
 .p-button--ghost {
   background: transparent;
   color: var(--p-accent);
+  box-shadow: none;
+}
+/* Acción discreta: solo la frase ("copiar link", "ver link"). */
+.p-link {
+  min-height: 2.2rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--p-muted);
+  font: inherit;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--p-muted) 45%, transparent);
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+.p-link:hover {
+  color: var(--p-accent);
+}
+.p-link:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 .p-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+/* Tarjeta como los paneles de la invitación: blanca, esquinas suaves y filo dorado. */
 .p-card {
-  padding: 1.2rem;
+  position: relative;
+  padding: 1.3rem;
   border: 1px solid var(--p-line);
-  border-radius: 14px;
+  border-radius: 18px;
   background: var(--p-card);
+  box-shadow: 0 6px 20px rgb(30 60 90 / 0.07);
 }
 .p-card__title {
-  margin: 0 0 0.8rem;
+  margin: 0 0 0.9rem;
+  font-family: var(--p-font-title);
   font-size: 1.15rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 .p-hint {
   margin: 0;
   color: var(--p-muted);
-  font-size: 0.92rem;
+  font-size: 0.95rem;
 }
 .p-error {
   margin: 0;
   color: var(--p-no);
 }
 .p-chip {
-  padding: 0.05rem 0.5rem;
+  padding: 0.05rem 0.55rem;
   border-radius: 999px;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
 }
 .p-chip--ok {
@@ -290,13 +352,35 @@ onMounted(() => {
   color: var(--p-no);
 }
 
-.panel__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
+.panel__center {
   max-width: 70rem;
   margin: 0 auto 1rem;
+}
+.panel__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  max-width: 70rem;
+  margin: 0 auto 1.2rem;
+}
+.panel__kicker {
+  margin: 0;
+  color: var(--p-accent);
+  font-family: var(--p-font-title);
+  font-size: 0.85rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+/* "XV de Nat", grande y en la letra de pluma de la invitación. */
+.panel__title {
+  margin: 0;
+  color: var(--p-gold);
+  font-family: var(--p-font-script);
+  font-size: clamp(3rem, 12vw, 4.2rem);
+  font-weight: 400;
+  line-height: 1.1;
 }
 .panel__session {
   display: flex;
@@ -308,7 +392,7 @@ onMounted(() => {
   align-items: center;
   gap: 0.35rem;
   color: var(--p-muted);
-  font-size: 0.85rem;
+  font-size: 0.88rem;
 }
 .panel__live::before {
   content: '';
@@ -339,9 +423,11 @@ onMounted(() => {
   gap: 0.3rem;
   max-width: 70rem;
   margin: 0 auto 1rem;
+  overflow-x: auto;
   border-bottom: 1px solid var(--p-line);
 }
 .panel__tab {
+  flex: none;
   min-height: 2.9rem;
   padding: 0.4rem 1rem;
   border: 0;
@@ -354,51 +440,48 @@ onMounted(() => {
 }
 .panel__tab[aria-selected='true'] {
   border-bottom-color: var(--p-accent);
-  color: var(--p-text);
+  color: var(--p-accent);
 }
 .panel .guests {
   max-width: 70rem;
   margin: 0 auto;
 }
-.panel__kicker {
-  margin: 0;
-  color: var(--p-muted);
-  font-size: 0.9rem;
-}
-.panel__title {
-  margin: 0;
-  font-size: 1.5rem;
-}
 .panel__draft {
   max-width: 70rem;
   margin: 0 auto 1rem;
   padding: 0.7rem 0.9rem;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #fff4e5;
   color: #7a4b00;
 }
 .panel__summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
-  gap: 0.6rem;
+  gap: 0.7rem;
   max-width: 70rem;
-  margin: 0 auto 1rem;
+  margin: 0 auto 1.2rem;
 }
 .panel__summary div {
-  padding: 0.8rem 1rem;
+  padding: 0.9rem 1rem;
   border: 1px solid var(--p-line);
-  border-radius: 12px;
+  border-radius: 16px;
   background: var(--p-card);
+  box-shadow: 0 4px 14px rgb(30 60 90 / 0.05);
 }
 .panel__summary dt {
   color: var(--p-muted);
-  font-size: 0.88rem;
+  font-family: var(--p-font-title);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 .panel__summary dd {
   margin: 0;
-  font-size: 1.7rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  color: var(--p-accent);
+  /* Los números en la letra de los títulos grandes (en Marcellus el 0 parece una O). */
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 2rem;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 .panel__summary .is-ok dd {
   color: var(--p-ok);

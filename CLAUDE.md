@@ -12,8 +12,8 @@ El plan completo está en `docs/plan-invitaciones/`. **Lee primero** `docs/plan-
 
 ## Fase en curso
 
-- **Fase actual:** Pasos 2a, 3 y 2b terminados, más el **panel del dueño** (`/panel/:slug`, entra con `clave_panel` del layout): genera enlaces por número de invitados, lista de invitaciones y de invitados con su mesa, se actualiza en vivo (consulta de versión cada 5 s), fecha límite cambiable hasta 3 veces. La invitación personal (`/i/:token`) muestra un campo por invitado; los nombres enviados quedan fijos. Secciones `clima` (Open-Meteo: típico y luego pronóstico) y `playlist`; la música puede salir de un MP3 o de Spotify (`musica_fuente`). Cada sección es un panel con su fondo y el mismo espacio entre todas (`--section-gap`); secciones `sin_ninos` y `dedicatoria` (una por enlace, `dedicatorias.csv`, pestaña en el panel); efecto `cambio_de_color`. Todo en CSV. **Publicado en Fly.io** (`https://invitaciones-jiro.fly.dev`, ver `docs/plan-invitaciones/06-despliegue/despliegue.md`). Formato: `eventos/README.md`.
-- **Prioridad:** invitaciones (XV NATASHA: RSVP cierra 6-nov-2026, evento 28-nov-2026). El buscador espera.
+- **Fase actual:** Pasos 2a, 3 y 2b terminados, más el **panel del dueño** (`/panel/:slug`, entra con `clave_panel` del layout): genera enlaces por número de invitados, lista de invitaciones y de invitados con su mesa, se actualiza en vivo (consulta de versión cada 5 s), fecha límite cambiable hasta 3 veces. La invitación personal (`/i/:token`) muestra un campo por invitado; los nombres enviados quedan fijos. Secciones `clima` (Open-Meteo: típico y luego pronóstico) y `playlist`; la música puede salir de un MP3 o de Spotify (`musica_fuente`; NAT usa MP3 para que suene completa). Cada sección es un panel con su fondo y el mismo espacio entre todas (`--section-gap`); secciones `sin_ninos` y `dedicatoria` (una por enlace, `dedicatorias.csv`, pestaña en el panel); efecto `cambio_de_color`; sección `hospedaje` (pestaña `hoteles`). El panel se ve con los colores de su invitación ("XV de Nat") y "Enviar" arma un PDF con la invitación (el diseño del sobre de NAT.pdf: `tarjeta_fondo`, `tarjeta_frase`, `tarjeta_texto`) y su enlace oculto (QR y toque); ese QR es el que leerá la recepción. Todo en CSV. **Publicado en Fly.io** (`https://invitaciones-jiro.fly.dev`, ver `docs/plan-invitaciones/06-despliegue/despliegue.md`). Formato: `eventos/README.md`.
+- **Prioridad:** invitaciones (XV NAT: RSVP cierra 6-nov-2026, evento 28-nov-2026). El buscador espera.
 - **Rama de trabajo:** `main` (el motor ya está en `origin/main`).
 
 ## Comandos (todo corre en Docker)
@@ -41,7 +41,7 @@ Los puertos del host se cambian con `API_PORT`, `WEB_PORT` y `RECEPCION_PORT` (8
 
 ## Reglas del proyecto
 
-1. **Nunca** versionar datos reales de personas (nombres, fotos, teléfonos), ni `.env`, ni audios con derechos. Los datos reales viven en `docs/plan-invitaciones/02-diseno-natasha/privado/`, `recepcion/ejemplos/` y `recepcion/prototipo/` y los layouts de eventos reales (todos en `.gitignore`).
+1. **Nunca** versionar datos reales de personas (nombres, fotos, teléfonos), ni `.env`, ni audios con derechos. Los datos reales viven en `docs/plan-invitaciones/02-diseno-nat/privado/`, `recepcion/ejemplos/` y `recepcion/prototipo/` y los layouts de eventos reales (todos en `.gitignore`).
 2. Las invitaciones se identifican por un **token aleatorio**; nunca por familia o número en la URL.
 3. Toda regla de negocio del RSVP (límite de pases, deadline, idempotencia) se valida **en el servidor**.
 4. **Frontend (`web/`):**
@@ -73,5 +73,5 @@ Los puertos del host se cambian con `API_PORT`, `WEB_PORT` y `RECEPCION_PORT` (8
 | Contrato de API | `docs/plan-invitaciones/03-arquitectura-objetivo/api-contrato.md` |
 | Frontend y temas | `docs/plan-invitaciones/03-arquitectura-objetivo/frontend.md` |
 | Schema del `config` del evento | `docs/plan-invitaciones/03-arquitectura-objetivo/evento.schema.json` |
-| Diseño a clonar (NATASHA) | `docs/plan-invitaciones/02-diseno-natasha/` (ficha, secciones, assets, capturas) |
+| Diseño a clonar (NAT) | `docs/plan-invitaciones/02-diseno-nat/` (ficha, secciones, assets, capturas) |
 | QA antes de publicar | `docs/plan-invitaciones/05-calidad/checklist-qa.md` |

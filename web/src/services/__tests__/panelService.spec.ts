@@ -11,6 +11,7 @@ import {
   filterDedications,
   filterGuests,
   filterInvitations,
+  getBrand,
   getOverview,
   getVersion,
   guestCounts,
@@ -21,6 +22,7 @@ import {
   tableSummary,
   updateDeadline,
 } from '../panelService'
+import { setBoot } from '../bootService'
 import type { PanelInvitation } from '@/types/panel'
 
 const inv = (over: Partial<PanelInvitation> = {}): PanelInvitation => ({
@@ -28,6 +30,7 @@ const inv = (over: Partial<PanelInvitation> = {}): PanelInvitation => ({
   label: 'Familia Pérez',
   passes: 3,
   url: 'https://x/i/Abc',
+  message: '¡Hola! https://x/i/Abc',
   whatsapp_url: 'https://wa.me/?text=x',
   guests: [],
   opens: 0,
@@ -48,6 +51,17 @@ describe('panelService', () => {
     expect(get).toHaveBeenCalledWith('/admin/events/mis-xv', {
       headers: { Authorization: 'Bearer t0k' },
     })
+  })
+
+  it('los colores de la entrada salen de la página la primera vez y luego de la API', async () => {
+    const brand = { title: 'XV de Nat', theme: 'jardin-azul', palette: {}, fonts: {} }
+    setBoot({ kind: 'panel', key: 'mis-xv', data: { brand } })
+    await expect(getBrand('mis-xv')).resolves.toEqual(brand)
+    expect(get).not.toHaveBeenCalled()
+
+    get.mockResolvedValueOnce({ data: { brand } })
+    await expect(getBrand('mis-xv')).resolves.toEqual(brand)
+    expect(get).toHaveBeenCalledWith('/admin/events/mis-xv/brand')
   })
 
   it('genera un enlace para N invitados (nombre opcional) y cambia la fecha límite', async () => {

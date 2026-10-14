@@ -26,7 +26,8 @@ La lógica vive en `services/` (TS puro, sin Vue ni DOM global, con pruebas en V
 | `dedicationService` | Limpieza y validación de la dedicatoria (nombre ≤ 80, mensaje ≤ 600) y errores 422 por campo |
 | `bootService` · `preloadService` | Datos que el servidor ya puso en la página (`window.__BOOT__`, una sola vez); qué imágenes y fuentes esperar antes de mostrar la invitación |
 | `scrollGuardService` | Regla para dejar la página quieta cuando algo ajeno la mueve (Spotify al cambiar de canción) |
-| `panelService` | Llamadas del panel, más filtros y conteos de invitaciones, invitados y mesas |
+| `panelService` | Llamadas del panel (con `getBrand` para la entrada), más filtros y conteos de invitaciones, invitados y mesas |
+| `shareCardService` · `cardPdfService` | La invitación para WhatsApp (2:3): textos y dibujo en un lienzo sobre el fondo del evento (`brand.card.background`, con el sobre al centro; si no hay, el papel del tema y el lacre). En el sobre, para quién es (un nombre largo en dos renglones, `addressLines`) y los pases; abajo la frase, la fecha y el QR, sin el enlace escrito. El QR es el que leerá la recepción. Y el PDF de una página con un enlace oculto que la cubre toda (escrito a mano, sin librerías) |
 | `themeService` · `sectionService` · `assetService` · `backgroundService` | Tema y paleta, mezcla de secciones (tema + Excel), fondos de los paneles que se turnan (`withPanels`), archivos de `media/`, estilos de fondo |
 | `countdownService` · `calendarService` · `dateFormatService` | Cuenta regresiva con offset, mes del calendario y "Agregar a mi calendario", fechas en es-MX |
 | `audioService` · `spotifyPlayerService` · `effectsService` | Reproductor compartido (`MusicPlayer` y `MiniPlayer`) con MP3 o con la playlist de Spotify (API oficial del reproductor), efectos por nombre |
@@ -38,7 +39,9 @@ La lógica vive en `services/` (TS puro, sin Vue ni DOM global, con pruebas en V
 | `useInvitation` | Carga, envío del RSVP y de la dedicatoria, con sus estados |
 | `useAssetsReady` | true cuando cargaron el papel, la portada y las fuentes (máximo 5 s); hasta entonces `PageLoader` |
 | `useSteadyScroll` | Deja la vista donde está cuando Spotify cambia de canción (solo escucha; el invitado manda) |
-| `usePanel` | Sesión (en `sessionStorage`), lista, crear enlace, fecha límite, mesas y revisión de versión |
+| `usePanel` | Sesión (en `sessionStorage`), marca (`brand`), lista, crear enlace, fecha límite, mesas y revisión de versión |
+| `usePanelTheme` | Pone en el panel el tema, la paleta y las fuentes de su invitación; los quita al salir |
+| `useShareCard` | Arma la imagen y el PDF (fuentes, imágenes del tema y QR con `qrcode`) y los manda: menú de compartir o descarga + WhatsApp |
 | `usePolling` | Repite una tarea cada N ms solo con la pestaña visible; nunca se encima |
 | `useMusic` | Estado reactivo del reproductor (MP3 o Spotify) y carga de la API de Spotify |
 | `useWeather` | Pide el clima al acercarse a la sección y renueva el pronóstico cada 15 min |
@@ -53,7 +56,7 @@ La lógica vive en `services/` (TS puro, sin Vue ni DOM global, con pruebas en V
 
 **Carga:** la invitación no se muestra a medias. `InvitationRenderer` monta solo la portada mientras `useAssetsReady` espera sus imágenes y las fuentes, con `PageLoader` encima. Luego aparece completa y el resto de las secciones se monta en el cuadro siguiente. Secciones, íconos y las páginas de evento e invitación van en el archivo principal; solo el panel se carga aparte.
 
-**Paneles:** `SectionShell` pinta cada sección como panel (fondo, `--panel-radius`, `--panel-shadow`, `--panel-border`); entre panel y panel va `--section-gap` (16 px en celular, 24 px en escritorio). Una sección con `panel: false` en el manifiesto (la portada) va sin panel y sin relleno vertical. Las que no traen fondo toman el siguiente de `manifest.panels`.
+**Paneles:** `SectionShell` pinta cada sección como panel (fondo, `--panel-radius`, `--panel-shadow`, `--panel-border`); entre panel y panel va `--section-gap` (16 px en celular, 24 px en escritorio). Una sección con `panel: false` en el manifiesto (la portada) va sin panel y sin relleno vertical. Las que no traen fondo toman el siguiente de `manifest.panels`. Con `panelColor` en el manifiesto (el itinerario de `jardin-azul` usa `panel-pearl`), la sección gasta su turno pero se pinta de su color, así las demás no se recorren. El color de un panel puede ser un degradado: `SectionShell` lo pinta con `background`.
 
 Cada componente en `components/sections/`:
 
@@ -83,7 +86,7 @@ assets/          # WebP/PNG/SVG optimizados (solo decorativos; nunca fotos de pe
 
 ### Tokens obligatorios
 
-| Token | jardin-azul (NATASHA) | new-york-noir (NY) | boda-salvia (repo actual) |
+| Token | jardin-azul (NAT) | new-york-noir (NY) | boda-salvia (repo actual) |
 |---|---|---|---|
 | `--color-bg` | `#F3F1EC` + textura papel | `#000000` | `#E3ECDE` |
 | `--color-text` | `#523C0B` | `#E6E6E6` | `#476D68` |

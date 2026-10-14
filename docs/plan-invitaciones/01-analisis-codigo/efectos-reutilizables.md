@@ -4,7 +4,7 @@ Fuentes:
 
 - **A** = `boda-invitacion/src/components/invitation.vue` (repo).
 - **B** = invitación NY que armamos en Canva.
-- **C** = diseño "NATASHA".
+- **C** = diseño "NAT".
 
 Cada efecto se convierte en un **composable** o **componente** genérico, configurable por tema.
 

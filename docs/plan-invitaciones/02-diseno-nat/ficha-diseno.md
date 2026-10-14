@@ -1,8 +1,8 @@
-# Ficha de diseño — "NATASHA" (XV años, jardín azul y oro)
+# Ficha de diseño — "NAT" (XV años, jardín azul y oro)
 
 | Campo | Valor |
 |---|---|
-| URL publicada | https://invitecs.my.canva.site/natasha |
+| URL publicada | https://invitecs.my.canva.site/nat |
 | Plataforma de origen | Canva Sitios web (plan gratuito: muestra el pie "Diseñado con Canva") |
 | Fecha de captura | 12-oct-2026, 22:45 (America/Mexico_City) |
 | Tipo de evento | XV años |
@@ -11,7 +11,7 @@
 | Ancho útil del contenido | ≈ 460 px (columna central). Todo el diseño cabe en 360–480 px |
 | Alto total | ≈ 5,580 px con un viewport de 1054 px; ≈ 12 secciones |
 | Contenedor de scroll | Canva hace scroll dentro de `div.ZRRuDw`, no en el `body` |
-| Base de los assets | `https://invitecs.my.canva.site/natasha/_assets/media/<archivo>` (ver `assets-manifest.csv`) |
+| Base de los assets | `https://invitecs.my.canva.site/nat/_assets/media/<archivo>` (ver `assets-manifest.csv`) |
 | Capturas | `privado/capturas/01.jpg` … `10.jpg` (fuera de git porque muestran nombres reales; la foto de la festejada está pixelada a propósito en 04 y 05) |
 | Datos reales del evento | `privado/contenido-real.json` (**no subir al repo público**) |
 

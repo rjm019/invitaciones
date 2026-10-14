@@ -34,7 +34,7 @@
 ## Criterios de aceptación
 
 - `npm run build` pasa **en Linux** (probar en WSL, en un contenedor o en el CI de la fase 7). *Hecho: corre en el contenedor `web`.*
-- `/i/<token-del-seeder>` muestra los datos del evento demo y permite confirmar; un token inválido muestra 404. *Hecho con `eventos/natasha-prueba`.*
+- `/i/<token-del-seeder>` muestra los datos del evento demo y permite confirmar; un token inválido muestra 404. *Hecho con `eventos/nat-prueba`.*
 - `npm run test` en verde. *Hecho.*
 
 ## Prompt sugerido para Claude Code

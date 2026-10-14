@@ -15,7 +15,8 @@ return [
     |
     */
 
-    'paths' => ['api/*'],
+    // media/*: el panel dibuja la imagen para WhatsApp con las del evento (en desarrollo, otro origen).
+    'paths' => ['api/*', 'media/*'],
 
     'allowed_methods' => ['*'],
 

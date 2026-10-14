@@ -36,6 +36,7 @@ erDiagram
       tab familia "rol,nombre"
       tab itinerario "hora,actividad,icono"
       tab ubicaciones "etiqueta,lugar,hora,…"
+      tab hoteles "nombre,nota,direccion,maps,telefono,foto"
     }
     invitaciones {
       int id PK "consecutivo por evento"
@@ -102,5 +103,5 @@ erDiagram
 ## Datos de prueba
 
 - Pruebas automáticas: `api/tests/Fixtures/eventos/` (`prueba`, `borrador` sin publicar, `roto` con errores), con datos ficticios. Cada prueba los copia a una carpeta temporal.
-- Pruebas a mano: `eventos/natasha-prueba/`, una copia privada del evento real con su propia clave del panel.
+- Pruebas a mano: `eventos/nat-prueba/`, una copia privada del evento real con su propia clave del panel.
 - **Nunca** usar datos reales en lo que se versiona.

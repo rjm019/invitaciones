@@ -6,13 +6,17 @@ import type { PanelInvitation } from '@/types/panel'
 
 /**
  * Generar un enlace: para cuántos invitados es (1…max) y, si se quiere, el nombre que
- * aparecerá en la invitación. Al generarlo, queda listo para copiar o mandar por WhatsApp.
+ * aparecerá en la invitación. Al generarlo, queda lista para enviar (la imagen con el
+ * enlace) o copiar el link.
  */
 const props = defineProps<{
   maxPasses: number
   create: (passes: number, label: string) => Promise<PanelInvitation>
 }>()
-const emit = defineEmits<{ created: [invitation: PanelInvitation] }>()
+const emit = defineEmits<{
+  created: [invitation: PanelInvitation]
+  send: [invitation: PanelInvitation]
+}>()
 
 const passes = ref(1)
 const label = ref('')
@@ -116,28 +120,17 @@ async function submit() {
 
     <div v-if="created" class="creator__done" role="status">
       <p class="creator__done-title">
-        Enlace #{{ created.id }} listo · {{ created.passes }}
+        Invitación #{{ created.id }} lista · {{ created.passes }}
         {{ created.passes === 1 ? 'invitado' : 'invitados' }}
         <template v-if="created.label"> · {{ created.label }}</template>
       </p>
-      <input
-        class="creator__url"
-        :value="created.url"
-        readonly
-        aria-label="Enlace generado"
-        @focus="($event.target as HTMLInputElement).select()"
-      />
-      <div class="p-actions">
-        <button type="button" class="p-button p-button--small" @click="copy(created.url, 'nuevo')">
-          {{ copied === 'nuevo' ? '¡Copiado!' : 'Copiar enlace' }}
+      <div class="creator__done-actions">
+        <button type="button" class="p-button p-button--small" @click="emit('send', created)">
+          Enviar
         </button>
-        <a
-          class="p-button p-button--small p-button--ghost"
-          :href="created.whatsapp_url"
-          target="_blank"
-          rel="noopener"
-          >Mandar por WhatsApp</a
-        >
+        <button type="button" class="p-link" @click="copy(created.url, 'nuevo')">
+          {{ copied === 'nuevo' ? '¡Copiado!' : 'copiar link' }}
+        </button>
       </div>
     </div>
   </section>
@@ -171,8 +164,9 @@ async function submit() {
 }
 .creator__step {
   border: 1px solid var(--p-line);
-  border-radius: 8px;
-  background: var(--p-bg);
+  border-radius: 10px;
+  background: var(--p-soft);
+  color: var(--p-accent);
   font-size: 1.4rem;
   cursor: pointer;
 }
@@ -185,16 +179,18 @@ async function submit() {
   gap: 0.6rem;
   margin-top: 1.2rem;
   padding: 1rem;
-  border-radius: 10px;
-  background: #eef7f0;
+  border-radius: 12px;
+  background: var(--p-soft);
 }
 .creator__done-title {
   margin: 0;
   font-weight: 600;
-  color: var(--p-ok);
+  color: var(--p-accent);
 }
-.creator__url {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.95rem;
+.creator__done-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1.1rem;
 }
 </style>

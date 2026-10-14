@@ -7,8 +7,8 @@ Severidad: **S1** rompe el producto · **S2** seguridad/datos · **S3** lógica/
 > - **Pendientes (4):**
 >   - **#4:** pases en PDF (fase 5).
 >   - **#9:** el repo sigue público, y `web/public/` todavía tiene las fotos reales de la boda original (`novios.jpeg`, `salon.jpeg`…) y `audio.mp3`.
->   - **#21:** `audio.mp3` pesa 9.4 MB. El MP3 de NATASHA irá en `eventos/natasha/media/`.
->   - **#23:** imágenes JPEG de la boda sin optimizar. Las de NATASHA ya son WebP (`media:optimizar`).
+>   - **#21:** `audio.mp3` pesa 9.4 MB. El MP3 de NAT irá en `eventos/nat/media/`.
+>   - **#23:** imágenes JPEG de la boda sin optimizar. Las de NAT ya son WebP (`media:optimizar`).
 >
 >   #9, #21 y #23 se cierran con la pregunta abierta 16 (quitar esos archivos del repo).
 

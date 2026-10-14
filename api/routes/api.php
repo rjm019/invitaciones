@@ -24,6 +24,7 @@ Route::prefix('public')->group(function () {
 
 // Panel del dueño del evento: se entra con la clave del layout (clave_panel).
 Route::prefix('admin/events/{slug}')->where(['slug' => '[a-z0-9-]+'])->group(function () {
+    Route::get('/brand', [PanelSessionController::class, 'brand'])->middleware('throttle:60,1');
     Route::post('/session', [PanelSessionController::class, 'store'])->middleware('throttle:panel-login');
 
     // 120/min: el panel consulta la versión cada 5 s (12/min por pestaña) y aún sobra margen.

@@ -31,6 +31,8 @@ import cloudBoltSvg from '@fortawesome/fontawesome-free/svgs/solid/cloud-bolt.sv
 import snowflakeSvg from '@fortawesome/fontawesome-free/svgs/solid/snowflake.svg?raw'
 import dropletSvg from '@fortawesome/fontawesome-free/svgs/solid/droplet.svg?raw'
 import spotifySvg from '@fortawesome/fontawesome-free/svgs/brands/spotify.svg?raw'
+import bedSvg from '@fortawesome/fontawesome-free/svgs/solid/bed.svg?raw'
+import phoneSvg from '@fortawesome/fontawesome-free/svgs/solid/phone.svg?raw'
 import { useEvent } from '@/composables/useEvent'
 
 /**
@@ -72,6 +74,8 @@ const ICONS: Record<string, string> = {
   snowflake: snowflakeSvg,
   droplet: dropletSvg,
   spotify: spotifySvg,
+  bed: bedSvg,
+  phone: phoneSvg,
 }
 
 const { resolveAsset } = useEvent()

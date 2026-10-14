@@ -1,5 +1,5 @@
 import { inject, onBeforeUnmount, provide, ref, type InjectionKey, type Ref } from 'vue'
-import { confetti, type ConfettiPiece } from '@/services/effectsService'
+import { confetti, starBurst, type ConfettiPiece } from '@/services/effectsService'
 import { motionScale } from './useMotionScale'
 
 export interface Burst {
@@ -7,10 +7,13 @@ export interface Burst {
   pieces: ConfettiPiece[]
 }
 
+/** Pétalos y confeti (al confirmar) o estrellitas doradas (al abrir el sobre). */
+export type CelebrationKind = 'confetti' | 'stars'
+
 export interface CelebrationContext {
   bursts: Readonly<Ref<Burst[]>>
-  /** Lanza una ráfaga de pétalos y confeti (al abrir el sobre, al confirmar). */
-  celebrate: () => void
+  /** Lanza una ráfaga; por defecto, pétalos y confeti. */
+  celebrate: (kind?: CelebrationKind) => void
 }
 
 const KEY: InjectionKey<CelebrationContext> = Symbol('celebration')
@@ -29,10 +32,11 @@ export function provideCelebration(reducedMotion: () => boolean = () => false) {
 
   const context: CelebrationContext = {
     bursts,
-    celebrate() {
+    celebrate(kind = 'confetti') {
       if (reducedMotion()) return
       const id = ++next
-      bursts.value = [...bursts.value, { id, pieces: confetti(`rafaga-${id}`) }]
+      const pieces = kind === 'stars' ? starBurst(`estrellas-${id}`) : confetti(`rafaga-${id}`)
+      bursts.value = [...bursts.value, { id, pieces }]
       const timer = setTimeout(() => {
         bursts.value = bursts.value.filter((b) => b.id !== id)
         timers.delete(timer)

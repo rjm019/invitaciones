@@ -59,7 +59,7 @@ function open() {
     )
   }
   void music?.play() // dentro del toque: así iOS sí deja sonar
-  celebration?.celebrate() // pétalos y confeti mientras sale la tarjeta
+  celebration?.celebrate('stars') // estrellitas doradas mientras sale la tarjeta
   phase.value = 'opening'
   // por si animationend no llega (la animación dura 1.5 s a velocidad 1)
   timer = setTimeout(() => (phase.value = 'open'), 1700 * motionScale())

@@ -14,7 +14,7 @@
 - [x] Copiar `plan-invitaciones/CLAUDE.md` a la **raíz** del repo, para que Claude Code en VS Code lo lea automáticamente.
 - [x] Agregar a `.gitignore` de la raíz. *También se ignoran `eventos/*`, `recepcion/ejemplos/`, `recepcion/prototipo/` y `recepcion/data/`:*
   ```gitignore
-  docs/plan-invitaciones/02-diseno-natasha/privado/
+  docs/plan-invitaciones/02-diseno-nat/privado/
   **/.env
   **/node_modules/
   **/vendor/

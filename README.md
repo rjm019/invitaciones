@@ -33,7 +33,7 @@ docker compose restart preview                        # después de cada cambio 
 
 ## Producción
 
-Publicado en Fly.io: https://invitaciones-jiro.fly.dev (por ejemplo `/e/natasha` y `/panel/natasha`). Un solo contenedor (`Dockerfile` de la raíz) con la API y la invitación, y un disco para `eventos/`. Detalle: `docs/plan-invitaciones/06-despliegue/despliegue.md`.
+Publicado en Fly.io: https://invitaciones-jiro.fly.dev (por ejemplo `/e/nat` y `/panel/nat`). Un solo contenedor (`Dockerfile` de la raíz) con la API y la invitación, y un disco para `eventos/`. Detalle: `docs/plan-invitaciones/06-despliegue/despliegue.md`.
 
 ```bash
 fly deploy --ha=false              # publicar el código

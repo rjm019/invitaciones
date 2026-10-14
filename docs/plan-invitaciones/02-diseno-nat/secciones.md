@@ -1,4 +1,4 @@
-# Mapa de secciones — tema `jardin-azul` (basado en "NATASHA")
+# Mapa de secciones — tema `jardin-azul` (basado en "NAT")
 
 Cada sección indica el **rango vertical en el original** (medido con un viewport de 1054 px), el contenido (con las claves de `contenido.example.json`), los assets (números de `assets-manifest.csv`), el **componente Vue** que la implementa y el **efecto** que se aplica.
 

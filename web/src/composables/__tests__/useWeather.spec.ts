@@ -20,7 +20,7 @@ function mountWeather() {
     defineComponent({
       setup() {
         const root = ref<HTMLElement | null>(null)
-        api = useWeather(() => 'natasha', root)
+        api = useWeather(() => 'nat', root)
         return () => h('div', { ref: root })
       },
     }),
@@ -44,7 +44,7 @@ describe('useWeather', () => {
     getWeather.mockResolvedValue(forecast)
     const { wrapper, api } = mountWeather()
     await flushPromises()
-    expect(getWeather).toHaveBeenCalledWith('natasha')
+    expect(getWeather).toHaveBeenCalledWith('nat')
     expect(api().status.value).toBe('ready')
     expect(api().weather.value).toEqual(forecast)
 

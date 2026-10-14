@@ -91,7 +91,7 @@ export function sparkles(seed: string, count = 9): Sparkle[] {
   })
 }
 
-export type ConfettiShape = 'petal' | 'strip' | 'dot'
+export type ConfettiShape = 'petal' | 'strip' | 'dot' | 'star'
 
 export interface ConfettiPiece {
   /** Punto de salida, en % del ancho de la pantalla. */
@@ -108,6 +108,8 @@ export interface ConfettiPiece {
   shape: ConfettiShape
   /** Índice en la lista de colores del tema. */
   color: number
+  /** Segundos de cada destello mientras cae (solo las estrellas). */
+  twinkle?: number
 }
 
 /** Una ráfaga de pétalos y confeti que sale del centro, sube y cae girando. */
@@ -125,6 +127,27 @@ export function confetti(seed: string, count = 36, colors = 4): ConfettiPiece[] 
     size: round(0.5 + rand() * 0.45),
     shape: shapes[i % shapes.length]!,
     color: i % colors,
+  }))
+}
+
+/**
+ * Una lluvia de estrellitas doradas: salen del centro, se abren más que el confeti, giran
+ * poco y caen despacio mientras destellan.
+ */
+export function starBurst(seed: string, count = 44): ConfettiPiece[] {
+  const rand = seededRandom(seed)
+  return Array.from({ length: count }, () => ({
+    x: round(38 + rand() * 24),
+    dx: Math.round((rand() - 0.5) * 2 * 220),
+    rise: -Math.round(140 + rand() * 240),
+    fall: Math.round(260 + rand() * 300),
+    rotate: Math.round((rand() - 0.5) * 2 * 90),
+    delay: round(rand() * 0.3),
+    duration: round(2.4 + rand() * 1.1),
+    size: round(0.35 + rand() * 0.4),
+    shape: 'star' as const,
+    color: 0,
+    twinkle: round(0.35 + rand() * 0.35),
   }))
 }
 

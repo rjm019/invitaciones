@@ -75,7 +75,7 @@
 
 - `php artisan test` en verde. *Hecho: 36 pruebas.*
 - `GET /api/invitations` (ruta vieja) **ya no existe** o requiere auth. *Hecho: ya no existe.*
-- Con Postman o Thunder Client: crear un evento, crear una invitación y confirmar con su token, siguiendo `api-contrato.md`. *Probado de punta a punta en el navegador con `eventos/natasha-prueba`.*
+- Con Postman o Thunder Client: crear un evento, crear una invitación y confirmar con su token, siguiendo `api-contrato.md`. *Probado de punta a punta en el navegador con `eventos/nat-prueba`.*
 
 ## Prompt sugerido para Claude Code
 

@@ -1,22 +1,22 @@
-# Fase 4 — Clonar el diseño "NATASHA" como tema `jardin-azul`
+# Fase 4 — Clonar el diseño "NAT" como tema `jardin-azul`
 
 **Objetivo:** recrear en código el diseño publicado en Canva con fidelidad visual alta, usando los efectos del repo y mejoras.
 **Duración estimada:** 2–3 días.
 **Referencias:**
 
-- `../02-diseno-natasha/ficha-diseno.md`: paleta, fuentes y escala.
-- `../02-diseno-natasha/secciones.md`: especificación sección por sección.
-- `../02-diseno-natasha/assets-manifest.csv`: 43 assets.
-- `../02-diseno-natasha/privado/capturas/01–10.jpg`: referencia visual.
+- `../02-diseno-nat/ficha-diseno.md`: paleta, fuentes y escala.
+- `../02-diseno-nat/secciones.md`: especificación sección por sección.
+- `../02-diseno-nat/assets-manifest.csv`: 43 assets.
+- `../02-diseno-nat/privado/capturas/01–10.jpg`: referencia visual.
 
-> **Estado (13-oct-2026): hecha con el contenido real del Canva.** Faltan la licencia de los assets, la foto original y Lighthouse. Las ilustraciones y fotos viven en `eventos/natasha/media/` (privado), no en el tema. Además se agregó la versión horizontal para escritorio. Detalle en `../09-avance.md`.
+> **Estado (13-oct-2026): hecha con el contenido real del Canva.** Faltan la licencia de los assets, la foto original y Lighthouse. Las ilustraciones y fotos viven en `eventos/nat/media/` (privado), no en el tema. Además se agregó la versión horizontal para escritorio. Detalle en `../09-avance.md`.
 > Casillas: `[x]` hecho · `[x] ~~…~~ Cambió:` resuelto de otra forma · `[ ]` pendiente.
 
 ## 4.1 Obtener los assets (antes de programar)
 
 > ⚠️ Usa assets **propios o con licencia**. Si el diseño de Canva es tuyo, exporta cada elemento desde el editor. No descargues la foto de la festejada del sitio publicado: pídela en original a la familia.
 
-- [x] Obtener cada elemento decorativo del Canva: hay 26 ilustraciones en `eventos/natasha/media/`.
+- [x] Obtener cada elemento decorativo del Canva: hay 26 ilustraciones en `eventos/nat/media/`.
 - [ ] Revisar la licencia de cada ilustración de Canva (ver `bugs-y-riesgos.md`, Riesgos). Si un elemento no puede usarse fuera de Canva, sustituirlo por uno con licencia propia. *Pendiente (D6).*
 - [ ] Foto original de la festejada. *La actual es la comprimida del sitio (pregunta abierta 2).*
 - [x] Nombrar los archivos según el manifiesto del tema (`sobre`, `tarjeta`, `rosas-azules`, `toile`, `arco-lino`, `lazo`, `arco-oro`, `laurel`, `marco-azul`, `lacre`, `mujer`, `hombre`, `copas`…). *Se corrigieron dos pares que venían cruzados: arco-oro↔retrato y mujer↔hombre.*
@@ -45,7 +45,7 @@
 - [x] `MiniPlayer` fijo después de abrir el sobre.
 - [x] **Agregado:** versión horizontal para escritorio. En 1024 px o más, las secciones `mitad` van en pares (columna `escritorio`).
 - [x] ~~Seeder `xv-demo` con `contenido.example.json`.~~ **Cambió:** datos ficticios en `api/tests/Fixtures/eventos/`.
-- [x] Evento real **nunca** en algo versionado: es `eventos/natasha/layout.xlsx`, fuera de git. ~~Crearlo desde el panel admin.~~ **Cambió:** se edita en el Excel.
+- [x] Evento real **nunca** en algo versionado: es `eventos/nat/layout.xlsx`, fuera de git. ~~Crearlo desde el panel admin.~~ **Cambió:** se edita en el Excel.
 
 ## 4.3 Comparación visual (QA de fidelidad)
 
@@ -63,4 +63,4 @@
 
 ## Prompt sugerido para Claude Code
 
-> Implementa el tema `jardin-azul` siguiendo `docs/plan-invitaciones/04-fases/fase-4-tema-jardin-azul.md`, `02-diseno-natasha/secciones.md` y las capturas de `02-diseno-natasha/privado/capturas/`. Ve sección por sección; después de cada una, levanta el dev server, toma una captura a 390 px y compárala con la captura original correspondiente.
+> Implementa el tema `jardin-azul` siguiendo `docs/plan-invitaciones/04-fases/fase-4-tema-jardin-azul.md`, `02-diseno-nat/secciones.md` y las capturas de `02-diseno-nat/privado/capturas/`. Ve sección por sección; después de cada una, levanta el dev server, toma una captura a 390 px y compárala con la captura original correspondiente.

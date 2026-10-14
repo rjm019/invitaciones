@@ -3,12 +3,12 @@ import { createAssetResolver } from '../assetService'
 
 describe('createAssetResolver', () => {
   const resolve = createAssetResolver(
-    { 'toile.webp': 'http://api/media/natasha/toile.webp' },
+    { 'toile.webp': 'http://api/media/nat/toile.webp' },
     { 'toile.webp': '/tema/toile.webp', 'laurel.webp': '/tema/laurel.webp' },
   )
 
   it('la media del evento gana sobre los assets del tema', () => {
-    expect(resolve('toile.webp')).toBe('http://api/media/natasha/toile.webp')
+    expect(resolve('toile.webp')).toBe('http://api/media/nat/toile.webp')
     expect(resolve('laurel.webp')).toBe('/tema/laurel.webp')
   })
 

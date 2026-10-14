@@ -6,7 +6,7 @@ Este archivo dice **qué se hizo, qué cambió contra el plan original y qué fa
 
 ## Resumen
 
-La invitación de NATASHA y su panel ya están **publicados en Fly.io**: https://invitaciones-jiro.fly.dev/e/natasha (panel en `/panel/natasha`). Faltan la vista previa de WhatsApp, la música del evento y responder las preguntas abiertas antes de mandar los enlaces. El RSVP cierra el 6-nov-2026.
+La invitación de Nat y su panel ya están **publicados en Fly.io**. Tras renombrar la carpeta en producción (ver "Qué falta"), las direcciones son https://invitaciones-jiro.fly.dev/e/nat y `/panel/nat`. Faltan publicar lo último y responder las preguntas abiertas antes de mandar los enlaces. El RSVP cierra el 6-nov-2026.
 
 El cambio más grande contra el plan: **no hay base de datos**. Todo vive en archivos por evento (`eventos/<slug>/`): el diseño y el contenido en un Excel (`layout.xlsx`), y las invitaciones, respuestas y ajustes en CSV que escribe la API.
 
@@ -52,7 +52,7 @@ El cambio más grande contra el plan: **no hay base de datos**. Todo vive en arc
 - **Diseño:** celular primero. En pantallas de 1024 px o más, las secciones marcadas como `mitad` van en pares, lado a lado (columna `escritorio`).
 - **Pruebas:** 118 de Vitest; lint, type-check y build en verde.
 
-### Tema `jardin-azul` (NATASHA)
+### Tema `jardin-azul` (NAT)
 
 - **Las 12 secciones del Canva:**
   1. Sobre que se abre
@@ -69,15 +69,15 @@ El cambio más grande contra el plan: **no hay base de datos**. Todo vive en arc
   12. Cierre
 
   Además, mariposas flotantes y un mini reproductor fijo.
-- **Contenido real** del Canva en `eventos/natasha/` (privado): textos, 26 ilustraciones y la foto.
+- **Contenido real** del Canva en `eventos/nat/` (privado): textos, 26 ilustraciones y la foto.
 - Verificado en capturas a 390×844 (celular) y 1440×900 (escritorio).
 - **Música:** suena al abrir el sobre. La playlist de Spotify es opcional, como reproductor incrustado.
 
 ### Clima, playlist y música desde Spotify
 
 - **Sección `clima`:** el clima del día del evento en la ciudad del salón, con datos de Open-Meteo.
-  - Mientras faltan más de 16 días, muestra el clima típico de esa fecha (promedio de 10 años). Para NATASHA da 21°/8°, y 17° a las 5 pm que bajan a 11° a las 11 pm.
-  - Desde 16 días antes (para NATASHA, el 13-nov), muestra el pronóstico real. El servidor lo renueva cada 30 min y la página cada 15 min mientras está abierta, con "Actualizado hace X min".
+  - Mientras faltan más de 16 días, muestra el clima típico de esa fecha (promedio de 10 años). Para NAT da 21°/8°, y 17° a las 5 pm que bajan a 11° a las 11 pm.
+  - Desde 16 días antes (para NAT, el 13-nov), muestra el pronóstico real. El servidor lo renueva cada 30 min y la página cada 15 min mientras está abierta, con "Actualizado hace X min".
   - Trae la temperatura en las horas de la fiesta y un consejo (abrigo, paraguas).
   - Si Open-Meteo falla, muestra lo último que obtuvo. Se quita sola un día después del evento.
 - **Sección `playlist`:** el reproductor de Spotify con la lista de canciones, como en la imagen de referencia, en español ("Guardar en Spotify", "Muestra"). Mide 560 px (se ven unas 7 canciones; el resto se recorre dentro), con variantes `lista` (352) y `compacta` (152). Verificado en el navegador: play, pausa y recorrer la lista funcionan. Si la sección se vuelve a montar, el reproductor se muda solo.
@@ -99,7 +99,7 @@ El cambio más grande contra el plan: **no hay base de datos**. Todo vive en arc
   - El segundero de la cuenta regresiva late.
 - **Foto en arco:** cada una de las 7 mariposas doradas aletea y se mece a su ritmo, y sobre cada estrella titila un destello. Las figuras están medidas en el tema (`sprites` del manifiesto) y las anima `SpriteDecor`.
 - Todo anima solo transform y opacity, no estorba los toques y se apaga con "reducir movimiento".
-- Probado en el navegador con `natasha-prueba`: confeti al abrir (36 piezas que se quitan solas), mariposa en vuelo, destellos en 4 secciones y cascada completa.
+- Probado en el navegador con `nat-prueba`: confeti al abrir (36 piezas que se quitan solas), mariposa en vuelo, destellos en 4 secciones y cascada completa.
 
 ### Secciones como paneles, con el mismo espacio entre todas
 
@@ -143,11 +143,11 @@ El cambio más grande contra el plan: **no hay base de datos**. Todo vive en arc
   - `trustProxies` para que las fotos salgan con `https`.
   - La imagen no lleva datos reales ni lo de la boda original (`.dockerignore`).
 - **Revisión del 13-oct (noche), ya publicado:**
-  - El evento real `natasha` responde, ya con las secciones nuevas.
+  - El evento real `nat` responde, ya con las secciones nuevas.
   - El panel pide su clave y ya hay un enlace generado.
   - Las fotos llegan por `https` y el servidor despierta en ~5 s después de estar apagado.
 - **Clima en producción:** Open-Meteo respondía 429 ("demasiadas a la vez") porque la API pedía los 10 años en paralelo desde la IP compartida de Fly. Ahora los pide de uno en uno, con reintentos (800/1600/3200 ms), y la caché vive en el disco para sobrevivir a que la máquina se apague. **Corregido en el código; falta `fly deploy`.**
-- **Música:** el evento real tiene `musica_fuente` = archivo, pero no hay MP3 ni enlace de Spotify, así que el sobre abre sin música (pregunta 3).
+- **Música:** el evento real tenía `musica_fuente` = archivo, pero no había MP3 ni enlace de Spotify, así que el sobre abría sin música. Después se puso la canción de Spotify (ver "Canción del evento").
 
 ### La invitación aparece completa y carga en menos pasos (13-oct, noche)
 
@@ -184,10 +184,87 @@ Verificado:
 
 ### Canción del evento (13-oct)
 
-- En el Excel real (`eventos/natasha/layout.xlsx`): `spotify` = la canción (`open.spotify.com/track/5y2ijHECwFYWqcAHKTZgzD`, sin los parámetros de rastreo) y `musica_fuente` = `spotify`.
+- En el Excel real (`eventos/nat/layout.xlsx`): `spotify` = la canción (`open.spotify.com/track/5y2ijHECwFYWqcAHKTZgzD`, sin los parámetros de rastreo) y `musica_fuente` = `spotify`.
 - Solo cambió la pestaña `evento` (comparado con el respaldo `respaldos/layout-20261014-002333.xlsx`).
-- **Falta subirlo:** `deploy/subir-evento.sh natasha`.
+- **Falta subirlo:** `deploy/subir-evento.sh nat`.
 - Ojo: quien no tiene sesión de Spotify en ese navegador oye **30 s** de la canción. Siendo una sola canción, después se detiene. Para la canción completa en todos lados haría falta el MP3 (pregunta 3).
+- **¿Se puede completa desde Spotify?** Para todos, no. Spotify da la canción completa solo a quien tiene sesión en ese navegador, y el navegador de WhatsApp casi nunca la tiene. El reproductor ya trae el permiso que pide Spotify (`encrypted-media`). El Web Playback SDK pide una cuenta Premium por invitado. La salida es el MP3, que ya funciona sin cambios de código (pregunta 3).
+
+### Ajustes de diseño y canción en MP3 (13-oct, noche)
+
+Pedidos sobre capturas del celular:
+
+- **Itinerario perla:** el panel del itinerario ya no es crema. Ahora es blanco con reflejos muy suaves de champaña, rosa y cielo (`--color-panel-pearl`, un degradado).
+  - El tema lo pide con `panelColor` en el manifiesto. La sección gasta su turno en la rotación de `panels`, así ninguna otra cambia de fondo (verificado sección por sección).
+  - `SectionShell` pinta el panel con `background` (antes `background-color`) para aceptar degradados.
+- **"¡Te esperamos!" con rosas azules** (`rosas-azules.webp`, las de la portada y la confirmación):
+  - Van dos ramos, uno arriba a la derecha y otro abajo a la izquierda. La esquina de abajo a la derecha queda libre para el botón flotante de la música.
+  - En escritorio llegan a las esquinas del panel.
+- **Estrellitas al abrir el sobre:** en lugar de pétalos y confeti, 44 estrellas doradas de cuatro puntas salen del sobre, suben y caen destellando. Solo se animan transform, opacity y scale (`starBurst` y `celebrate('stars')`). Al confirmar y al dejar una dedicatoria sigue el confeti.
+- **"NAT" en la foto:** el `titulo` de la fila `foto` del Excel va en la esquina de arriba a la izquierda, en la letra de "NOVIEMBRE". En el Excel real, `titulo` = `NAT`.
+- **"Save the date" sin brillos:** el tema ya no pone `brillo-oro.webp` detrás de la frase.
+- **Canción completa en MP3:**
+  - Es "Risk It All" de Bruno Mars, la misma de Spotify, en `eventos/nat/media/cancion.mp3` (privado, fuera de git).
+  - El archivo descargado traía 5.4 s casi en silencio al inicio y 5 s al final. Se recortaron sin volver a comprimir y se le quitaron la portada y los datos del video: queda en 3:20 y 3.2 MB a 128 kbps.
+  - Se descarga hasta que se abre el sobre, así que no frena la portada. El servidor lo manda por partes (206), como pide el iPhone.
+  - En el Excel: `musica_fuente` = `archivo` y `musica_audio` = `cancion.mp3`. El enlace de Spotify sigue en la sección `playlist`. Respaldo: `respaldos/layout-20261014-010634.xlsx`.
+  - Verificado: al abrir el sobre suena y el reproductor marca 3:20.
+- **Lint:** ESLint ya no revisa `web/.vite/` (el caché de Vite; daba 73 errores que no eran nuestros).
+
+**Falta publicarlo:** `fly deploy --ha=false` (código) y `deploy/subir-evento.sh nat` (Excel y MP3).
+
+### Hospedaje, "Nat" en todo, panel con los colores de la invitación y envío en PDF (13-oct, noche)
+
+- **Sección `hospedaje`** (`hotels`; alias `hoteles`), con la pestaña `hoteles` del Excel (`nombre`, `nota`, `direccion`, `maps`, `telefono`, `foto`).
+  - Cada hotel va en una tarjeta de papel (`tarjeta.webp`) con el divisor dorado, su nota, su dirección, "Ver en Maps" y "Llamar". La foto es opcional.
+  - En escritorio, las tarjetas van lado a lado.
+  - Efectos: aparecer, cascada (las tarjetas entran una tras otra), brillo en los botones, flotar (ícono), destellos y acercamiento (si hay fotos).
+  - Sin hoteles, la sección no aparece.
+  - La API rechaza un `maps` que no sea `https://…` (va en un botón).
+  - Referencias: plantillas de boda de Framer (Miren, Wedded: foto, nombre, texto corto y botón a Maps) y la sección "Recomendación de hospedaje" de la boda original.
+- **Hoteles de Nat** (sección 9.55, después del clima):
+  - **Luxury Hotel Boutique**: "A unos pasos del salón" (230 m).
+  - **Camino Real Pachuca**: "A unos 10 min en auto".
+  - **Gamma Pachuca**: "A unos 8 min en auto".
+  - Dirección y teléfono salieron de sus fichas de Google Maps. Los tiempos en auto salieron de OSRM (5 y 7 min sin tráfico, redondeados hacia arriba).
+- **"Nat" en todo:** el nombre largo anterior desapareció del repo, del Excel y de las direcciones.
+  - Las carpetas cambiaron: `eventos/nat`, `eventos/nat-prueba` y `docs/plan-invitaciones/02-diseno-nat`.
+  - `festejada` = `Nat`.
+  - Los enlaces `/i/<token>` siguen sirviendo: el token busca su evento en todas las carpetas.
+  - Siguen con el nombre viejo: el historial de git y los respaldos viejos del Excel. La clave del panel ya la cambiaste tú (pregunta 26).
+- **Panel con los colores de la invitación:**
+  - La entrada y el panel cargan el tema, la paleta y las fuentes del evento (`usePanelTheme`). El azul es lo principal (`--color-accent-strong`, en el Excel `acento_fuerte`); el oro es el adorno.
+  - El título va grande en letra de pluma: "XV de Nat" (`titulo_panel` del Excel o "XV de {festejada_corto}").
+  - La entrada recibe sus colores en la misma página (`window.__BOOT__`) o por `GET /admin/events/{slug}/brand`, sin fotos ni datos del evento.
+  - El resumen dice "Invitados" (antes "Lugares") y "Pendientes" (antes "Sin llenar").
+- **Invitaciones generadas, limpia:**
+  - La lista se despliega al tocarla (cerrada al entrar) y no muestra URLs.
+  - Cada invitación tiene "Enviar" y, discretos, "copiar link" y "ver link".
+  - Al generar una, la lista se abre y la nueva queda marcada.
+- **Enviar = PDF con la invitación:**
+  - Se arma en el navegador con el tema: papel, tarjeta, rosas, corona, "mis xv años", "Nat", para quién es, cuántos invitados, fecha, salón y un QR.
+  - El enlace **no se ve**. Va oculto en el PDF, que se abre al tocar cualquier parte, y en el QR, con la leyenda "Toca o escanea para abrir tu invitación".
+  - El PDF se escribe a mano (`cardPdfService`, una página de 540×675 pt con un enlace que la cubre). Se validó con `qpdf --check` (sin errores) y `pdfinfo` (una página, el enlace y el título con acentos). Pesa ~245 KB.
+  - En el celular, "Enviar por WhatsApp" abre el menú de compartir con el PDF y el mensaje sin el enlace. En la computadora descarga el PDF y abre WhatsApp con el mensaje para adjuntarlo. También se descarga la imagen sola (JPG).
+  - QR con `qrcode` 1.5.4 (MIT), solo en el archivo del panel; la invitación no pesa más.
+- Pruebas: API 77 y web 171 en verde; lint y build limpios. Verificado en el navegador: entrada, panel, lista, "ver link" y la ventana de envío en celular y escritorio.
+
+### La imagen para WhatsApp como tu diseño, "Ubicación" letra por letra, fotos de hoteles y dependencias (13-oct, noche)
+
+- **Imagen y PDF para WhatsApp con el diseño de NAT.pdf** (tu referencia de Canva):
+  - Fondo: el mármol azul con estrellas y el sobre con el lacre "N", sacado del PDF sin los textos (`tarjeta-fondo.webp`, en `media/`, privado).
+  - Arriba, "MIS XV AÑOS" y "NAT" en dorado entre dos estrellas con línea.
+  - En el sobre, como si estuviera rotulado: "PARA", el nombre de la invitación en letra de pluma y, debajo del lacre, "3 invitados". Un nombre largo se parte en dos renglones parejos. Sin nombre dice "Tu invitación".
+  - Abajo: "Celebremos juntos", "ESTA ETAPA TAN ESPECIAL", la fecha y el QR con "Toca o escanea para abrir tu invitación".
+  - Ahora es de 2:3 (1080×1620; el PDF, de 540×810 pt). Pesa ~360 KB.
+  - Del Excel (pestaña `evento`): `tarjeta_fondo`, `tarjeta_frase` y `tarjeta_texto`. Sin `tarjeta_fondo`, usa el papel del tema con un recuadro claro y el lacre.
+  - Los números de pases van en cursiva: en las mayúsculas del tema (Marcellus) el "1" parece una "I".
+- **El QR es el de la recepción:** el lector de la puerta leerá ese mismo QR (D9). Comprobado con `zbarimg`: el QR de la imagen y el del PDF (aun a 72 ppp) dan exactamente el enlace `/i/{token}` de la invitación.
+- **"Ubicación" se escribe letra por letra:** la fila del Excel decía `aparecer brillo` y eso reemplazaba los efectos del tema. Se agregó `escribir` y se alargó a 1 s. Medido: 0 de 9 letras antes de llegar, 5 a los 350 ms y todas al segundo; el lector de pantalla lee "Ubicación" completo.
+- **Hospedaje solo como mención:** título "Recomendación de hospedaje", sin subtítulo ni el texto de introducción. Fotos de los tres hoteles: Camino Real y Gamma (fachadas de sus sitios oficiales) y Luxury (la que mandaste), en WebP de 920 px.
+- **Dependencias:** `npm audit fix` y `npm update` sin cambiar de versión mayor; de 24 avisos a 9, y 0 en lo que se publica. Los 9 son de pruebas y lint y piden versión mayor (pregunta 34). `composer audit`: sin avisos.
+- Excel: antes de escribir se respaldó en `respaldos/`, y se comparó celda por celda con el original. Solo cambió lo de arriba; la clave del panel quedó como la dejaste.
+- Pruebas: API 78 y web 175 en verde; lint, type-check y build limpios.
 
 ### Invitación personal y confirmación
 
@@ -205,8 +282,8 @@ Verificado:
 - **Acceso:** solo con `clave_panel`, que va en la pestaña `evento` del Excel (mínimo 8 caracteres).
   - La sesión dura 12 h y se cierra si cambias la clave.
   - La clave nunca sale en la invitación pública (hay prueba de eso).
-- **Generar enlace:** se escribe para cuántos invitados es (1 a 30) y, opcionalmente, el nombre que va en el sobre. Se puede copiar o mandar por WhatsApp.
-- **Pestaña Invitaciones:** todos los enlaces, para cuántos es cada uno, quiénes confirmaron, cuántas veces se abrió y "Mesa para todos".
+- **Generar enlace:** se escribe para cuántos invitados es (1 a 30) y, opcionalmente, el nombre que va en el sobre. Queda lista para "Enviar" (PDF con la invitación).
+- **Pestaña Invitaciones:** todos los enlaces (lista desplegable, sin URLs a la vista), para cuántos es cada uno, quiénes confirmaron, cuántas veces se abrió y "Mesa para todos".
 - **Pestaña Invitados:** todas las personas, con filtros (asistirán, no asistirán, sin mesa, lugares libres), búsqueda y **mesa por persona** (1 a 999). La mesa se guarda en `respuestas.csv`, lista para el buscador.
 - **En vivo:** revisa cada 5 s si algo cambió y se actualiza sin recargar. Se pausa mientras la pestaña está oculta.
 - **Fecha límite:** se puede cambiar hasta 3 veces (`ajustes.csv`). El Excel no se toca.
@@ -225,9 +302,9 @@ Verificado:
 | Fecha límite fija | Cambiable hasta 3 veces desde el panel | Decisión tuya |
 | Panel con tablas que se recargan | En vivo, con lista de invitados y mesas | Decisión tuya |
 | Diseño solo para celular (460 px) | Celular primero, más una versión horizontal para escritorio | Decisión tuya |
-| Assets del tema en `web/src/themes/jardin-azul/assets/` | Ilustraciones y fotos del evento en `eventos/natasha/media/` (privado); el tema trae solo tokens y respaldos en CSS | No versionar material del cliente en un repo público |
-| Evento demo `xv-demo` con seeder | Datos ficticios en `api/tests/Fixtures/eventos/` y una copia privada `eventos/natasha-prueba` para probar a mano | Sin base de datos no hay seeders |
-| Tema `boda-salvia` en la fase 3 | Pospuesto; `web/src/legacy/BodaLegacy.vue` queda de referencia (solo en desarrollo, en `/legacy/boda`) | Prioridad: NATASHA |
+| Assets del tema en `web/src/themes/jardin-azul/assets/` | Ilustraciones y fotos del evento en `eventos/nat/media/` (privado); el tema trae solo tokens y respaldos en CSS | No versionar material del cliente en un repo público |
+| Evento demo `xv-demo` con seeder | Datos ficticios en `api/tests/Fixtures/eventos/` y una copia privada `eventos/nat-prueba` para probar a mano | Sin base de datos no hay seeders |
+| Tema `boda-salvia` en la fase 3 | Pospuesto; `web/src/legacy/BodaLegacy.vue` queda de referencia (solo en desarrollo, en `/legacy/boda`) | Prioridad: NAT |
 | Rutas `/admin/...` | `/panel/<slug>` | Un panel por evento |
 | VPS + Netlify, o Railway/Render (D3) | Fly.io: un contenedor con API e invitación, y un disco para los CSV | Decisión tuya (13-oct): lo más barato con disco persistente |
 | Música: MP3 y una playlist de Spotify aparte (fase 6) | Dos fuentes a elegir; con Spotify, la playlist suena al abrir el sobre y los controles dorados la manejan | Decisión tuya (13-oct) |
@@ -241,20 +318,22 @@ Verificado:
 
 ### Antes de mandar los enlaces (RSVP cierra el 6-nov-2026)
 
-1. Responder las preguntas abiertas de `08-decisiones-pendientes.md`. Hay pendientes la hora del evento, la música, el texto de WhatsApp, el número de WhatsApp y el cierre.
-2. Agregar `clave_panel` al Excel real de NATASHA (la eliges tú).
-3. **Repo privado** (D1) antes de cualquier push. Hacer los commits cuando lo pidas.
-4. **Publicación** (fase 7): ya está en Fly.io. Faltan:
-   - `fly deploy --ha=false` (clima, carga optimizada y suspend) y `deploy/subir-evento.sh natasha` (la canción).
+1. Responder las preguntas abiertas de `08-decisiones-pendientes.md`. Hay pendientes la hora del evento, el texto de WhatsApp, el número de WhatsApp y el cierre.
+2. **Repo** (D1): sigue público. Los commits del 13-oct ya están en `origin/main` (los subiste con `gh`). Falta que revoques el token viejo de GitHub (pregunta 24).
+3. **Publicación** (fase 7): ya está en Fly.io. Faltan, **en este orden**:
+   1. Renombrar la carpeta en el disco de Fly, que guarda las invitaciones y respuestas ya hechas: `fly ssh console -C "mv /data/eventos/<nombre-anterior> /data/eventos/nat"`. Va antes de subir el evento: si no, `subir-evento.sh nat` crearía una carpeta nueva vacía.
+   2. `fly deploy --ha=false`: clima, carga optimizada, suspend, ajustes de diseño, hospedaje, panel nuevo y la imagen para WhatsApp con tu diseño.
+   3. `deploy/subir-evento.sh nat`: Excel con canción, hoteles, "Nat", la clave nueva del panel y lo de la imagen; el MP3, las fotos de los hoteles y el fondo de la imagen.
+   4. Abrir `/e/nat`, `/panel/nat` y una invitación que ya hayas generado (`/i/…`, el enlace sigue igual).
    - Vista previa de WhatsApp (Open Graph). Laravel ya sirve `app.html`, así que se puede inyectar ahí.
    - CI con las pruebas.
    - Decidir si dejar una máquina siempre encendida (quita los ~5 s de la primera visita).
    - Dominio propio, si se quiere.
-5. QA en celulares reales con `05-calidad/checklist-qa.md`: audio en iPhone y Lighthouse.
+4. QA en celulares reales con `05-calidad/checklist-qa.md`: audio en iPhone, Lighthouse y mandar un PDF de prueba por WhatsApp (iPhone y Android) para confirmar que al tocarlo abre la invitación.
 
 ### Después del evento real o cuando se decida
 
-- Pases PDF con QR y check-in en la puerta (D9).
+- Pases PDF con QR y check-in en la puerta (D9). El lector lee el QR de la invitación que ya se mandó por WhatsApp (no hay QR aparte).
 - Que el buscador de recepción lea `respuestas.csv` (nombres y mesa) y que su backend pase a Laravel.
 - Borrar un enlace o cambiar sus invitados (pregunta abierta).
 - Tema `boda-salvia`.

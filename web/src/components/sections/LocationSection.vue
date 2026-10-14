@@ -39,7 +39,7 @@ const places = computed(() =>
       <TypewriterText
         :text="title"
         :active="section.effects.includes('typewriter')"
-        :duration="700"
+        :duration="1000"
       />
     </h2>
     <AppIcon name="location-dot" class="location__pin" />

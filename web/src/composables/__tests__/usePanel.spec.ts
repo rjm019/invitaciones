@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '@/services/http'
 
 const api = vi.hoisted(() => ({
+  getBrand: vi.fn(),
   login: vi.fn(),
   getOverview: vi.fn(),
   getVersion: vi.fn(),
@@ -13,7 +14,13 @@ vi.mock('@/services/panelService', () => api)
 
 import { usePanel } from '../usePanel'
 
-const overview = { version: 'v1', rsvp: { changes_left: 3 }, invitations: [] }
+const brand = { title: 'XV de Nat', theme: 'jardin-azul', palette: {}, fonts: {} }
+const overview = {
+  version: 'v1',
+  brand: { ...brand, assets: {} },
+  rsvp: { changes_left: 3 },
+  invitations: [],
+}
 
 describe('usePanel', () => {
   beforeEach(() => {
@@ -33,6 +40,27 @@ describe('usePanel', () => {
 
     // Al recargar la pestaña la sesión sigue.
     expect(usePanel('mis-xv').token.value).toBe('t0k')
+  })
+
+  it('la entrada se ve con los colores del evento; con sesión, la marca completa del panel', async () => {
+    api.getBrand.mockResolvedValue(brand)
+    api.login.mockResolvedValue({ token: 't0k', expires_at: 'x' })
+    api.getOverview.mockResolvedValue(overview)
+    const panel = usePanel('mis-xv')
+
+    await panel.loadBrand()
+    expect(panel.brand.value).toEqual(brand)
+    await panel.login('clave-larga')
+    expect(panel.brand.value).toEqual(overview.brand)
+    await panel.loadBrand() // ya la tiene: no la vuelve a pedir
+    expect(api.getBrand).toHaveBeenCalledTimes(1)
+  })
+
+  it('sin marca (falla la petición) el panel funciona igual', async () => {
+    api.getBrand.mockRejectedValue(new ApiError('Evento no encontrado.', 404))
+    const panel = usePanel('mis-xv')
+    await expect(panel.loadBrand()).resolves.toBeUndefined()
+    expect(panel.brand.value).toBeNull()
   })
 
   it('una clave incorrecta no abre sesión y el error llega al formulario', async () => {

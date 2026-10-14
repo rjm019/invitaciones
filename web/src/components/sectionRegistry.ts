@@ -11,6 +11,7 @@ import DressCodeSection from './sections/DressCodeSection.vue'
 import NoKidsSection from './sections/NoKidsSection.vue'
 import CountdownSection from './sections/CountdownSection.vue'
 import WeatherSection from './sections/WeatherSection.vue'
+import HotelsSection from './sections/HotelsSection.vue'
 import SpotifySection from './sections/SpotifySection.vue'
 import RsvpSection from './sections/RsvpSection.vue'
 import DedicationsSection from './sections/DedicationsSection.vue'
@@ -35,6 +36,7 @@ export const sectionRegistry: Record<string, Component> = {
   'no-kids': NoKidsSection,
   countdown: CountdownSection,
   weather: WeatherSection,
+  hotels: HotelsSection,
   spotify: SpotifySection,
   rsvp: RsvpSection,
   dedications: DedicationsSection,

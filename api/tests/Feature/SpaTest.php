@@ -66,7 +66,7 @@ class SpaTest extends TestCase
     {
         $this->assertNull($this->boot($this->get('/e/no-existe')));
         $this->assertNull($this->boot($this->get('/i/NoExiste0000')));
-        $this->assertNull($this->boot($this->get('/panel/prueba')));
+        $this->assertNull($this->boot($this->get('/panel/no-existe'))); // el de un evento real trae sus colores (PanelBrandTest)
     }
 
     public function test_layout_text_cannot_break_out_of_the_script(): void

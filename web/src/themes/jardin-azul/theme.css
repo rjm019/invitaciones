@@ -1,5 +1,5 @@
 /*
- * Jardín azul (NATASHA). Valores de docs/plan-invitaciones/02-diseno-natasha/ficha-diseno.md.
+ * Jardín azul (NAT). Valores de docs/plan-invitaciones/02-diseno-nat/ficha-diseno.md.
  * La pestaña "paleta" del layout puede sobrescribir cualquiera de estos colores.
  */
 :root[data-theme='jardin-azul'] {
@@ -10,6 +10,8 @@
   --color-primary-soft: #e2c77a;
   --color-accent: #8cc0e8;
   --color-accent-soft: #c8ddee;
+  /* Azul profundo del mismo tono: lo principal del panel y textos azules sobre papel */
+  --color-accent-strong: #4a7194;
   --color-surface: #f6f6f6;
   --color-frame: #abc1d9;
   --color-lino: #f0ede8;
@@ -17,6 +19,15 @@
   --color-panel: #fcfbf8;
   --color-panel-alt: #e9f2fa;
   --color-panel-warm: #f8f0de;
+  /* Perla (itinerario): blanco con reflejos muy suaves de champaña, rosa y cielo, como nácar */
+  --color-panel-pearl: linear-gradient(
+    155deg,
+    #fffefc 0%,
+    #f9f6f0 30%,
+    #faf5f6 52%,
+    #f3f6fa 74%,
+    #fefdfb 100%
+  );
 
   --shadow-card: 0 8px 24px rgb(82 60 11 / 0.12);
   --shadow-button: 0 2px 4px rgb(82 60 11 / 0.35);

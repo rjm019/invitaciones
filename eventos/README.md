@@ -31,15 +31,16 @@ Al guardar el Excel, recarga la página. La invitación se diseña para celular 
 
 | Pestaña | Columnas | Para qué |
 |---|---|---|
-| `evento` | `clave`, `valor` | Datos del evento: `tema`, `inicia` (AAAA-MM-DD HH:MM), `zona_horaria`, `rsvp_limite`, `rsvp_modo`, `rsvp_whatsapp`, `mensaje_whatsapp`, `clave_panel`, `salon…` (`salon_ciudad` también sirve para el clima), `retrato`, `musica_audio`, `musica_fuente`, `spotify`, `clima_coordenadas`, `vestimenta_colores`, `publicado` (SI/NO) |
-| `paleta` | `token`, `color`, `uso` | Colores en hex. Nombres conocidos: `fondo`, `texto`, `primario`, `primario_fuerte`, `primario_claro`, `acento`, `acento_suave`, `superficie`, `marco`. Puedes inventar otros (`lino`) |
+| `evento` | `clave`, `valor` | Datos del evento: `tema`, `inicia` (AAAA-MM-DD HH:MM), `zona_horaria`, `rsvp_limite`, `rsvp_modo`, `rsvp_whatsapp`, `mensaje_whatsapp`, `clave_panel`, `titulo_panel` (opcional; si no, "XV de {festejada_corto}"), `tarjeta_fondo`, `tarjeta_frase` y `tarjeta_texto` (la imagen que se manda por WhatsApp: un fondo de `media/` con el sobre al centro, y la frase de abajo, como "Celebremos juntos" / "esta etapa tan especial"), `salon…` (`salon_ciudad` también sirve para el clima), `retrato`, `musica_audio`, `musica_fuente`, `spotify`, `clima_coordenadas`, `vestimenta_colores`, `publicado` (SI/NO) |
+| `paleta` | `token`, `color`, `uso` | Colores en hex. Nombres conocidos: `fondo`, `texto`, `primario`, `primario_fuerte`, `primario_claro`, `acento`, `acento_suave`, `acento_fuerte` (el azul de los botones del panel), `superficie`, `marco`. Puedes inventar otros (`lino`) |
 | `tipografia` | `rol`, `fuente`, `uso` | Fuentes de Google Fonts por rol: `script`, `script_mono`, `serif`, `caps`, `display`, `button` |
 | `secciones` | `orden`, `seccion`, `titulo`, `subtitulo`, `texto`, `boton`, `variante`, `fondo`, `fondo_ajuste`, `color_fondo`, `overlay`, `fijo`, `efectos`, `visible`, `escritorio` | Una fila por sección, en el orden en que aparecen. Las palabras de cada sección van en su fila |
 | `familia` | `rol`, `nombre` | Un renglón por nombre; los del mismo rol se agrupan ("Mis papás") |
 | `itinerario` | `hora`, `actividad`, `icono` | Hora como `17:00` o `5:00 pm`. Ícono: un archivo de `media/` (`copas.webp`) o un nombre (`utensils`, `church`, `crown`, `music`, `heart`, `ring`, `dove`, `gift`, `cake-candles`, `door-open`, `champagne-glasses`, `location-dot`) |
 | `ubicaciones` | `etiqueta`, `lugar`, `hora`, `direccion`, `maps`, `foto` | Opcional, para varias ubicaciones (misa y recepción) |
+| `hoteles` (o `hospedaje`) | `nombre`, `nota`, `direccion`, `maps`, `telefono`, `foto` | Opcional: los hoteles recomendados de la sección `hospedaje`. Solo `nombre` es obligatorio; `maps` debe ser un enlace (`https://…`); `nota` es una línea corta ("A unos pasos del salón"); con `telefono` aparece el botón "Llamar" |
 
-**Secciones** (`seccion`): `portada`, `musica`, `bendicion`, `fecha`, `foto`, `ubicacion`, `frase`, `itinerario`, `vestimenta`, `sin_ninos`, `clima`, `playlist`, `cuenta_regresiva`, `confirmacion`, `dedicatoria`, `cierre`.
+**Secciones** (`seccion`): `portada`, `musica`, `bendicion`, `fecha`, `foto`, `ubicacion`, `frase`, `itinerario`, `vestimenta`, `sin_ninos`, `clima`, `hospedaje` (o `hoteles`), `playlist`, `cuenta_regresiva`, `confirmacion`, `dedicatoria`, `cierre`.
 
 Cada sección se pinta como un **panel** con su propio fondo y el mismo espacio entre todas (la portada va sin panel). Las que no traen `fondo` ni `color_fondo` se turnan los fondos del tema, así dos seguidas nunca se ven iguales.
 
@@ -62,7 +63,7 @@ Sin `musica_fuente`: se usa el MP3 si hay; si no hay MP3 pero sí playlist, Spot
 
 **Clima** (`clima`): el clima del día del evento en la ciudad del salón (`salon_ciudad`, por ejemplo "Pachuca, Hidalgo"; o `clima_coordenadas` como `20.1170, -98.7333` para más precisión). Mientras faltan más de 16 días muestra el clima típico de esa fecha (promedio de 10 años); desde 16 días antes, el pronóstico real, que se renueva cada 30 minutos. Incluye la temperatura en las horas de la fiesta y un consejo (abrigo, paraguas). Se quita sola un día después del evento. Datos de Open-Meteo.
 
-**Secciones con su contenido**: portada (sobre que se abre; en un enlace personal el sobre lleva el nombre que le pusiste en el panel), musica, bendicion (texto + pestaña `familia`), fecha (calendario generado de `inicia`), foto (`retrato`, recortada sin fondo), ubicacion (salón o pestaña `ubicaciones` y botón a Maps), frase, itinerario, vestimenta (`vestimenta_colores`), sin_ninos (`titulo`, `subtitulo` como etiqueta "Solo adultos" y `texto`), cuenta_regresiva, confirmacion, dedicatoria y cierre. "Agregar a mi calendario" va en `fecha`.
+**Secciones con su contenido**: portada (sobre que se abre; en un enlace personal el sobre lleva el nombre que le pusiste en el panel), musica, bendicion (texto + pestaña `familia`), fecha (calendario generado de `inicia`), foto (`retrato`, recortada sin fondo; su `titulo` (unas iniciales o un apodo) va en la esquina de arriba a la izquierda), ubicacion (salón o pestaña `ubicaciones` y botón a Maps), frase, itinerario, vestimenta (`vestimenta_colores`), sin_ninos (`titulo`, `subtitulo` como etiqueta "Solo adultos" y `texto`), hospedaje (pestaña `hoteles`; sin hoteles no aparece), cuenta_regresiva, confirmacion, dedicatoria y cierre. "Agregar a mi calendario" va en `fecha`.
 
 **Dedicatoria** (`dedicatoria`): nombre y mensaje (`titulo`, `texto` y `boton` cambian los textos). **Una por enlace**: ya enviada se ve fija y no se puede cambiar; se guarda en `dedicatorias.csv` y la ves en el panel. No depende de la fecha límite. En la invitación general (`/e/<slug>`) pide abrir el enlace personal.
 
@@ -71,9 +72,10 @@ Si algo del Excel está mal, la API responde con la lista de errores en español
 ## Panel de invitaciones
 
 1. En la pestaña `evento` agrega `clave_panel` con una clave de **al menos 8 caracteres**. Sin ella el panel no abre. Si la cambias, las sesiones abiertas se cierran.
-2. Entra a `/panel/<slug>` y escribe la clave. La sesión dura 12 horas y solo en esa pestaña.
-3. **Generar enlace**: escribe para cuántos invitados es (1 a 30) y, si quieres, el nombre que aparecerá en el sobre ("Familia Pérez"). Cópialo o mándalo por WhatsApp desde ahí.
-4. **Invitaciones**: todos los enlaces generados, para cuántos invitados es cada uno, quiénes ya confirmaron y cuántas veces se abrió. "Mesa para todos" sienta de una vez a los que asisten de esa invitación.
+2. Entra a `/panel/<slug>` y escribe la clave. El panel se ve con los colores y las letras de la invitación (el azul es lo principal) y su título en grande ("XV de Nat"). La sesión dura 12 horas y solo en esa pestaña.
+3. **Generar enlace**: escribe para cuántos invitados es (1 a 30) y, si quieres, el nombre que aparecerá en el sobre ("Familia Pérez"). Queda lista para **Enviar**.
+4. **Invitaciones generadas** (se despliega al tocarla): para cuántos invitados es cada una, quiénes ya confirmaron y cuántas veces se abrió. "Mesa para todos" sienta de una vez a los que asisten de esa invitación. El enlace no se muestra: solo "copiar link" o "ver link".
+   - **Enviar**: arma la invitación con los colores del evento (nombre, para quién es, fecha, salón y un QR) como **PDF**. Al tocarlo en cualquier parte se abre la invitación; el enlace no se ve. En el celular abre el menú de compartir para elegir WhatsApp; en la computadora descarga el PDF y abre WhatsApp con el mensaje (sin el enlace) para adjuntarlo. También se puede descargar la imagen sola.
 5. **Invitados**: la lista completa de personas de todas las invitaciones (filtros: asistirán, no asistirán, sin mesa, lugares libres) con su **mesa** (número de 1 a 999; vacío la quita). Arriba, cuántas personas hay en cada mesa. La mesa se guarda en `respuestas.csv` (columna `mesa`), lista para el buscador de recepción.
 6. **Dedicatorias**: las que dejaron los invitados (una por enlace), la más reciente primero, con buscador.
 7. **En vivo**: el panel revisa cada 5 segundos si alguien abrió, confirmó o dejó su dedicatoria y se actualiza solo, sin recargar (en pausa mientras la pestaña está oculta).
