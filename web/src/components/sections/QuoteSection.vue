@@ -13,7 +13,7 @@ const text = computed(() => props.section.text ?? props.section.title ?? '')
 
 <template>
   <figure class="quote">
-    <blockquote class="quote__text">
+    <blockquote class="quote__text" data-text="text">
       <TypewriterText :text="text" :active="section.effects.includes('typewriter')" />
     </blockquote>
     <img v-if="section.decor.divider" :src="section.decor.divider" alt="" class="quote__divider" />
@@ -31,10 +31,10 @@ const text = computed(() => props.section.text ?? props.section.title ?? '')
 }
 .quote__text {
   margin: 0;
-  font-family: var(--font-script-mono);
-  font-size: clamp(1.7rem, 9.6cqi, 2.5rem);
+  font-family: var(--t-text-font, var(--font-script-mono));
+  font-size: calc(clamp(1.7rem, 9.6cqi, 2.5rem) * var(--t-text-size, 1));
   line-height: 1.2;
-  color: var(--color-accent);
+  color: var(--t-text-color, var(--color-accent));
 }
 .quote__divider {
   width: 88%;

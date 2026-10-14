@@ -4,18 +4,25 @@ import { useEvent } from '@/composables/useEvent'
 import { vReveal } from '@/directives/reveal'
 import { backgroundVars } from '@/services/backgroundService'
 import { motionTime, sparkles } from '@/services/effectsService'
+import { sectionStyleVars } from '@/services/themeService'
 import type { ResolvedSection } from '@/types/event'
 
 /**
  * Envoltura de toda sección: es el ÚNICO lugar que pinta fondo, overlay y efectos.
  * Las secciones solo se ocupan de su contenido. Cada sección es un panel (fondo propio,
  * esquinas, sombra y línea fina del tema); la portada va sin panel, sobre el papel.
+ * También declara los colores propios de la sección y el estilo de cada texto (letra,
+ * color y tamaño) como variables: las secciones solo leen tokens, así que les llegan solos.
  */
 const props = defineProps<{ section: ResolvedSection }>()
 // El renderer le pone a la raíz su lugar en la cuadrícula de escritorio (class).
 const { resolveAsset } = useEvent()
 
-const style = computed(() => backgroundVars(props.section.background, resolveAsset.value))
+const style = computed(() => ({
+  ...backgroundVars(props.section.background, resolveAsset.value),
+  ...sectionStyleVars(props.section),
+}))
+const recolored = computed(() => Object.keys(props.section.colors ?? {}).length > 0)
 const hasImage = computed(() => '--section-bg-image' in style.value)
 const hasOverlay = computed(() => '--section-overlay' in style.value)
 
@@ -35,12 +42,15 @@ const classes = computed(() => [
     'section--panel': props.section.panel,
     'section--has-bg': hasImage.value || '--section-bg-color' in style.value,
     'section--sticky-bg': hasImage.value && props.section.background?.attachment === 'sticky',
+    // Con colores propios, los tokens que se calculan desde otros (degradados, sombras) se
+    // vuelven a calcular aquí (ver tokens.css).
+    'section--recolored': recolored.value,
   },
 ])
 </script>
 
 <template>
-  <section :id="section.id" :class="classes" :style="style">
+  <section :id="section.id" :data-section-key="section.key" :class="classes" :style="style">
     <div v-if="hasImage" class="section__bg" aria-hidden="true" />
     <div v-if="hasOverlay" class="section__overlay" aria-hidden="true" />
     <!-- cambio de color: tonos del tema que aparecen y se van sobre el fondo -->

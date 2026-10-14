@@ -1,7 +1,14 @@
 import type { ThemeFont, ThemeManifest } from '@/themes/types'
+import type { SectionConfig } from '@/types/event'
+import { colorValue } from './backgroundService'
 
 const HEX = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i
 const TOKEN = /^[a-z0-9][a-z0-9-]*$/
+/** Familia de Google Fonts: letras, números y espacios (va dentro de CSS). */
+const FAMILY = /^[A-Za-z0-9][A-Za-z0-9 ]{1,59}$/
+/** El tamaño de un texto va de 50 % a 250 % del que pone el tema. */
+const SIZE_MIN = 0.5
+const SIZE_MAX = 2.5
 
 /** Respaldo genérico por rol, por si Google Fonts no carga. */
 const FALLBACK: Record<string, string> = {
@@ -84,4 +91,42 @@ export function applyTheme(
     delete root.dataset.theme
     Object.keys(vars).forEach((name) => root.style.removeProperty(name))
   }
+}
+
+/**
+ * Colores propios y estilos de texto de una sección → variables CSS en línea. Las
+ * secciones solo leen tokens, así que basta con declararlos en su raíz:
+ * - `--color-<token>`: encima de la paleta, solo dentro de la sección.
+ * - `--t-<bloque>-font|color|size`: cada texto usa las suyas, con lo del tema de respaldo.
+ * Lo inválido se ignora (nunca rompe la sección).
+ */
+export function sectionStyleVars(
+  section: Pick<SectionConfig, 'colors' | 'text_styles'>,
+): Record<string, string> {
+  const vars: Record<string, string> = {}
+  for (const [token, color] of Object.entries(section.colors ?? {})) {
+    const value = colorValue(color)
+    // "accent: accent" haría un ciclo (la variable apuntando a sí misma): se ignora.
+    if (TOKEN.test(token) && value && value !== `var(--color-${token})`) {
+      vars[`--color-${token}`] = value
+    }
+  }
+  for (const [block, style] of Object.entries(section.text_styles ?? {})) {
+    if (!TOKEN.test(block) || !style) continue
+    if (style.font && FAMILY.test(style.font)) vars[`--t-${block}-font`] = `"${style.font}", serif`
+    const color = colorValue(style.color)
+    if (color) vars[`--t-${block}-color`] = color
+    if (typeof style.size === 'number' && style.size >= SIZE_MIN && style.size <= SIZE_MAX) {
+      vars[`--t-${block}-size`] = String(style.size)
+    }
+  }
+  return vars
+}
+
+/**
+ * Fuentes que piden los estilos de texto, para sumarlas a la hoja de Google Fonts. Sin
+ * pesos: pedir un peso que la fuente no tiene hace fallar a Google Fonts.
+ */
+export function extraFonts(families: string[] | undefined): ThemeFont[] {
+  return [...new Set(families ?? [])].filter((f) => FAMILY.test(f)).map((family) => ({ family }))
 }

@@ -35,9 +35,11 @@ useEmbedFocus(frame, () => music?.pause())
 
 <template>
   <div v-if="embed" class="playlist">
-    <h2 class="playlist__title">{{ title }}</h2>
-    <p v-if="section.subtitle" class="playlist__subtitle">{{ section.subtitle }}</p>
-    <p v-if="section.text" class="playlist__text">{{ section.text }}</p>
+    <h2 class="playlist__title" data-text="title">{{ title }}</h2>
+    <p v-if="section.subtitle" class="playlist__subtitle" data-text="subtitle">
+      {{ section.subtitle }}
+    </p>
+    <p v-if="section.text" class="playlist__text" data-text="text">{{ section.text }}</p>
 
     <div
       v-if="hostsMusic"
@@ -62,7 +64,13 @@ useEmbedFocus(frame, () => music?.pause())
       {{ music.state.value.error }}
     </p>
 
-    <a :href="embed.openUrl" class="playlist__open" target="_blank" rel="noopener">
+    <a
+      :href="embed.openUrl"
+      class="playlist__open"
+      data-text="button"
+      target="_blank"
+      rel="noopener"
+    >
       <AppIcon name="spotify" />
       {{ button }}
     </a>
@@ -80,24 +88,27 @@ useEmbedFocus(frame, () => music?.pause())
 }
 .playlist__title {
   margin: 0;
-  font-family: var(--font-script);
+  font-family: var(--t-title-font, var(--font-script));
   font-weight: 400;
-  font-size: clamp(2.2rem, 11.5cqi, 3.2rem);
+  font-size: calc(clamp(2.2rem, 11.5cqi, 3.2rem) * var(--t-title-size, 1));
   line-height: 1.1;
-  color: var(--color-primary);
+  color: var(--t-title-color, var(--color-primary));
 }
 .playlist__subtitle {
   margin: 0;
-  font-family: var(--font-caps);
-  font-size: clamp(0.95rem, 4.4cqi, 1.15rem);
+  font-family: var(--t-subtitle-font, var(--font-caps));
+  font-size: calc(clamp(0.95rem, 4.4cqi, 1.15rem) * var(--t-subtitle-size, 1));
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: var(--t-subtitle-color);
 }
 .playlist__text {
   max-width: 22rem;
   margin: 0;
-  font-size: var(--text-body);
+  font-size: calc(var(--text-body) * var(--t-text-size, 1));
   line-height: 1.45;
+  font-family: var(--t-text-font);
+  color: var(--t-text-color);
 }
 .playlist__player {
   display: block;
@@ -127,9 +138,9 @@ useEmbedFocus(frame, () => music?.pause())
   align-items: center;
   gap: 0.45rem;
   padding: 0.5rem;
-  font-family: var(--font-serif);
-  font-size: 1.05rem;
-  color: var(--color-primary);
+  font-family: var(--t-button-font, var(--font-serif));
+  font-size: calc(1.05rem * var(--t-button-size, 1));
+  color: var(--t-button-color, var(--color-primary));
   text-underline-offset: 0.2em;
 }
 .playlist__open :deep(.app-icon) {

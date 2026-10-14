@@ -18,8 +18,8 @@ const title = computed(() => props.section.title ?? '¡Te esperamos!')
       <img :src="section.decor.flowers" alt="" class="closing__flowers closing__flowers--bottom" />
     </template>
     <img v-if="section.decor.crown" :src="section.decor.crown" alt="" class="closing__crown" />
-    <h2 class="closing__title">{{ title }}</h2>
-    <p v-if="section.text" class="closing__text">{{ section.text }}</p>
+    <h2 class="closing__title" data-text="title">{{ title }}</h2>
+    <p v-if="section.text" class="closing__text" data-text="text">{{ section.text }}</p>
   </div>
 </template>
 
@@ -65,16 +65,18 @@ const title = computed(() => props.section.title ?? '¡Te esperamos!')
 .closing__title {
   position: relative;
   margin: 0;
-  font-family: var(--font-script);
+  font-family: var(--t-title-font, var(--font-script));
   font-weight: 400;
-  font-size: clamp(2rem, 10cqi, 2.9rem);
-  color: var(--color-primary);
+  font-size: calc(clamp(2rem, 10cqi, 2.9rem) * var(--t-title-size, 1));
+  color: var(--t-title-color, var(--color-primary));
 }
 .closing__text {
   position: relative;
   max-width: 26rem;
   margin: 0;
-  font-size: var(--text-body);
+  font-size: calc(var(--text-body) * var(--t-text-size, 1));
   line-height: 1.4;
+  font-family: var(--t-text-font);
+  color: var(--t-text-color);
 }
 </style>

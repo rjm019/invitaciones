@@ -26,20 +26,21 @@ const title = computed(() => props.section.title ?? 'Inicia la cuenta regresiva'
       alt=""
       class="countdown__butterfly decor-float"
     />
-    <h2 class="countdown__title">{{ title }}</h2>
+    <h2 class="countdown__title" data-text="title">{{ title }}</h2>
 
     <p v-if="left.isOver" class="countdown__today">¡Hoy es el gran día!</p>
     <div v-else class="countdown__timer" role="timer" aria-live="off">
       <template v-for="(unit, i) in units" :key="unit.label">
-        <span v-if="i > 0" class="countdown__colon" aria-hidden="true">:</span>
+        <span v-if="i > 0" class="countdown__colon" data-text="digits" aria-hidden="true">:</span>
         <div class="countdown__unit" data-cascade>
           <span
             :key="unit.tick ? unit.value : unit.label"
             class="countdown__number"
+            data-text="digits"
             :class="{ 'is-tick': unit.tick }"
             >{{ unit.value }}</span
           >
-          <span class="countdown__label">{{ unit.label }}</span>
+          <span class="countdown__label" data-text="units">{{ unit.label }}</span>
         </div>
       </template>
     </div>
@@ -48,7 +49,7 @@ const title = computed(() => props.section.title ?? 'Inicia la cuenta regresiva'
       <img v-if="section.decor.crown" :src="section.decor.crown" alt="" />
     </div>
 
-    <p v-if="section.text" class="countdown__text">{{ section.text }}</p>
+    <p v-if="section.text" class="countdown__text" data-text="text">{{ section.text }}</p>
   </div>
 </template>
 
@@ -59,11 +60,11 @@ const title = computed(() => props.section.title ?? 'Inicia la cuenta regresiva'
 }
 .countdown__title {
   margin: 0 0 var(--space-2);
-  font-family: var(--font-script);
+  font-family: var(--t-title-font, var(--font-script));
   font-weight: 400;
-  font-size: clamp(2rem, 10.2cqi, 3.2rem);
+  font-size: calc(clamp(2rem, 10.2cqi, 3.2rem) * var(--t-title-size, 1));
   line-height: 1.2;
-  color: var(--color-primary);
+  color: var(--t-title-color, var(--color-primary));
 }
 .countdown__butterfly {
   position: absolute;
@@ -84,10 +85,10 @@ const title = computed(() => props.section.title ?? 'Inicia la cuenta regresiva'
 }
 .countdown__number,
 .countdown__colon {
-  font-family: var(--font-serif);
-  font-size: clamp(2.6rem, 13cqi, 3.6rem);
+  font-family: var(--t-digits-font, var(--font-serif));
+  font-size: calc(clamp(2.6rem, 13cqi, 3.6rem) * var(--t-digits-size, 1));
   line-height: 1;
-  color: var(--color-primary);
+  color: var(--t-digits-color, var(--color-primary));
   font-variant-numeric: tabular-nums;
 }
 /* Cada segundo nuevo entra con un pequeño latido (la llave cambia y la animación corre). */
@@ -108,11 +109,11 @@ const title = computed(() => props.section.title ?? 'Inicia la cuenta regresiva'
 }
 .countdown__label {
   margin-top: 0.6rem;
-  font-family: var(--font-serif);
-  font-size: var(--text-small);
+  font-family: var(--t-units-font, var(--font-serif));
+  font-size: calc(var(--text-small) * var(--t-units-size, 1));
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-primary);
+  color: var(--t-units-color, var(--color-primary));
 }
 .countdown__today {
   font-family: var(--font-script);
@@ -140,7 +141,9 @@ const title = computed(() => props.section.title ?? 'Inicia la cuenta regresiva'
 .countdown__text {
   max-width: 21rem;
   margin: 0 auto;
-  font-size: var(--text-body);
+  font-size: calc(var(--text-body) * var(--t-text-size, 1));
   line-height: 1.45;
+  font-family: var(--t-text-font);
+  color: var(--t-text-color);
 }
 </style>

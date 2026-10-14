@@ -82,4 +82,24 @@ describe('useWeather', () => {
     await flushPromises()
     expect(api().status.value).toBe('error')
   })
+
+  it('en la vista previa usa los datos de ejemplo y no pide nada al servidor', async () => {
+    let api!: ReturnType<typeof useWeather>
+    mount(
+      defineComponent({
+        setup() {
+          const root = ref<HTMLElement | null>(null)
+          api = useWeather(
+            () => 'borrador',
+            root,
+            () => typical,
+          )
+          return () => h('div', { ref: root })
+        },
+      }),
+    )
+    await flushPromises()
+    expect(getWeather).not.toHaveBeenCalled()
+    expect(api.weather.value).toEqual(typical)
+  })
 })

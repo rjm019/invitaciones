@@ -48,7 +48,7 @@ onMounted(() => {
 <template>
   <div ref="root" class="player" :class="{ 'player--off': !available }">
     <AppIcon name="heart" class="player__heart" :class="{ 'is-beating': state?.playing }" />
-    <h2 class="player__title">{{ title }}</h2>
+    <h2 class="player__title" data-text="title">{{ title }}</h2>
     <span class="player__eq" :class="{ 'is-playing': state?.playing }" aria-hidden="true">
       <i /><i /><i /><i /><i />
     </span>
@@ -217,12 +217,12 @@ onMounted(() => {
 }
 .player__title {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--t-title-font, var(--font-display));
   font-weight: 400;
-  font-size: clamp(1.1rem, 5cqi, 1.45rem);
+  font-size: calc(clamp(1.1rem, 5cqi, 1.45rem) * var(--t-title-size, 1));
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--t-title-color, var(--color-text));
 }
 .player__progress {
   display: grid;

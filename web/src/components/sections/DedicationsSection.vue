@@ -75,13 +75,13 @@ async function send() {
       alt=""
       class="dedication__divider"
     />
-    <h2 class="dedication__title">{{ title }}</h2>
-    <p v-if="text" class="dedication__text">{{ text }}</p>
+    <h2 class="dedication__title" data-text="title">{{ title }}</h2>
+    <p v-if="text" class="dedication__text" data-text="text">{{ text }}</p>
 
     <!-- Ya enviada: fija, con el agradecimiento. -->
     <figure v-if="sent" class="dedication__sent">
-      <blockquote class="dedication__quote">{{ sent.message }}</blockquote>
-      <figcaption class="dedication__author">{{ sent.name }}</figcaption>
+      <blockquote class="dedication__quote" data-text="message">{{ sent.message }}</blockquote>
+      <figcaption class="dedication__author" data-text="author">{{ sent.name }}</figcaption>
       <p class="dedication__thanks" role="status">¡Gracias! Tu dedicatoria quedó guardada.</p>
     </figure>
 
@@ -110,7 +110,7 @@ async function send() {
       />
       <p v-if="errors.message" class="dedication__error">{{ errors.message }}</p>
 
-      <button type="submit" class="dedication__submit" :disabled="sending">
+      <button type="submit" class="dedication__submit" data-text="button" :disabled="sending">
         {{ sending ? 'Enviando…' : button }}
       </button>
       <p class="dedication__note">Puedes enviar una dedicatoria por invitación.</p>
@@ -138,20 +138,20 @@ async function send() {
 }
 .dedication__title {
   margin: 0;
-  font-family: var(--font-caps);
+  font-family: var(--t-title-font, var(--font-caps));
   font-weight: 400;
-  font-size: clamp(1.7rem, 8.5cqi, 2.3rem);
+  font-size: calc(clamp(1.7rem, 8.5cqi, 2.3rem) * var(--t-title-size, 1));
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--t-title-color, var(--color-text));
 }
 .dedication__text {
   margin: 0.8rem 0 0;
-  font-family: var(--font-serif);
+  font-family: var(--t-text-font, var(--font-serif));
   font-style: italic;
-  font-size: var(--text-body);
+  font-size: calc(var(--text-body) * var(--t-text-size, 1));
   line-height: 1.35;
-  color: var(--color-primary);
+  color: var(--t-text-color, var(--color-primary));
 }
 .dedication__form,
 .dedication__sent {
@@ -193,10 +193,10 @@ async function send() {
   border: 0;
   border-radius: 6px;
   background: var(--button-gradient);
-  color: var(--color-surface);
-  font-family: var(--font-display);
+  color: var(--t-button-color, var(--color-surface));
+  font-family: var(--t-button-font, var(--font-display));
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: calc(1.15rem * var(--t-button-size, 1));
   letter-spacing: 0.04em;
   box-shadow: var(--shadow-button, none);
   cursor: pointer;
@@ -227,17 +227,18 @@ async function send() {
 .dedication__quote {
   margin: 0;
   padding: var(--space-2) var(--space-2) 0;
-  font-family: var(--font-serif);
+  font-family: var(--t-message-font, var(--font-serif));
   font-style: italic;
-  font-size: var(--text-body);
+  font-size: calc(var(--text-body) * var(--t-message-size, 1));
   line-height: 1.4;
   white-space: pre-line;
   overflow-wrap: anywhere;
+  color: var(--t-message-color);
 }
 .dedication__author {
-  font-family: var(--font-script-mono);
-  font-size: clamp(1.5rem, 7cqi, 1.9rem);
-  color: var(--color-primary);
+  font-family: var(--t-author-font, var(--font-script-mono));
+  font-size: calc(clamp(1.5rem, 7cqi, 1.9rem) * var(--t-author-size, 1));
+  color: var(--t-author-color, var(--color-primary));
 }
 .dedication__thanks {
   margin: 0;

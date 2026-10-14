@@ -56,12 +56,6 @@
   --panel-radius: var(--radius-card);
   --panel-shadow: 0 4px 16px rgb(0 0 0 / 0.06);
   --panel-border: none; /* línea fina por dentro del panel, p. ej. 1px solid … */
-  --button-gradient: linear-gradient(
-    180deg,
-    var(--color-primary-soft) 0%,
-    var(--color-primary-strong) 55%,
-    var(--color-primary) 100%
-  );
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   /*
    * Velocidad de todos los efectos: multiplica cada duración y cada retraso. 1 = como se
@@ -69,4 +63,20 @@
    * leen con motionScale().)
    */
   --motion-scale: 1.1;
+}
+
+/*
+ * Tokens que se calculan desde otros colores. Una variable que usa var() toma los colores
+ * del lugar donde se declara: por eso también se declaran en las secciones con colores
+ * propios (SectionShell les pone .section--recolored), para que el botón dorado use los
+ * colores de esa sección y no los de la página.
+ */
+:root,
+.section--recolored {
+  --button-gradient: linear-gradient(
+    180deg,
+    var(--color-primary-soft) 0%,
+    var(--color-primary-strong) 55%,
+    var(--color-primary) 100%
+  );
 }

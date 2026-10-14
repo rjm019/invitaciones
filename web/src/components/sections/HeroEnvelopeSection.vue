@@ -5,6 +5,7 @@ import { useEvent } from '@/composables/useEvent'
 import { useInvitation } from '@/composables/useInvitation'
 import { motionScale } from '@/composables/useMotionScale'
 import { useMusic } from '@/composables/useMusic'
+import { usePreview } from '@/composables/usePreview'
 import { useReducedMotion } from '@/composables/useReducedMotion'
 import { useScrollLock } from '@/composables/useScrollLock'
 import type { ResolvedSection } from '@/types/event'
@@ -24,10 +25,13 @@ const celebration = useCelebration()
 const invitation = useInvitation()
 const reduced = useReducedMotion()
 
+const preview = usePreview()
+
 const decor = computed(() => props.section.decor)
 const hasEnvelope = computed(() => !!decor.value.envelope)
+// En el editor del gestor el sobre ya está abierto (salvo en "Ver como invitado").
 const phase = ref<'closed' | 'opening' | 'open'>(
-  hasEnvelope.value && !reduced.value ? 'closed' : 'open',
+  hasEnvelope.value && !reduced.value && !preview.value?.envelopeOpen ? 'closed' : 'open',
 )
 useScrollLock(() => phase.value === 'closed')
 
@@ -89,9 +93,11 @@ onBeforeUnmount(() => clearTimeout(timer))
         <div class="hero__slot">
           <div class="hero__card" :style="cardStyle" @animationend="onAnimationEnd">
             <img v-if="decor.crown" :src="decor.crown" alt="" class="hero__crown" />
-            <p v-if="event.subtitle" class="hero__subtitle">{{ event.subtitle }}</p>
-            <h1 class="hero__name">{{ name }}</h1>
-            <p v-if="event.venue.name || event.venue.city" class="hero__venue">
+            <p v-if="event.subtitle" class="hero__subtitle" data-text="subtitle">
+              {{ event.subtitle }}
+            </p>
+            <h1 class="hero__name" data-text="name">{{ name }}</h1>
+            <p v-if="event.venue.name || event.venue.city" class="hero__venue" data-text="place">
               <span v-if="event.venue.name">{{ event.venue.name }}</span>
               <span v-if="event.venue.city">{{ event.venue.city }}</span>
             </p>
@@ -101,7 +107,7 @@ onBeforeUnmount(() => clearTimeout(timer))
         <!-- La bolsa del sobre, recortada, va enfrente de la tarjeta: así parece guardada adentro. -->
         <template v-if="decor.envelope">
           <img :src="decor.envelope" alt="" class="hero__pocket" aria-hidden="true" />
-          <p v-if="family" class="hero__to">{{ family }}</p>
+          <p v-if="family" class="hero__to" data-text="to">{{ family }}</p>
           <img v-if="decor.seal" :src="decor.seal" alt="" class="hero__seal" />
         </template>
       </div>
@@ -114,7 +120,13 @@ onBeforeUnmount(() => clearTimeout(timer))
       />
     </div>
 
-    <button v-if="phase === 'closed'" type="button" class="hero__open" @click="open">
+    <button
+      v-if="phase === 'closed'"
+      type="button"
+      class="hero__open"
+      data-text="button"
+      @click="open"
+    >
       {{ section.button ?? 'Toca para abrir' }}
     </button>
   </div>
@@ -219,21 +231,21 @@ onBeforeUnmount(() => clearTimeout(timer))
 }
 .hero__subtitle {
   margin: 1% 0 0;
-  font-family: var(--font-script-mono);
-  font-size: 13cqi;
+  font-family: var(--t-subtitle-font, var(--font-script-mono));
+  font-size: calc(13cqi * var(--t-subtitle-size, 1));
   line-height: 1.2;
-  color: var(--color-primary);
+  color: var(--t-subtitle-color, var(--color-primary));
 }
 .hero__name {
   flex: 1;
   display: grid;
   place-items: center;
   margin: 0;
-  font-family: var(--font-script);
+  font-family: var(--t-name-font, var(--font-script));
   font-weight: 400;
-  font-size: clamp(2.5rem, 40cqi, 10rem);
+  font-size: calc(clamp(2.5rem, 40cqi, 10rem) * var(--t-name-size, 1));
   line-height: 1;
-  color: var(--color-primary);
+  color: var(--t-name-color, var(--color-primary));
   /* Nombres largos (12 letras): se achican en vez de cortarse */
   max-width: 100%;
   overflow-wrap: anywhere;
@@ -241,10 +253,10 @@ onBeforeUnmount(() => clearTimeout(timer))
 .hero__venue {
   display: grid;
   margin: 0;
-  font-family: var(--font-script-mono);
-  font-size: 10cqi;
+  font-family: var(--t-place-font, var(--font-script-mono));
+  font-size: calc(10cqi * var(--t-place-size, 1));
   line-height: 1.15;
-  color: var(--color-primary);
+  color: var(--t-place-color, var(--color-primary));
 }
 
 .hero__to {
@@ -255,9 +267,9 @@ onBeforeUnmount(() => clearTimeout(timer))
   z-index: 2;
   margin: 0;
   text-align: center;
-  font-family: var(--font-script-mono);
-  font-size: clamp(1.1rem, 6cqi, 1.6rem);
-  color: var(--color-text);
+  font-family: var(--t-to-font, var(--font-script-mono));
+  font-size: calc(clamp(1.1rem, 6cqi, 1.6rem) * var(--t-to-size, 1));
+  color: var(--t-to-color, var(--color-text));
 }
 .hero__seal {
   position: absolute;
@@ -271,9 +283,9 @@ onBeforeUnmount(() => clearTimeout(timer))
   padding: 0.5rem 1.2rem;
   border: 0;
   background: none;
-  font-family: var(--font-script-mono);
-  font-size: clamp(1.4rem, 7cqi, 2rem);
-  color: var(--color-primary);
+  font-family: var(--t-button-font, var(--font-script-mono));
+  font-size: calc(clamp(1.4rem, 7cqi, 2rem) * var(--t-button-size, 1));
+  color: var(--t-button-color, var(--color-primary));
   cursor: pointer;
   animation: hero-hint calc(2.4s * var(--motion-scale)) ease-in-out infinite;
 }

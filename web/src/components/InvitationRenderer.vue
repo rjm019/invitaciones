@@ -11,6 +11,7 @@ import { useAssetsReady } from '@/composables/useAssetsReady'
 import { provideCelebration } from '@/composables/useCelebration'
 import { provideEvent } from '@/composables/useEvent'
 import { provideMusic } from '@/composables/useMusic'
+import { providePreview, type PreviewOptions } from '@/composables/usePreview'
 import { useReducedMotion } from '@/composables/useReducedMotion'
 import { useSteadyScroll } from '@/composables/useSteadyScroll'
 import { createAssetResolver } from '@/services/assetService'
@@ -20,6 +21,7 @@ import { placeOnDesktop, resolveSections, withContent, withPanels } from '@/serv
 import { spotifyEmbed } from '@/services/spotifyService'
 import {
   applyTheme,
+  extraFonts,
   fontVars,
   googleFontsUrl,
   paletteVars,
@@ -27,7 +29,7 @@ import {
 } from '@/services/themeService'
 import { loadTheme, themeAssets } from '@/themes'
 import type { ThemeManifest } from '@/themes/types'
-import type { EventConfig } from '@/types/event'
+import type { EventConfig, SectionBackground } from '@/types/event'
 
 /**
  * Arma la invitación: tema + paleta + fuentes del layout, y cada sección en su orden.
@@ -35,7 +37,12 @@ import type { EventConfig } from '@/types/event'
  * la pantalla de espera, y luego aparece completa. El resto de las secciones (y Spotify)
  * se monta justo después, mientras el invitado ve el sobre.
  */
-const props = defineProps<{ event: EventConfig }>()
+const props = defineProps<{
+  event: EventConfig
+  /** Solo en el editor del gestor: sobre abierto o cerrado, y sin sonido. */
+  preview?: PreviewOptions
+}>()
+providePreview(() => props.preview)
 
 const theme = shallowRef<ThemeManifest | null>(null)
 const themeMissing = shallowRef(false)
@@ -48,16 +55,22 @@ provideEvent({ event: computed(() => props.event), resolveAsset })
 // Una sola canción para toda la invitación (la inicia el sobre; la controlan los reproductores).
 // Con la música en Spotify suena la playlist, en la sección de playlist o, si no hay, en la
 // del reproductor.
-const music = provideMusic(() => resolveAsset.value(props.event.music.audio_url), undefined, {
-  uri: () =>
-    props.event.music.source === 'spotify'
-      ? (spotifyEmbed(props.event.music.spotify_url)?.uri ?? null)
-      : null,
-  host: () =>
-    props.event.sections.some((s) => s.type === 'spotify' && s.visible !== false)
-      ? 'spotify'
-      : 'music-player',
-})
+// En la vista previa del gestor la canción no suena sola (el audio se crea en silencio).
+const mutedAudio = () => Object.assign(new Audio(), { muted: true })
+const music = provideMusic(
+  () => resolveAsset.value(props.event.music.audio_url),
+  props.preview?.muted ? mutedAudio : undefined,
+  {
+    uri: () =>
+      props.event.music.source === 'spotify'
+        ? (spotifyEmbed(props.event.music.spotify_url)?.uri ?? null)
+        : null,
+    host: () =>
+      props.event.sections.some((s) => s.type === 'spotify' && s.visible !== false)
+        ? 'spotify'
+        : 'music-player',
+  },
+)
 // Al cambiar de canción, Spotify mueve su lista y arrastraría la página hasta el
 // reproductor: la vista se queda donde el invitado la tiene.
 useSteadyScroll((hold) => music.onTrackChange(hold))
@@ -85,7 +98,15 @@ const sections = computed(() =>
       )
     : [],
 )
-const pageStyle = computed(() => backgroundVars(theme.value?.page, resolveAsset.value, '--page'))
+// El papel de la página: el del tema, o el que trae la invitación.
+const page = computed<SectionBackground | undefined>(() =>
+  props.event.page?.image
+    ? { ...theme.value?.page, image: props.event.page.image }
+    : theme.value?.page,
+)
+const pageStyle = computed(() => backgroundVars(page.value, resolveAsset.value, '--page'))
+// Las mariposas que flotan y cruzan: del tema, salvo que la invitación las apague.
+const decorOn = computed(() => props.event.page?.decor !== false)
 const fonts = computed(() =>
   theme.value ? resolveFonts(theme.value.fonts, props.event.fonts) : null,
 )
@@ -95,7 +116,7 @@ const ready = useAssetsReady(() =>
   theme.value && fonts.value
     ? {
         images: criticalImages(sections.value[0], [
-          resolveAsset.value(theme.value.page?.image),
+          resolveAsset.value(page.value?.image),
           resolveAsset.value(sections.value[0]?.background?.image),
         ]),
         fonts: fontFamilies(fonts.value),
@@ -119,9 +140,9 @@ watch(
   { immediate: true },
 )
 
-// Paleta y fuentes del layout sobre los tokens del tema.
+// Paleta y fuentes de la invitación sobre los tokens del tema.
 watch(
-  [theme, () => props.event.palette, () => props.event.fonts],
+  [theme, () => props.event.palette, () => props.event.fonts, () => props.event.extra_fonts],
   () => {
     revert?.()
     if (!theme.value || !fonts.value) return
@@ -129,7 +150,8 @@ watch(
       document.documentElement,
       theme.value.id,
       { ...paletteVars(props.event.palette), ...fontVars(fonts.value) },
-      googleFontsUrl(Object.values(fonts.value)),
+      // Las fuentes de la invitación y las que eligió para algún texto, en una sola hoja.
+      googleFontsUrl([...Object.values(fonts.value), ...extraFonts(props.event.extra_fonts)]),
     )
   },
   { immediate: true },
@@ -145,8 +167,14 @@ onBeforeUnmount(() => revert?.())
     </Transition>
     <div class="invitation" :class="{ 'is-ready': ready }" :style="pageStyle">
       <div class="invitation__paper" aria-hidden="true" />
-      <FloatingDecor v-if="complete && theme?.floating?.length" :items="theme.floating" />
-      <ButterflyFlight v-if="complete && theme?.flights?.length" :items="theme.flights" />
+      <FloatingDecor
+        v-if="complete && decorOn && theme?.floating?.length"
+        :items="theme.floating"
+      />
+      <ButterflyFlight
+        v-if="complete && decorOn && theme?.flights?.length"
+        :items="theme.flights"
+      />
       <main class="invitation__grid">
         <SectionShell
           v-for="section in shown"

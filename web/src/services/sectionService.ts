@@ -34,9 +34,19 @@ export function resolveSections(
       const id = seen[section.type] > 1 ? `${section.type}-${seen[section.type]}` : section.type
 
       const background = { ...defaults.background, ...section.background }
+      // Los adornos que la invitación cambia en esta sección van encima de los del tema
+      // (null = sin ese adorno). Las figuras animadas (sprites) se miden sobre el archivo
+      // del tema: con otro archivo ya no aplican.
+      const files: Record<string, string | null> = { ...defaults.decor, ...section.decor }
       const decor = Object.fromEntries(
-        Object.entries(defaults.decor ?? {}).map(([slot, file]) => [slot, resolveAsset(file)]),
+        Object.entries(files).map(([slot, file]) => [slot, file ? resolveAsset(file) : null]),
       )
+      const changed = new Set(Object.keys(section.decor ?? {}))
+      const sprites = defaults.sprites
+        ? Object.fromEntries(
+            Object.entries(defaults.sprites).filter(([slot]) => !changed.has(slot)),
+          )
+        : undefined
 
       return {
         ...section,
@@ -48,7 +58,7 @@ export function resolveSections(
         background: Object.keys(background).length ? background : undefined,
         effects: effects.some((e) => NO_EFFECTS.includes(e)) ? [] : [...effects],
         decor,
-        ...(defaults.sprites ? { sprites: defaults.sprites } : {}),
+        ...(sprites && Object.keys(sprites).length ? { sprites } : {}),
       }
     })
 }

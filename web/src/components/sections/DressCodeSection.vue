@@ -34,8 +34,10 @@ const shown = useInView(root)
     <div class="dress__card" :style="cardStyle">
       <div class="dress__day" :class="{ 'is-cycling': night }">
         <img v-if="section.decor.seal" :src="section.decor.seal" alt="" class="dress__seal" />
-        <h2 class="dress__title">{{ title }}</h2>
-        <p v-if="section.subtitle" class="dress__subtitle">{{ section.subtitle }}</p>
+        <h2 class="dress__title" data-text="title">{{ title }}</h2>
+        <p v-if="section.subtitle" class="dress__subtitle" data-text="subtitle">
+          {{ section.subtitle }}
+        </p>
 
         <div
           v-if="section.decor.woman || section.decor.man"
@@ -56,7 +58,7 @@ const shown = useInView(root)
           />
         </div>
 
-        <p v-if="section.text" class="dress__text">{{ section.text }}</p>
+        <p v-if="section.text" class="dress__text" data-text="text">{{ section.text }}</p>
 
         <ul v-if="colors.length" class="dress__colors" aria-label="Colores sugeridos">
           <li
@@ -72,9 +74,11 @@ const shown = useInView(root)
       <!-- Cara negra: solo los textos, en blanco (los lectores de pantalla ya leen la otra). -->
       <div v-if="night" class="dress__night" :style="nightStyle" aria-hidden="true">
         <div class="dress__night-text">
-          <p class="dress__title">{{ title }}</p>
-          <p v-if="section.subtitle" class="dress__subtitle">{{ section.subtitle }}</p>
-          <p v-if="section.text" class="dress__text">{{ section.text }}</p>
+          <p class="dress__title" data-text="title">{{ title }}</p>
+          <p v-if="section.subtitle" class="dress__subtitle" data-text="subtitle">
+            {{ section.subtitle }}
+          </p>
+          <p v-if="section.text" class="dress__text" data-text="text">{{ section.text }}</p>
         </div>
       </div>
     </div>
@@ -116,21 +120,21 @@ const shown = useInView(root)
 }
 .dress__title {
   margin: 0;
-  font-family: var(--font-script);
+  font-family: var(--t-title-font, var(--font-script));
   font-weight: 400;
-  font-size: clamp(2.2rem, 11.5cqi, 3.2rem);
+  font-size: calc(clamp(2.2rem, 11.5cqi, 3.2rem) * var(--t-title-size, 1));
   line-height: 1.1;
-  color: var(--color-primary);
+  color: var(--t-title-color, var(--color-primary));
 }
 .dress__subtitle {
   margin: 0;
   max-width: 16em;
-  font-family: var(--font-caps);
-  font-size: clamp(1.05rem, 5.4cqi, 1.4rem);
+  font-family: var(--t-subtitle-font, var(--font-caps));
+  font-size: calc(clamp(1.05rem, 5.4cqi, 1.4rem) * var(--t-subtitle-size, 1));
   letter-spacing: 0.05em;
   line-height: 1.35;
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--t-subtitle-color, var(--color-text));
 }
 .dress__figures {
   display: flex;
@@ -156,10 +160,10 @@ const shown = useInView(root)
 }
 .dress__text {
   margin: 0;
-  font-family: var(--font-serif);
-  font-size: clamp(1.05rem, 5.6cqi, 1.35rem);
+  font-family: var(--t-text-font, var(--font-serif));
+  font-size: calc(clamp(1.05rem, 5.6cqi, 1.35rem) * var(--t-text-size, 1));
   line-height: 1.3;
-  color: var(--color-text);
+  color: var(--t-text-color, var(--color-text));
 }
 .dress__colors {
   display: flex;
@@ -214,7 +218,7 @@ const shown = useInView(root)
   color: var(--color-on-night);
 }
 .dress__night .dress__title {
-  font-size: clamp(2.6rem, 14cqi, 3.8rem);
+  font-size: calc(clamp(2.6rem, 14cqi, 3.8rem) * var(--t-title-size, 1));
 }
 .dress__day.is-cycling {
   animation: dress-day calc(12s * var(--motion-scale)) ease-in-out infinite;
