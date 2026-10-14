@@ -1,6 +1,6 @@
 # Avance y cambios contra el plan
 
-**Actualizado:** 13-oct-2026. **Rama:** `main` (el motor ya está en `origin/main` desde el commit `d2915da`).
+**Actualizado:** 14-oct-2026. **Ramas:** `main` (el motor, en `origin/main` desde `d2915da`) y `feature/gestor-plantillas` (el gestor y el formato nuevo, sin push ni merge: espera tu revisión).
 
 Este archivo dice **qué se hizo, qué cambió contra el plan original y qué falta**. Las fases de `04-fases/` tienen sus casillas marcadas con la misma información. Las dudas abiertas están en `08-decisiones-pendientes.md`.
 
@@ -8,7 +8,9 @@ Este archivo dice **qué se hizo, qué cambió contra el plan original y qué fa
 
 La invitación de Nat y su panel ya están **publicados en Fly.io**. Tras renombrar la carpeta en producción (ver "Qué falta"), las direcciones son https://invitaciones-jiro.fly.dev/e/nat y `/panel/nat`. Faltan publicar lo último y responder las preguntas abiertas antes de mandar los enlaces. El RSVP cierra el 6-nov-2026.
 
-El cambio más grande contra el plan: **no hay base de datos**. Todo vive en archivos por evento (`eventos/<slug>/`): el diseño y el contenido en un Excel (`layout.xlsx`), y las invitaciones, respuestas y ajustes en CSV que escribe la API.
+El cambio más grande contra el plan: **no hay base de datos**. Todo vive en archivos por evento (`eventos/<slug>/`): el diseño y el contenido en `invitacion.csv` (antes, un Excel `layout.xlsx`), y las invitaciones, respuestas y ajustes en CSV que escribe la API.
+
+**Nuevo (14-oct, rama `feature/gestor-plantillas`):** el **gestor** (`/gestor`), un editor visual para armar invitaciones y plantillas con la invitación a la vista, y el formato `invitacion.csv`, que reemplaza a `layout.xlsx`. NAT local ya está migrado; producción sigue igual hasta que corras el runbook. Detalle en `04-fases/fase-8-gestor-de-plantillas.md`.
 
 ## Qué está hecho
 
@@ -278,6 +280,24 @@ Pedidos sobre capturas del celular:
 - **Fly:** se queda como está, la máquina se suspende y despierta sola (pregunta 23).
 - Pruebas web: 177 en verde; lint y build limpios.
 
+### Gestor de plantillas y formato `invitacion.csv` (14-oct, rama `feature/gestor-plantillas`)
+
+- **Formato nuevo:** toda la invitación en `invitacion.csv` (`seccion, elemento, campo, valor`): bloques `evento`, `colores`, `fuentes`, `textos` y `pagina`, y una sección por bloque en su orden. Lo explica `eventos/README.md`.
+  - `clave_panel`, `publicado` y `plantilla` pasan a `ajustes.csv`: aplican al instante y nunca viajan con el diseño.
+  - El borrador vive en `borrador/invitacion.csv`; cada publicación respalda la anterior (últimas 50) y queda en `respaldos/publicaciones.csv`.
+  - Un evento sin `invitacion.csv` se sigue leyendo del Excel, sin cambios (camino congelado).
+- **Migración verificada:** `invitacion:migrar` arma la invitación de las dos formas y solo escribe si salen idénticas. **NAT local migrado** (capturas a 390 y 1440 px iguales; los CSV del sistema con el mismo hash).
+- **Letra, color y tamaño por texto:** cada bloque (título, subtítulo, texto, botón y los propios: horas, nombres, números…) con `<bloque>_fuente`, `_color` y `_tamano`; `textos` los pone para toda la invitación.
+- **Por sección:** colores propios (`color_<token>`) y cambiar o quitar cada adorno del tema (`imagen_<adorno>`).
+- **Gestor** (`/gestor`, clave maestra `GESTOR_CLAVE`):
+  - Inicio con invitaciones y plantillas; nueva invitación en blanco, desde plantilla o copia (sin enlaces, respuestas ni clave).
+  - Editor: secciones (arrastrar, ocultar, agregar), la invitación de verdad en celular o computadora (tocar un texto abre su estilo), inspector armado desde el catálogo, Estilo (paletas, selector de color, letras), Datos generales (con la tarjeta para WhatsApp en vivo).
+  - Colores y tamaños cambian **al instante**; lo demás en ~0.5 s. Autoguardado, deshacer, publicar con lista de cambios, historial, conflicto entre ventanas.
+  - Biblioteca de imágenes y audio (WebP con transparencia, recorte de Canva, "en uso"); descargar e importar csv, Excel o zip.
+- **Desde la terminal:** `invitacion:validar`, `invitacion:exportar`, `invitacion:importar` e `invitacion:migrar`.
+- **Producción:** `deploy/subir-evento.sh` ya no sube `invitacion.csv` sin `--forzar` (allá la edita el gestor); `deploy/bajar-evento.sh` trae un evento del servidor.
+- **Pruebas:** API 159 (981 aserciones); web 257, más lint, type-check y build en verde.
+
 ### Invitación personal y confirmación
 
 - Cada enlace (`/i/<token>`) muestra la misma invitación. Lo que cambia es el formulario: **un campo de nombre por invitado**, con "Asistiré / Lo siento, no asistiré".
@@ -291,7 +311,7 @@ Pedidos sobre capturas del celular:
 
 ### Panel del dueño (`/panel/<slug>`)
 
-- **Acceso:** solo con `clave_panel`, que va en la pestaña `evento` del Excel (mínimo 8 caracteres).
+- **Acceso:** solo con `clave_panel` (mínimo 8 caracteres). En el formato nuevo vive en `ajustes.csv` y la genera el gestor; en el anterior, en la pestaña `evento` del Excel.
   - La sesión dura 12 h y se cierra si cambias la clave.
   - La clave nunca sale en la invitación pública (hay prueba de eso).
 - **Generar enlace:** se escribe para cuántos invitados es (1 a 30) y, opcionalmente, el nombre que va en el sobre. Queda lista para "Enviar" (PDF con la invitación).
@@ -325,6 +345,10 @@ Pedidos sobre capturas del celular:
 | Secciones una tras otra sobre el papel | Paneles con su propio fondo y el mismo espacio entre todos | Decisión tuya (13-oct) |
 | Mensaje para la festejada dentro del RSVP | Sección aparte de dedicatorias, una por enlace, que el dueño lee en el panel | Decisión tuya (13-oct, imagen de referencia) |
 | Sin aviso de "sin niños" | Sección `sin_ninos` | Decisión tuya (13-oct) |
+| Editar `layout.xlsx` a mano (fase 5 dejó "editor con vista previa" para después) | Gestor visual con vista previa en vivo, borrador y publicar | Decisión tuya (14-oct) |
+| `layout.xlsx` con 9 pestañas | `invitacion.csv`: una hoja de 4 columnas; se descarga e importa como csv, Excel o zip | Decisión tuya (14-oct): mucho más simple, sin perder el Excel |
+| Clave del panel y "publicado" en el Excel | En `ajustes.csv`, al instante y fuera del diseño | Que copiar o exportar una invitación nunca lleve la clave |
+| Letras y colores solo para toda la invitación | Letra, color y tamaño por bloque de texto y colores por sección | Decisión tuya (14-oct) |
 
 ## Qué falta
 
@@ -342,6 +366,12 @@ Pedidos sobre capturas del celular:
    - Decidir si dejar una máquina siempre encendida (quita los ~5 s de la primera visita).
    - Dominio propio, si se quiere.
 4. QA en celulares reales con `05-calidad/checklist-qa.md`: audio en iPhone, Lighthouse y mandar un PDF de prueba por WhatsApp (iPhone y Android) para confirmar que al tocarlo abre la invitación.
+
+### Gestor (rama `feature/gestor-plantillas`)
+
+1. **Revisar la rama** (tú): `/gestor` en local con `GESTOR_CLAVE` en `api/.env`. Si está bien: merge a `main` y push.
+2. **Runbook de producción, solo cuando lo pidas** (`06-despliegue/despliegue.md` → "Gestor: primera publicación"): `fly secrets set GESTOR_CLAVE=…`, `fly deploy`, ensayo con una copia de NAT y `invitacion:migrar nat` en el servidor.
+3. **Etapa F, después del 28-nov:** quitar el camino del Excel y `layout:xlsx`; pasar las fixtures al formato nuevo.
 
 ### Después del evento real o cuando se decida
 

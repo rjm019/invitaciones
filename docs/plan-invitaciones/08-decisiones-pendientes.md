@@ -1,6 +1,6 @@
 # Decisiones pendientes
 
-Marca tu elección. Lo que esté en **negritas** es la recomendación y lo que el plan asume por defecto. La columna **Estado** dice qué se decidió hasta el 13-oct-2026.
+Marca tu elección. Lo que esté en **negritas** es la recomendación y lo que el plan asume por defecto. La columna **Estado** dice qué se decidió hasta el 14-oct-2026.
 
 | # | Decisión | Opciones | Impacto | Estado |
 |---|---|---|---|---|
@@ -15,6 +15,11 @@ Marca tu elección. Lo que esté en **negritas** es la recomendación y lo que e
 | D9 | Pases PDF con QR y check-in en la puerta | Sí, en esta versión · **Después del evento real** | Tiempo de la fase 5 | Sin hacer (después). La mesa ya se guarda en `respuestas.csv` para el buscador. **Decidido (13-oct):** el lector de la recepción lee **el mismo QR** de la invitación que se manda por WhatsApp (el del PDF, con el enlace `/i/{token}`); no habrá un QR aparte |
 | D10 | Marca propia en el pie (en lugar de "Diseñado con Canva") | Nombre de tu marca (¿"invitecs"?) · Ninguna | Branding | Pendiente (pregunta 6) |
 | D11 | Fecha y hora real del evento | 28-nov-2026, 17:00 (inferida) · Otra | El countdown del sitio original apunta a ≈18-dic: **confirmar** | Pendiente (pregunta 1). Se usa 28-nov-2026 17:00 |
+| D12 | Acceso al gestor (`/gestor`) | **Una clave maestra (`GESTOR_CLAVE`)** · Usuarios con su propia contraseña | Quién puede crear y publicar invitaciones | **Decidido (14-oct):** clave maestra de 16 caracteres o más, sesión de 12 h en ese navegador, 5 intentos por minuto. Sin la variable el gestor no abre. Es aparte de la clave de cada panel |
+| D13 | Formato de la invitación | **Un solo archivo `invitacion.csv` (+ `ajustes.csv`)** · Varias hojas como antes | Simplicidad; desarmar y armar | **Decidido (14-oct):** `seccion, elemento, campo, valor`; se descarga e importa como csv, Excel o zip. `layout.xlsx` queda deprecado (se lee igual hasta la limpieza, después del 28-nov) |
+| D14 | Cuándo ven los invitados los cambios | **Borrador + Publicar** · Al instante | Seguridad al editar una invitación ya enviada | **Decidido (14-oct):** autoguardado en `borrador/`; los invitados ven los cambios al publicar. La clave y "visible" sí aplican al instante |
+| D15 | Plantillas | **Biblioteca de plantillas + eventos, mismo formato** · Solo copiar eventos | Reusar diseños | **Decidido (14-oct):** una plantilla es un evento con `plantilla=SI`: nunca pública y sin panel |
+| D16 | Estilo de los textos | **Letra, color y tamaño por bloque de texto y por sección** · Solo para toda la invitación | Combinaciones de letras | **Decidido (14-oct):** `<bloque>_fuente`, `_color` (hex o nombre de la paleta) y `_tamano` (50–250 %); `textos` vale para toda la invitación y la sección gana |
 
 Cuando decidas, actualiza esta tabla (o díselo a Claude Code en VS Code) para que el plan y el `CLAUDE.md` queden alineados.
 
@@ -92,3 +97,11 @@ Salieron durante la implementación y se juntaron para el final. Al responder un
 
 33. **Foto del Luxury Hotel Boutique:** *Hecho (13-oct):* la mandaste por WhatsApp; va como `hotel-luxury.webp` (920 px).
 34. **Los 9 avisos que quedan** son de las herramientas de pruebas y de revisión de código (vitest, eslint-plugin-vue, @vue/eslint-config-typescript), que no se publican. Solo se quitan subiendo de versión mayor (vitest 3 → 5, eslint-plugin-vue 9 → 10). ¿Lo hago? Puede pedir ajustes en pruebas o en la configuración.
+
+**Gestor de plantillas (14-oct)**
+
+35. **Revisar y unir la rama:** el gestor y el formato nuevo están en `feature/gestor-plantillas` (sin push). Para probarlo en local, la clave maestra ya está en `api/.env` (`GESTOR_CLAVE`, generada al azar; cámbiala si quieres) y se entra en `http://localhost:5173/gestor`. ¿Lo uno a `main` y hago push cuando lo revises?
+36. **Producción, cuándo:** el runbook (`06-despliegue/despliegue.md` → "Gestor: primera publicación") empieza con `fly secrets set GESTOR_CLAVE=…`, que reinicia la máquina unos segundos, y termina migrando NAT en el servidor. ¿Lo corremos antes de mandar los enlaces o después del 6-nov? La clave de producción la eliges tú; no se escribe en ningún archivo.
+37. **Primera plantilla:** la base "En blanco" sale sin adornos, porque el tema no trae imágenes propias (D6). Lo práctico es hacer una plantilla "Jardín azul" desde NAT, pero se llevaría las ilustraciones del Canva y, si no las quitas, la foto de Nat y las de los hoteles. ¿La armamos sin las fotos personales? ¿Las ilustraciones se pueden usar para otros clientes (licencia, D6)?
+38. **"Ver como invitado" y "reducir movimiento":** si en tu computadora está activado "reducir movimiento", la invitación nunca muestra el sobre cerrado (igual que a un invitado con esa opción), así que ese botón no cambia nada. ¿Está bien, o quieres que en el gestor siempre se vea cerrado?
+39. **Una o varias personas en el gestor:** hoy hay una sola clave maestra para todos (D12). Si va a entrar más gente a armar invitaciones, conviene una cuenta por persona (y saber quién publicó qué). ¿Hace falta?

@@ -1,6 +1,6 @@
 # Frontend — componentes, composables y temas
 
-> **Actualizado el 13-oct-2026.** Las rutas y los composables de abajo son los que existen hoy. La sección 4 (manifiesto) y `evento.schema.json` todavía describen la forma original del `config`: la forma real está en `web/src/types/event.ts` y la arma `api/app/Services/Layout/EventConfigBuilder.php` desde el Excel.
+> **Actualizado el 14-oct-2026.** Las rutas y los composables de abajo son los que existen hoy. La sección 4 (manifiesto) y `evento.schema.json` todavía describen la forma original del `config`: la forma real está en `web/src/types/event.ts` y la arma `api/app/Services/Design/InvitationConfigBuilder.php` desde `invitacion.csv` (o, en el formato anterior, `EventConfigBuilder` desde el Excel). El gestor está en la sección 6.
 
 ## 1. Rutas
 
@@ -8,7 +8,10 @@
 |---|---|---|
 | `/i/:token` | `InvitationPage` | Invitación personal: un campo de nombre por invitado |
 | `/e/:slug` | `EventPage` | Invitación general (sin pases; botón de WhatsApp o sin confirmación) |
-| `/panel/:slug` | `PanelPage` | Panel del dueño; pide la `clave_panel` del Excel |
+| `/panel/:slug` | `PanelPage` | Panel del dueño; pide la `clave_panel` |
+| `/gestor` | `ManagerPage` | Gestor: entrada con la clave maestra, invitaciones y plantillas (carga aparte) |
+| `/gestor/:slug` | `ManagerEditorPage` | El editor de una invitación |
+| `/gestor/vista-previa` | `ManagerPreviewPage` | La invitación dentro del editor (va en un iframe; `vista-previa` es un slug reservado) |
 | `/legacy/boda` | `legacy/BodaLegacy.vue` | Solo en desarrollo: referencia para el tema `boda-salvia` |
 | `/:pathMatch(.*)*` | `NotFoundPage` | — |
 
@@ -32,6 +35,11 @@ La lógica vive en `services/` (TS puro, sin Vue ni DOM global, con pruebas en V
 | `countdownService` · `calendarService` · `dateFormatService` | Cuenta regresiva con offset, mes del calendario y "Agregar a mi calendario", fechas en es-MX |
 | `audioService` · `spotifyPlayerService` · `effectsService` | Reproductor compartido (`MusicPlayer` y `MiniPlayer`) con MP3 o con la playlist de Spotify (API oficial del reproductor), efectos por nombre |
 | `spotifyService` · `weatherService` | Enlace de Spotify → reproductor (tema oscuro, español); clima del evento (textos, íconos, consejos, cuándo renovar) |
+| `managerService` | Llamadas del gestor (`/api/manager`): sesión, catálogo, eventos, diseño, borrador, publicar, historial, ajustes, media, descargar e importar |
+| `designService` · `designHistoryService` | Operaciones inmutables sobre el diseño (campos, elementos, secciones: agregar, duplicar, mover, ocultar, quitar) y deshacer/rehacer (50 pasos; lo escrito seguido en un campo cuenta como uno) |
+| `stylePatchService` | Diseño → parche de estilo para la vista previa (paleta, fuentes, colores y estilos de texto por sección), con el mismo mapeo que el servidor |
+| `previewProtocol` · `previewService` | Mensajes entre el editor y su iframe (con su validación) y lo que la vista previa simula: aplicar el parche, invitación de ejemplo de 4 lugares, respuesta del RSVP y clima de ejemplo |
+| `colorService` · `fontCatalog` · `imageResizeService` | Hex ↔ HSV, contraste WCAG, paletas sugeridas y "crear desde mi color"; letras sugeridas y combinaciones; reducir fotos en el navegador (2400 px, HEIC) |
 
 | Composable | Qué hace |
 |---|---|
@@ -49,6 +57,11 @@ La lógica vive en `services/` (TS puro, sin Vue ni DOM global, con pruebas en V
 | `useCountdown` · `useTimelineProgress` | Cuenta regresiva y línea del itinerario |
 | `useInView` · `useParallax` · `useScrollLock` · `useReducedMotion` | Efectos y accesibilidad |
 | `useClipboard` | Copiar con `navigator.clipboard` |
+| `useManagerSession` | Sesión del gestor (en `localStorage`, 12 h), compartida por el inicio y el editor; con 401 sale con el aviso |
+| `useDesignEditor` | El editor de una invitación: diseño con deshacer, autoguardado (400 ms, máximo 2 s, una petición a la vez), 409, publicar, descartar, restaurar, importar |
+| `useEditorContext` | `provide/inject` de lo que comparten los paneles del editor (diseño, catálogo, config, marca, selección, biblioteca) |
+| `usePreviewHost` · `usePreview` | El editor del lado de su iframe (manda config, parche y selección; escucha toques); la invitación sabe que está en vista previa (sobre abierto, sin sonido) |
+| `useMediaLibrary` · `useDragSort` · `useToasts` · `useFontSamples` | Biblioteca con subidas y avance; reordenar con arrastre o Alt + flechas; avisos; muestras de letras de Google Fonts |
 
 ## 3. Contrato de cada sección
 
@@ -135,3 +148,29 @@ export default {
 | Imágenes | WebP/AVIF, `srcset` 1x/2x, `loading="lazy"` desde la sección 3 |
 | Fuentes | Google Fonts con `display=swap` y solo los pesos usados, o fuentes propias con `preload` |
 | Audio | ≤ 3 MB (ideal ≈2 MB a 96 kbps), `preload="none"`; se carga al abrir el sobre |
+
+## 6. Gestor (`/gestor`)
+
+Va en su propio pedazo del build (rutas perezosas): la invitación pública no carga nada del gestor. Los estilos del gestor usan sus propios tokens (`--g-*`, `components/manager/manager.css`), independientes del tema de la invitación.
+
+**Una sola fuente de la `config`:** la arma el servidor (`InvitationConfigBuilder`), para la invitación y para la vista previa. No hay un segundo builder en TypeScript. Para que se sienta en vivo, la vista previa combina dos caminos:
+
+1. **Al instante:** paleta, colores por sección y color y tamaño de cada texto. El editor calcula un parche (`stylePatchService`, con el mismo mapeo español → contrato que el servidor) y el iframe lo aplica encima de la config que tiene.
+2. **En ~0.5 s:** todo lo demás, incluidas las letras (hay que cargarlas). El autoguardado manda el borrador y el servidor responde la config en modo tolerante (`{config, issues}`), aunque haya errores.
+
+**Mensajes con el iframe** (`previewProtocol.ts`, canal `invitaciones-vista-previa`; cada lado revisa el origen y la ventana):
+
+- Editor → vista previa: `config` (con la vista: sobre abierto o cerrado, invitado general o de ejemplo, sonido, elegir o probar, etiquetas), `display`, `patch`, `select` y `replay`.
+- Vista previa → editor: `ready`, `rendered` (qué secciones sí se pintaron, para la pista "no se ve"), `hover`, `pick` (`{key, block}`: la sección y el texto tocados, por `data-section-key` y `data-text`) y `tokens` (colores y letras ya calculados, para el selector de color y la tarjeta para WhatsApp).
+
+**Componentes** (`components/manager/`): `EditorTopBar`, `SectionList`, `PreviewFrame`, `SectionInspector` (con `FieldInput`, `ItemListEditor`, `SectionDesign` y `TextStyleControl`), `StylePanel` (con `ColorField`/`ColorPicker` y `FontPicker`), `GeneralPanel` (con `SharePreview`), y los diálogos `AddSectionDialog`, `MediaLibraryDialog`, `PublishDialog`, `HistoryDialog`, `TransferDialog`, `ConflictDialog`, `NewEventDialog`. Base: `GDialog`, `GPopover`, `ToastHost`, `ManagerIcon`.
+
+**Pantallas:** tres columnas en escritorio (secciones · vista previa · inspector); de 768 a 1199 px las secciones van en un cajón; en celular, pestañas abajo (Secciones · Editar · Ver).
+
+### Cómo agregar un tipo de sección
+
+1. **Catálogo (API):** una entrada en `Catalog::SECTIONS` (`api/app/Services/Design/Catalog.php`): nombre en el CSV, `type` del contrato, etiqueta, ícono, descripción, campos propios, lista (si tiene elementos), `linked` (campos de `evento` que se editan ahí), adornos (`slots`), bloques de texto propios (`texts`), si se repite y `hidden_without` (la pista cuando no se ve). Los campos comunes (textos, fondo, efectos, colores, estilos de texto) vienen solos. El gestor arma su inspector y su lugar en "Agregar" con esto.
+2. **Datos (API):** solo si la sección tiene lista o datos propios, agrégalos en `InvitationConfigBuilder` (como `family`, `itinerary` u `hotels`), con su validación y sus `issues`.
+3. **Componente (web):** `components/sections/<Nombre>Section.vue`, con sus datos por props y solo tokens del tema. Cada texto lleva `data-text="<bloque>"` y sus reglas usan `var(--t-<bloque>-font, …)`, `var(--t-<bloque>-color, …)` y `calc(… * var(--t-<bloque>-size, 1))`, con el valor del tema como respaldo. Una línea en `sectionRegistry.ts`.
+4. **Tema:** lo que trae por defecto en el manifiesto (`sections['<type>']`: variante, adornos, efectos, panel) y su CSS.
+5. **Pruebas:** `CatalogTest` (cada adorno y bloque existe), el builder y la sección en el gestor (agregarla, tocar sus textos, ocultarla).

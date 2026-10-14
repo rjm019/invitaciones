@@ -1,42 +1,45 @@
 # Modelo de datos (sin base de datos)
 
-**Actualizado:** 13-oct-2026. Reemplaza el modelo original con MySQL (tablas `events`, `invitations` y `guests`, con migraciones). Por decisión del usuario, **todo vive en archivos por evento**: así se pueden abrir en Excel y se respaldan copiando una carpeta, igual que el buscador de recepción.
+**Actualizado:** 14-oct-2026. Reemplaza el modelo original con MySQL (tablas `events`, `invitations` y `guests`, con migraciones). Por decisión del usuario, **todo vive en archivos por evento**: así se pueden abrir en Excel y se respaldan copiando una carpeta, igual que el buscador de recepción.
 
-El formato de cada pestaña y columna, para quien edita el Excel, está en `eventos/README.md`. Este archivo explica cómo se relacionan los archivos y qué reglas cumple el servidor.
+El formato de `invitacion.csv` y de cada campo, para quien arma invitaciones, está en `eventos/README.md`. Este archivo explica cómo se relacionan los archivos y qué reglas cumple el servidor.
 
 ## Archivos de un evento
 
 ```
 eventos/<slug>/
-├── layout.xlsx              lo edita el dueño; la API solo lo lee
+├── invitacion.csv           la invitación publicada (la escribe el gestor al publicar)
+├── borrador/invitacion.csv  lo que se edita en el gestor (solo con cambios sin publicar)
+├── layout.xlsx              formato anterior (deprecado): solo se lee si no hay invitacion.csv
 ├── media/                   fotos, decoraciones y audio
 ├── invitaciones.csv         un renglón por enlace generado en el panel
 ├── respuestas.csv           un renglón por persona registrada
 ├── respuestas-historial.csv cada envío, en orden (solo crece)
 ├── aperturas.csv            cada vez que se abre un enlace (solo crece)
 ├── dedicatorias.csv         una dedicatoria por enlace: invitacion, para, nombre, dedicatoria, fecha
-├── ajustes.csv              lo que cambia el panel encima del Excel
+├── ajustes.csv              clave_panel, publicado, plantilla y la fecha límite del cliente
 ├── ajustes-historial.csv    cada cambio de ajustes (solo crece)
 ├── resumen.csv              lo rehace `invitaciones:resumen`
-└── respaldos/               copia del día de cada archivo antes de cambiarlo
+└── respaldos/               copia del día de cada archivo antes de cambiarlo; las últimas 50
+                             versiones publicadas (invitacion-AAAAMMDD-HHMMSS.csv) y la bitácora
+                             publicaciones.csv
 ```
+
+**`invitacion.csv`** tiene cuatro columnas: `seccion, elemento, campo, valor`. Los bloques `evento`, `colores`, `fuentes`, `textos` y `pagina` son datos; cualquier otro valor de `seccion` es una sección, en el orden en que aparece. Un número en `elemento` es un elemento de la lista de esa sección. El servidor la convierte en el `config` de la invitación con `InvitationConfigBuilder`; lo que no reconoce lo conserva y lo avisa.
 
 ```mermaid
 erDiagram
-    layout ||--o{ invitaciones : "evento (carpeta)"
+    invitacion ||--o{ invitaciones : "evento (carpeta)"
     invitaciones ||--o{ respuestas : "invitacion = id"
     invitaciones ||--o{ aperturas : "invitacion = id"
-    layout ||--o| ajustes : "sobrescribe rsvp_limite"
+    invitacion ||--o| ajustes : "ajustes gana en rsvp_limite"
+    invitacion ||--o| borrador : "cambios sin publicar"
 
-    layout {
-      tab evento "clave,valor: tema, inicia, zona_horaria, rsvp_limite, clave_panel, publicado…"
-      tab paleta "token,color"
-      tab tipografia "rol,fuente"
-      tab secciones "orden,seccion,…,visible,escritorio"
-      tab familia "rol,nombre"
-      tab itinerario "hora,actividad,icono"
-      tab ubicaciones "etiqueta,lugar,hora,…"
-      tab hoteles "nombre,nota,direccion,maps,telefono,foto"
+    invitacion {
+      string seccion "evento | colores | fuentes | textos | pagina | <seccion>[-n]"
+      int elemento "vacío = campo de la sección; número = elemento de su lista"
+      string campo "visible, titulo, hora, color_primario, imagen_sobre, titulo_fuente…"
+      string valor "texto, hex, SI/NO, varias líneas"
     }
     invitaciones {
       int id PK "consecutivo por evento"
@@ -59,7 +62,7 @@ erDiagram
       int invitacion FK
     }
     ajustes {
-      string clave "rsvp_limite | rsvp_limite_cambios"
+      string clave "clave_panel | publicado | plantilla | rsvp_limite | rsvp_limite_cambios"
       string valor
     }
 ```
@@ -71,7 +74,7 @@ erDiagram
 
 **Lugares libres:** un lugar que no está en `respuestas.csv` está libre. No hay columna de "estado": el estado de una invitación se calcula de sus renglones.
 
-**`ajustes.csv` gana sobre el Excel:** cuando el panel cambia la fecha límite, `EventRepository` aplica el valor encima de la pestaña `evento`, así que vale en toda la app. El Excel no se toca.
+**`ajustes.csv` gana sobre la invitación:** `EventRepository::eventValue()` lee primero los ajustes (`clave_panel`, `publicado`, `plantilla`, `rsvp_limite`) y después el diseño, así que valen en toda la app sin publicar nada. La invitación no se toca. En el formato anterior pasa lo mismo encima de la pestaña `evento`.
 
 ## Reglas de negocio (en el servidor)
 
@@ -90,6 +93,15 @@ erDiagram
 | Cada apertura se registra en `aperturas.csv` | `InvitationController` |
 | Dedicatoria: **una por enlace** (la segunda → `409`, revisado dentro del `flock`); nombre ≤ 80 y mensaje ≤ 600; no depende de la fecha límite | `DedicationController` + `InvitationService::dedicate` + `DedicationStore::add` |
 | Throttle de dedicatorias: 5/min por IP y token | `AppServiceProvider` |
+| Gestor: sin `GESTOR_CLAVE` de 16+ caracteres → `403`; login 5/min por IP; el resto 240/min | `ManagerAuth` + `EnsureManagerSession` + `routes/api.php` |
+| Borrador: se guarda solo si la versión que manda el editor es la actual (bajo candado); si no, `409` con la versión y el diseño de la otra ventana | `DesignStore::saveDraft` |
+| Publicar: en modo estricto (con errores → `422 { issues }`); respalda lo publicado, escribe atómico, borra el borrador y anota la bitácora | `DesignPublisher` |
+| Fecha límite al publicar: si el cliente ya la movió, la suya gana, salvo que el gestor elija reemplazarla (se borra solo su fecha; los cambios usados y el historial quedan) | `DesignPublisher` |
+| Diseño: máximo 60 secciones, 120 campos por sección, 100 elementos y 4000 caracteres por valor; los enlaces deben empezar con `https://` | `Catalog::LIMITS` + `InvitationConfigBuilder` |
+| La clave del panel nunca va en el diseño: no se exporta, no se copia al duplicar ni al hacer plantilla, y el historial de ajustes dice "(cambiada)" | `EventSettings` + `DesignFactory` + `DesignTransfer` |
+| Nueva invitación o copia: solo el diseño y `media/` (sin `originales/`); nunca enlaces, respuestas, `respaldos/` ni `borrador/`; nace con `publicado=NO` y clave nueva | `DesignFactory` |
+| Plantilla (`plantilla=SI`): `404` en todo lo público y sin panel | `EventRepository` |
+| Media: jpg, png, webp o gif (≤ 15 MB, revisado con `finfo`; nunca SVG ni HTML) → WebP; mp3 o m4a (≤ 20 MB); no se borra lo que la invitación usa (publicada o borrador) | `MediaLibrary` + `ImageOptimizer` |
 
 ## Escritura segura (`CsvFile`)
 
@@ -102,6 +114,6 @@ erDiagram
 
 ## Datos de prueba
 
-- Pruebas automáticas: `api/tests/Fixtures/eventos/` (`prueba`, `borrador` sin publicar, `roto` con errores), con datos ficticios. Cada prueba los copia a una carpeta temporal.
+- Pruebas automáticas: `api/tests/Fixtures/eventos/` (`prueba`, `borrador` sin publicar, `roto` con errores, en el formato anterior; `nueva`, en `invitacion.csv`), con datos ficticios. Cada prueba los copia a una carpeta temporal. `LegacyEquivalenceTest` comprueba que el formato anterior y el nuevo dan la misma invitación.
 - Pruebas a mano: `eventos/nat-prueba/`, una copia privada del evento real con su propia clave del panel.
 - **Nunca** usar datos reales en lo que se versiona.
