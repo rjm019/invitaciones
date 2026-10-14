@@ -3,15 +3,19 @@
 **/.env
 !**/.env.example
 
-# Dependencias
+# Dependencias y cachés
 **/node_modules/
 **/vendor/
+**/.vite/
 
 # Datos reales de personas: nunca al repo
 docs/plan-invitaciones/02-diseno-nat/privado/
 recepcion/ejemplos/
 recepcion/prototipo/
 recepcion/data/
+# Boda original (referencia en desarrollo): fotos reales y canción con derechos. Solo el favicon se versiona.
+web/public/*
+!web/public/favicon.ico
 api/storage/app/public/eventos/
 # Layouts de eventos: datos reales (contenido, fotos, familias, respuestas). Nunca al repo.
 eventos/*
