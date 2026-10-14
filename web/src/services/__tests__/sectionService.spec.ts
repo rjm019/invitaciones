@@ -76,6 +76,26 @@ describe('resolveSections', () => {
     expect(out.map((s) => s.panel)).toEqual([false, true])
   })
 
+  it('los adornos de la sección van encima de los del tema; null lo quita', () => {
+    const sprites = { frame: { ratio: 1, parts: [] }, other: { ratio: 2, glints: [] } }
+    const [s] = resolveSections(
+      {
+        sections: [
+          section({
+            key: 'itinerario',
+            decor: { frame: 'https://cdn.test/marco.webp', missing: null },
+          }),
+        ],
+      },
+      { sections: { itinerary: { ...theme.sections.itinerary, sprites } } },
+      resolve,
+    )
+    expect(s.decor).toEqual({ frame: 'https://cdn.test/marco.webp', missing: null })
+    // Las figuras del archivo del tema ya no aplican al adorno cambiado.
+    expect(s.sprites).toEqual({ other: { ratio: 2, glints: [] } })
+    expect(s.key).toBe('itinerario')
+  })
+
   it('dos secciones del mismo tipo reciben ids distintos para sus anclas', () => {
     const out = resolveSections(
       { sections: [section({ type: 'quote' }), section({ type: 'quote' })] },

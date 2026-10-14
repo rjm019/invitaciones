@@ -1,7 +1,8 @@
 /**
  * Contrato del evento tal como lo entrega la API (GET /api/public/events/{slug}).
- * La API lo arma desde el layout del evento (layout.xlsx o CSV); ver
- * api/app/Services/Layout/EventConfigBuilder.php.
+ * La API lo arma desde la invitación del evento (invitacion.csv, ver
+ * api/app/Services/Design/InvitationConfigBuilder.php) o, en el formato anterior, desde
+ * su layout.xlsx (api/app/Services/Layout/EventConfigBuilder.php).
  */
 
 export type EffectName =
@@ -34,6 +35,16 @@ export type DesktopWidth = 'full' | 'half'
 /** Lugar que ocupa la sección en la cuadrícula de escritorio. */
 export type DesktopSlot = 'full' | 'left' | 'right'
 
+/** Letra, color y tamaño de un bloque de texto de una sección (título, horas…). */
+export interface TextStyle {
+  /** Familia de Google Fonts. */
+  font?: string
+  /** Hex (#RRGGBB) o nombre de token de la paleta (accent, primary…). */
+  color?: string
+  /** Multiplicador sobre el tamaño del tema (0.5 a 2.5). */
+  size?: number
+}
+
 export interface SectionConfig {
   type: string
   title?: string
@@ -45,6 +56,16 @@ export interface SectionConfig {
   effects: string[]
   visible: boolean
   desktop?: DesktopWidth
+  /** Id de la sección en la invitación (invitacion.csv): "itinerario", "frase-2". */
+  key?: string
+  /** Colores propios de la sección (token → hex o nombre de otro token), encima de la paleta. */
+  colors?: Record<string, string>
+  /** Adornos del tema cambiados en esta sección: ranura → archivo o URL; null = sin adorno. */
+  decor?: Record<string, string | null>
+  /** Estilo de cada bloque de texto de la sección ("title", "time"…). */
+  text_styles?: Record<string, TextStyle>
+  /** Imagen propia de la sección (la foto de "foto"). */
+  image?: string | null
 }
 
 export interface ItineraryItem {
@@ -119,6 +140,10 @@ export interface EventConfig {
   hotels: EventHotel[]
   /** Archivos de eventos/<slug>/media → URL. */
   assets: Record<string, string>
+  /** Papel de la página y adornos que flotan (si la invitación cambia los del tema). */
+  page?: { image?: string; decor?: boolean }
+  /** Fuentes que usan los estilos de texto de las secciones (se cargan de Google Fonts). */
+  extra_fonts?: string[]
 }
 
 /** Rectángulo dentro de una imagen, en % de su ancho (x, w) y alto (y, h). */

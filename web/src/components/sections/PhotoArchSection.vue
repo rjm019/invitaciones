@@ -16,7 +16,8 @@ const props = defineProps<{ section: ResolvedSection }>()
 const { event } = useEvent()
 const reduced = useReducedMotion()
 
-const photo = computed(() => event.value.media.portrait)
+// Cada sección de foto puede traer la suya; si no, el retrato del evento.
+const photo = computed(() => props.section.image ?? event.value.media.portrait)
 const alt = computed(
   () =>
     `Foto de ${event.value.celebrant.short_name || event.value.celebrant.full_name || 'la festejada'}`,
@@ -32,7 +33,7 @@ const offset = useParallax(
 
 <template>
   <div class="photo-arch">
-    <h2 v-if="section.title" class="photo-arch__title">{{ section.title }}</h2>
+    <h2 v-if="section.title" class="photo-arch__title" data-text="title">{{ section.title }}</h2>
     <SpriteDecor
       v-if="section.decor.butterflies"
       :src="section.decor.butterflies"
@@ -109,12 +110,12 @@ const offset = useParallax(
   left: 3%;
   z-index: 1;
   margin: 0;
-  font-family: var(--font-caps);
+  font-family: var(--t-title-font, var(--font-caps));
   font-weight: 400;
-  font-size: clamp(2.2rem, 12cqi, 3.2rem);
+  font-size: calc(clamp(2.2rem, 12cqi, 3.2rem) * var(--t-title-size, 1));
   letter-spacing: 0.16em;
   line-height: 1;
-  color: var(--color-primary);
+  color: var(--t-title-color, var(--color-primary));
 }
 .photo-arch__stars {
   position: absolute;

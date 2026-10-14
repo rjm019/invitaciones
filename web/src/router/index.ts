@@ -25,6 +25,12 @@ const routes: RouteRecordRaw[] = [
     component: EventPage,
     props: true,
   },
+  // Gestor de invitaciones: la vista previa del editor (va dentro de un iframe).
+  {
+    path: '/gestor/vista-previa',
+    name: 'manager-preview',
+    component: () => import('../pages/ManagerPreviewPage.vue'),
+  },
 ]
 
 // La boda original queda como referencia visual mientras se porta al tema boda-salvia.

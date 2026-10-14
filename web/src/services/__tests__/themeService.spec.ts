@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { fontVars, googleFontsUrl, paletteVars, resolveFonts } from '../themeService'
+import {
+  extraFonts,
+  fontVars,
+  googleFontsUrl,
+  paletteVars,
+  resolveFonts,
+  sectionStyleVars,
+} from '../themeService'
 
 describe('themeService', () => {
   it('la paleta del layout se vuelve --color-*; lo inválido se ignora', () => {
@@ -43,5 +50,42 @@ describe('themeService', () => {
       '--font-script': '"Pinyon Script", cursive',
       '--font-serif': '"EB Garamond", serif',
     })
+  })
+
+  it('los colores propios de una sección se vuelven --color-* solo para ella', () => {
+    expect(
+      sectionStyleVars({
+        colors: { text: '#FFFFFF', primary: 'accent', accent: 'accent', 'mal token': '#000' },
+      }),
+    ).toEqual({
+      '--color-text': '#FFFFFF',
+      '--color-primary': 'var(--color-accent)',
+    })
+  })
+
+  it('cada bloque de texto tiene su letra, color y tamaño; lo inválido se ignora', () => {
+    expect(
+      sectionStyleVars({
+        text_styles: {
+          title: { font: 'Great Vibes', color: 'accent-strong', size: 1.3 },
+          time: { color: '#2F4A7A', size: 4 },
+          text: { font: "Lora'; background:url(x)" },
+        },
+      }),
+    ).toEqual({
+      '--t-title-font': '"Great Vibes", serif',
+      '--t-title-color': 'var(--color-accent-strong)',
+      '--t-title-size': '1.3',
+      '--t-time-color': '#2F4A7A',
+    })
+    expect(sectionStyleVars({})).toEqual({})
+  })
+
+  it('las fuentes de los textos se piden una vez y sin pesos', () => {
+    expect(extraFonts(['Great Vibes', 'Lora', 'Great Vibes', 'mala"fuente'])).toEqual([
+      { family: 'Great Vibes' },
+      { family: 'Lora' },
+    ])
+    expect(extraFonts(undefined)).toEqual([])
   })
 })

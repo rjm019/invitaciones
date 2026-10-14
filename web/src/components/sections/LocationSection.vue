@@ -35,7 +35,7 @@ const places = computed(() =>
 
 <template>
   <div class="location">
-    <h2 class="location__title">
+    <h2 class="location__title" data-text="title">
       <TypewriterText
         :text="title"
         :active="section.effects.includes('typewriter')"
@@ -45,9 +45,9 @@ const places = computed(() =>
     <AppIcon name="location-dot" class="location__pin" />
 
     <article v-for="(place, i) in places" :key="i" class="location__place">
-      <p v-if="place.label" class="location__label">{{ place.label }}</p>
-      <h3 class="location__name">{{ place.name }}</h3>
-      <p v-if="place.time || place.address" class="location__detail">
+      <p v-if="place.label" class="location__label" data-text="label">{{ place.label }}</p>
+      <h3 class="location__name" data-text="place">{{ place.name }}</h3>
+      <p v-if="place.time || place.address" class="location__detail" data-text="detail">
         <span v-if="place.time">{{ place.time }}</span>
         <span v-if="place.address">{{ place.address }}</span>
       </p>
@@ -55,6 +55,7 @@ const places = computed(() =>
         v-if="place.maps_url"
         :href="place.maps_url"
         class="location__button btn-shine"
+        data-text="button"
         target="_blank"
         rel="noopener"
         :aria-label="`${button}: ${place.name}`"
@@ -85,11 +86,11 @@ const places = computed(() =>
 }
 .location__title {
   margin: 0;
-  font-family: var(--font-script);
+  font-family: var(--t-title-font, var(--font-script));
   font-weight: 400;
-  font-size: clamp(2.2rem, 11.5cqi, 3.2rem);
+  font-size: calc(clamp(2.2rem, 11.5cqi, 3.2rem) * var(--t-title-size, 1));
   line-height: 1.1;
-  color: var(--color-primary);
+  color: var(--t-title-color, var(--color-primary));
 }
 .location__pin {
   font-size: 0.6rem;
@@ -107,35 +108,37 @@ const places = computed(() =>
 }
 .location__label {
   margin: 0;
-  font-family: var(--font-script-mono);
-  font-size: clamp(1.4rem, 8cqi, 2rem);
-  color: var(--color-primary);
+  font-family: var(--t-label-font, var(--font-script-mono));
+  font-size: calc(clamp(1.4rem, 8cqi, 2rem) * var(--t-label-size, 1));
+  color: var(--t-label-color, var(--color-primary));
 }
 .location__name {
   margin: 0;
   max-width: 18em;
-  font-family: var(--font-caps);
+  font-family: var(--t-place-font, var(--font-caps));
   font-weight: 400;
-  font-size: clamp(1.2rem, 6.4cqi, 1.6rem);
+  font-size: calc(clamp(1.2rem, 6.4cqi, 1.6rem) * var(--t-place-size, 1));
   letter-spacing: 0.06em;
   line-height: 1.35;
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--t-place-color, var(--color-text));
 }
 .location__detail {
   display: grid;
   margin: 0;
-  font-size: var(--text-body);
+  font-size: calc(var(--text-body) * var(--t-detail-size, 1));
+  font-family: var(--t-detail-font);
+  color: var(--t-detail-color);
 }
 .location__button {
   display: inline-block;
   padding: 0.3rem 1.1rem;
   border-radius: 6px;
   background: var(--button-gradient);
-  color: var(--color-text);
-  font-family: var(--font-button);
+  color: var(--t-button-color, var(--color-text));
+  font-family: var(--t-button-font, var(--font-button));
   font-weight: 600;
-  font-size: clamp(0.85rem, 4cqi, 1rem);
+  font-size: calc(clamp(0.85rem, 4cqi, 1rem) * var(--t-button-size, 1));
   letter-spacing: 0.04em;
   text-transform: uppercase;
   text-decoration: underline;

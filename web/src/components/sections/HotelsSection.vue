@@ -29,10 +29,12 @@ const cardStyle = computed(() =>
 
 <template>
   <div class="hotels">
-    <h2 class="hotels__title">{{ title }}</h2>
+    <h2 class="hotels__title" data-text="title">{{ title }}</h2>
     <AppIcon name="bed" class="hotels__icon decor-float" />
-    <p v-if="section.subtitle" class="hotels__subtitle">{{ section.subtitle }}</p>
-    <p v-if="section.text" class="hotels__text">{{ section.text }}</p>
+    <p v-if="section.subtitle" class="hotels__subtitle" data-text="subtitle">
+      {{ section.subtitle }}
+    </p>
+    <p v-if="section.text" class="hotels__text" data-text="text">{{ section.text }}</p>
 
     <div class="hotels__list">
       <article v-for="hotel in hotels" :key="hotel.name" class="hotels__card" :style="cardStyle">
@@ -45,20 +47,21 @@ const cardStyle = computed(() =>
             decoding="async"
           />
         </div>
-        <h3 class="hotels__name">{{ hotel.name }}</h3>
+        <h3 class="hotels__name" data-text="name">{{ hotel.name }}</h3>
         <img
           v-if="section.decor.divider"
           :src="section.decor.divider"
           alt=""
           class="hotels__divider"
         />
-        <p v-if="hotel.note" class="hotels__note">{{ hotel.note }}</p>
-        <p v-if="hotel.address" class="hotels__address">{{ hotel.address }}</p>
+        <p v-if="hotel.note" class="hotels__note" data-text="note">{{ hotel.note }}</p>
+        <p v-if="hotel.address" class="hotels__address" data-text="address">{{ hotel.address }}</p>
         <div v-if="hotel.maps_url || hotel.tel" class="hotels__actions">
           <a
             v-if="hotel.maps_url"
             :href="hotel.maps_url"
             class="hotels__button btn-shine"
+            data-text="button"
             target="_blank"
             rel="noopener"
             :aria-label="`${button}: ${hotel.name}`"
@@ -69,6 +72,7 @@ const cardStyle = computed(() =>
             v-if="hotel.tel"
             :href="hotel.tel"
             class="hotels__call"
+            data-text="button"
             :aria-label="`Llamar a ${hotel.name}`"
           >
             <AppIcon name="phone" />
@@ -92,11 +96,11 @@ const cardStyle = computed(() =>
 }
 .hotels__title {
   margin: 0;
-  font-family: var(--font-script);
+  font-family: var(--t-title-font, var(--font-script));
   font-weight: 400;
-  font-size: clamp(2.2rem, 11.5cqi, 3.2rem);
+  font-size: calc(clamp(2.2rem, 11.5cqi, 3.2rem) * var(--t-title-size, 1));
   line-height: 1.1;
-  color: var(--color-primary);
+  color: var(--t-title-color, var(--color-primary));
 }
 .hotels__icon {
   font-size: 0.9rem;
@@ -104,17 +108,19 @@ const cardStyle = computed(() =>
 }
 .hotels__subtitle {
   margin: 0.3rem 0 0;
-  font-family: var(--font-caps);
-  font-size: clamp(0.95rem, 4.6cqi, 1.15rem);
+  font-family: var(--t-subtitle-font, var(--font-caps));
+  font-size: calc(clamp(0.95rem, 4.6cqi, 1.15rem) * var(--t-subtitle-size, 1));
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--t-subtitle-color, var(--color-text));
 }
 .hotels__text {
   max-width: 24rem;
   margin: 0;
-  font-size: var(--text-body);
+  font-size: calc(var(--text-body) * var(--t-text-size, 1));
   line-height: 1.4;
+  font-family: var(--t-text-font);
+  color: var(--t-text-color);
 }
 /* Celular: una columna. Si la sección es de toda la fila en escritorio, van lado a lado. */
 .hotels__list {
@@ -161,13 +167,13 @@ const cardStyle = computed(() =>
 }
 .hotels__name {
   margin: 0;
-  font-family: var(--font-caps);
+  font-family: var(--t-name-font, var(--font-caps));
   font-weight: 400;
-  font-size: clamp(1.1rem, 5.6cqi, 1.4rem);
+  font-size: calc(clamp(1.1rem, 5.6cqi, 1.4rem) * var(--t-name-size, 1));
   letter-spacing: 0.06em;
   line-height: 1.3;
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--t-name-color, var(--color-text));
 }
 .hotels__divider {
   width: 55%;
@@ -175,17 +181,19 @@ const cardStyle = computed(() =>
 }
 .hotels__note {
   margin: 0;
-  font-family: var(--font-serif);
+  font-family: var(--t-note-font, var(--font-serif));
   font-style: italic;
-  font-size: clamp(1rem, 5cqi, 1.2rem);
-  color: var(--color-primary);
+  font-size: calc(clamp(1rem, 5cqi, 1.2rem) * var(--t-note-size, 1));
+  color: var(--t-note-color, var(--color-primary));
 }
 .hotels__address {
   max-width: 20rem;
   margin: 0;
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--t-address-size, 1));
   line-height: 1.35;
   opacity: 0.85;
+  font-family: var(--t-address-font);
+  color: var(--t-address-color);
 }
 .hotels__actions {
   display: flex;
@@ -198,6 +206,9 @@ const cardStyle = computed(() =>
 .hotels__button,
 .hotels__call {
   min-height: 2.3rem;
+  font-family: var(--t-button-font);
+  color: var(--t-button-color);
+  font-size: calc(1em * var(--t-button-size, 1));
 }
 .hotels__button {
   display: inline-flex;
@@ -205,10 +216,10 @@ const cardStyle = computed(() =>
   padding: 0.3rem 1.1rem;
   border-radius: 6px;
   background: var(--button-gradient);
-  color: var(--color-text);
-  font-family: var(--font-button);
+  color: var(--t-button-color, var(--color-text));
+  font-family: var(--t-button-font, var(--font-button));
   font-weight: 600;
-  font-size: clamp(0.85rem, 4cqi, 1rem);
+  font-size: calc(clamp(0.85rem, 4cqi, 1rem) * var(--t-button-size, 1));
   letter-spacing: 0.04em;
   text-transform: uppercase;
   text-decoration: underline;
@@ -222,9 +233,9 @@ const cardStyle = computed(() =>
   padding: 0.3rem 1rem;
   border: 1px solid var(--color-primary);
   border-radius: 999px;
-  color: var(--color-primary);
-  font-family: var(--font-serif);
-  font-size: 1rem;
+  color: var(--t-button-color, var(--color-primary));
+  font-family: var(--t-button-font, var(--font-serif));
+  font-size: calc(1rem * var(--t-button-size, 1));
   text-decoration: none;
 }
 .hotels__call :deep(.app-icon--svg) {

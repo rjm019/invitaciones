@@ -53,10 +53,10 @@ const shown = useInView(root)
         alt=""
         class="save-date__glitter"
       />
-      <h2 class="save-date__title">{{ title }}</h2>
+      <h2 class="save-date__title" data-text="title">{{ title }}</h2>
     </div>
 
-    <p v-if="parts" class="save-date__date">
+    <p v-if="parts" class="save-date__date" data-text="date">
       <span>{{ parts.day }}</span>
       <span class="save-date__heart" aria-hidden="true">♥</span>
       <span class="save-date__month">{{ parts.month }}</span>
@@ -105,11 +105,11 @@ const shown = useInView(root)
   position: relative;
   margin: 0;
   padding: 0.6em 0;
-  font-family: var(--font-script);
+  font-family: var(--t-title-font, var(--font-script));
   font-weight: 400;
-  font-size: clamp(2.2rem, 11.5cqi, 3.2rem);
+  font-size: calc(clamp(2.2rem, 11.5cqi, 3.2rem) * var(--t-title-size, 1));
   line-height: 1;
-  color: var(--color-primary);
+  color: var(--t-title-color, var(--color-primary));
 }
 .save-date__date {
   display: flex;
@@ -117,10 +117,10 @@ const shown = useInView(root)
   justify-content: center;
   gap: 0.55em;
   margin: 0;
-  font-family: var(--font-caps);
-  font-size: clamp(1.3rem, 7.4cqi, 1.9rem);
+  font-family: var(--t-date-font, var(--font-caps));
+  font-size: calc(clamp(1.3rem, 7.4cqi, 1.9rem) * var(--t-date-size, 1));
   letter-spacing: 0.12em;
-  color: var(--color-primary);
+  color: var(--t-date-color, var(--color-primary));
 }
 .save-date__month {
   text-transform: uppercase;

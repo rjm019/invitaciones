@@ -41,9 +41,13 @@ const showHint = ref(false)
       <div class="rsvp__card" :class="{ 'rsvp__card--image': section.decor.card }">
         <img v-if="section.decor.card" :src="section.decor.card" alt="" class="rsvp__card-bg" />
         <div class="rsvp__body">
-          <h2 class="rsvp__title">{{ title }}</h2>
-          <p v-if="section.subtitle" class="rsvp__subtitle">{{ section.subtitle }}</p>
-          <p v-if="deadline && isOpen" class="rsvp__deadline">Antes del {{ deadline }}</p>
+          <h2 class="rsvp__title" data-text="title">{{ title }}</h2>
+          <p v-if="section.subtitle" class="rsvp__subtitle" data-text="subtitle">
+            {{ section.subtitle }}
+          </p>
+          <p v-if="deadline && isOpen" class="rsvp__deadline" data-text="deadline">
+            Antes del {{ deadline }}
+          </p>
 
           <!-- Invitación general (sin pases): WhatsApp o la indicación de usar su enlace. -->
           <template v-if="!invitation">
@@ -51,13 +55,20 @@ const showHint = ref(false)
             <a
               v-else-if="whatsappUrl"
               class="rsvp__button"
+              data-text="button"
               :href="whatsappUrl"
               target="_blank"
               rel="noopener"
             >
               {{ section.button ?? '¡Confirma aquí!' }}
             </a>
-            <button v-else type="button" class="rsvp__button" @click="showHint = true">
+            <button
+              v-else
+              type="button"
+              class="rsvp__button"
+              data-text="button"
+              @click="showHint = true"
+            >
               {{ section.button ?? '¡Confirma aquí!' }}
             </button>
             <p v-if="showHint" class="rsvp__hint" role="status">
@@ -110,26 +121,28 @@ const showHint = ref(false)
 }
 .rsvp__title {
   margin: 0;
-  font-family: var(--font-script);
+  font-family: var(--t-title-font, var(--font-script));
   font-weight: 400;
-  font-size: clamp(2.1rem, 10.9cqi, 2.9rem);
+  font-size: calc(clamp(2.1rem, 10.9cqi, 2.9rem) * var(--t-title-size, 1));
   line-height: 1.15;
-  color: var(--color-primary);
+  color: var(--t-title-color, var(--color-primary));
 }
 .rsvp__subtitle {
   margin: 0.5rem 0 0;
-  font-family: var(--font-serif);
-  font-size: clamp(0.8rem, 3.7cqi, 0.95rem);
+  font-family: var(--t-subtitle-font, var(--font-serif));
+  font-size: calc(clamp(0.8rem, 3.7cqi, 0.95rem) * var(--t-subtitle-size, 1));
   text-transform: uppercase;
   line-height: 1.3;
+  color: var(--t-subtitle-color);
 }
 .rsvp__deadline {
   margin: 0.6rem 0 0;
-  font-family: var(--font-serif);
+  font-family: var(--t-deadline-font, var(--font-serif));
   font-weight: 600;
-  font-size: clamp(0.8rem, 3.7cqi, 0.95rem);
+  font-size: calc(clamp(0.8rem, 3.7cqi, 0.95rem) * var(--t-deadline-size, 1));
   letter-spacing: 0.15em;
   text-transform: uppercase;
+  color: var(--t-deadline-color);
 }
 /* El óvalo y sus rosas van juntos: las rosas se acomodan contra el óvalo, no contra el formulario. */
 .rsvp__oval {
@@ -145,10 +158,10 @@ const showHint = ref(false)
   border: 0;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-primary-soft) 45%, var(--color-surface));
-  color: var(--color-primary);
-  font-family: var(--font-display);
+  color: var(--t-button-color, var(--color-primary));
+  font-family: var(--t-button-font, var(--font-display));
   font-weight: 700;
-  font-size: clamp(1rem, 4.8cqi, 1.2rem);
+  font-size: calc(clamp(1rem, 4.8cqi, 1.2rem) * var(--t-button-size, 1));
   text-decoration: underline;
   text-underline-offset: 0.15em;
   cursor: pointer;

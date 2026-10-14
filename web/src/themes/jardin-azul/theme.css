@@ -35,3 +35,18 @@
   --panel-shadow: 0 6px 20px rgb(82 60 11 / 0.09);
   --panel-border: 1px solid rgb(150 121 44 / 0.22);
 }
+
+/*
+ * Sombras y filo de los paneles desde la paleta (texto y principal): si la invitación
+ * cambia esos colores, o una sección trae los suyos, la sombra los sigue. Con los colores
+ * del tema da exactamente los rgb() de arriba, que se quedan para navegadores sin color-mix.
+ */
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+  :root[data-theme='jardin-azul'],
+  :root[data-theme='jardin-azul'] .section--recolored {
+    --shadow-card: 0 8px 24px color-mix(in srgb, var(--color-text) 12%, transparent);
+    --shadow-button: 0 2px 4px color-mix(in srgb, var(--color-text) 35%, transparent);
+    --panel-shadow: 0 6px 20px color-mix(in srgb, var(--color-text) 9%, transparent);
+    --panel-border: 1px solid color-mix(in srgb, var(--color-primary) 22%, transparent);
+  }
+}

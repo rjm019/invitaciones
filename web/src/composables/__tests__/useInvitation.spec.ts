@@ -8,7 +8,13 @@ const { sendRsvp, sendDedication } = vi.hoisted(() => ({
 }))
 vi.mock('@/services/invitationService', () => ({ sendRsvp, sendDedication }))
 
-import { createInvitationContext, provideInvitation, useInvitation } from '../useInvitation'
+import {
+  createInvitationContext,
+  createPreviewInvitationContext,
+  provideInvitation,
+  provideInvitationContext,
+  useInvitation,
+} from '../useInvitation'
 
 const payload = { attending: true, guests: [{ full_name: 'Ana' }], song: null, message: null }
 
@@ -58,5 +64,46 @@ describe('useInvitation', () => {
     mount(Page)
     mount(Child)
     expect(seen).toEqual(['Abc123Def456', null])
+  })
+
+  it('la invitación de ejemplo de la vista previa confirma sin llamar al servidor', async () => {
+    sendRsvp.mockClear()
+    const start = {
+      label: 'Familia Ejemplo',
+      passes: 2,
+      guests: [],
+      remaining: 2,
+      open: true,
+      closed_message: null,
+      deadline: null,
+      dedication: null,
+    }
+    const ctx = createPreviewInvitationContext(start)
+
+    const updated = await ctx.submit({ attending: true, guests: [{ full_name: 'Ana' }] })
+    await ctx.dedicate({ name: 'Ana', message: 'Felicidades' })
+
+    expect(sendRsvp).not.toHaveBeenCalled()
+    expect(updated.guests[0]).toMatchObject({ slot: 1, full_name: 'Ana', attending: true })
+    expect(ctx.invitation.value?.dedication).toMatchObject({ name: 'Ana', message: 'Felicidades' })
+
+    let seen: unknown = null
+    mount(
+      defineComponent({
+        setup() {
+          provideInvitationContext(ctx)
+          return () =>
+            h(
+              defineComponent({
+                setup() {
+                  seen = useInvitation()
+                  return () => null
+                },
+              }),
+            )
+        },
+      }),
+    )
+    expect(seen).toBe(ctx)
   })
 })

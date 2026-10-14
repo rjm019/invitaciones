@@ -1,5 +1,6 @@
 import { inject, provide, ref, type InjectionKey, type Ref } from 'vue'
 import { sendDedication, sendRsvp } from '@/services/invitationService'
+import { previewRespond } from '@/services/previewService'
 import type { DedicationPayload, Invitation, RsvpPayload } from '@/types/invitation'
 
 export interface InvitationContext {
@@ -49,4 +50,35 @@ export function provideInvitation(token: string): InvitationContext {
 /** Invitación personal, o null en la invitación general (/e/:slug), que no tiene pases. */
 export function useInvitation(): InvitationContext | null {
   return inject(KEY, null)
+}
+
+/** Provee un contexto ya armado (la invitación de ejemplo de la vista previa del gestor). */
+export function provideInvitationContext(context: InvitationContext): void {
+  provide(KEY, context)
+}
+
+/**
+ * Invitación de ejemplo para la vista previa: confirmar y dejar dedicatoria se ven como de
+ * verdad, pero no se manda nada al servidor.
+ */
+export function createPreviewInvitationContext(start: Invitation): InvitationContext {
+  const invitation = ref<Invitation | null>(start)
+  const sending = ref(false)
+  return {
+    token: 'vista-previa',
+    invitation,
+    sending,
+    async submit(payload) {
+      invitation.value = previewRespond(invitation.value ?? start, payload, new Date())
+      return invitation.value
+    },
+    async dedicate(payload) {
+      const current = invitation.value ?? start
+      invitation.value = {
+        ...current,
+        dedication: { ...payload, sent_at: new Date().toISOString() },
+      }
+      return invitation.value
+    },
+  }
 }

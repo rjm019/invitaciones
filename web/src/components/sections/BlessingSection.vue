@@ -27,8 +27,8 @@ const archStyle = computed(() =>
           alt=""
           class="blessing__leaves"
         />
-        <p v-if="section.text" class="blessing__text">{{ section.text }}</p>
-        <p v-if="subtitle" class="blessing__subtitle">{{ subtitle }}</p>
+        <p v-if="section.text" class="blessing__text" data-text="text">{{ section.text }}</p>
+        <p v-if="subtitle" class="blessing__subtitle" data-text="subtitle">{{ subtitle }}</p>
         <img
           v-if="section.decor.divider"
           :src="section.decor.divider"
@@ -38,8 +38,15 @@ const archStyle = computed(() =>
 
         <dl v-if="event.family.length" class="blessing__family">
           <div v-for="group in event.family" :key="group.role" class="blessing__group">
-            <dt class="blessing__role">{{ group.role }}</dt>
-            <dd v-for="person in group.names" :key="person" class="blessing__name">{{ person }}</dd>
+            <dt class="blessing__role" data-text="role">{{ group.role }}</dt>
+            <dd
+              v-for="person in group.names"
+              :key="person"
+              class="blessing__name"
+              data-text="names"
+            >
+              {{ person }}
+            </dd>
           </div>
         </dl>
       </div>
@@ -95,17 +102,17 @@ const archStyle = computed(() =>
 }
 .blessing__text {
   margin: 0;
-  font-family: var(--font-serif);
-  font-size: clamp(1rem, 5.6cqi, 1.35rem);
+  font-family: var(--t-text-font, var(--font-serif));
+  font-size: calc(clamp(1rem, 5.6cqi, 1.35rem) * var(--t-text-size, 1));
   line-height: 1.25;
-  color: var(--color-text);
+  color: var(--t-text-color, var(--color-text));
 }
 .blessing__subtitle {
   margin: 0.6rem 0 0;
-  font-family: var(--font-script-mono);
-  font-size: clamp(1.4rem, 8.6cqi, 2.2rem);
+  font-family: var(--t-subtitle-font, var(--font-script-mono));
+  font-size: calc(clamp(1.4rem, 8.6cqi, 2.2rem) * var(--t-subtitle-size, 1));
   line-height: 1.1;
-  color: var(--color-primary);
+  color: var(--t-subtitle-color, var(--color-primary));
 }
 .blessing__divider {
   width: 95%;
@@ -120,17 +127,17 @@ const archStyle = computed(() =>
   gap: 0.1rem;
 }
 .blessing__role {
-  font-family: var(--font-script-mono);
-  font-size: clamp(1.4rem, 8.6cqi, 2.2rem);
+  font-family: var(--t-role-font, var(--font-script-mono));
+  font-size: calc(clamp(1.4rem, 8.6cqi, 2.2rem) * var(--t-role-size, 1));
   line-height: 1.1;
-  color: var(--color-primary);
+  color: var(--t-role-color, var(--color-primary));
 }
 .blessing__name {
   margin: 0;
-  font-family: var(--font-caps);
-  font-size: clamp(1.05rem, 6.4cqi, 1.6rem);
+  font-family: var(--t-names-font, var(--font-caps));
+  font-size: calc(clamp(1.05rem, 6.4cqi, 1.6rem) * var(--t-names-size, 1));
   letter-spacing: 0.04em;
-  color: var(--color-text);
+  color: var(--t-names-color, var(--color-text));
 }
 .blessing__bow {
   position: absolute;

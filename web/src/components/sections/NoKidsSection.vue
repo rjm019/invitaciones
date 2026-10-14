@@ -16,9 +16,9 @@ const text = computed(
 <template>
   <div class="no-kids">
     <img v-if="section.decor.bow" :src="section.decor.bow" alt="" class="no-kids__bow" />
-    <h2 class="no-kids__title">{{ title }}</h2>
-    <p v-if="badge" class="no-kids__badge">{{ badge }}</p>
-    <p v-if="text" class="no-kids__text">{{ text }}</p>
+    <h2 class="no-kids__title" data-text="title">{{ title }}</h2>
+    <p v-if="badge" class="no-kids__badge" data-text="subtitle">{{ badge }}</p>
+    <p v-if="text" class="no-kids__text" data-text="text">{{ text }}</p>
   </div>
 </template>
 
@@ -36,27 +36,28 @@ const text = computed(
 }
 .no-kids__title {
   margin: 0;
-  font-family: var(--font-script);
+  font-family: var(--t-title-font, var(--font-script));
   font-weight: 400;
-  font-size: var(--text-title);
+  font-size: calc(var(--text-title) * var(--t-title-size, 1));
   line-height: 1.15;
-  color: var(--color-primary);
+  color: var(--t-title-color, var(--color-primary));
 }
 .no-kids__badge {
   margin: var(--space-1) 0 0;
   padding: 0.3rem 1.1rem;
   border: 1px solid var(--color-primary);
   border-radius: 999px;
-  font-family: var(--font-caps);
-  font-size: var(--text-small);
+  font-family: var(--t-subtitle-font, var(--font-caps));
+  font-size: calc(var(--text-small) * var(--t-subtitle-size, 1));
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--color-primary);
+  color: var(--t-subtitle-color, var(--color-primary));
 }
 .no-kids__text {
   margin: var(--space-2) 0 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-body);
+  font-family: var(--t-text-font, var(--font-serif));
+  font-size: calc(var(--text-body) * var(--t-text-size, 1));
   line-height: 1.4;
+  color: var(--t-text-color);
 }
 </style>

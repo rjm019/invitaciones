@@ -9,7 +9,7 @@ defineProps<{ grid: MonthGrid; shown: boolean; label: string }>()
 </script>
 
 <template>
-  <table class="calendar" :class="{ 'is-shown': shown }" :aria-label="label">
+  <table class="calendar" data-text="calendar" :class="{ 'is-shown': shown }" :aria-label="label">
     <thead>
       <tr>
         <th v-for="(d, i) in grid.weekdays" :key="i" scope="col" class="calendar__weekday">
@@ -52,22 +52,24 @@ defineProps<{ grid: MonthGrid; shown: boolean; label: string }>()
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  font-family: var(--font-serif);
-  color: var(--color-primary);
+  font-family: var(--t-calendar-font, var(--font-serif));
+  color: var(--t-calendar-color, var(--color-primary));
 }
 .calendar__weekday {
   padding-bottom: 0.4em;
-  font-family: var(--font-caps);
+  font-family: var(--t-calendar-font, var(--font-caps));
   font-weight: 400;
-  font-size: clamp(1.05rem, 5.6cqi, 1.5rem);
+  font-size: calc(clamp(1.05rem, 5.6cqi, 1.5rem) * var(--t-calendar-size, 1));
 }
 .calendar__cell {
   position: relative;
   height: 2.6em;
   padding: 0;
   text-align: center;
-  font-size: clamp(1.05rem, 5.6cqi, 1.5rem);
+  font-size: calc(clamp(1.05rem, 5.6cqi, 1.5rem) * var(--t-calendar-size, 1));
   border-top: 1px solid var(--line);
+  font-family: var(--t-calendar-font);
+  color: var(--t-calendar-color);
 }
 .calendar__cell + .calendar__cell {
   border-left: 1px solid var(--line);

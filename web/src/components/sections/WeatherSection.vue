@@ -2,7 +2,9 @@
 import { computed, ref } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useEvent } from '@/composables/useEvent'
+import { usePreview } from '@/composables/usePreview'
 import { useWeather } from '@/composables/useWeather'
+import { previewWeather } from '@/services/previewService'
 import { dateParts, dayMonth } from '@/services/dateFormatService'
 import {
   describeWeather,
@@ -21,8 +23,15 @@ import type { ResolvedSection } from '@/types/event'
 const props = defineProps<{ section: ResolvedSection }>()
 const { event } = useEvent()
 
+const preview = usePreview()
+
 const root = ref<HTMLElement | null>(null)
-const { weather, status, now } = useWeather(() => event.value.slug, root)
+const { weather, status, now } = useWeather(
+  () => event.value.slug,
+  root,
+  // En el editor la invitación quizá no está publicada: se ve con datos de ejemplo.
+  () => (preview.value ? previewWeather(event.value) : null),
+)
 
 const title = computed(() => props.section.title ?? 'El clima')
 const place = computed(() => weather.value?.place || event.value.venue.city)
@@ -57,12 +66,12 @@ const note = computed(() => {
 
 <template>
   <div ref="root" class="weather">
-    <h2 class="weather__title">{{ title }}</h2>
-    <p v-if="place" class="weather__place">
+    <h2 class="weather__title" data-text="title">{{ title }}</h2>
+    <p v-if="place" class="weather__place" data-text="place">
       <AppIcon name="location-dot" class="weather__pin" />
       {{ place }}
     </p>
-    <p v-if="section.text" class="weather__text">{{ section.text }}</p>
+    <p v-if="section.text" class="weather__text" data-text="text">{{ section.text }}</p>
 
     <p v-if="status === 'idle' || status === 'loading'" class="weather__status" aria-live="polite">
       Consultando el clima…
@@ -76,7 +85,7 @@ const note = computed(() => {
 
       <div class="weather__day">
         <AppIcon :name="look?.icon" class="weather__icon" />
-        <p class="weather__temps">
+        <p class="weather__temps" data-text="data">
           <span class="weather__max" :aria-label="`Máxima ${formatTemp(weather.day.max)}`">
             {{ formatTemp(weather.day.max) }}
           </span>
@@ -95,7 +104,7 @@ const note = computed(() => {
         <li v-for="h in hours" :key="h.time" class="weather__hour">
           <span class="weather__hour-time">{{ h.label }}</span>
           <AppIcon :name="h.icon" class="weather__hour-icon" />
-          <span class="weather__hour-temp">{{ formatTemp(h.temp) }}</span>
+          <span class="weather__hour-temp" data-text="data">{{ formatTemp(h.temp) }}</span>
         </li>
       </ol>
 
@@ -122,21 +131,22 @@ const note = computed(() => {
 }
 .weather__title {
   margin: 0;
-  font-family: var(--font-script);
+  font-family: var(--t-title-font, var(--font-script));
   font-weight: 400;
-  font-size: clamp(2.2rem, 11.5cqi, 3.2rem);
+  font-size: calc(clamp(2.2rem, 11.5cqi, 3.2rem) * var(--t-title-size, 1));
   line-height: 1.1;
-  color: var(--color-primary);
+  color: var(--t-title-color, var(--color-primary));
 }
 .weather__place {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   margin: 0;
-  font-family: var(--font-caps);
-  font-size: clamp(0.95rem, 4.4cqi, 1.15rem);
+  font-family: var(--t-place-font, var(--font-caps));
+  font-size: calc(clamp(0.95rem, 4.4cqi, 1.15rem) * var(--t-place-size, 1));
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: var(--t-place-color);
 }
 .weather__pin {
   width: 0.9em;
@@ -146,8 +156,10 @@ const note = computed(() => {
 .weather__text {
   max-width: 22rem;
   margin: 0;
-  font-size: var(--text-body);
+  font-size: calc(var(--text-body) * var(--t-text-size, 1));
   line-height: 1.45;
+  font-family: var(--t-text-font);
+  color: var(--t-text-color);
 }
 .weather__status {
   margin: var(--space-1) 0 0;
@@ -189,17 +201,19 @@ const note = computed(() => {
   align-items: baseline;
   gap: 0.5rem;
   margin: 0;
-  font-family: var(--font-serif);
+  font-family: var(--t-data-font, var(--font-serif));
   font-variant-numeric: tabular-nums;
+  color: var(--t-data-color);
+  font-size: calc(1em * var(--t-data-size, 1));
 }
 .weather__max {
-  font-size: clamp(2.8rem, 14cqi, 3.8rem);
+  font-size: calc(clamp(2.8rem, 14cqi, 3.8rem) * var(--t-data-size, 1));
   line-height: 1;
-  color: var(--color-primary);
+  color: var(--t-data-color, var(--color-primary));
 }
 .weather__min {
-  font-size: clamp(1.5rem, 7.5cqi, 2rem);
-  color: var(--color-text);
+  font-size: calc(clamp(1.5rem, 7.5cqi, 2rem) * var(--t-data-size, 1));
+  color: var(--t-data-color, var(--color-text));
   opacity: 0.75;
 }
 .weather__min::before {
@@ -251,9 +265,9 @@ const note = computed(() => {
   color: var(--color-accent);
 }
 .weather__hour-temp {
-  font-family: var(--font-serif);
-  font-size: clamp(1.2rem, 5.6cqi, 1.45rem);
-  color: var(--color-primary);
+  font-family: var(--t-data-font, var(--font-serif));
+  font-size: calc(clamp(1.2rem, 5.6cqi, 1.45rem) * var(--t-data-size, 1));
+  color: var(--t-data-color, var(--color-primary));
   font-variant-numeric: tabular-nums;
 }
 .weather__advice {

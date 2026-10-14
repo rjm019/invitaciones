@@ -35,7 +35,7 @@ const frameStyle = computed(() =>
       :class="{ 'itinerary__frame--image': section.decor.frame }"
       :style="frameStyle"
     >
-      <h2 class="itinerary__title">{{ title }}</h2>
+      <h2 class="itinerary__title" data-text="title">{{ title }}</h2>
 
       <ol
         ref="track"
@@ -54,8 +54,10 @@ const frameStyle = computed(() =>
           :style="{ gridRow: i + 1 }"
         >
           <AppIcon v-if="item.icon" :name="item.icon" class="itinerary__icon" />
-          <span class="itinerary__label">{{ item.label }}</span>
-          <time class="itinerary__time" :datetime="item.time">{{ time12h(item.time) }}</time>
+          <span class="itinerary__label" data-text="activity">{{ item.label }}</span>
+          <time class="itinerary__time" data-text="time" :datetime="item.time">{{
+            time12h(item.time)
+          }}</time>
         </li>
 
         <span
@@ -102,10 +104,10 @@ const frameStyle = computed(() =>
 }
 .itinerary__title {
   margin: calc(var(--space-2) * -1) 0 var(--space-2);
-  font-family: var(--font-script);
+  font-family: var(--t-title-font, var(--font-script));
   font-weight: 400;
-  font-size: clamp(2.3rem, 12cqi, 3.2rem);
-  color: var(--color-primary);
+  font-size: calc(clamp(2.3rem, 12cqi, 3.2rem) * var(--t-title-size, 1));
+  color: var(--t-title-color, var(--color-primary));
 }
 .itinerary__list {
   position: relative;
@@ -166,16 +168,18 @@ const frameStyle = computed(() =>
   color: var(--color-primary);
 }
 .itinerary__label {
-  font-family: var(--font-caps);
-  font-size: clamp(1.05rem, 5cqi, 1.3rem);
+  font-family: var(--t-activity-font, var(--font-caps));
+  font-size: calc(clamp(1.05rem, 5cqi, 1.3rem) * var(--t-activity-size, 1));
   letter-spacing: 0.06em;
   line-height: 1.2;
+  color: var(--t-activity-color);
 }
 .itinerary__time {
-  font-family: var(--font-serif);
+  font-family: var(--t-time-font, var(--font-serif));
   font-weight: 600;
-  font-size: clamp(1.05rem, 5cqi, 1.3rem);
+  font-size: calc(clamp(1.05rem, 5cqi, 1.3rem) * var(--t-time-size, 1));
   letter-spacing: 0.06em;
+  color: var(--t-time-color);
 }
 /* Variante "lista": todas las actividades de un lado. En pantallas muy angostas también. */
 .itinerary__list--lista .itinerary__item {

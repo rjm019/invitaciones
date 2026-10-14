@@ -11,8 +11,14 @@ const TICK_MS = 60 * 1000
  * Clima del evento: se pide cuando la sección está por entrar a la pantalla y, si es
  * pronóstico, se renueva cada 15 minutos mientras la invitación sigue abierta y a la vista
  * (y al volver a la pestaña). El servidor guarda caché, así que renovar es barato.
+ * En la vista previa del gestor se usan datos de ejemplo (`sample`).
  */
-export function useWeather(slug: () => string, target: Ref<Element | null>) {
+export function useWeather(
+  slug: () => string,
+  target: Ref<Element | null>,
+  /** En la vista previa del gestor: datos de ejemplo en lugar de pedirlos al servidor. */
+  sample?: () => EventWeather | null,
+) {
   const weather = ref<EventWeather | null>(null)
   const status = ref<'idle' | 'loading' | 'ready' | 'error'>('idle')
   const now = ref(Date.now())
@@ -21,7 +27,8 @@ export function useWeather(slug: () => string, target: Ref<Element | null>) {
   async function load(): Promise<void> {
     status.value = weather.value ? status.value : 'loading'
     try {
-      weather.value = await getWeather(slug())
+      const fake = sample?.()
+      weather.value = fake ?? (await getWeather(slug()))
       fetchedAt = Date.now()
       status.value = 'ready'
     } catch {
