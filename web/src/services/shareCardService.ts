@@ -140,6 +140,27 @@ export interface CardStyle {
   engraved: string
 }
 
+/**
+ * Colores y letras de la tarjeta: de la paleta ya calculada de la invitación (token → color,
+ * los mismos `--color-*`) y de sus fuentes por rol. Lo que falte, con los del tema base.
+ */
+export function cardStyle(
+  colors: Record<string, string>,
+  fonts: Record<string, { family: string } | undefined>,
+): CardStyle {
+  const pick = (token: string, fallback: string) => colors[token]?.trim() || fallback
+  return {
+    bg: pick('bg', '#f3f1ec'),
+    text: pick('text', '#523c0b'),
+    primary: pick('primary', '#96792c'),
+    primarySoft: pick('primary-soft', '#e2c77a'),
+    accent: pick('accent-strong', '#3d6a92'),
+    script: fonts.script?.family ?? 'cursive',
+    serif: fonts.serif?.family ?? 'Georgia',
+    engraved: fonts.engraved?.family ?? fonts.caps?.family ?? 'Georgia',
+  }
+}
+
 /** El tamaño más grande (de `max` hacia abajo) en que el texto cabe en `maxWidth`. */
 export function fitFont(
   ctx: Pick<CardContext, 'font' | 'measureText'>,
@@ -215,7 +236,9 @@ export function addressLines(
       best = pair
     }
   }
-  const longest = best.reduce((a, b) => (ctx.measureText(a).width >= ctx.measureText(b).width ? a : b))
+  const longest = best.reduce((a, b) =>
+    ctx.measureText(a).width >= ctx.measureText(b).width ? a : b,
+  )
   return { lines: best, size: fitFont(ctx, longest, font, Math.round(max * 0.78), maxWidth) }
 }
 
@@ -345,7 +368,17 @@ export function drawShareCard(
     if (art.seal) {
       const w = 150
       const h = (w * art.seal.height) / art.seal.width
-      ctx.drawImage(art.seal.image, 0, 0, art.seal.width, art.seal.height, cx - w / 2, H * ENVELOPE.seal - h / 2, w, h)
+      ctx.drawImage(
+        art.seal.image,
+        0,
+        0,
+        art.seal.width,
+        art.seal.height,
+        cx - w / 2,
+        H * ENVELOPE.seal - h / 2,
+        w,
+        h,
+      )
     }
   }
 

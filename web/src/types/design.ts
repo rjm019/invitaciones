@@ -5,6 +5,7 @@
  * español porque son las del CSV que la persona puede abrir en Excel.
  */
 import type { EventConfig } from './event'
+import type { PanelBrand } from './panel'
 
 export type DesignValues = Record<string, string>
 
@@ -170,7 +171,7 @@ export interface DesignBuild {
   changes: DesignChange[]
   config: EventConfig
   issues: DesignIssue[]
-  brand: Record<string, unknown>
+  brand: PanelBrand
 }
 
 /** Lo que el editor recibe al abrir una invitación. */

@@ -20,6 +20,7 @@ import type { AssetResolver } from '@/services/assetService'
 import type { ThemeManifest } from '@/themes/types'
 import type { Catalog, Design, DesignIssue, DesignValues } from '@/types/design'
 import type { EventConfig } from '@/types/event'
+import type { PanelBrand } from '@/types/panel'
 
 export type Selection =
   | { kind: 'style' }
@@ -54,6 +55,8 @@ export interface EditorContext {
   catalog: ComputedRef<Catalog>
   design: ComputedRef<Design>
   config: ShallowRef<EventConfig | null>
+  /** Lo que el panel del cliente toma de la invitación (título, colores, tarjeta para WhatsApp). */
+  brand: ShallowRef<PanelBrand | null>
   issues: Ref<DesignIssue[]>
   theme: ShallowRef<ThemeManifest | null>
   /** Colores y letras del tema ya calculados en la vista previa (lo que se ve sin cambiar nada). */

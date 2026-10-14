@@ -61,7 +61,7 @@ const mobileTab = ref<'sections' | 'edit' | 'preview'>('preview')
 const catalog = computed(() => editor.catalog.value!)
 const design = computed(() => editor.design.value!)
 const ready = computed(() => !!editor.catalog.value && !!editor.design.value)
-const title = computed(() => (editor.brand.value?.title as string | undefined) || props.slug)
+const title = computed(() => editor.brand.value?.title || props.slug)
 const errors = computed(() => editor.issues.value.filter((i) => i.level === 'error').length)
 const labels = computed(() =>
   Object.fromEntries(
@@ -141,6 +141,7 @@ provideEditor({
   catalog,
   design,
   config: editor.config,
+  brand: editor.brand,
   issues: editor.issues,
   theme,
   themeColors,
