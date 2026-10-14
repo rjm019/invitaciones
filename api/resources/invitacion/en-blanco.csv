@@ -1,0 +1,55 @@
+﻿seccion,elemento,campo,valor
+evento,,tipo,xv
+evento,,tema,jardin-azul
+evento,,festejada,Nombre de la festejada
+evento,,festejada_corto,Nombre
+evento,,subtitulo,mis xv años
+evento,,inicia,2027-06-12 19:00
+evento,,zona_horaria,America/Mexico_City
+evento,,salon,Nombre del salón
+evento,,salon_ciudad,"Ciudad, Estado"
+evento,,rsvp_modo,token
+evento,,musica_fuente,archivo
+evento,,mensaje_whatsapp,"¡Hola{, familia}! Te compartimos la invitación ({pases}): {enlace}"
+portada,,visible,SI
+musica,,visible,SI
+bendicion,,visible,SI
+bendicion,,texto,"Con la bendición de Dios y el amor de mi familia, tengo el honor de invitarte a celebrar este día tan especial."
+bendicion,1,rol,Mis papás
+bendicion,1,nombres,"Nombre Apellido
+Nombre Apellido"
+bendicion,2,rol,Mis padrinos
+bendicion,2,nombres,"Nombre Apellido
+Nombre Apellido"
+fecha,,visible,SI
+foto,,visible,SI
+ubicacion,,visible,SI
+frase,,visible,SI
+frase,,texto,Hoy comienza el capítulo más bonito de mi historia
+itinerario,,visible,SI
+itinerario,1,hora,19:00
+itinerario,1,actividad,Recepción
+itinerario,1,icono,door-open
+itinerario,2,hora,20:00
+itinerario,2,actividad,Banquete
+itinerario,2,icono,utensils
+itinerario,3,hora,21:30
+itinerario,3,actividad,Vals
+itinerario,3,icono,music
+itinerario,4,hora,22:00
+itinerario,4,actividad,Fiesta
+itinerario,4,icono,champagne-glasses
+vestimenta,,visible,SI
+vestimenta,,subtitulo,Formal
+vestimenta,,texto,Te sugerimos vestir de manera formal.
+vestimenta,,colores,#000000
+sin_ninos,,visible,NO
+clima,,visible,NO
+hospedaje,,visible,NO
+playlist,,visible,NO
+cuenta_regresiva,,visible,SI
+cuenta_regresiva,,texto,"Hay momentos que son especiales por sí solos, pero compartirlos con quienes quieres los vuelve inolvidables."
+confirmacion,,visible,SI
+confirmacion,,subtitulo,¡Agradecemos que confirmes tu asistencia!
+dedicatoria,,visible,SI
+cierre,,visible,SI

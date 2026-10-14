@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureManagerSession;
 use App\Http\Middleware\EnsurePanelSession;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -14,9 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Sin cookies: el público entra con el token de su invitación y el dueño con el
-        // token de sesión del panel (Authorization: Bearer).
-        $middleware->alias(['panel' => EnsurePanelSession::class]);
+        // Sin cookies: el público entra con el token de su invitación, el dueño con el token
+        // de sesión de su panel y el gestor con el suyo (Authorization: Bearer).
+        $middleware->alias(['panel' => EnsurePanelSession::class, 'manager' => EnsureManagerSession::class]);
         // En Fly la conexión llega por su proxy: así las URLs (fotos de media) salen con https.
         $middleware->trustProxies(at: '*');
     })

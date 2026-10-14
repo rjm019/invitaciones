@@ -15,7 +15,8 @@ RUN npx vite build
 FROM php:8.3-apache
 
 COPY --from=mlocati/php-extension-installer:2 /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions intl zip gd opcache
+# exif: endereza las fotos del celular al subirlas en el gestor.
+RUN install-php-extensions intl zip gd opcache exif
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 RUN a2enmod rewrite headers \

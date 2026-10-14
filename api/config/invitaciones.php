@@ -7,9 +7,9 @@ return [
     | Carpeta de eventos
     |--------------------------------------------------------------------------
     |
-    | Cada evento es una carpeta eventos/<slug>/ con su layout (layout.xlsx o
-    | un CSV por pestaña), su media/ y los CSV que escribe el sistema
-    | (tokens, links, respuestas). No hay base de datos.
+    | Cada evento es una carpeta eventos/<slug>/ con su invitación (invitacion.csv;
+    | o, en el formato anterior, layout.xlsx o un CSV por pestaña), su media/ y los
+    | CSV que escribe el sistema (enlaces, respuestas, ajustes). No hay base de datos.
     |
     */
 
@@ -35,5 +35,18 @@ return [
     */
 
     'spa_path' => env('SPA_PATH', public_path('app.html')),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Gestor de invitaciones
+    |--------------------------------------------------------------------------
+    |
+    | Clave maestra del panel del gestor (/gestor), donde se crean y diseñan las
+    | invitaciones. Mínimo 16 caracteres; sin ella el gestor no abre. En producción
+    | es un secreto de Fly (fly secrets set GESTOR_CLAVE=…), nunca va en el repo.
+    |
+    */
+
+    'gestor_clave' => (string) env('GESTOR_CLAVE', ''),
 
 ];

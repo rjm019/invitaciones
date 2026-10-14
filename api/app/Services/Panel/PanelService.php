@@ -88,16 +88,31 @@ final class PanelService
     }
 
     /**
-     * Lo que el panel toma de la invitación para verse como ella. Con sesión, además lo que
-     * lleva la imagen para WhatsApp: subtítulo, nombre, fecha, salón, archivos del evento y,
-     * del layout, su fondo y su frase (`tarjeta_fondo`, `tarjeta_frase`, `tarjeta_texto`).
+     * La marca con la tarjeta para WhatsApp de una invitación que todavía no se publica (el
+     * borrador del gestor): sus datos salen de `$value` en lugar de lo publicado.
      *
+     * @param  array<string, mixed>  $event  config armado del borrador
+     * @param  callable(string): ?string  $value  valor de "evento" en el borrador
      * @return array<string, mixed>
      */
-    private function brandOf(string $slug, array $event, bool $withCard): array
+    public function brandFrom(string $slug, array $event, callable $value): array
     {
+        return $this->brandOf($slug, $event, withCard: true, value: $value);
+    }
+
+    /**
+     * Lo que el panel toma de la invitación para verse como ella. Con sesión, además lo que
+     * lleva la imagen para WhatsApp: subtítulo, nombre, fecha, salón, archivos del evento y,
+     * de la invitación, su fondo y su frase (`tarjeta_fondo`, `tarjeta_frase`, `tarjeta_texto`).
+     *
+     * @param  (callable(string): ?string)|null  $value  de dónde salen esas claves (por defecto, lo publicado)
+     * @return array<string, mixed>
+     */
+    private function brandOf(string $slug, array $event, bool $withCard, ?callable $value = null): array
+    {
+        $value ??= fn (string $key) => $this->events->eventValue($slug, $key);
         $brand = [
-            'title' => $this->panelTitle($slug, $event),
+            'title' => $this->panelTitle($slug, $event, $value),
             'theme' => $event['theme'],
             'palette' => $event['palette'],
             'fonts' => $event['fonts'],
@@ -114,21 +129,27 @@ final class PanelService
             'venue' => ['name' => $event['venue']['display_name'], 'city' => $event['venue']['city']],
             'assets' => $event['assets'],
             'card' => [
-                'background' => $this->events->eventValue($slug, 'tarjeta_fondo'),
-                'phrase' => $this->events->eventValue($slug, 'tarjeta_frase'),
-                'text' => $this->events->eventValue($slug, 'tarjeta_texto'),
+                'background' => $value('tarjeta_fondo'),
+                'phrase' => $value('tarjeta_frase'),
+                'text' => $value('tarjeta_texto'),
             ],
         ];
     }
 
-    /** "titulo_panel" del layout; si no hay, "XV de Nat" en unos XV, o el título del evento. */
-    private function panelTitle(string $slug, array $event): string
+    /** "titulo_panel" de la invitación; si no hay, "XV de Nat" en unos XV, o el título del evento. */
+    public static function titleFor(string $slug, array $event, ?string $panelTitle): string
     {
         $name = $event['celebrant']['short_name'] ?? '';
         $name = $name !== '' ? $name : ($event['celebrant']['full_name'] ?? '');
 
-        return $this->events->eventValue($slug, 'titulo_panel')
+        return $panelTitle
             ?? ($event['type'] === 'xv' && $name !== '' ? "XV de {$name}" : ($event['title'] ?: $slug));
+    }
+
+    /** @param  callable(string): ?string  $value */
+    private function panelTitle(string $slug, array $event, callable $value): string
+    {
+        return self::titleFor($slug, $event, $value('titulo_panel'));
     }
 
     /**
