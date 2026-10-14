@@ -76,10 +76,21 @@ export interface CardContext {
   measureText(text: string): { width: number }
   beginPath(): void
   moveTo(x: number, y: number): void
+  lineTo(x: number, y: number): void
   quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void
+  arc(x: number, y: number, radius: number, start: number, end: number): void
   closePath(): void
   fill(): void
+  stroke(): void
   createLinearGradient(x0: number, y0: number, x1: number, y1: number): CanvasGradient
+  createRadialGradient(
+    x0: number,
+    y0: number,
+    r0: number,
+    x1: number,
+    y1: number,
+    r1: number,
+  ): CanvasGradient
   drawImage(
     image: CanvasImageSource,
     sx: number,
@@ -100,14 +111,20 @@ export interface CardImage {
   height: number
 }
 
+/** Los módulos del QR (de la librería qrcode): `size` × `size`, por renglones; 1 = oscuro. */
+export interface QrMatrix {
+  size: number
+  data: ArrayLike<number>
+}
+
 export interface CardArt {
   /** Fondo propio del evento, con el sobre al centro (tarjeta_fondo del layout). */
   background?: CardImage | null
   /** Si no hay fondo propio: el papel del tema, con un recuadro claro y el lacre al centro. */
   paper?: CardImage | null
   seal?: CardImage | null
-  /** El código QR del enlace (cuadrado). */
-  qr: CardImage
+  /** El QR del enlace: se dibuja aquí, con puntos del color de la invitación. */
+  qr: QrMatrix
 }
 
 /** Colores y fuentes del tema (los mismos tokens de la invitación). */
@@ -118,9 +135,9 @@ export interface CardStyle {
   primarySoft: string
   accent: string
   script: string
-  scriptMono: string
-  caps: string
   serif: string
+  /** Las mayúsculas finas: "MIS XV AÑOS", el nombre y "PARA" (rol `engraved`). */
+  engraved: string
 }
 
 /** El tamaño más grande (de `max` hacia abajo) en que el texto cabe en `maxWidth`. */
@@ -216,17 +233,86 @@ function star(ctx: CardContext, x: number, y: number, r: number) {
   ctx.fill()
 }
 
-/** Línea dorada con una estrella al centro. */
+/** Línea fina con una estrella al centro. */
 function divider(ctx: CardContext, cx: number, y: number, color: string) {
   ctx.fillStyle = color
-  ctx.fillRect(cx - 168, y - 1, 132, 2)
-  ctx.fillRect(cx + 36, y - 1, 132, 2)
-  star(ctx, cx, y, 26)
+  ctx.fillRect(cx - 150, y - 0.75, 120, 1.5)
+  ctx.fillRect(cx + 30, y - 0.75, 120, 1.5)
+  star(ctx, cx, y, 20)
+}
+
+/** Rectángulo con esquinas redondeadas (el lienzo de algunos navegadores no trae roundRect). */
+function roundedRect(ctx: CardContext, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.lineTo(x + w - r, y)
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+  ctx.lineTo(x + w, y + h - r)
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+  ctx.lineTo(x + r, y + h)
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+  ctx.lineTo(x, y + r)
+  ctx.quadraticCurveTo(x, y, x + r, y)
+  ctx.closePath()
+}
+
+/** ¿El módulo es parte de una de las tres esquinas (los "ojos" del QR)? */
+const inEye = (r: number, c: number, n: number) =>
+  (r < 7 || r >= n - 7) && (c < 7 || c >= n - 7) && !(r >= n - 7 && c >= n - 7)
+
+/**
+ * El QR integrado al diseño: puntos redondos y esquinas redondeadas del color de la
+ * invitación, sobre un halo claro que se desvanece en el fondo (sin recuadro blanco). Los
+ * lectores lo leen igual: el halo deja claro el margen y las esquinas quedan completas.
+ */
+export function drawQr(
+  ctx: CardContext,
+  qr: QrMatrix,
+  x: number,
+  y: number,
+  side: number,
+  color: string,
+): void {
+  const n = qr.size
+  const m = side / n
+  const mid = { x: x + side / 2, y: y + side / 2 }
+  const halo = ctx.createRadialGradient(mid.x, mid.y, side * 0.45, mid.x, mid.y, side * 0.95)
+  halo.addColorStop(0, 'rgba(255, 255, 255, 0.85)')
+  halo.addColorStop(1, 'rgba(255, 255, 255, 0)')
+  ctx.fillStyle = halo
+  ctx.fillRect(mid.x - side, mid.y - side, side * 2, side * 2)
+
+  ctx.fillStyle = color
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      if (!qr.data[r * n + c] || inEye(r, c, n)) continue
+      ctx.beginPath()
+      ctx.arc(x + (c + 0.5) * m, y + (r + 0.5) * m, m * 0.42, 0, Math.PI * 2)
+      ctx.fill()
+    }
+  }
+  // Cada ojo: un marco de un módulo de grueso y un centro de 3 × 3, redondeados.
+  ctx.strokeStyle = color
+  ctx.lineWidth = m
+  for (const [r, c] of [
+    [0, 0],
+    [0, n - 7],
+    [n - 7, 0],
+  ] as const) {
+    const ex = x + c * m
+    const ey = y + r * m
+    roundedRect(ctx, ex + m / 2, ey + m / 2, m * 6, m * 6, m * 1.8)
+    ctx.stroke()
+    roundedRect(ctx, ex + m * 2, ey + m * 2, m * 3, m * 3, m * 0.9)
+    ctx.fill()
+  }
 }
 
 /**
- * La tarjeta, como el diseño del evento: "MIS XV AÑOS" y el nombre en dorado entre
- * estrellas; en el sobre, para quién es y cuántos pases; abajo la frase, la fecha y el QR.
+ * La tarjeta, como el diseño del evento: "MIS XV AÑOS" y el nombre en dorado y letra fina
+ * entre estrellas; en el sobre, para quién es y cuántos pases; abajo, poco: la fecha y el QR
+ * con puntos azules, integrado al fondo. Las frases del layout (`tarjeta_frase`,
+ * `tarjeta_texto`) son opcionales y van entre la estrella y la fecha.
  */
 export function drawShareCard(
   ctx: CardContext,
@@ -237,7 +323,8 @@ export function drawShareCard(
   const W = CARD_WIDTH
   const H = CARD_HEIGHT
   const cx = W / 2
-  const caps = (size: number) => `400 ${size}px ${family(style.caps, 'serif')}`
+  const engraved = (size: number, weight = 400) =>
+    `${weight} ${size}px ${family(style.engraved, 'Georgia, serif')}`
   const script = (size: number) => `400 ${size}px ${family(style.script, 'cursive')}`
   const serif = (size: number, italic = false) =>
     `${italic ? 'italic ' : ''}400 ${size}px ${family(style.serif, 'Georgia, serif')}`
@@ -265,24 +352,25 @@ export function drawShareCard(
   ctx.textAlign = 'center'
   ctx.textBaseline = 'alphabetic'
 
-  // Arriba: estrella, "MIS XV AÑOS", el nombre grande en dorado, estrella.
+  // Arriba, lo principal: estrella, "MIS XV AÑOS", el nombre grande en dorado, estrella.
   divider(ctx, cx, 170, style.primary)
   if (text.kicker) {
-    ctx.font = caps(50)
-    spaced(ctx, upper(text.kicker), cx, 262, 14)
+    ctx.fillStyle = style.primary
+    ctx.font = engraved(48, 500)
+    spaced(ctx, upper(text.kicker), cx, 262, 16)
   }
   const name = upper(text.name)
-  const nameSize = fitFont(ctx, name, caps, 224, W - 280)
-  const gold = ctx.createLinearGradient(0, 470 - nameSize * 0.7, 0, 470)
+  const nameSize = fitFont(ctx, name, (s) => engraved(s), 250, W - 280)
+  const gold = ctx.createLinearGradient(0, 470 - nameSize * 0.65, 0, 470)
   gold.addColorStop(0, style.primarySoft)
-  gold.addColorStop(0.55, style.primary)
+  gold.addColorStop(0.6, style.primary)
   gold.addColorStop(1, style.primary)
   ctx.save()
-  ctx.shadowColor = 'rgba(70, 50, 10, 0.28)'
-  ctx.shadowBlur = 3
-  ctx.shadowOffsetY = 3
+  ctx.shadowColor = 'rgba(70, 50, 10, 0.18)'
+  ctx.shadowBlur = 2
+  ctx.shadowOffsetY = 2
   ctx.fillStyle = gold
-  spaced(ctx, name, cx, 470, 6)
+  spaced(ctx, name, cx, 470, 10)
   ctx.restore()
   divider(ctx, cx, 525, style.primary)
 
@@ -296,50 +384,50 @@ export function drawShareCard(
   const lines = addressLines(ctx, guest, script, 88, W - 480)
   let gy = env.top + (lines.lines.length > 1 ? 52 : 70)
   if (text.guest) {
-    ctx.font = caps(26)
-    spaced(ctx, 'PARA', cx, gy, 7)
+    ctx.font = engraved(26, 500)
+    spaced(ctx, 'PARA', cx, gy, 8)
   }
   ctx.font = script(lines.size)
   lines.lines.forEach((line, i) => {
     gy += lines.size * (i === 0 ? 0.95 : 0.9)
     ctx.fillText(line, cx, gy)
   })
-  // En cursiva y con números de texto: en las mayúsculas del tema el "1" parece una "I".
-  ctx.font = serif(36, true)
+  // En cursiva y con números de texto: en mayúsculas el "1" puede parecer una "I".
+  ctx.font = serif(34, true)
   ctx.fillText(text.passes, cx, H * ENVELOPE.passes)
   ctx.restore()
 
-  // Abajo: estrella, la frase, la fecha y el QR (el enlace no se escribe).
-  let y = env.bottom + 40
+  // Abajo, sin ruido: estrella, las frases del layout (si hay), la fecha y el QR.
+  let y = env.bottom + 58
   divider(ctx, cx, y, style.primary)
-  y += 34
+  y += 30
   ctx.fillStyle = style.primary
   if (text.phrase) {
-    const size = fitFont(ctx, text.phrase, script, 78, W - 240)
+    const size = fitFont(ctx, text.phrase, script, 64, W - 240)
     y += size * 0.6
     ctx.fillText(text.phrase, cx, y)
-    y += 64 // la letra de pluma baja mucho (la "j")
+    y += 54 // la letra de pluma baja mucho (la "j")
   }
   if (text.text) {
-    ctx.font = caps(30)
+    ctx.font = engraved(26, 500)
     spaced(ctx, upper(text.text), cx, y, 8)
-    y += 46
+    y += 40
   }
   if (text.date) {
-    ctx.fillStyle = style.text
-    fitFont(ctx, text.date, (s) => serif(s, true), 34, W - 240)
+    y += text.phrase || text.text ? 0 : 32
+    ctx.fillStyle = style.primary
+    fitFont(ctx, text.date, (s) => serif(s, true), 32, W - 240)
     ctx.fillText(text.date, cx, y)
   }
-  y += 36
 
-  const qr = 184
-  const qrY = Math.min(y, H - 80 - qr)
-  ctx.fillStyle = '#ffffff'
-  ctx.fillRect(cx - qr / 2 - 12, qrY - 12, qr + 24, qr + 24)
-  ctx.drawImage(art.qr.image, 0, 0, art.qr.width, art.qr.height, cx - qr / 2, qrY, qr, qr)
-  ctx.fillStyle = style.text
-  ctx.font = serif(28, true)
-  ctx.fillText('Toca o escanea para abrir tu invitación', cx, qrY + qr + 46)
+  // Con las dos frases del layout, el QR se achica para no pegarse a la fecha (no menos
+  // de 150 px: así se sigue leyendo desde otro celular).
+  const qrY = y + 40
+  const side = Math.max(150, Math.min(190, H - 110 - qrY))
+  drawQr(ctx, art.qr, cx - side / 2, qrY, side, style.accent)
+  ctx.fillStyle = style.primary
+  ctx.font = serif(24, true)
+  ctx.fillText('toca o escanea para abrir', cx, qrY + side + 44)
 }
 
 /**

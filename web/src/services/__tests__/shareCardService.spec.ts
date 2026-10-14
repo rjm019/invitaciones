@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   addressLines,
+  drawQr,
   drawShareCard,
   fitFont,
   shareCardText,
@@ -38,6 +39,8 @@ const invitation = {
 function fakeContext({ spacing = true } = {}) {
   const texts: { text: string; font: string; x: number }[] = []
   const images: unknown[] = []
+  const dots: string[] = []
+  let strokes = 0
   const ctx: Record<string, unknown> = {
     font: '',
     fillStyle: '',
@@ -54,10 +57,18 @@ function fakeContext({ spacing = true } = {}) {
     strokeRect() {},
     beginPath() {},
     moveTo() {},
+    lineTo() {},
     quadraticCurveTo() {},
+    arc() {
+      dots.push(this.fillStyle as string)
+    },
     closePath() {},
     fill() {},
+    stroke() {
+      strokes++
+    },
     createLinearGradient: () => ({ addColorStop() {} }),
+    createRadialGradient: () => ({ addColorStop() {} }),
     drawImage(image: unknown) {
       images.push(image)
     },
@@ -70,7 +81,7 @@ function fakeContext({ spacing = true } = {}) {
     },
   }
   if (spacing) ctx.letterSpacing = '0px'
-  return { ctx: ctx as unknown as CardContext, texts, images }
+  return { ctx: ctx as unknown as CardContext, texts, images, dots, strokes: () => strokes }
 }
 
 const style: CardStyle = {
@@ -80,9 +91,8 @@ const style: CardStyle = {
   primarySoft: '#e2c77a',
   accent: '#4a7194',
   script: 'Pinyon Script',
-  scriptMono: 'Sacramento',
-  caps: 'Marcellus',
   serif: 'EB Garamond',
+  engraved: 'Cormorant Garamond',
 }
 
 describe('shareCardService', () => {
@@ -108,7 +118,8 @@ describe('shareCardService', () => {
     expect(fitFont(ctx, 'abcdefghij', (s) => `${s}px x`, 40, 10)).toBe(20) // nunca menos de la mitad
   })
 
-  const qr = { image: { qr: true } as unknown as CanvasImageSource, width: 420, height: 420 }
+  /** QR de mentira de 21 × 21 (versión 1), todo oscuro: así se cuentan los puntos. */
+  const qr = { size: 21, data: new Array(21 * 21).fill(1) }
   const background = { image: { fondo: true } as unknown as CanvasImageSource, width: 1024, height: 1536 }
   const seal = { image: { lacre: true } as unknown as CanvasImageSource, width: 800, height: 788 }
 
@@ -126,10 +137,11 @@ describe('shareCardService', () => {
       'Celebremos juntos',
       'ESTA ETAPA TAN ESPECIAL',
       'Sábado 28 de noviembre · 5:00 pm',
-      'Toca o escanea para abrir tu invitación',
+      'toca o escanea para abrir',
     ])
     expect(written.some((t) => t.includes('Tok3nDePrueba'))).toBe(false)
-    expect(texts.find((t) => t.text === 'NAT')?.font).toContain('"Marcellus"')
+    expect(texts.find((t) => t.text === 'NAT')?.font).toBe('400 250px "Cormorant Garamond", Georgia, serif')
+    expect(texts.find((t) => t.text === 'MIS XV AÑOS')?.font).toContain('"Cormorant Garamond"')
     expect(texts.find((t) => t.text === 'Familia Pérez')?.font).toContain('"Pinyon Script"')
   })
 
@@ -144,11 +156,29 @@ describe('shareCardService', () => {
   it('usa el fondo del evento; si no hay, el papel del tema con el lacre', () => {
     const own = fakeContext()
     drawShareCard(own.ctx, { background, seal, qr }, shareCardText(brand, invitation), style)
-    expect(own.images).toEqual([background.image, qr.image])
+    expect(own.images).toEqual([background.image])
 
     const fallback = fakeContext()
     drawShareCard(fallback.ctx, { seal, qr }, shareCardText(brand, invitation), style)
-    expect(fallback.images).toEqual([seal.image, qr.image])
+    expect(fallback.images).toEqual([seal.image])
+  })
+
+  it('sin las frases del layout, abajo solo van la fecha y el QR', () => {
+    const { ctx, texts } = fakeContext()
+    drawShareCard(ctx, { qr }, shareCardText({ ...brand, card: undefined }, invitation), style)
+    expect(texts.map((t) => t.text).slice(-2)).toEqual([
+      'Sábado 28 de noviembre · 5:00 pm',
+      'toca o escanea para abrir',
+    ])
+  })
+
+  it('el QR va en puntos del color de la invitación, con sus tres esquinas completas', () => {
+    const { ctx, dots, strokes } = fakeContext()
+    drawQr(ctx, qr, 0, 0, 210, '#4a7194')
+    // 21 × 21 módulos menos las tres esquinas de 7 × 7 (esas se dibujan aparte).
+    expect(dots).toHaveLength(21 * 21 - 3 * 49)
+    expect(new Set(dots)).toEqual(new Set(['#4a7194']))
+    expect(strokes()).toBe(3) // el marco de cada esquina
   })
 
   it('un nombre largo va en dos renglones parejos; uno corto, en uno', () => {
@@ -172,8 +202,8 @@ describe('shareCardService', () => {
     drawShareCard(ctx, { qr }, shareCardText(brand, invitation), style)
     const para = texts.filter((t) => t.font.includes('26px')).slice(0, 4)
     expect(para.map((t) => t.text).join('')).toBe('PARA')
-    // 4 letras de 13 px y 3 espacios de 7 px: empieza 36.5 px a la izquierda del centro.
-    expect(para[0]!.x).toBeCloseTo(540 - 36.5)
+    // 4 letras de 13 px y 3 espacios de 8 px: empieza 38 px a la izquierda del centro.
+    expect(para[0]!.x).toBeCloseTo(540 - 38)
   })
 
   it('comparte desde el celular; si el navegador no puede, se descarga', () => {

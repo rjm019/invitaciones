@@ -454,33 +454,44 @@ onMounted(() => {
   background: #fff4e5;
   color: #7a4b00;
 }
+/*
+ * Resumen: una franja discreta (no tarjetas grandes), número arriba y etiqueta abajo. En el
+ * celular cabe en un renglón y casi no ocupa pantalla; lo principal del panel va debajo.
+ */
 .panel__summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
-  gap: 0.7rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   max-width: 70rem;
-  margin: 0 auto 1.2rem;
+  margin: 0 auto 1rem;
+  padding: 0.5rem 0.15rem;
+  border: 1px solid var(--p-line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--p-card) 65%, transparent);
 }
 .panel__summary div {
-  padding: 0.9rem 1rem;
-  border: 1px solid var(--p-line);
-  border-radius: 16px;
-  background: var(--p-card);
-  box-shadow: 0 4px 14px rgb(30 60 90 / 0.05);
+  display: flex;
+  flex-direction: column-reverse; /* en el HTML va primero la etiqueta (dt), para el lector */
+  align-items: center;
+  min-width: 0;
+  padding: 0 0.1rem;
+  text-align: center;
+}
+.panel__summary div + div {
+  border-left: 1px solid var(--p-line);
 }
 .panel__summary dt {
   color: var(--p-muted);
-  font-family: var(--p-font-title);
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--p-font-body);
+  font-size: 0.7rem;
+  line-height: 1.2;
 }
 .panel__summary dd {
   margin: 0;
   color: var(--p-accent);
   /* Los números en la letra de los títulos grandes (en Marcellus el 0 parece una O). */
   font-family: var(--font-display, Georgia, serif);
-  font-size: 2rem;
+  font-size: 1.15rem;
+  line-height: 1.2;
   font-variant-numeric: lining-nums tabular-nums;
 }
 .panel__summary .is-ok dd {
@@ -488,6 +499,18 @@ onMounted(() => {
 }
 .panel__summary .is-no dd {
   color: var(--p-no);
+}
+@media (min-width: 720px) {
+  .panel__summary {
+    padding: 0.7rem 0.4rem;
+  }
+  .panel__summary dt {
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+  }
+  .panel__summary dd {
+    font-size: 1.45rem;
+  }
 }
 .panel__tools {
   display: grid;

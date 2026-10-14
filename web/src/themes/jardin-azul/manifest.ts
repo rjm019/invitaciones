@@ -18,6 +18,8 @@ const theme: ThemeManifest = {
     caps: { family: 'Marcellus' },
     display: { family: 'Playfair Display', weights: [400, 700] },
     button: { family: 'Cormorant Garamond', weights: [600, 700] },
+    // Mayúsculas finas de la imagen para WhatsApp ("MIS XV AÑOS", "NAT"), como el diseño.
+    engraved: { family: 'Cormorant Garamond', weights: [400, 500] },
   },
   page: { image: 'papel.webp', color: 'bg' },
   floating: [
