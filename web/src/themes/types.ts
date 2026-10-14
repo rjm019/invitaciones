@@ -54,6 +54,8 @@ export interface FlightItem {
 
 export interface ThemeManifest {
   id: string
+  /** Nombre para el editor del gestor ("Jardín azul"). */
+  label?: string
   /** Rol tipográfico → fuente por defecto (el layout puede sobrescribirla en la pestaña tipografia). */
   fonts: Record<string, ThemeFont>
   /** Fondo de toda la página (debajo de las secciones). */

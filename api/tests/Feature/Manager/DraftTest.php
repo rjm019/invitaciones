@@ -51,6 +51,10 @@ class DraftTest extends TestCase
 
         $this->assertTrue($saved['has_draft']);
         $this->assertTrue($saved['pending']);
+        $this->assertSame([
+            ['type' => 'block', 'key' => 'evento', 'change' => 'changed'],
+            ['type' => 'section', 'key' => 'itinerario', 'change' => 'changed'],
+        ], $saved['changes']);
         $this->assertStringStartsWith('b-', $saved['version']);
         $this->assertSame('Programa', $saved['config']['sections'][3]['title']);
         $this->assertSame(['color' => '#C2185B'], array_intersect_key($saved['config']['sections'][3]['text_styles']['title'], ['color' => 1]));
@@ -132,5 +136,20 @@ class DraftTest extends TestCase
     {
         $this->asManager()->getJson('/api/manager/events/no-existe/design')->assertNotFound();
         $this->putJson('/api/manager/events/no-existe/draft', ['design' => [], 'version' => 'x'])->assertNotFound();
+    }
+
+    public function test_added_removed_and_moved_sections_are_listed_as_changes(): void
+    {
+        $editor = $this->editor();
+        $design = $editor['design'];
+        $sections = $design['sections'];
+        // Quita la foto, agrega un cierre y sube el itinerario.
+        $design['sections'] = [$sections[3], $sections[0], $sections[1], $sections[4], $sections[5], ['id' => 'cierre', 'fields' => [], 'items' => []]];
+
+        $changes = $this->putJson('/api/manager/events/nueva/draft', ['design' => $design, 'version' => $editor['version']])->assertOk()->json('changes');
+
+        $this->assertContains(['type' => 'section', 'key' => 'cierre', 'change' => 'added'], $changes);
+        $this->assertContains(['type' => 'section', 'key' => 'foto', 'change' => 'removed'], $changes);
+        $this->assertContains(['type' => 'order', 'key' => null, 'change' => 'changed'], $changes);
     }
 }

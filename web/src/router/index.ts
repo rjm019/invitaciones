@@ -25,11 +25,23 @@ const routes: RouteRecordRaw[] = [
     component: EventPage,
     props: true,
   },
-  // Gestor de invitaciones: la vista previa del editor (va dentro de un iframe).
+  // Gestor de invitaciones: inicio, la vista previa del editor (va dentro de un iframe) y
+  // el editor de cada invitación. "vista-previa" va antes: no puede ser una invitación.
+  {
+    path: '/gestor',
+    name: 'manager',
+    component: () => import('../pages/ManagerPage.vue'),
+  },
   {
     path: '/gestor/vista-previa',
     name: 'manager-preview',
     component: () => import('../pages/ManagerPreviewPage.vue'),
+  },
+  {
+    path: '/gestor/:slug',
+    name: 'manager-editor',
+    component: () => import('../pages/ManagerEditorPage.vue'),
+    props: true,
   },
 ]
 
