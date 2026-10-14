@@ -22,7 +22,7 @@ Se eligió Fly.io porque es barato y tiene disco persistente. La app guarda todo
 - Apache sirve los archivos de `public/` con `KeepAlive Off` (con prefork, cada conexión abierta del proxy ocupaba un proceso y las demás hacían fila).
 - Cualquier ruta que no sea `/api` ni `/media` responde `public/app.html`, que es la invitación compilada (`SpaController`). En `/e/{slug}` y `/i/{token}`, la página ya lleva los datos en `window.__BOOT__`, así la invitación no espera otra petición.
 - `.dockerignore` deja fuera `eventos/`, `docs/`, `recepcion/`, los `.env` y lo de la boda original en `web/public` (fotos reales y una canción con derechos).
-- `deploy/` trae la configuración de Apache (8 procesos como máximo), la de PHP y el arranque. El arranque crea las carpetas del disco y cachea la configuración de Laravel.
+- `deploy/` trae la configuración de Apache (12 procesos como máximo), la de PHP y el arranque. El arranque crea las carpetas del disco y cachea la configuración de Laravel.
 
 **Variables** (`[env]` de `fly.toml`):
 
@@ -52,6 +52,8 @@ fly volumes snapshots list <id-del-volumen>                            # respald
 - Antes y después del evento, baja `respuestas.csv`, `dedicatorias.csv` e `invitaciones.csv` con `fly ssh sftp get`.
 
 ## Pendiente
+
+- **Una sola vez, antes del próximo `subir-evento.sh`:** el evento cambió de carpeta (`nat`). En el disco de Fly hay que moverla con `fly ssh console -C "mv /data/eventos/<nombre-anterior> /data/eventos/nat"`; si no, `subir-evento.sh nat` crearía una carpeta nueva sin las invitaciones ni las respuestas.
 
 - Vista previa de WhatsApp (Open Graph). Como Laravel ya sirve `app.html`, se puede inyectar el título y la imagen de cada evento ahí.
 - Dominio propio (opcional): `fly certs add <dominio>`, y luego cambiar `APP_URL` y `FRONTEND_URL`.

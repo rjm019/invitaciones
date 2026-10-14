@@ -1,4 +1,5 @@
 import type {
+  PanelBrand,
   PanelDedication,
   PanelInvitation,
   PanelOverview,
@@ -6,6 +7,7 @@ import type {
   PanelSession,
   TableAssignment,
 } from '@/types/panel'
+import { takeBoot } from './bootService'
 import { localDate } from './calendarService'
 import { http } from './http'
 
@@ -13,6 +15,17 @@ import { http } from './http'
 
 const base = (slug: string) => `/admin/events/${encodeURIComponent(slug)}`
 const auth = (token: string) => ({ headers: { Authorization: `Bearer ${token}` } })
+
+/**
+ * Cómo se ve la entrada al panel (título, tema, colores y fuentes). La página ya lo trae
+ * (window.__BOOT__); si no, se pide.
+ */
+export async function getBrand(slug: string): Promise<PanelBrand> {
+  const boot = takeBoot<{ brand: PanelBrand }>('panel', slug)
+  if (boot) return boot.brand
+  const { data } = await http.get<{ brand: PanelBrand }>(`${base(slug)}/brand`)
+  return data.brand
+}
 
 export async function login(slug: string, password: string): Promise<PanelSession> {
   const { data } = await http.post<PanelSession>(`${base(slug)}/session`, { password })

@@ -39,6 +39,12 @@ export function longDate(date: string): string {
   }).format(new Date(Date.UTC(y, m - 1, d)))
 }
 
+/** "2026-11-28T17:00:00-06:00" → "17:00", la hora en la zona del evento. */
+export function hourMinute(iso: string, timeZone: string): string {
+  const p = parts(iso, timeZone, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+  return `${p.hour ?? '00'}:${p.minute ?? '00'}`
+}
+
 /** "17:00" → "5:00 pm" (como lo escribe el diseño original). */
 export function time12h(hhmm: string): string {
   const match = /^(\d{1,2}):(\d{2})$/.exec(hhmm.trim())

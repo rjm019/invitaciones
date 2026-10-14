@@ -28,7 +28,7 @@
   8. [x] `Itinerary` (zigzag + línea)
   9. [x] `DressCode`
   10. [x] `Countdown`
-  11. [ ] `Hotels`. *No está en NAT; queda para `boda-salvia`.*
+  11. [x] `Hotels` (sección `hospedaje`, pestaña `hoteles`). *Hecho el 13-oct para Nat: tarjetas con nota, dirección, Maps y Llamar, y efectos.*
   12. [x] `SpotifyEmbed`. *Va dentro de `MusicPlayer` cuando el evento tiene `spotify`.*
   13. [x] ~~`RsvpCard` + `RsvpForm` (modal o bottom sheet).~~ **Cambió:** `RsvpSection` + `RsvpGuestForm` en línea, con un campo por invitado (a pedido tuyo).
   14. [x] `Closing`

@@ -1,5 +1,27 @@
 /** Panel del dueño del evento (GET /api/admin/events/{slug}). */
 
+/**
+ * Cómo se ve el panel: el de la invitación. Sin sesión (la entrada) solo trae título,
+ * tema, colores y fuentes; con sesión, también lo que lleva la imagen para WhatsApp.
+ */
+export interface PanelBrand {
+  /** "XV de Nat" */
+  title: string
+  theme: string
+  palette: Record<string, string>
+  /** Rol → familia de Google Fonts (pestaña tipografia). */
+  fonts: Record<string, string>
+  subtitle?: string
+  celebrant?: { full_name?: string; short_name?: string }
+  starts_at?: string | null
+  timezone?: string
+  venue?: { name: string; city: string }
+  /** Archivos de media del evento → URL. */
+  assets?: Record<string, string>
+  /** La imagen para WhatsApp: su fondo (archivo de media) y su frase, del layout. */
+  card?: { background: string | null; phrase: string | null; text: string | null }
+}
+
 export interface PanelSession {
   token: string
   expires_at: string
@@ -26,6 +48,8 @@ export interface PanelInvitation {
   label: string | null
   passes: number
   url: string
+  /** Texto que acompaña a la imagen ("¡Hola, Familia Pérez! … {enlace}"). */
+  message: string
   whatsapp_url: string
   guests: PanelGuest[]
   opens: number
@@ -51,6 +75,7 @@ export interface PanelSummary {
 export interface PanelOverview {
   /** Huella de los archivos del evento: si cambia, hay algo nuevo. */
   version: string
+  brand: PanelBrand
   event: {
     slug: string
     title: string

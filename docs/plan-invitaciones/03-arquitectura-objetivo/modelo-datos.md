@@ -36,6 +36,7 @@ erDiagram
       tab familia "rol,nombre"
       tab itinerario "hora,actividad,icono"
       tab ubicaciones "etiqueta,lugar,hora,…"
+      tab hoteles "nombre,nota,direccion,maps,telefono,foto"
     }
     invitaciones {
       int id PK "consecutivo por evento"

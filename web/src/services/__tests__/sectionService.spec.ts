@@ -11,6 +11,7 @@ const theme = {
       effects: ['reveal', 'timeline-fill'],
       background: { color: 'surface', image: 'papel.webp' },
       decor: { frame: 'marco-azul.webp', missing: 'no-existe.webp' },
+      panelColor: 'panel-pearl',
     },
   },
 }
@@ -32,6 +33,7 @@ describe('resolveSections', () => {
       effects: ['reveal', 'timeline-fill'],
       background: { color: 'surface', image: 'papel.webp' },
       decor: { frame: 'http://api/media/x/marco-azul.webp', missing: null },
+      panelColor: 'panel-pearl',
     })
   })
 
@@ -116,9 +118,11 @@ describe('placeOnDesktop', () => {
 })
 
 describe('withContent', () => {
-  const event = (spotify: string | null) => ({
+  const hotel = { name: 'Hotel', note: '', address: '', maps_url: '', phone: '', photo: null }
+  const event = (spotify: string | null, hotels = [hotel]) => ({
     music: { source: 'file' as const, audio_url: null, spotify_url: spotify },
     starts_at: '2026-11-28T17:00:00-06:00',
+    hotels,
   })
   const types = (list: SectionConfig[]) => list.map((s) => s.type)
   const all = [
@@ -144,15 +148,23 @@ describe('withContent', () => {
     expect(types(withContent(all, event(null), during))).toEqual(['weather', 'quote'])
     expect(types(withContent(all, event(null), after))).toEqual(['quote'])
   })
+
+  it('el hospedaje solo aparece si la pestaña hoteles trae alguno', () => {
+    const list = [section({ type: 'hotels' }), section({ type: 'quote' })]
+    expect(types(withContent(list, event(null), before))).toEqual(['hotels', 'quote'])
+    expect(types(withContent(list, event(null, []), before))).toEqual(['quote'])
+  })
 })
 
 describe('withPanels', () => {
   const A = { color: 'panel' }
   const B = { color: 'panel-alt' }
   const C = { color: 'panel-warm' }
-  const sections = (...list: { panel?: boolean; background?: SectionBackground }[]) =>
+  const sections = (
+    ...list: { panel?: boolean; background?: SectionBackground; panelColor?: string }[]
+  ) =>
     list.map(
-      ({ panel = true, background }, i) =>
+      ({ panel = true, background, panelColor }, i) =>
         ({
           type: `s${i}`,
           id: `s${i}`,
@@ -162,6 +174,7 @@ describe('withPanels', () => {
           desktop: 'full',
           panel,
           background,
+          ...(panelColor ? { panelColor } : {}),
         }) as ResolvedSection,
     )
   const colors = (list: ResolvedSection[]) => list.map((s) => s.background?.color ?? null)
@@ -180,6 +193,11 @@ describe('withPanels', () => {
     const toile = { image: 'toile.webp', fit: 'tile' as const }
     const out = withPanels(sections({}, { background: toile }, {}, {}, {}), [A, B])
     expect(out.map((s) => s.background)).toEqual([A, toile, B, A, B])
+  })
+
+  it('con su propio color, la sección gasta su turno: las demás no cambian de fondo', () => {
+    const out = withPanels(sections({}, {}, { panelColor: 'panel-pearl' }, {}), [A, B, C])
+    expect(colors(out)).toEqual(['panel', 'panel-alt', 'panel-pearl', 'panel'])
   })
 
   it('sin fondos en el tema no cambia nada', () => {

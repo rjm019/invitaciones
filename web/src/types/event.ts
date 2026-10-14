@@ -62,6 +62,17 @@ export interface EventLocation {
   photo: string | null
 }
 
+/** Hotel recomendado (pestaña "hoteles" del layout). */
+export interface EventHotel {
+  name: string
+  /** Nota corta: "A unos pasos del salón", "Menciona los XV para tarifa especial"… */
+  note: string
+  address: string
+  maps_url: string
+  phone: string
+  photo: string | null
+}
+
 export interface EventConfig {
   slug: string
   type: string
@@ -105,6 +116,7 @@ export interface EventConfig {
   family: { role: string; names: string[] }[]
   itinerary: ItineraryItem[]
   locations: EventLocation[]
+  hotels: EventHotel[]
   /** Archivos de eventos/<slug>/media → URL. */
   assets: Record<string, string>
 }
@@ -135,6 +147,8 @@ export interface ResolvedSection extends SectionConfig {
   desktop: DesktopWidth
   /** Se pinta como panel (fondo propio, esquinas y sombra). La portada no lo es. */
   panel: boolean
+  /** Color propio del panel, en lugar del que le toca en la rotación (sin recorrer las demás). */
+  panelColor?: string
   /** Decoraciones del tema ya resueltas a URL (null si el archivo no está). */
   decor: Record<string, string | null>
   /** Figuras de cada decoración (por ranura), si el tema las describe. */

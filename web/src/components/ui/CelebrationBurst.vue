@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { useCelebration } from '@/composables/useCelebration'
-import { motionTime } from '@/services/effectsService'
+import { motionTime, type ConfettiPiece } from '@/services/effectsService'
 
 /**
- * Pétalos y confeti con los colores del tema: salen del centro, suben y caen girando.
- * Solo transform y opacity; no se puede tocar (no estorba los botones).
+ * Pétalos y confeti con los colores del tema (o estrellitas doradas que destellan): salen
+ * del centro, suben y caen girando. Solo transform y opacity; no se puede tocar (no
+ * estorba los botones).
  */
 const celebration = useCelebration()
 const COLORS = [
@@ -13,6 +14,16 @@ const COLORS = [
   'var(--color-primary-soft)',
   'var(--color-accent-soft)',
 ]
+
+// Las estrellas llevan una segunda animación (el destello), con su propio ritmo.
+function timing(p: ConfettiPiece) {
+  const fly = { delay: motionTime(p.delay), duration: motionTime(p.duration) }
+  if (!p.twinkle) return { animationDelay: fly.delay, animationDuration: fly.duration }
+  return {
+    animationDelay: `${fly.delay}, ${fly.delay}`,
+    animationDuration: `${fly.duration}, ${motionTime(p.twinkle)}`,
+  }
+}
 </script>
 
 <template>
@@ -26,9 +37,8 @@ const COLORS = [
         :style="{
           left: `${p.x}%`,
           width: `${p.size}rem`,
-          background: COLORS[p.color % COLORS.length],
-          animationDelay: motionTime(p.delay),
-          animationDuration: motionTime(p.duration),
+          background: p.shape === 'star' ? undefined : COLORS[p.color % COLORS.length],
+          ...timing(p),
           '--dx': `${p.dx}px`,
           '--rise': `${p.rise}px`,
           '--fall': `${p.fall}px`,
@@ -65,6 +75,27 @@ const COLORS = [
 .burst__piece--petal {
   aspect-ratio: 0.75;
   border-radius: 80% 0 80% 0;
+}
+/* Estrella de cuatro puntas, con el mismo brillo que los destellos de las secciones. */
+.burst__piece--star {
+  background: radial-gradient(
+    circle,
+    #fff 0 18%,
+    var(--color-primary-soft) 42%,
+    var(--color-primary-strong) 100%
+  );
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+  animation:
+    burst-fly calc(3s * var(--motion-scale)) cubic-bezier(0.2, 0.7, 0.4, 1) forwards,
+    burst-twinkle calc(0.5s * var(--motion-scale)) ease-in-out infinite alternate;
+}
+@keyframes burst-twinkle {
+  from {
+    scale: 0.55;
+  }
+  to {
+    scale: 1.15;
+  }
 }
 @keyframes burst-fly {
   0% {

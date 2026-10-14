@@ -62,7 +62,7 @@ const music = provideMusic(() => resolveAsset.value(props.event.music.audio_url)
 // reproductor: la vista se queda donde el invitado la tiene.
 useSteadyScroll((hold) => music.onTrackChange(hold))
 
-// Pétalos y confeti al abrir el sobre y al confirmar (nada con "menos movimiento").
+// Estrellitas al abrir el sobre; pétalos y confeti al confirmar (nada con "menos movimiento").
 const reduced = useReducedMotion()
 provideCelebration(() => reduced.value)
 

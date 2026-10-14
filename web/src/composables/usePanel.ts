@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { ApiError } from '@/services/http'
 import * as panelService from '@/services/panelService'
-import type { PanelInvitation, PanelOverview, TableAssignment } from '@/types/panel'
+import type { PanelBrand, PanelInvitation, PanelOverview, TableAssignment } from '@/types/panel'
 
 /**
  * Estado del panel de un evento. La sesión (token) se guarda solo mientras la pestaña
@@ -11,6 +11,8 @@ export function usePanel(slug: string) {
   const storageKey = `panel:${slug}`
   const token = ref<string | null>(read())
   const overview = ref<PanelOverview | null>(null)
+  /** Cómo se ve el panel; con sesión, el del panel (trae también lo de la imagen para WhatsApp). */
+  const brand = ref<PanelBrand | null>(null)
   const loading = ref(false)
   const error = ref('')
   /** "live": el panel está al día con el servidor; "offline": falló la última consulta. */
@@ -54,6 +56,7 @@ export function usePanel(slug: string) {
     loading.value = true
     try {
       overview.value = await withSession((t) => panelService.getOverview(slug, t))
+      brand.value = overview.value.brand
       error.value = ''
     } catch (e) {
       if (!(e instanceof ApiError && e.status === 401))
@@ -99,6 +102,16 @@ export function usePanel(slug: string) {
     overview.value = await withSession((t) => panelService.assignTables(slug, t, assignments))
   }
 
+  /** Colores y título de la entrada; si no llegan, el panel se ve con sus colores de siempre. */
+  async function loadBrand(): Promise<void> {
+    if (brand.value) return
+    try {
+      brand.value = await panelService.getBrand(slug)
+    } catch {
+      // Sin marca: el panel funciona igual.
+    }
+  }
+
   async function changeDeadline(date: string): Promise<void> {
     const rsvp = await withSession((t) => panelService.updateDeadline(slug, t, date))
     if (overview.value) overview.value = { ...overview.value, rsvp }
@@ -107,6 +120,8 @@ export function usePanel(slug: string) {
   return {
     token,
     overview,
+    brand,
+    loadBrand,
     loading,
     error,
     live,

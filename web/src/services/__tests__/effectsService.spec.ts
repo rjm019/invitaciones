@@ -8,6 +8,7 @@ import {
   seededRandom,
   sparkles,
   splitLetters,
+  starBurst,
 } from '../effectsService'
 
 describe('parallaxOffset', () => {
@@ -61,6 +62,15 @@ describe('destellos y confeti', () => {
     expect(pieces.every((p) => p.x >= 42 && p.x <= 58 && p.rise < 0 && p.fall > 0)).toBe(true)
     expect(new Set(pieces.map((p) => p.shape))).toEqual(new Set(['petal', 'strip', 'dot']))
     expect(pieces.map((p) => p.color).slice(0, 5)).toEqual([0, 1, 2, 3, 0])
+  })
+
+  it('las estrellitas son chicas, destellan y terminan antes de que se quite la ráfaga', () => {
+    const pieces = starBurst('sobre', 30)
+    expect(pieces).toHaveLength(30)
+    expect(pieces.every((p) => p.shape === 'star' && p.size < 0.8 && p.twinkle! > 0)).toBe(true)
+    expect(pieces.every((p) => p.rise < 0 && p.fall > 0 && Math.abs(p.rotate) <= 90)).toBe(true)
+    expect(Math.max(...pieces.map((p) => p.delay + p.duration))).toBeLessThan(4.2)
+    expect(starBurst('sobre', 30)).toEqual(pieces)
   })
 })
 

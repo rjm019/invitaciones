@@ -10,7 +10,8 @@ export default defineConfigWithVueTs(
   {
     name: 'app/files-to-ignore',
     // legacy/: la boda original, solo como referencia visual; no se mantiene.
-    ignores: ['**/dist/**', '**/coverage/**', 'src/legacy/**'],
+    // .vite/: caché de dependencias que arma Vite (no es código nuestro).
+    ignores: ['**/dist/**', '**/coverage/**', '**/.vite/**', 'src/legacy/**'],
   },
   pluginVue.configs['flat/essential'],
   vueTsConfigs.recommended,

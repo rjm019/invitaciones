@@ -64,11 +64,8 @@ const theme: ThemeManifest = {
         bow: 'lazo.webp',
       },
     },
-    'save-the-date': {
-      desktop: 'half',
-      effects: ['reveal', 'sparkle'],
-      decor: { glitter: 'brillo-oro.webp' },
-    },
+    // Sin el brillo dorado detrás de "Save the date" (pedido del 13-oct).
+    'save-the-date': { desktop: 'half', effects: ['reveal', 'sparkle'] },
     'photo-arch': {
       desktop: 'half',
       effects: ['parallax', 'sparkle'],
@@ -114,6 +111,8 @@ const theme: ThemeManifest = {
     quote: { desktop: 'half', effects: ['typewriter'], decor: { divider: 'laurel.webp' } },
     itinerary: {
       desktop: 'half',
+      // Panel perla (más blanco que la crema que le tocaba); las demás no cambian de fondo.
+      panelColor: 'panel-pearl',
       variant: 'zigzag',
       effects: ['reveal', 'timeline-fill', 'cascade'],
       decor: { frame: 'marco-azul.webp' },
@@ -131,6 +130,11 @@ const theme: ThemeManifest = {
       decor: { crown: 'corona.webp', butterfly: 'mariposa.webp' },
     },
     'no-kids': { effects: ['reveal'], decor: { bow: 'lazo.webp' } },
+    // Hospedaje: tarjetas de papel con el divisor dorado; en escritorio, toda la fila.
+    hotels: {
+      effects: ['reveal', 'cascade', 'shine', 'float', 'sparkle', 'ken-burns'],
+      decor: { card: 'tarjeta.webp', divider: 'divisor-oro.webp' },
+    },
     // Clima y playlist: pareja en escritorio (qué ponerse y qué va a sonar).
     weather: { desktop: 'half', effects: ['reveal', 'cascade'] },
     spotify: { desktop: 'half', effects: ['reveal'] },
@@ -139,7 +143,8 @@ const theme: ThemeManifest = {
       effects: ['reveal'],
       decor: { card: 'ovalo-lino.webp', flowers: 'rosas-azules.webp' },
     },
-    closing: { effects: ['reveal', 'sparkle'] },
+    // Rosas azules en dos esquinas, como en la portada y la confirmación.
+    closing: { effects: ['reveal', 'sparkle'], decor: { flowers: 'rosas-azules.webp' } },
     // Una dedicatoria por enlace; arriba, el adorno dorado (como en la referencia).
     dedications: { effects: ['reveal'], decor: { divider: 'divisor-oro.webp' } },
   },

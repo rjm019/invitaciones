@@ -19,6 +19,18 @@ describe('bootService', () => {
     expect(takeBoot('event', 'nat')).toBeNull() // la segunda vez, a la API
   })
 
+  it('en el panel trae sus colores, y su tema empieza a cargar de inmediato', () => {
+    setBoot({
+      kind: 'panel',
+      key: 'nat',
+      data: { brand: { title: 'XV de Nat', theme: 'jardin-azul' } },
+    })
+    expect(bootTheme()).toBe('jardin-azul')
+    expect(takeBoot('panel', 'nat')).toEqual({
+      brand: { title: 'XV de Nat', theme: 'jardin-azul' },
+    })
+  })
+
   it('ignora lo que no tenga la forma esperada', () => {
     setBoot({ kind: 'otra-cosa', key: 'x', data: {} })
     expect(takeBoot('event', 'x')).toBeNull()

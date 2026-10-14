@@ -57,6 +57,7 @@ final class PanelService
 
         return [
             'version' => $this->version($slug),
+            'brand' => $this->brandOf($slug, $event, withCard: true),
             'event' => [
                 'slug' => $slug,
                 'title' => $event['title'],
@@ -71,6 +72,63 @@ final class PanelService
             'dedications' => $this->dedicationList($slug, $records, $event['timezone']),
             'max_passes' => InvitationStore::MAX_PASSES,
         ];
+    }
+
+    /**
+     * Para la entrada al panel: el título grande ("XV de Nat"), el tema, los colores y las
+     * fuentes de la invitación. Sin sesión, nada de fotos ni datos del evento.
+     *
+     * @return array<string, mixed>
+     *
+     * @throws LayoutException
+     */
+    public function brand(string $slug): array
+    {
+        return $this->brandOf($slug, $this->event($slug), withCard: false);
+    }
+
+    /**
+     * Lo que el panel toma de la invitación para verse como ella. Con sesión, además lo que
+     * lleva la imagen para WhatsApp: subtítulo, nombre, fecha, salón, archivos del evento y,
+     * del layout, su fondo y su frase (`tarjeta_fondo`, `tarjeta_frase`, `tarjeta_texto`).
+     *
+     * @return array<string, mixed>
+     */
+    private function brandOf(string $slug, array $event, bool $withCard): array
+    {
+        $brand = [
+            'title' => $this->panelTitle($slug, $event),
+            'theme' => $event['theme'],
+            'palette' => $event['palette'],
+            'fonts' => $event['fonts'],
+        ];
+        if (! $withCard) {
+            return $brand;
+        }
+
+        return $brand + [
+            'subtitle' => $event['subtitle'],
+            'celebrant' => $event['celebrant'],
+            'starts_at' => $event['starts_at'],
+            'timezone' => $event['timezone'],
+            'venue' => ['name' => $event['venue']['display_name'], 'city' => $event['venue']['city']],
+            'assets' => $event['assets'],
+            'card' => [
+                'background' => $this->events->eventValue($slug, 'tarjeta_fondo'),
+                'phrase' => $this->events->eventValue($slug, 'tarjeta_frase'),
+                'text' => $this->events->eventValue($slug, 'tarjeta_texto'),
+            ],
+        ];
+    }
+
+    /** "titulo_panel" del layout; si no hay, "XV de Nat" en unos XV, o el título del evento. */
+    private function panelTitle(string $slug, array $event): string
+    {
+        $name = $event['celebrant']['short_name'] ?? '';
+        $name = $name !== '' ? $name : ($event['celebrant']['full_name'] ?? '');
+
+        return $this->events->eventValue($slug, 'titulo_panel')
+            ?? ($event['type'] === 'xv' && $name !== '' ? "XV de {$name}" : ($event['title'] ?: $slug));
     }
 
     /**
@@ -198,13 +256,16 @@ final class PanelService
         $url = rtrim((string) config('invitaciones.frontend_url'), '/').'/i/'.$record['token'];
         $template = $this->events->eventValue($slug, 'mensaje_whatsapp') ?? WhatsAppLink::DEFAULT_MESSAGE;
         $name = $record['label'] !== '' ? $record['label'] : '';
+        $message = WhatsAppLink::message($template, $name, $record['passes'], $url);
 
         return [
             'id' => $record['id'],
             'label' => $name !== '' ? $name : null,
             'passes' => $record['passes'],
             'url' => $url,
-            'whatsapp_url' => WhatsAppLink::url('', WhatsAppLink::message($template, $name, $record['passes'], $url)),
+            // El texto que acompaña a la imagen de la invitación (lleva el enlace).
+            'message' => $message,
+            'whatsapp_url' => WhatsAppLink::url('', $message),
             'guests' => array_map(fn ($g) => [
                 'slot' => $g['slot'],
                 'full_name' => $g['name'],

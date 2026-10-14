@@ -9,7 +9,8 @@ import type { ResolvedSection } from '@/types/event'
 /**
  * Foto de la festejada (recortada, sin fondo) dentro de un arco dorado: la cabeza sale
  * por arriba del marco. Con "parallax", la foto se mueve un poco más lento que el marco.
- * Las mariposas doradas aletean y las estrellas titilan (SpriteDecor).
+ * Las mariposas doradas aletean y las estrellas titilan (SpriteDecor). El título del
+ * layout (p. ej. "NAT") va en la esquina de arriba a la izquierda, que queda libre.
  */
 const props = defineProps<{ section: ResolvedSection }>()
 const { event } = useEvent()
@@ -31,6 +32,7 @@ const offset = useParallax(
 
 <template>
   <div class="photo-arch">
+    <h2 v-if="section.title" class="photo-arch__title">{{ section.title }}</h2>
     <SpriteDecor
       v-if="section.decor.butterflies"
       :src="section.decor.butterflies"
@@ -100,6 +102,19 @@ const offset = useParallax(
   object-fit: contain;
   object-position: bottom;
   will-change: transform;
+}
+.photo-arch__title {
+  position: absolute;
+  top: 4%;
+  left: 3%;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--font-caps);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 12cqi, 3.2rem);
+  letter-spacing: 0.16em;
+  line-height: 1;
+  color: var(--color-primary);
 }
 .photo-arch__stars {
   position: absolute;

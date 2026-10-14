@@ -12,7 +12,7 @@
 
 ## Página de la invitación (no es API)
 
-`GET /e/{slug}` y `GET /i/{token}` responden la invitación compilada (`app.html`) con los mismos datos que darían `GET /public/events/{slug}` o `GET /public/invitations/{token}` dentro de `<script>window.__BOOT__={kind, key, data}</script>`. El JSON va escapado contra `</script>`. En `/i/` se registra la apertura, igual que en la API. Con `Cache-Control: no-cache, private`. Cualquier otra ruta que no sea `/api` ni `/media` da la página sin datos.
+`GET /e/{slug}` y `GET /i/{token}` responden la invitación compilada (`app.html`) con los mismos datos que darían `GET /public/events/{slug}` o `GET /public/invitations/{token}` dentro de `<script>window.__BOOT__={kind, key, data}</script>`. `GET /panel/{slug}` trae `{ brand }`, lo mismo que `GET /admin/events/{slug}/brand`. El JSON va escapado contra `</script>`. En `/i/` se registra la apertura, igual que en la API. Con `Cache-Control: no-cache, private`. Cualquier otra ruta que no sea `/api` ni `/media` da la página sin datos.
 
 ## Público
 
@@ -120,8 +120,9 @@ Se entra con la clave del layout (`evento → clave_panel`, mínimo 8 caracteres
 
 | Método | Ruta | Descripción |
 |---|---|---|
+| GET | `/admin/events/{slug}/brand` | Sin sesión, para la entrada: `{ brand: { title, theme, palette, fonts } }`. `title` es `titulo_panel` del layout o, en unos XV, "XV de {festejada_corto}". Sin fotos ni datos del evento. `404` evento desconocido · throttle 60/min |
 | POST | `/admin/events/{slug}/session` | `{ password }` → `{ token, expires_at }`. `422` clave incorrecta · `403` evento sin clave · throttle 5/min |
-| GET | `/admin/events/{slug}` | `{ version, event, rsvp: { deadline, open, changes_used, changes_left, max_changes }, summary: { invitations, seats, attending, declined, empty }, invitations: [{ id, label, passes, url, whatsapp_url, guests: [{ slot, full_name, attending, table, responded_at }], opens, created_at }], dedications: [{ invitation, label, name, message, sent_at }], max_passes }` (dedicatorias: la más reciente primero) |
+| GET | `/admin/events/{slug}` | `{ version, brand: { title, theme, palette, fonts, subtitle, celebrant, starts_at, timezone, venue: { name, city }, assets, card: { background, phrase, text } }, event, rsvp: { deadline, open, changes_used, changes_left, max_changes }, summary: { invitations, seats, attending, declined, empty }, invitations: [{ id, label, passes, url, message, whatsapp_url, guests: [{ slot, full_name, attending, table, responded_at }], opens, created_at }], dedications: [{ invitation, label, name, message, sent_at }], max_passes }` (dedicatorias: la más reciente primero). `message` es el texto de `mensaje_whatsapp` ya armado; el panel lo manda sin el enlace junto al PDF de la invitación. `brand.card` sale de `tarjeta_fondo`, `tarjeta_frase` y `tarjeta_texto` del layout (`null` si no están) |
 | POST | `/admin/events/{slug}/invitations` | `{ passes: 1…30, label? }` → `201 { invitation }` |
 | PUT | `/admin/events/{slug}/deadline` | `{ deadline: AAAA-MM-DD }` → `{ rsvp }`. Entre hoy y el día del evento; **máximo 3 cambios** (`409` después) |
 | GET | `/admin/events/{slug}/version` | `{ version }`: huella de los archivos del evento. El panel la consulta cada 5 s y recarga solo si cambió (en vivo sin base de datos) |

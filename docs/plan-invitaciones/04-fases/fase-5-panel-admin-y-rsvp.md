@@ -33,8 +33,8 @@
   - Fecha de alta.
 - [x] Alta: escribes para cuántos invitados es (1 a 30) y, si quieres, el nombre que va en el sobre. ~~Edición, borrado y regenerar token.~~ *Borrar o editar un enlace es la pregunta abierta 12.*
 - [x] ~~**Importar CSV** de familias.~~ **Cambió:** los enlaces se generan en el panel.
-- [x] Copiar link (`navigator.clipboard`) y **botón de WhatsApp** (`wa.me` con el texto de `mensaje_whatsapp`).
-- [ ] **QR** del link. *Pendiente (va con los pases).*
+- [x] Copiar link (`navigator.clipboard`) y **botón de WhatsApp** (`wa.me` con el texto de `mensaje_whatsapp`). *Desde el 13-oct, "Enviar" manda un PDF con la invitación (enlace oculto, se abre al tocarla); el link solo se ve con "ver link".*
+- [x] **QR** del link. *Hecho el 13-oct dentro del PDF para WhatsApp (en el navegador, `qrcode`). Los pases de entrada siguen pendientes.*
 - [x] Buscador de invitaciones. *Ya no hay "estado" por familia; los filtros están en la pestaña Invitados.*
 
 ### Respuestas
@@ -57,6 +57,7 @@ Todo pendiente (D9: después del evento real, o cuando lo decidas).
 - [ ] `GET /public/invitations/{token}/pass.pdf`, disponible solo si `confirmed`.
 - [ ] Botón "Descargar mis pases" en `RsvpCard` después de confirmar.
 - [ ] Opcional: `POST /admin/check-in/{token}` + una pantalla de escaneo con la cámara (`html5-qrcode`) para la entrada al salón. *El buscador de `recepcion/` puede leer `respuestas.csv` con su mesa.*
+  - **Decidido (13-oct):** el lector lee **el mismo QR** que lleva la invitación enviada por WhatsApp (el PDF del panel), que contiene `https://…/i/{token}`. Debe sacar el token de lo que va después de `/i/`, sin importar el dominio: si después se usa un dominio propio, los QR ya enviados siguen sirviendo.
 
 ### Pulido del RSVP
 

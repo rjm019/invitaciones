@@ -22,6 +22,7 @@ final class EventConfigBuilder
         'primario_claro' => 'primary-soft',
         'acento' => 'accent',
         'acento_suave' => 'accent-soft',
+        'acento_fuerte' => 'accent-strong',
         'superficie' => 'surface',
         'marco' => 'frame',
     ];
@@ -43,6 +44,7 @@ final class EventConfigBuilder
         'dress_code' => 'dress-code',
         'cuenta_regresiva' => 'countdown',
         'hoteles' => 'hotels',
+        'hospedaje' => 'hotels',
         'spotify' => 'spotify',
         'playlist' => 'spotify',
         'clima' => 'weather',
@@ -179,6 +181,7 @@ final class EventConfigBuilder
             'family' => $this->family($sheets['familia'] ?? []),
             'itinerary' => $this->itinerary($sheets['itinerario'] ?? []),
             'locations' => $this->locations($sheets['ubicaciones'] ?? [], $media),
+            'hotels' => $this->hotels($sheets['hoteles'] ?? $sheets['hospedaje'] ?? [], $media),
             'assets' => (object) $media,
         ];
 
@@ -419,6 +422,40 @@ final class EventConfigBuilder
                 'time' => ($row['hora'] ?? '') === '' ? null : $this->time($row['hora'], 'ubicaciones, fila '.($i + 2)),
                 'address' => trim($row['direccion'] ?? ''),
                 'maps_url' => trim($row['maps'] ?? ''),
+                'photo' => $this->media($row['foto'] ?? '', $media),
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Pestaña "hoteles" (o "hospedaje"): un renglón por hotel recomendado. Solo el nombre
+     * es obligatorio; el enlace de Maps tiene que ser una dirección web (va en un botón).
+     *
+     * @param  list<array<string, string>>  $rows
+     * @param  array<string, string>  $media
+     * @return list<array<string, string|null>>
+     */
+    private function hotels(array $rows, array $media): array
+    {
+        $out = [];
+        foreach ($rows as $i => $row) {
+            $name = trim($row['nombre'] ?? '');
+            if ($name === '') {
+                continue;
+            }
+            $maps = trim($row['maps'] ?? '');
+            if ($maps !== '' && ! preg_match('~^https?://~i', $maps)) {
+                $this->errors[] = 'hoteles, fila '.($i + 2).": maps debe ser un enlace (https://…), no '{$maps}'";
+                $maps = '';
+            }
+            $out[] = [
+                'name' => $name,
+                'note' => trim($row['nota'] ?? ''),
+                'address' => trim($row['direccion'] ?? ''),
+                'maps_url' => $maps,
+                'phone' => trim($row['telefono'] ?? ''),
                 'photo' => $this->media($row['foto'] ?? '', $media),
             ];
         }

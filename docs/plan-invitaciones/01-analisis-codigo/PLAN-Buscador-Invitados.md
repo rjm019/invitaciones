@@ -433,7 +433,7 @@ Mini PC o Raspberry Pi con Docker, IP fija reservada en el router, arranque auto
 
 - Acceso desde fuera de la red local (internet, dominio, nube).
 - Cuentas de usuario con contraseña por persona; en Fase 2 solo hay hostess y administrador.
-- Impresión de gafetes, lector de QR por invitado, plano visual del salón.
+- Impresión de gafetes y plano visual del salón. ~~Lector de QR por invitado.~~ **Cambió (13-oct):** el lector de QR sí entra, más adelante. Lee el QR de la invitación (el mismo del PDF que se manda por WhatsApp, con `/i/{token}`). Ver D9 en `08-decisiones-pendientes.md` y la fase 5.
 - Motor de base de datos. El CSV es suficiente y es lo que se pidió.
 - App nativa iOS/Android: el navegador cubre el caso.
 

@@ -44,6 +44,7 @@ export function resolveSections(
         variant: section.variant ?? defaults.variant,
         desktop: section.desktop ?? defaults.desktop ?? 'full',
         panel: defaults.panel !== false,
+        ...(defaults.panelColor ? { panelColor: defaults.panelColor } : {}),
         background: Object.keys(background).length ? background : undefined,
         effects: effects.some((e) => NO_EFFECTS.includes(e)) ? [] : [...effects],
         decor,
@@ -57,15 +58,17 @@ const WEATHER_AFTER_MS = 24 * 60 * 60 * 1000
 
 /**
  * Quita las secciones que no tendrían nada que mostrar: la playlist sin un enlace de
- * Spotify válido y el clima cuando el evento ya pasó. Así no queda un hueco en la página.
+ * Spotify válido, el hospedaje sin hoteles y el clima cuando el evento ya pasó. Así no
+ * queda un hueco en la página.
  */
 export function withContent<T extends SectionConfig>(
   sections: T[],
-  event: Pick<EventConfig, 'music' | 'starts_at'>,
+  event: Pick<EventConfig, 'music' | 'starts_at' | 'hotels'>,
   now: number,
 ): T[] {
   return sections.filter((s) => {
     if (s.type === 'spotify') return spotifyEmbed(event.music.spotify_url) !== null
+    if (s.type === 'hotels') return event.hotels.length > 0
     if (s.type === 'weather') {
       const start = event.starts_at ? Date.parse(event.starts_at) : NaN
       return Number.isFinite(start) && now < start + WEATHER_AFTER_MS
@@ -78,7 +81,8 @@ export function withContent<T extends SectionConfig>(
  * Fondo de cada panel. El que no trae uno (ni del layout ni del tema) toma el siguiente
  * de la lista del tema, saltando el de la sección de arriba: dos secciones seguidas nunca
  * se ven iguales, aunque el layout oculte o reordene secciones. Con tres fondos en la
- * lista, tampoco se repiten en las filas de escritorio (izquierda | derecha).
+ * lista, tampoco se repiten en las filas de escritorio (izquierda | derecha). Con
+ * `panelColor`, la sección gasta su turno pero se pinta de su color.
  */
 export function withPanels<T extends ResolvedSection>(
   sections: T[],
@@ -93,6 +97,8 @@ export function withPanels<T extends ResolvedSection>(
         background = panels[turn++ % panels.length]
         if (JSON.stringify(background) !== above) break
       }
+      // Usa su turno (las demás no se recorren), pero con su propio color.
+      if (section.panelColor) background = { color: section.panelColor }
     }
     above = section.panel ? JSON.stringify(background ?? null) : null
     return background === section.background ? section : { ...section, background }

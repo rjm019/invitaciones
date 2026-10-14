@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { dateParts, dayMonth, longDate, shortDateTime, time12h } from '../dateFormatService'
+import {
+  dateParts,
+  dayMonth,
+  hourMinute,
+  longDate,
+  shortDateTime,
+  time12h,
+} from '../dateFormatService'
 
 describe('dateFormatService', () => {
   it('fecha límite como la escribe el diseño', () => {
@@ -19,6 +26,8 @@ describe('dateFormatService', () => {
   })
 
   it('horas de 24 h a 12 h', () => {
+    expect(hourMinute('2026-11-28T17:00:00-06:00', 'America/Mexico_City')).toBe('17:00')
+    expect(hourMinute('2026-11-28T23:05:00Z', 'America/Mexico_City')).toBe('17:05')
     expect(time12h('17:00')).toBe('5:00 pm')
     expect(time12h('12:00')).toBe('12:00 pm')
     expect(time12h('00:30')).toBe('12:30 am')

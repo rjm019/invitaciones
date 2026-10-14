@@ -35,6 +35,16 @@ describe('useCelebration', () => {
     expect(child().bursts.value).toHaveLength(0)
   })
 
+  it('al abrir el sobre pueden ser estrellitas en lugar de confeti', () => {
+    vi.useFakeTimers()
+    const { child } = mountPage()
+    child().celebrate('stars')
+    child().celebrate()
+    const [stars, confetti] = child().bursts.value
+    expect(stars!.pieces.every((p) => p.shape === 'star')).toBe(true)
+    expect(confetti!.pieces.some((p) => p.shape === 'star')).toBe(false)
+  })
+
   it('si los efectos van más lentos, la ráfaga se queda lo mismo de más', async () => {
     vi.useFakeTimers()
     document.documentElement.style.setProperty('--motion-scale', '1.1')

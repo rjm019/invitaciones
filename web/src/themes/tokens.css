@@ -10,6 +10,8 @@
   --color-primary-strong: #a8823f;
   --color-primary-soft: #d9c08a;
   --color-accent: #7aa7c7;
+  /* Acento profundo: botones y textos sobre blanco (se lee bien con letra blanca encima) */
+  --color-accent-strong: #3d6a92;
   --color-accent-soft: #c9dbe8;
   --color-surface: #ffffff;
   --color-frame: #b8c6d4;
@@ -21,6 +23,8 @@
   --color-panel: #ffffff;
   --color-panel-alt: #eef3f8;
   --color-panel-warm: #f8f1e3;
+  /* Perla: para un panel que se pide aparte (panelColor). Puede ser un degradado. */
+  --color-panel-pearl: #fdfcfa;
 
   /* Tipografía por rol */
   --font-script: cursive;
