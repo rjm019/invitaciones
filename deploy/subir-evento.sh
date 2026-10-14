@@ -12,7 +12,7 @@ config="$root/fly.toml"
 cd "$root/eventos/$slug"
 
 files=""
-for f in layout.xlsx evento.csv paleta.csv tipografia.csv secciones.csv familia.csv itinerario.csv ubicaciones.csv; do
+for f in layout.xlsx evento.csv paleta.csv tipografia.csv secciones.csv familia.csv itinerario.csv ubicaciones.csv hoteles.csv hospedaje.csv; do
   [ -f "$f" ] && files="$files $f"
 done
 [ -d media ] && files="$files media"

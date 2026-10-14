@@ -1,0 +1,52 @@
+﻿seccion,elemento,campo,valor
+evento,,tipo,xv
+evento,,tema,jardin-azul
+evento,,festejada,Festejada Nueva
+evento,,festejada_corto,Nue
+evento,,subtitulo,mis xv años
+evento,,inicia,2026-11-28 17:00
+evento,,zona_horaria,America/Mexico_City
+evento,,salon,Salón Nuevo
+evento,,salon_ciudad,"Pachuca, Hidalgo"
+evento,,salon_maps,https://maps.app.goo.gl/nuevo
+evento,,salon_foto,salon.webp
+evento,,rsvp_limite,2026-11-06
+evento,,rsvp_modo,token
+evento,,mensaje_whatsapp,"¡Hola{, familia}! {enlace}"
+evento,,titulo_panel,XV de Nue
+colores,,primario,#96792c
+colores,,acento,#2F4A7A
+colores,,lino,#F0EDE8
+fuentes,,script,Great Vibes
+textos,,titulo_color,acento
+pagina,,decoracion,NO
+portada,,visible,SI
+portada,,boton,Abre tu invitación
+portada,,efectos,flotar
+portada,,imagen_lacre,ninguna
+bendicion,,visible,SI
+bendicion,,texto,Con cariño
+bendicion,1,rol,Mis papás
+bendicion,1,nombres,"Persona Uno
+Persona Dos"
+bendicion,2,rol,Mis padrinos
+bendicion,2,nombres,Persona Tres
+foto,,visible,SI
+foto,,imagen,https://ejemplo.test/retrato.webp
+itinerario,,visible,SI
+itinerario,,titulo,Itinerario
+itinerario,,efectos,aparecer linea
+itinerario,,escritorio,mitad
+itinerario,,titulo_fuente,Playfair Display
+itinerario,,hora_tamano,120
+itinerario,1,hora,5:00 pm
+itinerario,1,actividad,Recepción
+itinerario,2,hora,17:50
+itinerario,2,actividad,Entrada
+itinerario,2,icono,corona.webp
+vestimenta,,visible,SI
+vestimenta,,colores,"#000000, #FFFFFF"
+vestimenta,,color_fondo,marco
+vestimenta,,color_texto,#ffffff
+confirmacion,,visible,NO
+confirmacion,,titulo,Confirmación secreta

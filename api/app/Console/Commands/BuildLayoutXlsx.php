@@ -53,11 +53,15 @@ class BuildLayoutXlsx extends Command
             copy($target, $dir.'/respaldos/layout-'.date('Ymd-His').'.xlsx');
         }
 
+        // Solo las pestañas del layout: nunca los CSV del sistema (tokens, respuestas,
+        // dedicatorias…), que llevan datos de los invitados.
         $files = [];
         foreach (glob($from.'/*.csv') ?: [] as $file) {
-            $files[LayoutReader::key(basename($file, '.csv'))] = $file;
+            $name = LayoutReader::key(basename($file, '.csv'));
+            if (! in_array($name, LayoutReader::GENERATED, true)) {
+                $files[$name] = $file;
+            }
         }
-        unset($files['respuestas'], $files['tokens'], $files['links']);
         if ($files === []) {
             $this->error("No hay CSV en {$from}");
 
