@@ -24,6 +24,7 @@ La lógica vive en `services/` (TS puro, sin Vue ni DOM global, con pruebas en V
 | `eventService` · `invitationService` | `GET` del evento y de la invitación; envío del RSVP |
 | `rsvpService` | Lugares del formulario, validación de nombres nuevos, textos ("Pase para 3 invitados", "Asistiré / Asistiremos") |
 | `dedicationService` | Limpieza y validación de la dedicatoria (nombre ≤ 80, mensaje ≤ 600) y errores 422 por campo |
+| `bootService` · `preloadService` | Datos que el servidor ya puso en la página (`window.__BOOT__`, una sola vez); qué imágenes y fuentes esperar antes de mostrar la invitación |
 | `scrollGuardService` | Regla para dejar la página quieta cuando algo ajeno la mueve (Spotify al cambiar de canción) |
 | `panelService` | Llamadas del panel, más filtros y conteos de invitaciones, invitados y mesas |
 | `themeService` · `sectionService` · `assetService` · `backgroundService` | Tema y paleta, mezcla de secciones (tema + Excel), fondos de los paneles que se turnan (`withPanels`), archivos de `media/`, estilos de fondo |
@@ -35,6 +36,7 @@ La lógica vive en `services/` (TS puro, sin Vue ni DOM global, con pruebas en V
 |---|---|
 | `useEvent` | `provide/inject` del evento |
 | `useInvitation` | Carga, envío del RSVP y de la dedicatoria, con sus estados |
+| `useAssetsReady` | true cuando cargaron el papel, la portada y las fuentes (máximo 5 s); hasta entonces `PageLoader` |
 | `useSteadyScroll` | Deja la vista donde está cuando Spotify cambia de canción (solo escucha; el invitado manda) |
 | `usePanel` | Sesión (en `sessionStorage`), lista, crear enlace, fecha límite, mesas y revisión de versión |
 | `usePolling` | Repite una tarea cada N ms solo con la pestaña visible; nunca se encima |
@@ -48,6 +50,8 @@ La lógica vive en `services/` (TS puro, sin Vue ni DOM global, con pruebas en V
 ## 3. Contrato de cada sección
 
 **Velocidad de los efectos:** `--motion-scale` (tokens) multiplica todas las duraciones y retrasos. En CSS: `calc(0.8s * var(--motion-scale))`; en estilos en línea: `motionTime(segundos)` (`effectsService`); en temporizadores: `ms * motionScale()` (`composables/useMotionScale`).
+
+**Carga:** la invitación no se muestra a medias. `InvitationRenderer` monta solo la portada mientras `useAssetsReady` espera sus imágenes y las fuentes, con `PageLoader` encima. Luego aparece completa y el resto de las secciones se monta en el cuadro siguiente. Secciones, íconos y las páginas de evento e invitación van en el archivo principal; solo el panel se carga aparte.
 
 **Paneles:** `SectionShell` pinta cada sección como panel (fondo, `--panel-radius`, `--panel-shadow`, `--panel-border`); entre panel y panel va `--section-gap` (16 px en celular, 24 px en escritorio). Una sección con `panel: false` en el manifiesto (la portada) va sin panel y sin relleno vertical. Las que no traen fondo toman el siguiente de `manifest.panels`.
 

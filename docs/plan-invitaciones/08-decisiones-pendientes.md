@@ -26,7 +26,7 @@ Salieron durante la implementación y se juntaron para el final. Al responder un
 
 1. **Hora de inicio:** se usó 28-nov-2026 a las 17:00, deducida de "Recepción 5:00 pm". El contador del Canva apuntaba a otra fecha. ¿Es correcta?
 2. **Foto de la festejada:** la actual es la versión comprimida del sitio de Canva. ¿Hay una original en mejor calidad?
-3. **Música de NAT:** ¿MP3 propio o playlist de Spotify? Las dos ya funcionan (`musica_fuente`). Con Spotify, al abrir el sobre suena la playlist, pero:
+3. **Música de NAT:** *13-oct:* se puso la canción de Spotify que mandaste (`track/5y2ijHECwFYWqcAHKTZgzD`). Sin sesión de Spotify se oyen 30 s y se detiene. ¿Basta así, o consigues el MP3 para que suene completa? Antes: ¿MP3 propio o playlist de Spotify? Las dos ya funcionan (`musica_fuente`). Con Spotify, al abrir el sobre suena la playlist, pero:
    - Quien no tiene sesión de Spotify en ese navegador oye **muestras de 30 s** por canción y ve el aviso "Obtener Spotify" de Spotify.
    - En iPhone, Safari puede pedir tocar ▶ en el reproductor.
 
@@ -64,5 +64,5 @@ Salieron durante la implementación y se juntaron para el final. Al responder un
 20. **Dedicatorias:** hoy se aceptan siempre, también después de la fecha límite y del evento. ¿Se cierran en alguna fecha? ¿Las quieres exportar para imprimir o leerlas en la fiesta?
 21. **Textos:** los de "Sin niños" ("Queremos mucho a sus pequeños, pero esta celebración es solo para adultos…") y de la dedicatoria ("Déjame un mensaje bonito: lo guardaré para siempre como recuerdo de mis XV años.") son propuestas mías. ¿Se quedan o tienes los definitivos?
 22. **Paneles:** las secciones quedaron como tarjetas con 16 px entre ellas y a las orillas. ¿Así, o de orilla a orilla (bandas)? Es un cambio de tokens (`--section-gap`, `--panel-radius`).
-23. **Primera visita lenta:** la máquina de Fly se apaga sin visitas y la primera tarda ~5 s en abrir. ¿Dejamos una siempre encendida mientras dure el RSVP (`min_machines_running = 1`, ~2 USD/mes más)?
+23. **Primera visita lenta:** *Atendido en el código:* la máquina ahora se suspende en lugar de apagarse (despierta en unos cientos de ms). Falta publicar y comprobar que Fly sí la suspende. Si no, ¿dejamos una encendida (~3 USD/mes)?
 24. **Token de GitHub:** *Hecho (13-oct):* el remoto ya no lleva el token (`git remote -v` → `https://github.com/rjm019/invitaciones.git`). **Acción tuya:** revocar ese token en GitHub → Settings → Developer settings → Personal access tokens. Para el push, usa el llavero de macOS con un token nuevo o instala `gh` (`brew install gh` y `gh auth login`).

@@ -10,6 +10,10 @@
 
 ---
 
+## Página de la invitación (no es API)
+
+`GET /e/{slug}` y `GET /i/{token}` responden la invitación compilada (`app.html`) con los mismos datos que darían `GET /public/events/{slug}` o `GET /public/invitations/{token}` dentro de `<script>window.__BOOT__={kind, key, data}</script>`. El JSON va escapado contra `</script>`. En `/i/` se registra la apertura, igual que en la API. Con `Cache-Control: no-cache, private`. Cualquier otra ruta que no sea `/api` ni `/media` da la página sin datos.
+
 ## Público
 
 ### `GET /public/invitations/{token}`

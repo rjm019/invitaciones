@@ -10,7 +10,7 @@ Se eligió Fly.io porque es barato y tiene disco persistente. La app guarda todo
 |---|---|
 | Cuenta | `tu cuenta personal` (organización *personal*) |
 | App | `invitaciones-jiro`, región `dfw` (Dallas) |
-| Servidor | 1 máquina `shared-cpu-1x`, 256 MB + 256 MB de swap. Se **apaga sin visitas** y despierta con la siguiente; la primera visita tarda ~5 s |
+| Servidor | 1 máquina `shared-cpu-1x`, 512 MB, sin swap. Sin visitas se **suspende** (guarda su memoria) y despierta en unos cientos de ms; si Fly no puede reanudarla, arranca de cero (~5 s) |
 | Disco | Volumen `eventos` de 1 GB, cifrado, montado en `/data` |
 | Datos | `/data/eventos/<slug>/` (layout, media y los CSV que escribe la app) y `/data/cache/` (clima y límites de envíos) |
 | Secreto | `APP_KEY` (`fly secrets`). Si cambia, se cierran las sesiones del panel |
@@ -19,7 +19,8 @@ Se eligió Fly.io porque es barato y tiene disco persistente. La app guarda todo
 **Imagen** (`Dockerfile` de la raíz):
 
 - Se arma en dos etapas: primero se compila la invitación (Vue, con `VITE_API_URL` vacío) y luego va con Laravel sobre `php:8.3-apache`.
-- Apache sirve los archivos de `public/`. Cualquier ruta que no sea `/api` ni `/media` responde `public/app.html`, que es la invitación compilada, y el router de Vue decide qué mostrar.
+- Apache sirve los archivos de `public/` con `KeepAlive Off` (con prefork, cada conexión abierta del proxy ocupaba un proceso y las demás hacían fila).
+- Cualquier ruta que no sea `/api` ni `/media` responde `public/app.html`, que es la invitación compilada (`SpaController`). En `/e/{slug}` y `/i/{token}`, la página ya lleva los datos en `window.__BOOT__`, así la invitación no espera otra petición.
 - `.dockerignore` deja fuera `eventos/`, `docs/`, `recepcion/`, los `.env` y lo de la boda original en `web/public` (fotos reales y una canción con derechos).
 - `deploy/` trae la configuración de Apache (8 procesos como máximo), la de PHP y el arranque. El arranque crea las carpetas del disco y cachea la configuración de Laravel.
 
@@ -55,7 +56,7 @@ fly volumes snapshots list <id-del-volumen>                            # respald
 - Vista previa de WhatsApp (Open Graph). Como Laravel ya sirve `app.html`, se puede inyectar el título y la imagen de cada evento ahí.
 - Dominio propio (opcional): `fly certs add <dominio>`, y luego cambiar `APP_URL` y `FRONTEND_URL`.
 - CI con las pruebas antes de cada `fly deploy`.
-- Decidir si se deja una máquina siempre encendida (`min_machines_running = 1`, ~2 USD/mes más) para quitar los ~5 s de la primera visita.
+- Confirmar con `fly machine status` que la máquina queda `suspended` (no `stopped`) después de unos minutos sin visitas. Si no, la otra salida es dejar una encendida (`min_machines_running = 1`, ~3 USD/mes).
 
 ## Checklist de cada publicación
 
