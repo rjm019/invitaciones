@@ -3,7 +3,6 @@
 # volver a publicar. Subir un evento: deploy/subir-evento.sh <slug>.
 app = "invitaciones-jiro"
 primary_region = "dfw"
-swap_size_mb = 256
 
 [build]
   dockerfile = "Dockerfile"
@@ -23,11 +22,12 @@ swap_size_mb = 256
   source = "eventos"
   destination = "/data"
 
-# Se apaga sola sin visitas y despierta con la siguiente (casi no cobra).
+# Sin visitas se suspende (guarda su memoria) y despierta en unos cientos de ms con la
+# siguiente; solo se cobra mientras corre. Suspender no funciona con swap: por eso 512 MB.
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = "suspend"
   auto_start_machines = true
   min_machines_running = 0
 
@@ -45,4 +45,4 @@ swap_size_mb = 256
 
 [[vm]]
   size = "shared-cpu-1x"
-  memory = "256mb"
+  memory = "512mb"

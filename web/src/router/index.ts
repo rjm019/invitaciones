@@ -1,11 +1,14 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+// La invitación va en el archivo principal (sin otra petición antes de empezar); el panel no.
+import EventPage from '../pages/EventPage.vue'
+import InvitationPage from '../pages/InvitationPage.vue'
 
 const routes: RouteRecordRaw[] = [
   // Invitación personal de una familia (enlace único con token, con pases y confirmación).
   {
     path: '/i/:token',
     name: 'invitation',
-    component: () => import('../pages/InvitationPage.vue'),
+    component: InvitationPage,
     props: true,
   },
   // Panel del dueño del evento (se entra con la clave del layout).
@@ -19,7 +22,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/e/:slug',
     name: 'event',
-    component: () => import('../pages/EventPage.vue'),
+    component: EventPage,
     props: true,
   },
 ]

@@ -4,8 +4,10 @@ import ButterflyFlight from '@/components/ui/ButterflyFlight.vue'
 import CelebrationBurst from '@/components/ui/CelebrationBurst.vue'
 import FloatingDecor from '@/components/ui/FloatingDecor.vue'
 import MiniPlayer from '@/components/ui/MiniPlayer.vue'
+import PageLoader from '@/components/ui/PageLoader.vue'
 import SectionShell from '@/components/ui/SectionShell.vue'
 import { sectionRegistry } from '@/components/sectionRegistry'
+import { useAssetsReady } from '@/composables/useAssetsReady'
 import { provideCelebration } from '@/composables/useCelebration'
 import { provideEvent } from '@/composables/useEvent'
 import { provideMusic } from '@/composables/useMusic'
@@ -13,6 +15,7 @@ import { useReducedMotion } from '@/composables/useReducedMotion'
 import { useSteadyScroll } from '@/composables/useSteadyScroll'
 import { createAssetResolver } from '@/services/assetService'
 import { backgroundVars } from '@/services/backgroundService'
+import { criticalImages, fontFamilies } from '@/services/preloadService'
 import { placeOnDesktop, resolveSections, withContent, withPanels } from '@/services/sectionService'
 import { spotifyEmbed } from '@/services/spotifyService'
 import {
@@ -26,7 +29,12 @@ import { loadTheme, themeAssets } from '@/themes'
 import type { ThemeManifest } from '@/themes/types'
 import type { EventConfig } from '@/types/event'
 
-/** Arma la invitación: tema + paleta + fuentes del layout, y cada sección en su orden. */
+/**
+ * Arma la invitación: tema + paleta + fuentes del layout, y cada sección en su orden.
+ * No se muestra a medias: mientras cargan las fuentes y las imágenes de la portada se ve
+ * la pantalla de espera, y luego aparece completa. El resto de las secciones (y Spotify)
+ * se monta justo después, mientras el invitado ve el sobre.
+ */
 const props = defineProps<{ event: EventConfig }>()
 
 const theme = shallowRef<ThemeManifest | null>(null)
@@ -78,6 +86,28 @@ const sections = computed(() =>
     : [],
 )
 const pageStyle = computed(() => backgroundVars(theme.value?.page, resolveAsset.value, '--page'))
+const fonts = computed(() =>
+  theme.value ? resolveFonts(theme.value.fonts, props.event.fonts) : null,
+)
+
+// Lista cuando cargaron el papel, la portada y las fuentes (o pasó el tiempo máximo).
+const ready = useAssetsReady(() =>
+  theme.value && fonts.value
+    ? {
+        images: criticalImages(sections.value[0], [
+          resolveAsset.value(theme.value.page?.image),
+          resolveAsset.value(sections.value[0]?.background?.image),
+        ]),
+        fonts: fontFamilies(fonts.value),
+      }
+    : null,
+)
+// Ya visible la portada, en el siguiente cuadro se monta todo lo demás.
+const complete = shallowRef(false)
+watch(ready, (isReady) => {
+  if (isReady) requestAnimationFrame(() => (complete.value = true))
+})
+const shown = computed(() => (complete.value ? sections.value : sections.value.slice(0, 1)))
 
 watch(
   () => props.event.theme,
@@ -94,13 +124,12 @@ watch(
   [theme, () => props.event.palette, () => props.event.fonts],
   () => {
     revert?.()
-    if (!theme.value) return
-    const fonts = resolveFonts(theme.value.fonts, props.event.fonts)
+    if (!theme.value || !fonts.value) return
     revert = applyTheme(
       document.documentElement,
       theme.value.id,
-      { ...paletteVars(props.event.palette), ...fontVars(fonts) },
-      googleFontsUrl(Object.values(fonts)),
+      { ...paletteVars(props.event.palette), ...fontVars(fonts.value) },
+      googleFontsUrl(Object.values(fonts.value)),
     )
   },
   { immediate: true },
@@ -110,28 +139,35 @@ onBeforeUnmount(() => revert?.())
 
 <template>
   <p v-if="themeMissing" class="invitation-error">El tema «{{ event.theme }}» no existe.</p>
-  <div v-else class="invitation" :style="pageStyle">
-    <div class="invitation__paper" aria-hidden="true" />
-    <FloatingDecor v-if="theme?.floating?.length" :items="theme.floating" />
-    <ButterflyFlight v-if="theme?.flights?.length" :items="theme.flights" />
-    <main class="invitation__grid">
-      <SectionShell
-        v-for="section in sections"
-        :key="section.id"
-        :section="section"
-        :class="`invitation__slot--${section.slot}`"
-      >
-        <component
-          :is="sectionRegistry[section.type]"
-          v-if="sectionRegistry[section.type]"
+  <template v-else>
+    <Transition name="invitation-loader">
+      <PageLoader v-if="!ready" class="invitation__loader" />
+    </Transition>
+    <div class="invitation" :class="{ 'is-ready': ready }" :style="pageStyle">
+      <div class="invitation__paper" aria-hidden="true" />
+      <FloatingDecor v-if="complete && theme?.floating?.length" :items="theme.floating" />
+      <ButterflyFlight v-if="complete && theme?.flights?.length" :items="theme.flights" />
+      <main class="invitation__grid">
+        <SectionShell
+          v-for="section in shown"
+          :key="section.id"
           :section="section"
-        />
-        <p v-else class="invitation__pending">Sección «{{ section.type }}» en construcción</p>
-      </SectionShell>
-    </main>
-    <MiniPlayer />
-    <CelebrationBurst />
-  </div>
+          :class="`invitation__slot--${section.slot}`"
+        >
+          <component
+            :is="sectionRegistry[section.type]"
+            v-if="sectionRegistry[section.type]"
+            :section="section"
+          />
+          <p v-else class="invitation__pending">Sección «{{ section.type }}» en construcción</p>
+        </SectionShell>
+      </main>
+      <template v-if="complete">
+        <MiniPlayer />
+        <CelebrationBurst />
+      </template>
+    </div>
+  </template>
 </template>
 
 <style scoped>
@@ -147,6 +183,30 @@ onBeforeUnmount(() => revert?.())
   color: var(--color-text);
   font-family: var(--font-serif);
   background-color: var(--page-bg-color, var(--color-bg));
+  /* Oculta hasta que la portada esté completa (ver useAssetsReady). */
+  opacity: 0;
+}
+.invitation.is-ready {
+  opacity: 1;
+  transition: opacity calc(0.45s * var(--motion-scale)) ease-out;
+}
+/* La pantalla de espera encima, y se desvanece cuando aparece la invitación. */
+.invitation__loader {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+.invitation-loader-leave-active {
+  transition: opacity calc(0.45s * var(--motion-scale)) ease-out;
+}
+.invitation-loader-leave-to {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .invitation.is-ready,
+  .invitation-loader-leave-active {
+    transition: none;
+  }
 }
 /* El papel se queda quieto detrás de todo: sin costuras de mosaico a ningún ancho. */
 .invitation__paper {
