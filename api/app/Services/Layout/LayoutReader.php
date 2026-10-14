@@ -18,10 +18,13 @@ final class LayoutReader
 {
     public const XLSX = 'layout.xlsx';
 
-    /** CSV que escribe el sistema: no son parte del layout que edita el usuario. */
-    private const GENERATED = [
-        'invitaciones', 'respuestas', 'respuestas_historial', 'aperturas',
-        'ajustes', 'ajustes_historial', 'resumen', 'tokens', 'links',
+    /**
+     * CSV que no son pestañas del layout: los que escribe el sistema (con datos de los
+     * invitados) y la invitación en el formato nuevo (invitacion.csv).
+     */
+    public const GENERATED = [
+        'invitaciones', 'respuestas', 'respuestas_historial', 'aperturas', 'dedicatorias',
+        'ajustes', 'ajustes_historial', 'resumen', 'tokens', 'links', 'invitacion',
     ];
 
     /**
@@ -126,7 +129,7 @@ final class LayoutReader
      * Excel guarda fechas y horas como números con formato; OpenSpout los entrega como
      * objetos. Se convierten al texto que escribiría una persona en el CSV.
      */
-    private static function cell(mixed $value): string
+    public static function cell(mixed $value): string
     {
         return match (true) {
             $value instanceof DateTimeInterface => match (true) {
