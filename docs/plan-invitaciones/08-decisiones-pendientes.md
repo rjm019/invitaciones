@@ -4,10 +4,10 @@ Marca tu elección. Lo que esté en **negritas** es la recomendación y lo que e
 
 | # | Decisión | Opciones | Impacto | Estado |
 |---|---|---|---|---|
-| D1 | Visibilidad del repo | **Privado** · Público con datos de ejemplo | Privacidad (fotos y nombres reales) | Pendiente (acción tuya). Hoy es público; hazlo privado antes de cualquier push |
+| D1 | Visibilidad del repo | **Privado** · Público con datos de ejemplo | Privacidad (fotos y nombres reales) | Pendiente (acción tuya). Sigue público y el motor ya se subió a `main` (13-oct). No hay datos de la familia en git; las fotos y la canción de la boda original ya no se versionan, pero siguen en el historial (pregunta 16) |
 | D2 | Nombres de carpetas | **Mantener `api-invitation/` y `boda-invitacion/`** · Renombrar a `api/` y `web/` | Si se renombra, actualizar las rutas del plan y del CI | **Decidido:** `api/`, `web/` y `recepcion/` en un solo monorepo |
-| D3 | Hosting | **API en VPS + web en Netlify/Vercel** · Todo en el VPS (Laravel sirve la SPA) · Railway/Render | Costo, CORS y Open Graph | Pendiente (la publicación espera). Sin base de datos, la API necesita disco persistente para `eventos/` |
-| D4 | Dominio | `invitaciones.<tu-dominio>` + `api.<tu-dominio>` · Otro | ~~Cookies de Sanctum~~ Ya no aplica: el panel usa token, no cookies | Pendiente (la publicación espera) |
+| D3 | Hosting | **API en VPS + web en Netlify/Vercel** · Todo en el VPS (Laravel sirve la SPA) · Railway/Render | Costo, CORS y Open Graph | **Decidido:** Fly.io, un contenedor con API e invitación y un disco para `eventos/` (~2–3 USD/mes). Ver `06-despliegue/despliegue.md` |
+| D4 | Dominio | `invitaciones.<tu-dominio>` + `api.<tu-dominio>` · Otro | ~~Cookies de Sanctum~~ Ya no aplica: el panel usa token, no cookies | En uso: `invitaciones-jiro.fly.dev` (un solo dominio para todo). Un dominio propio es opcional (`fly certs add`) |
 | D5 | ¿Quién administra los eventos? | **Solo tú** · También clientes (multiusuario con políticas) | Si hay clientes: registro, roles y límites | **Decidido:** un panel por evento, con la clave del Excel (`clave_panel`); solo entra quien tenga la clave |
 | D6 | Origen de los assets de NATASHA | **Exportarlos desde tu editor de Canva** (si el diseño es tuyo y la licencia lo permite) · Comprar o crear ilustraciones propias | Fidelidad y licencia | En uso: 26 ilustraciones del Canva en `eventos/natasha/media/` (privado). Falta confirmar la licencia y conseguir la foto original |
 | D7 | Música del evento real | Archivo del cliente · **Playlist de Spotify** · Ambos | Peso y derechos | Pendiente (pregunta 3): las dos fuentes funcionan (`musica_fuente`); con Spotify la playlist suena al abrir el sobre |
@@ -50,8 +50,8 @@ Salieron durante la implementación y se juntaron para el final. Al responder un
 
 **Publicación y repo**
 
-15. **Dominio de producción** (`FRONTEND_URL`): hoy los enlaces apuntan a localhost, así que hay que publicar antes de mandarlos. (D3, D4)
-16. **Archivos de la boda original en `web/public/`:** vienen versionados del repo original. Son `audio.mp3` (la canción, con derechos de autor) y las fotos reales (`novios.jpeg`, `salon.jpeg`, `iglesia.jpeg`…). Las usa solo `BodaLegacy.vue`, que es referencia. ¿Los sacamos del repo, que es público? Ojo: siguen en el historial de git aunque se borren.
+15. **Dominio de producción:** ya publicado en `https://invitaciones-jiro.fly.dev` y los enlaces del panel salen con esa dirección. ¿Lo dejamos así o pones un dominio propio? (D4)
+16. **Archivos de la boda original en `web/public/`:** *Hecho (13-oct):* se dejaron de versionar (`git rm --cached` + `.gitignore`); las copias locales siguen para la referencia en desarrollo. Ojo: siguen en el historial de git. Para borrarlos de ahí habría que reescribir el historial (`git filter-repo`) y forzar el push. ¿Lo hacemos?
 17. **Acción tuya:** agregar `clave_panel` (mínimo 8 caracteres) en la pestaña `evento` del Excel real de NATASHA.
 
 **Clima y playlist**
@@ -64,3 +64,5 @@ Salieron durante la implementación y se juntaron para el final. Al responder un
 20. **Dedicatorias:** hoy se aceptan siempre, también después de la fecha límite y del evento. ¿Se cierran en alguna fecha? ¿Las quieres exportar para imprimir o leerlas en la fiesta?
 21. **Textos:** los de "Sin niños" ("Queremos mucho a sus pequeños, pero esta celebración es solo para adultos…") y de la dedicatoria ("Déjame un mensaje bonito: lo guardaré para siempre como recuerdo de mis XV años.") son propuestas mías. ¿Se quedan o tienes los definitivos?
 22. **Paneles:** las secciones quedaron como tarjetas con 16 px entre ellas y a las orillas. ¿Así, o de orilla a orilla (bandas)? Es un cambio de tokens (`--section-gap`, `--panel-radius`).
+23. **Primera visita lenta:** la máquina de Fly se apaga sin visitas y la primera tarda ~5 s en abrir. ¿Dejamos una siempre encendida mientras dure el RSVP (`min_machines_running = 1`, ~2 USD/mes más)?
+24. **Token de GitHub:** *Hecho (13-oct):* el remoto ya no lleva el token (`git remote -v` → `https://github.com/rjm019/invitaciones.git`). **Acción tuya:** revocar ese token en GitHub → Settings → Developer settings → Personal access tokens. Para el push, usa el llavero de macOS con un token nuevo o instala `gh` (`brew install gh` y `gh auth login`).

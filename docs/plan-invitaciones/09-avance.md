@@ -1,12 +1,12 @@
 # Avance y cambios contra el plan
 
-**Actualizado:** 13-oct-2026. **Rama:** `refactor/motor-invitaciones` (todavía sin commits).
+**Actualizado:** 13-oct-2026. **Rama:** `main` (el motor ya está en `origin/main` desde el commit `d2915da`).
 
 Este archivo dice **qué se hizo, qué cambió contra el plan original y qué falta**. Las fases de `04-fases/` tienen sus casillas marcadas con la misma información. Las dudas abiertas están en `08-decisiones-pendientes.md`.
 
 ## Resumen
 
-La invitación de NATASHA ya funciona completa en local, con su contenido real, y el panel del dueño también. **Falta publicarla** (dominio, hosting, vista previa de WhatsApp) y responder las preguntas abiertas antes de mandar los enlaces. El RSVP cierra el 6-nov-2026.
+La invitación de NATASHA y su panel ya están **publicados en Fly.io**: https://invitaciones-jiro.fly.dev/e/natasha (panel en `/panel/natasha`). Faltan la vista previa de WhatsApp, la música del evento y responder las preguntas abiertas antes de mandar los enlaces. El RSVP cierra el 6-nov-2026.
 
 El cambio más grande contra el plan: **no hay base de datos**. Todo vive en archivos por evento (`eventos/<slug>/`): el diseño y el contenido en un Excel (`layout.xlsx`), y las invitaciones, respuestas y ajustes en CSV que escribe la API.
 
@@ -130,6 +130,25 @@ El cambio más grande contra el plan: **no hay base de datos**. Todo vive en arc
 - **Spotify ya no arrastra la página:** al pasar a otra canción, el reproductor de Spotify movía su lista y el navegador llevaba toda la página hasta él (medido: de arriba a la sección de Spotify en 1 s). Ahora, cuando Spotify avisa que cambió la canción, la vista se queda donde está el invitado (`useSteadyScroll`). Si el invitado toca o mueve la página, manda él. Verificado: la página se movió 2 px y regresó.
 - **Recargas solas:** venían del servidor de desarrollo, que refresca la página al guardar un archivo o al reconectarse (por ejemplo, cuando el celular se bloquea). La invitación publicada no lo hace. Para revisar en el celular sin eso: la **vista previa** (`docker compose --profile vista-previa up -d preview`, puerto 4173), que es la versión de producción.
 
+### Publicado en Fly.io (13-oct)
+
+- **Dónde:** https://invitaciones-jiro.fly.dev, cuenta `rchard14k@gmail.com`, región Dallas. Detalle y comandos en `06-despliegue/despliegue.md`.
+- **Por qué Fly:** ~2–3 USD/mes con disco persistente. Los planes gratis de Koyeb y Render no tienen disco (se perderían las respuestas en cada reinicio) y Cloud Run no tiene candados de archivo.
+- **Cómo:**
+  - Un solo contenedor: Apache + Laravel + la invitación compilada (`Dockerfile` de la raíz). Laravel responde `app.html` en toda ruta que no sea `/api` ni `/media`, así todo vive en un solo dominio, sin CORS.
+  - Los eventos van en el volumen `eventos` (`/data/eventos`, 1 GB, cifrado), igual que la caché del clima (`/data/cache`).
+  - `deploy/subir-evento.sh <slug>` sube layout y media sin pisar lo que escribe la app.
+- **Ajustes para producción:**
+  - Caché, sesión y cola usan archivos por defecto (Laravel traía `database`, y sin `.env` fallaba el límite de envíos).
+  - `trustProxies` para que las fotos salgan con `https`.
+  - La imagen no lleva datos reales ni lo de la boda original (`.dockerignore`).
+- **Revisión del 13-oct (noche), ya publicado:**
+  - El evento real `natasha` responde, ya con las secciones nuevas.
+  - El panel pide su clave y ya hay un enlace generado.
+  - Las fotos llegan por `https` y el servidor despierta en ~5 s después de estar apagado.
+- **Clima en producción:** Open-Meteo respondía 429 ("demasiadas a la vez") porque la API pedía los 10 años en paralelo desde la IP compartida de Fly. Ahora los pide de uno en uno, con reintentos (800/1600/3200 ms), y la caché vive en el disco para sobrevivir a que la máquina se apague. **Corregido en el código; falta `fly deploy`.**
+- **Música:** el evento real tiene `musica_fuente` = archivo, pero no hay MP3 ni enlace de Spotify, así que el sobre abre sin música (pregunta 3).
+
 ### Invitación personal y confirmación
 
 - Cada enlace (`/i/<token>`) muestra la misma invitación. Lo que cambia es el formulario: **un campo de nombre por invitado**, con "Asistiré / Lo siento, no asistiré".
@@ -170,6 +189,7 @@ El cambio más grande contra el plan: **no hay base de datos**. Todo vive en arc
 | Evento demo `xv-demo` con seeder | Datos ficticios en `api/tests/Fixtures/eventos/` y una copia privada `eventos/natasha-prueba` para probar a mano | Sin base de datos no hay seeders |
 | Tema `boda-salvia` en la fase 3 | Pospuesto; `web/src/legacy/BodaLegacy.vue` queda de referencia (solo en desarrollo, en `/legacy/boda`) | Prioridad: NATASHA |
 | Rutas `/admin/...` | `/panel/<slug>` | Un panel por evento |
+| VPS + Netlify, o Railway/Render (D3) | Fly.io: un contenedor con API e invitación, y un disco para los CSV | Decisión tuya (13-oct): lo más barato con disco persistente |
 | Música: MP3 y una playlist de Spotify aparte (fase 6) | Dos fuentes a elegir; con Spotify, la playlist suena al abrir el sobre y los controles dorados la manejan | Decisión tuya (13-oct) |
 | Sin clima | Sección `clima`: clima típico y luego pronóstico real, que se actualiza solo | Decisión tuya (13-oct) |
 | Efectos de la fase 6 (revisar los existentes) | Efectos nuevos: destellos, cascada, acercamiento, cambio de color, mariposas en vuelo, confeti, música viva | Decisión tuya: que la invitación se vea más viva (13-oct) |
@@ -184,12 +204,12 @@ El cambio más grande contra el plan: **no hay base de datos**. Todo vive en arc
 1. Responder las preguntas abiertas de `08-decisiones-pendientes.md`. Hay pendientes la hora del evento, la música, el texto de WhatsApp, el número de WhatsApp y el cierre.
 2. Agregar `clave_panel` al Excel real de NATASHA (la eliges tú).
 3. **Repo privado** (D1) antes de cualquier push. Hacer los commits cuando lo pidas.
-4. **Publicar** (fase 7):
-   - Elegir dominio y hosting (D3, D4) y configurar `FRONTEND_URL` y `VITE_API_URL`.
-   - Desplegar sin base de datos, con la carpeta `eventos/` en un disco persistente. `06-despliegue/despliegue.md` todavía asume MySQL y Sanctum: hay que ajustarlo.
-   - Respaldo diario de `eventos/`.
-   - Vista previa de WhatsApp (Open Graph), que no funciona con la SPA sola.
+4. **Publicación** (fase 7): ya está en Fly.io. Faltan:
+   - `fly deploy` con la corrección del clima.
+   - Vista previa de WhatsApp (Open Graph). Laravel ya sirve `app.html`, así que se puede inyectar ahí.
    - CI con las pruebas.
+   - Decidir si dejar una máquina siempre encendida (quita los ~5 s de la primera visita).
+   - Dominio propio, si se quiere.
 5. QA en celulares reales con `05-calidad/checklist-qa.md`: audio en iPhone y Lighthouse.
 
 ### Después del evento real o cuando se decida

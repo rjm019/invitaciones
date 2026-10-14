@@ -1,83 +1,65 @@
-# Despliegue
+# Despliegue (Fly.io)
 
-> **Pendiente de ajustar (13-oct-2026):** esta guía asume MySQL y Sanctum. Hoy no hay base de datos y el panel no usa cookies: la API necesita un disco persistente para `eventos/`, y el respaldo es de esa carpeta. Ver `../09-avance.md`.
+**En producción desde el 13-oct-2026:** https://invitaciones-jiro.fly.dev. El primer evento es `/e/natasha`, con su panel en `/panel/natasha`.
 
-## Opción recomendada (aprovecha que también administras servidores)
+Se eligió Fly.io porque es barato y tiene disco persistente. La app guarda todo en CSV, así que necesita un disco que sobreviva a reinicios y un solo servidor escribiendo. Los planes gratis de Koyeb y Render borran el disco y Cloud Run no tiene candados de archivo; la comparación está en `09-avance.md`.
 
-| Pieza | Dónde | Notas |
-|---|---|---|
-| Frontend (SPA) | **Netlify** o **Vercel** (gratis) | Build `npm run build`, carpeta `dist/`; regla de *rewrite* `/* → /index.html 200` |
-| API Laravel | **VPS** (DigitalOcean, Hetzner o Contabo) con Nginx + PHP-FPM 8.2 + MySQL 8; o Laravel Forge o Ploi encima del VPS | También sirve `/i/{token}` con las OG tags (fase 7) |
-| Archivos | `storage/app/public` + `php artisan storage:link` | Más adelante: Cloudflare R2 o S3 |
-| DNS | `invitaciones.tudominio.com` → Netlify/Vercel; `api.tudominio.com` → VPS | El mismo dominio raíz facilita las cookies de Sanctum |
-| HTTPS | Let's Encrypt (Certbot) en el VPS; automático en Netlify/Vercel | — |
+## Cómo está armado
 
-### Alternativa "todo en uno"
+| Pieza | Valor |
+|---|---|
+| Cuenta | `rchard14k@gmail.com` (organización *personal*) |
+| App | `invitaciones-jiro`, región `dfw` (Dallas) |
+| Servidor | 1 máquina `shared-cpu-1x`, 256 MB + 256 MB de swap. Se **apaga sin visitas** y despierta con la siguiente; la primera visita tarda ~5 s |
+| Disco | Volumen `eventos` de 1 GB, cifrado, montado en `/data` |
+| Datos | `/data/eventos/<slug>/` (layout, media y los CSV que escribe la app) y `/data/cache/` (clima y límites de envíos) |
+| Secreto | `APP_KEY` (`fly secrets`). Si cambia, se cierran las sesiones del panel |
+| Costo | ~2–3 USD/mes (máquina por uso + disco 0.15 USD/GB) |
 
-Servir el build de Vue desde Laravel (`public/app/`), con una ruta *catch-all*. Así hay un solo servidor, sin problemas de CORS, y las OG tags son más sencillas.
+**Imagen** (`Dockerfile` de la raíz):
 
-## Variables de entorno
+- Se arma en dos etapas: primero se compila la invitación (Vue, con `VITE_API_URL` vacío) y luego va con Laravel sobre `php:8.3-apache`.
+- Apache sirve los archivos de `public/`. Cualquier ruta que no sea `/api` ni `/media` responde `public/app.html`, que es la invitación compilada, y el router de Vue decide qué mostrar.
+- `.dockerignore` deja fuera `eventos/`, `docs/`, `recepcion/`, los `.env` y lo de la boda original en `web/public` (fotos reales y una canción con derechos).
+- `deploy/` trae la configuración de Apache (8 procesos como máximo), la de PHP y el arranque. El arranque crea las carpetas del disco y cachea la configuración de Laravel.
 
-### API (`api-invitation/.env` en producción)
+**Variables** (`[env]` de `fly.toml`):
 
-```dotenv
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://api.tudominio.com
-FRONTEND_URL=https://invitaciones.tudominio.com
-SANCTUM_STATEFUL_DOMAINS=invitaciones.tudominio.com
-SESSION_DOMAIN=.tudominio.com
-SESSION_SECURE_COOKIE=true
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_DATABASE=invitaciones
-DB_USERNAME=invitaciones
-DB_PASSWORD=********
-FILESYSTEM_DISK=public
-```
+- `APP_ENV=production`, `APP_DEBUG=false`, `LOG_CHANNEL=stderr`.
+- `EVENTOS_PATH=/data/eventos` y `CACHE_FILE_PATH=/data/cache`.
+- `APP_URL` y `FRONTEND_URL` = la URL pública. Los enlaces que genera el panel salen de `FRONTEND_URL`.
+- Laravel confía en el proxy de Fly (`trustProxies`), así que las URLs de media salen con `https`. No hay base de datos: la caché y la sesión usan archivos.
 
-### Web (variables en Netlify/Vercel)
-
-```dotenv
-VITE_API_URL=https://api.tudominio.com
-```
-
-## Pasos en el VPS (resumen)
+## Comandos
 
 ```bash
-# como usuario deploy
-git clone git@github.com:rjm019/invitaciones.git && cd invitaciones/api-invitation
-composer install --no-dev --optimize-autoloader
-cp .env.example .env   # editar valores de producción
-php artisan key:generate
-php artisan migrate --force
-php artisan storage:link
-php artisan config:cache && php artisan route:cache && php artisan view:cache
-# Nginx: root → api-invitation/public ; PHP-FPM 8.2 ; client_max_body_size 10M (subida de audio)
-# Cron: * * * * * php /ruta/artisan schedule:run   (respaldos y archivado)
+fly auth login                         # una vez, con la cuenta de Fly
+fly deploy --ha=false                  # publicar el código (un solo servidor: el disco es de uno)
+deploy/subir-evento.sh natasha         # subir o actualizar layout y media de un evento
+fly logs                               # ver lo que pasa
+fly ssh console                        # entrar al servidor
+fly ssh sftp get /data/eventos/natasha/respuestas.csv respuestas.csv   # bajar las respuestas
+fly volumes snapshots list <id-del-volumen>                            # respaldos del disco
 ```
 
-## Netlify (`boda-invitacion/netlify.toml`)
+`deploy/subir-evento.sh <slug>` manda solo lo que editas tú: el layout (`layout.xlsx` o sus CSV) y `media/`, sin `media/originales`. **Nunca pisa** lo que escribe la app en producción: invitaciones, respuestas, dedicatorias, aperturas y ajustes.
 
-```toml
-[build]
-  command = "npm run build"
-  publish = "dist"
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
-```
+## Respaldos
 
-## Checklist de despliegue
+- Fly hace una copia (snapshot) diaria del volumen y la guarda unos días.
+- La API guarda una copia del día de cada CSV antes de cambiarlo (`respaldos/`), pero en el mismo disco.
+- Antes y después del evento, baja `respuestas.csv`, `dedicatorias.csv` e `invitaciones.csv` con `fly ssh sftp get`.
 
-- [ ] `APP_DEBUG=false`.
-- [ ] CORS y Sanctum apuntan solo al dominio real.
-- [ ] HTTPS en ambos dominios.
-- [ ] `storage:link` creado y permisos 775 en `storage/` y `bootstrap/cache`.
-- [ ] Respaldo diario de la BD probado (restaurar en local una vez).
-- [ ] Smoke test de la fase 7 superado.
+## Pendiente
+
+- Vista previa de WhatsApp (Open Graph). Como Laravel ya sirve `app.html`, se puede inyectar el título y la imagen de cada evento ahí.
+- Dominio propio (opcional): `fly certs add <dominio>`, y luego cambiar `APP_URL` y `FRONTEND_URL`.
+- CI con las pruebas antes de cada `fly deploy`.
+- Decidir si se deja una máquina siempre encendida (`min_machines_running = 1`, ~2 USD/mes más) para quitar los ~5 s de la primera visita.
+
+## Checklist de cada publicación
+
+- [ ] `docker compose exec api php artisan test`, `docker compose exec web npm run test` y `docker compose exec web npm run build` en verde.
+- [ ] `fly deploy --ha=false`.
+- [ ] Abrir `/up`, `/e/<slug>` y `/panel/<slug>`. Confirmar con una invitación de prueba y borrarla del CSV si hace falta.
+- [ ] `fly logs` sin errores.
