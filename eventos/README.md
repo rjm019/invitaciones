@@ -54,7 +54,7 @@ Sin configurar nada, el tema también pone mariposas que cruzan la pantalla de v
 **Música**: lo que suena al abrir el sobre sale de una de dos fuentes (`musica_fuente`):
 
 - `archivo`: `musica_audio` es el nombre de un MP3 en `media/` (ideal ≤ 3 MB). Sin MP3, el reproductor se ve pero sus botones quedan desactivados.
-- `spotify`: suena la playlist de `spotify` (el enlace de Compartir → Copiar enlace). El reproductor de Spotify aparece en la sección `playlist` (o, si no hay, debajo del reproductor `musica`) y los controles dorados y el botón flotante lo manejan. Quien no tiene sesión de Spotify en ese navegador oye muestras de 30 s por canción; en iPhone, Safari puede pedir tocar ▶ en el reproductor (la invitación lo avisa).
+- `spotify`: suena la playlist (o la canción) de `spotify` (el enlace de Compartir → Copiar enlace). El reproductor de Spotify aparece en la sección `playlist` (o, si no hay, debajo del reproductor `musica`) y los controles dorados y el botón flotante lo manejan. Quien no tiene sesión de Spotify en ese navegador oye muestras de 30 s por canción; en iPhone, Safari puede pedir tocar ▶ en el reproductor (la invitación lo avisa).
 
 Sin `musica_fuente`: se usa el MP3 si hay; si no hay MP3 pero sí playlist, Spotify. Con MP3, la `playlist` es un reproductor aparte (al tocarlo se pausa la canción de la invitación).
 

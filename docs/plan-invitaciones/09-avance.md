@@ -149,6 +149,46 @@ El cambio más grande contra el plan: **no hay base de datos**. Todo vive en arc
 - **Clima en producción:** Open-Meteo respondía 429 ("demasiadas a la vez") porque la API pedía los 10 años en paralelo desde la IP compartida de Fly. Ahora los pide de uno en uno, con reintentos (800/1600/3200 ms), y la caché vive en el disco para sobrevivir a que la máquina se apague. **Corregido en el código; falta `fly deploy`.**
 - **Música:** el evento real tiene `musica_fuente` = archivo, pero no hay MP3 ni enlace de Spotify, así que el sobre abre sin música (pregunta 3).
 
+### La invitación aparece completa y carga en menos pasos (13-oct, noche)
+
+**Problema en producción:** la invitación se armaba frente al invitado. Primero aparecían papel, texto con letra genérica y la tarjeta sin textura, y segundos después llegaban el sobre y las fuentes.
+
+**Causas, medidas** con un celular simulado (4G de 10 Mbps y CPU 4× más lenta):
+
+- **90 peticiones en cadena:** código → datos del evento (a los 3.1 s) → una petición por sección y por ícono → imágenes y fuentes (desde 3.6–4.1 s).
+- **Apache con 8 procesos y keep-alive:** las conexiones abiertas del proxy de Fly ocupaban procesos, y archivos de 1 KB tardaban 1–5 s en llegar.
+
+**Arreglos:**
+
+- **Pantalla de espera** (`PageLoader`) hasta que cargan el papel, las imágenes de la portada y las fuentes del tema (`useAssetsReady`, máximo 5 s). Luego la invitación aparece completa con un fundido. El resto de las secciones, con Spotify, se monta en el cuadro siguiente.
+- **Datos dentro de la página:** Laravel (`SpaController`) mete el evento, o el evento y la invitación, en `window.__BOOT__` dentro de `app.html`, con JSON escapado contra `</script>`. La web los toma una vez (`bootService`) y el tema empieza a cargar desde `main.ts`. En `/i/` la apertura se cuenta igual, una vez.
+- **Un solo archivo:** las secciones, los íconos y las páginas de evento e invitación van en el archivo principal. El panel sigue aparte.
+- **Apache:** `KeepAlive Off` y 12 procesos.
+- **Fly:** `auto_stop_machines = "suspend"` (despierta en unos cientos de ms en vez de ~5 s), 512 MB y sin swap, que suspend no admite.
+
+**Resultado** con la imagen de producción en local, mismo celular simulado:
+
+- 39 peticiones.
+- Las imágenes del sobre empiezan a los 0.57 s y las fuentes a los 0.84 s.
+- La portada queda completa en ~1.3 s y Spotify carga después, a los 1.7 s.
+- En ningún cuadro se ve la invitación a medias.
+
+Verificado:
+
+- Al abrir el sobre suena la canción.
+- `/e/` y `/i/` no llaman a la API.
+- `/i/` cuenta una apertura.
+- El panel carga.
+
+**Falta `fly deploy`**, porque el permiso para publicar desde aquí fue denegado.
+
+### Canción del evento (13-oct)
+
+- En el Excel real (`eventos/natasha/layout.xlsx`): `spotify` = la canción (`open.spotify.com/track/5y2ijHECwFYWqcAHKTZgzD`, sin los parámetros de rastreo) y `musica_fuente` = `spotify`.
+- Solo cambió la pestaña `evento` (comparado con el respaldo `respaldos/layout-20261014-002333.xlsx`).
+- **Falta subirlo:** `deploy/subir-evento.sh natasha`.
+- Ojo: quien no tiene sesión de Spotify en ese navegador oye **30 s** de la canción. Siendo una sola canción, después se detiene. Para la canción completa en todos lados haría falta el MP3 (pregunta 3).
+
 ### Invitación personal y confirmación
 
 - Cada enlace (`/i/<token>`) muestra la misma invitación. Lo que cambia es el formulario: **un campo de nombre por invitado**, con "Asistiré / Lo siento, no asistiré".
@@ -205,7 +245,7 @@ El cambio más grande contra el plan: **no hay base de datos**. Todo vive en arc
 2. Agregar `clave_panel` al Excel real de NATASHA (la eliges tú).
 3. **Repo privado** (D1) antes de cualquier push. Hacer los commits cuando lo pidas.
 4. **Publicación** (fase 7): ya está en Fly.io. Faltan:
-   - `fly deploy` con la corrección del clima.
+   - `fly deploy --ha=false` (clima, carga optimizada y suspend) y `deploy/subir-evento.sh natasha` (la canción).
    - Vista previa de WhatsApp (Open Graph). Laravel ya sirve `app.html`, así que se puede inyectar ahí.
    - CI con las pruebas.
    - Decidir si dejar una máquina siempre encendida (quita los ~5 s de la primera visita).
