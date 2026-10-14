@@ -47,10 +47,12 @@ return [
             'lock_table' => env('DB_CACHE_LOCK_TABLE'),
         ],
 
+        // En Fly, CACHE_FILE_PATH apunta al disco persistente (/data/cache): el clima y los
+        // límites de envíos sobreviven a que la máquina se apague sin visitas.
         'file' => [
             'driver' => 'file',
-            'path' => storage_path('framework/cache/data'),
-            'lock_path' => storage_path('framework/cache/locks'),
+            'path' => env('CACHE_FILE_PATH', storage_path('framework/cache/data')),
+            'lock_path' => env('CACHE_FILE_PATH', storage_path('framework/cache/locks')),
         ],
 
         'storage' => [

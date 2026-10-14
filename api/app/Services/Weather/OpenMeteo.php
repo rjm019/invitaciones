@@ -2,7 +2,7 @@
 
 namespace App\Services\Weather;
 
-use Illuminate\Http\Client\Pool;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use UnexpectedValueException;
@@ -18,6 +18,9 @@ class OpenMeteo
     public const FORECAST_DAYS = 16;
 
     private const TIMEOUT = 8;
+
+    /** Esperas antes de cada reintento cuando Open-Meteo responde 429 (demasiadas a la vez). */
+    private const RETRY_WAITS_MS = [800, 1600, 3200];
 
     /**
      * Un solo día: resumen diario + cada hora.
@@ -48,24 +51,28 @@ class OpenMeteo
     public function history(float $lat, float $lon, string $timezone, array $windows): array
     {
         $url = config('services.open_meteo.archive_url');
-        $responses = Http::pool(fn (Pool $pool) => array_map(
-            fn (array $w) => $pool->timeout(self::TIMEOUT * 2)->acceptJson()->get($url, $this->withKey([
-                'latitude' => $lat,
-                'longitude' => $lon,
-                'timezone' => $timezone,
-                'start_date' => $w[0],
-                'end_date' => $w[1],
-                'daily' => 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum',
-                'hourly' => 'temperature_2m,is_day',
-            ])),
-            $windows,
-        ));
 
-        return array_map(function ($response) {
-            $json = $this->json($response);
+        // Una por una, no en paralelo: Open-Meteo limita las peticiones simultáneas por IP
+        // (en Fly la IP de salida es compartida) y responde 429. Si pasa, se reintenta con
+        // esperas crecientes. Son 10 y el resultado se guarda 30 días.
+        return array_map(function (array $w) use ($url, $lat, $lon, $timezone) {
+            $json = $this->json(
+                Http::timeout(self::TIMEOUT * 2)
+                    ->acceptJson()
+                    ->retry(self::RETRY_WAITS_MS, when: fn ($e) => $e instanceof RequestException && $e->response->status() === 429)
+                    ->get($url, $this->withKey([
+                        'latitude' => $lat,
+                        'longitude' => $lon,
+                        'timezone' => $timezone,
+                        'start_date' => $w[0],
+                        'end_date' => $w[1],
+                        'daily' => 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum',
+                        'hourly' => 'temperature_2m,is_day',
+                    ]))
+            );
 
             return ['daily' => $this->series($json, 'daily'), 'hourly' => $this->series($json, 'hourly')];
-        }, $responses);
+        }, $windows);
     }
 
     /** @return list<array<string, mixed>> resultados de la búsqueda, el más relevante primero */
@@ -91,7 +98,6 @@ class OpenMeteo
     private function json(mixed $response): array
     {
         if (! $response instanceof Response) {
-            // En un pool, una conexión caída llega como excepción en lugar de respuesta.
             throw new UnexpectedValueException('Open-Meteo no respondió');
         }
         $json = $response->throw()->json();

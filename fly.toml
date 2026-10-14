@@ -1,7 +1,7 @@
 # Fly.io: un solo servidor con la API y la invitación (Dockerfile de la raíz).
 # Los eventos viven en el disco "eventos" montado en /data: no se borra al reiniciar ni al
 # volver a publicar. Subir un evento: deploy/subir-evento.sh <slug>.
-app = "APP_NAME"
+app = "invitaciones-jiro"
 primary_region = "dfw"
 swap_size_mb = 256
 
@@ -15,8 +15,9 @@ swap_size_mb = 256
   LOG_CHANNEL = "stderr"
   LOG_LEVEL = "warning"
   EVENTOS_PATH = "/data/eventos"
-  APP_URL = "https://APP_NAME.fly.dev"
-  FRONTEND_URL = "https://APP_NAME.fly.dev"
+  CACHE_FILE_PATH = "/data/cache"
+  APP_URL = "https://invitaciones-jiro.fly.dev"
+  FRONTEND_URL = "https://invitaciones-jiro.fly.dev"
 
 [[mounts]]
   source = "eventos"
