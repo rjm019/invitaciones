@@ -1,24 +1,42 @@
-import { defineAsyncComponent, type Component } from 'vue'
+import type { Component } from 'vue'
+import HeroEnvelopeSection from './sections/HeroEnvelopeSection.vue'
+import MusicPlayerSection from './sections/MusicPlayerSection.vue'
+import BlessingSection from './sections/BlessingSection.vue'
+import SaveTheDateSection from './sections/SaveTheDateSection.vue'
+import PhotoArchSection from './sections/PhotoArchSection.vue'
+import LocationSection from './sections/LocationSection.vue'
+import QuoteSection from './sections/QuoteSection.vue'
+import ItinerarySection from './sections/ItinerarySection.vue'
+import DressCodeSection from './sections/DressCodeSection.vue'
+import NoKidsSection from './sections/NoKidsSection.vue'
+import CountdownSection from './sections/CountdownSection.vue'
+import WeatherSection from './sections/WeatherSection.vue'
+import SpotifySection from './sections/SpotifySection.vue'
+import RsvpSection from './sections/RsvpSection.vue'
+import DedicationsSection from './sections/DedicationsSection.vue'
+import ClosingSection from './sections/ClosingSection.vue'
 
 /**
- * Tipo de sección (columna "seccion" del layout) → componente. Cada uno se carga
- * solo si el evento lo usa. Agregar una sección = un componente + una línea aquí.
+ * Tipo de sección (columna "seccion" del layout) → componente. Van todas en el mismo
+ * archivo que la invitación: una sola descarga en lugar de una por sección (antes la
+ * invitación se iba armando frente al invitado). Agregar una sección = un componente +
+ * una línea aquí.
  */
 export const sectionRegistry: Record<string, Component> = {
-  'hero-envelope': defineAsyncComponent(() => import('./sections/HeroEnvelopeSection.vue')),
-  'music-player': defineAsyncComponent(() => import('./sections/MusicPlayerSection.vue')),
-  blessing: defineAsyncComponent(() => import('./sections/BlessingSection.vue')),
-  'save-the-date': defineAsyncComponent(() => import('./sections/SaveTheDateSection.vue')),
-  'photo-arch': defineAsyncComponent(() => import('./sections/PhotoArchSection.vue')),
-  location: defineAsyncComponent(() => import('./sections/LocationSection.vue')),
-  quote: defineAsyncComponent(() => import('./sections/QuoteSection.vue')),
-  itinerary: defineAsyncComponent(() => import('./sections/ItinerarySection.vue')),
-  'dress-code': defineAsyncComponent(() => import('./sections/DressCodeSection.vue')),
-  'no-kids': defineAsyncComponent(() => import('./sections/NoKidsSection.vue')),
-  countdown: defineAsyncComponent(() => import('./sections/CountdownSection.vue')),
-  weather: defineAsyncComponent(() => import('./sections/WeatherSection.vue')),
-  spotify: defineAsyncComponent(() => import('./sections/SpotifySection.vue')),
-  rsvp: defineAsyncComponent(() => import('./sections/RsvpSection.vue')),
-  dedications: defineAsyncComponent(() => import('./sections/DedicationsSection.vue')),
-  closing: defineAsyncComponent(() => import('./sections/ClosingSection.vue')),
+  'hero-envelope': HeroEnvelopeSection,
+  'music-player': MusicPlayerSection,
+  blessing: BlessingSection,
+  'save-the-date': SaveTheDateSection,
+  'photo-arch': PhotoArchSection,
+  location: LocationSection,
+  quote: QuoteSection,
+  itinerary: ItinerarySection,
+  'dress-code': DressCodeSection,
+  'no-kids': NoKidsSection,
+  countdown: CountdownSection,
+  weather: WeatherSection,
+  spotify: SpotifySection,
+  rsvp: RsvpSection,
+  dedications: DedicationsSection,
+  closing: ClosingSection,
 }

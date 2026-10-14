@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const { get, post } = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }))
 vi.mock('../http', () => ({ http: { get, post } }))
 
+import { setBoot } from '../bootService'
 import { getInvitation, sendDedication, sendRsvp } from '../invitationService'
 
 describe('invitationService', () => {
@@ -18,6 +19,13 @@ describe('invitationService', () => {
       invitation: { passes: 2 },
     })
     expect(get).toHaveBeenCalledWith('/public/invitations/Abc123Def456')
+  })
+
+  it('si la página ya trae la invitación, no la vuelve a pedir', async () => {
+    const data = { event: { slug: 'x' }, invitation: { passes: 2 } }
+    setBoot({ kind: 'invitation', key: 'Abc123Def456', data })
+    await expect(getInvitation('Abc123Def456')).resolves.toEqual(data)
+    expect(get).not.toHaveBeenCalled()
   })
 
   it('codifica el token (nunca arma rutas con lo que venga en la URL)', async () => {
