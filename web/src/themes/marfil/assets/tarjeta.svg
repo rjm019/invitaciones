@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 405">
+  <!-- Tarjeta de papel con doble filo fino. -->
+  <rect width="360" height="405" fill="#fffdf9"/>
+  <rect x="14" y="14" width="332" height="377" fill="none" stroke="#c4ad8b" stroke-width="0.9"/>
+  <rect x="19" y="19" width="322" height="367" fill="none" stroke="#dccbb1" stroke-width="0.5"/>
+  <g fill="#c4ad8b">
+    <path d="M180 8 l3 6 -3 6 -3 -6 z"/>
+    <path d="M180 385 l3 6 -3 6 -3 -6 z"/>
+  </g>
+</svg>

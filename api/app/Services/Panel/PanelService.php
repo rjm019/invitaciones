@@ -136,14 +136,21 @@ final class PanelService
         ];
     }
 
-    /** "titulo_panel" de la invitación; si no hay, "XV de Nat" en unos XV, o el título del evento. */
+    /**
+     * "titulo_panel" de la invitación; si no hay, "XV de Nat" en unos XV, "Graduación de Diego"
+     * en una graduación, o el título del evento.
+     */
     public static function titleFor(string $slug, array $event, ?string $panelTitle): string
     {
         $name = $event['celebrant']['short_name'] ?? '';
         $name = $name !== '' ? $name : ($event['celebrant']['full_name'] ?? '');
 
         return $panelTitle
-            ?? ($event['type'] === 'xv' && $name !== '' ? "XV de {$name}" : ($event['title'] ?: $slug));
+            ?? match (true) {
+                $event['type'] === 'xv' && $name !== '' => "XV de {$name}",
+                $event['type'] === 'graduacion' && $name !== '' => "Graduación de {$name}",
+                default => $event['title'] ?: $slug,
+            };
     }
 
     /** @param  callable(string): ?string  $value */

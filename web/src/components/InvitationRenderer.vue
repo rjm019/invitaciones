@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, shallowRef, watch } from 'vue'
 import ButterflyFlight from '@/components/ui/ButterflyFlight.vue'
 import CelebrationBurst from '@/components/ui/CelebrationBurst.vue'
+import DemoRibbon from '@/components/ui/DemoRibbon.vue'
 import FloatingDecor from '@/components/ui/FloatingDecor.vue'
 import MiniPlayer from '@/components/ui/MiniPlayer.vue'
 import PageLoader from '@/components/ui/PageLoader.vue'
@@ -193,6 +194,8 @@ onBeforeUnmount(() => revert?.())
       <template v-if="complete">
         <MiniPlayer />
         <CelebrationBurst />
+        <!-- Las muestras de la landing invitan a cotizar (en el gestor no estorba). -->
+        <DemoRibbon v-if="event.demo && !preview" />
       </template>
     </div>
   </template>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Destellos de cuatro puntas, en champaña. -->
+  <defs>
+    <path id="d" d="M0 -10 C1 -2 2 -1 10 0 C2 1 1 2 0 10 C-1 2 -2 1 -10 0 C-2 -1 -1 -2 0 -10 Z"/>
+  </defs>
+  <g fill="#c4ad8b">
+    <use href="#d" transform="translate(150 40) scale(1.6)"/>
+    <use href="#d" transform="translate(44 64) scale(1)"/>
+    <use href="#d" transform="translate(172 128) scale(0.8)"/>
+    <use href="#d" transform="translate(28 160) scale(1.2)"/>
+    <use href="#d" transform="translate(110 176) scale(0.6)"/>
+    <use href="#d" transform="translate(96 22) scale(0.5)"/>
+  </g>
+</svg>

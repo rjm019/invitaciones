@@ -98,6 +98,8 @@ final class InvitationConfigBuilder
             'starts_at' => $startsAt?->toIso8601String(),
             'timezone' => $timezone,
             'published' => $published,
+            // Una muestra (los demos de la landing): se puede probar todo, pero no guarda nada.
+            'demo' => Normalizer::yes($settings['demo'] ?? 'NO'),
             'rsvp' => [
                 'mode' => $mode,
                 'deadline' => $deadline,

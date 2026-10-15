@@ -12,7 +12,7 @@ eventos/<slug>/
 │   └── invitacion.csv     ← lo que se edita en el gestor (solo si hay cambios sin publicar)
 ├── media/                 ← fotos, fondos, adornos y audio (WebP/PNG/JPG/MP3)
 │   └── originales/        ← PNG/JPG tal como salen de Canva; `media:optimizar` los pasa a WebP
-├── ajustes.csv            ← lo que aplica al instante: clave del panel, si se ve, si es plantilla, quién la edita en el gestor, fecha límite del cliente
+├── ajustes.csv            ← lo que aplica al instante: clave del panel, si se ve, si es plantilla o muestra (`demo`), quién la edita en el gestor, fecha límite del cliente
 ├── ajustes-historial.csv  ← cada cambio de ajustes y quién lo hizo (la clave sale como "(cambiada)", nunca escrita)
 ├── invitaciones.csv       ← cada enlace generado en el panel: id, token, invitados, para, creada, eliminada
 ├── respuestas.csv         ← un renglón por persona: invitacion, para, lugar, nombre, asistira, respondida, mesa
@@ -124,7 +124,7 @@ frase-2,,visible,NO
 
 | Grupo | Campos |
 |---|---|
-| Evento | `tipo` (`xv`, `boda`, `bautizo`, `cumple`, `otro`), `tema`, `festejada`, `festejada_corto` (el nombre del sobre), `pareja`, `subtitulo` ("mis xv años"), `titulo` (el de la pestaña del navegador), `inicia` (AAAA-MM-DD HH:MM) y `zona_horaria` |
+| Evento | `tipo` (`xv`, `boda`, `graduacion`, `bautizo`, `cumple`, `otro`), `tema` (`jardin-azul` o `marfil`), `festejada`, `festejada_corto` (el nombre del sobre), `pareja`, `subtitulo` ("mis xv años"), `titulo` (el de la pestaña del navegador), `inicia` (AAAA-MM-DD HH:MM) y `zona_horaria` |
 | Salón | `salon`, `salon_nombre_visible`, `salon_ciudad` (también la usa el clima), `salon_direccion`, `salon_maps` (`https://…`), `salon_foto` y `clima_coordenadas` |
 | Confirmaciones | `rsvp_modo`, `rsvp_limite`, `rsvp_whatsapp`, `rsvp_pedir_cancion` y `rsvp_pedir_mensaje` |
 | Música | `musica_fuente`, `musica_audio` y `spotify` |

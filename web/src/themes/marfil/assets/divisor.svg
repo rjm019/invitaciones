@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 24">
+  <!-- Divisor fino: dos líneas y un rombo con puntos. -->
+  <g fill="none" stroke="#b39a74" stroke-width="1" stroke-linecap="round">
+    <path d="M8 12 H96"/>
+    <path d="M144 12 H232"/>
+    <path d="M120 4 L128 12 L120 20 L112 12 Z"/>
+  </g>
+  <g fill="#b39a74">
+    <circle cx="104" cy="12" r="1.6"/>
+    <circle cx="136" cy="12" r="1.6"/>
+    <circle cx="120" cy="12" r="1.8"/>
+  </g>
+</svg>

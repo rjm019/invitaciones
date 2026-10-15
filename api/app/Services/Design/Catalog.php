@@ -148,6 +148,7 @@ final class Catalog
             ['key' => 'tipo', 'label' => 'Tipo de evento', 'input' => 'select', 'options' => [
                 ['value' => 'xv', 'label' => 'XV años'],
                 ['value' => 'boda', 'label' => 'Boda'],
+                ['value' => 'graduacion', 'label' => 'Graduación'],
                 ['value' => 'bautizo', 'label' => 'Bautizo'],
                 ['value' => 'cumple', 'label' => 'Cumpleaños'],
                 ['value' => 'otro', 'label' => 'Otro'],

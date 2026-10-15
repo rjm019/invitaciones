@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 561 668">
+  <!-- Sobre abierto (561×668, como el del tema base): la solapa arriba y la bolsa al frente.
+       La portada recorta la bolsa por las líneas en V (43 % · 69.2 % · 44.2 %). -->
+  <defs>
+    <linearGradient id="dentro" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ebe2d4"/>
+      <stop offset="1" stop-color="#e2d6c4"/>
+    </linearGradient>
+    <linearGradient id="frente" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbf8f3"/>
+      <stop offset="1" stop-color="#f3ece2"/>
+    </linearGradient>
+  </defs>
+  <path d="M8 287 L280.5 48 L553 287 Z" fill="#f2ebe0" stroke="#c4ad8b" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M40 280 L280.5 70 L521 280" fill="none" stroke="#d8c7ac" stroke-width="1" stroke-linejoin="round"/>
+  <rect x="0" y="287" width="561" height="381" rx="10" fill="url(#dentro)"/>
+  <path d="M0 287 L185 462 L375 462 L561 295 L561 658 Q561 668 551 668 L10 668 Q0 668 0 658 Z" fill="url(#frente)"/>
+  <path d="M0 287 L185 462 L375 462 L561 295" fill="none" stroke="#c4ad8b" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M6 662 L262 520 M555 662 L299 520" fill="none" stroke="#d8c7ac" stroke-width="1.2" stroke-linecap="round"/>
+  <rect x="0.8" y="287.8" width="559.4" height="379.4" rx="10" fill="none" stroke="#cdb898" stroke-width="1.6"/>
+</svg>

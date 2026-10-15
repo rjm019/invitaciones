@@ -148,6 +148,7 @@ final class EventConfigBuilder
             'starts_at' => $startsAt?->toIso8601String(),
             'timezone' => $timezone,
             'published' => $this->yes($e['publicado'] ?? 'SI'),
+            'demo' => false,
             'rsvp' => [
                 'mode' => $mode,
                 'deadline' => $deadline,
