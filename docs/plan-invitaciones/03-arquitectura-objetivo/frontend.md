@@ -38,7 +38,7 @@ La lógica vive en `services/` (TS puro, sin Vue ni DOM global, con pruebas en V
 | `managerService` | Llamadas del gestor (`/api/manager`): sesión, primera cuenta, mi clave, personas, catálogo, eventos, diseño, borrador, publicar, historial, ajustes, media, descargar e importar |
 | `managerAccountService` | Cuentas del gestor sin servidor: el usuario que se propone para una persona nueva, el mensaje con su acceso, sus iniciales y "Ana la publicó" |
 | `designService` · `designHistoryService` | Operaciones inmutables sobre el diseño (campos, elementos, secciones: agregar, duplicar, mover, ocultar, quitar) y deshacer/rehacer (50 pasos; lo escrito seguido en un campo cuenta como uno) |
-| `stylePatchService` | Diseño → parche de estilo para la vista previa (paleta, fuentes, colores y estilos de texto por sección), con el mismo mapeo que el servidor |
+| `previewPatchService` | Diseño → lo que la vista previa muestra al instante (paleta, fuentes, colores y estilos de texto por sección, y los textos que pasan tal cual: títulos, subtítulos, textos y botones de cada sección; título, nombres y salón del evento), con el mismo mapeo que el servidor; y `needsServer`: si lo que falta guardar necesita al servidor para verse |
 | `previewProtocol` · `previewService` | Mensajes entre el editor y su iframe (con su validación) y lo que la vista previa simula: aplicar el parche, invitación de ejemplo de 4 lugares, respuesta del RSVP y clima de ejemplo |
 | `colorService` · `fontCatalog` · `imageResizeService` | Hex ↔ HSV, contraste WCAG, paletas sugeridas y "crear desde mi color"; letras sugeridas y combinaciones; reducir fotos en el navegador (2400 px, HEIC) |
 
@@ -58,8 +58,9 @@ La lógica vive en `services/` (TS puro, sin Vue ni DOM global, con pruebas en V
 | `useCountdown` · `useTimelineProgress` | Cuenta regresiva y línea del itinerario |
 | `useInView` · `useParallax` · `useScrollLock` · `useReducedMotion` | Efectos y accesibilidad |
 | `useClipboard` | Copiar con `navigator.clipboard` |
-| `useManagerSession` | Sesión del gestor: quién entró y su token (en `localStorage`, 12 h), compartida por el inicio, el editor y las otras pestañas (evento `storage`); con clave temporal todavía no está "adentro" (`mustChangePassword`); con 401 sale con el aviso |
-| `useDesignEditor` | El editor de una invitación: diseño con deshacer, autoguardado (400 ms, máximo 2 s, una petición a la vez), 409, publicar, descartar, restaurar, importar |
+| `useManagerSession` | Sesión del gestor: quién entró y su token (en `localStorage`, 12 h), compartida por el inicio, el editor y las otras pestañas (evento `storage`); con clave temporal todavía no está "adentro" (`mustChangePassword`); con 401 sale con el aviso. Mis datos al día llegan con la lista de invitaciones (`setUser`) |
+| `useManagerPeople` | Las personas del gestor, una lista para toda la página: "Datos generales" la pide una vez; "Personas del gestor" la refresca al abrirse y la deja al día con lo que agrega o cambia |
+| `useDesignEditor` | El editor de una invitación: diseño con deshacer, autoguardado con dos ritmos (400 ms / 2 s si la vista previa necesita al servidor; 1 s / 5 s si ya lo muestra sola; al ocultar la pestaña, ya; una petición a la vez), 409, publicar (sin volver a pedir el diseño), descartar, restaurar, importar. El catálogo se pide una vez por página |
 | `useEditorContext` | `provide/inject` de lo que comparten los paneles del editor (diseño, catálogo, config, marca, selección, biblioteca) |
 | `usePreviewHost` · `usePreview` | El editor del lado de su iframe (manda config, parche y selección; escucha toques); la invitación sabe que está en vista previa (sobre abierto, sin sonido) |
 | `useMediaLibrary` · `useDragSort` · `useToasts` · `useFontSamples` | Biblioteca con subidas y avance; reordenar con arrastre o Alt + flechas; avisos; muestras de letras de Google Fonts |
@@ -156,8 +157,10 @@ Va en su propio pedazo del build (rutas perezosas): la invitación pública no c
 
 **Una sola fuente de la `config`:** la arma el servidor (`InvitationConfigBuilder`), para la invitación y para la vista previa. No hay un segundo builder en TypeScript. Para que se sienta en vivo, la vista previa combina dos caminos:
 
-1. **Al instante:** paleta, colores por sección y color y tamaño de cada texto. El editor calcula un parche (`stylePatchService`, con el mismo mapeo español → contrato que el servidor) y el iframe lo aplica encima de la config que tiene.
+1. **Al instante:** paleta, colores por sección, color y tamaño de cada texto, y los textos que pasan tal cual (títulos, subtítulos, textos y botones de cada sección; título, nombres y salón del evento). El editor calcula un parche (`previewPatchService`, con el mismo mapeo español → contrato que el servidor, incluido el `trim` de PHP) y el iframe lo aplica encima de la config que tiene, una vez por cuadro.
 2. **En ~0.5 s:** todo lo demás, incluidas las letras (hay que cargarlas). El autoguardado manda el borrador y el servidor responde la config en modo tolerante (`{config, issues}`), aunque haya errores.
+
+**Autoguardado con dos ritmos** (`useDesignEditor`): si lo que falta guardar necesita al servidor para verse (listas, imágenes, secciones, fechas, música…), se guarda 400 ms después de la última tecla (2 s como máximo escribiendo sin parar); si la vista previa ya lo muestra sola (`needsServer` = no), con calma: 1 s después (5 s como máximo). Al ocultar la pestaña se guarda en ese momento; publicar, salir y ⌘S guardan antes, como siempre. El catálogo se pide una vez por página, la lista de personas una vez (`useManagerPeople`) y publicar responde con el editor ya al día.
 
 **Mensajes con el iframe** (`previewProtocol.ts`, canal `invitaciones-vista-previa`; cada lado revisa el origen y la ventana):
 
