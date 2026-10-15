@@ -5,7 +5,7 @@
 - **Errores de validación:** `422` con `{ message, errors }`.
 - **Autenticación:**
   - **Panel del dueño:** `clave_panel` (en `ajustes.csv`, o en el Excel en el formato anterior) → token cifrado que se manda como `Authorization: Bearer` (ver "Panel del dueño" abajo). Sanctum y Breeze se retiraron el 13-oct.
-  - **Gestor:** clave maestra `GESTOR_CLAVE` → token cifrado con alcance `manager` (ver "Gestor" abajo).
+  - **Gestor:** cada persona con su usuario y su clave → token cifrado con alcance `manager` y su usuario; `GESTOR_CLAVE` enciende el gestor y crea la primera cuenta (ver "Gestor" abajo).
   - **Público:** sin login; el **token** de la URL es la credencial.
 - **Almacenamiento:** sin base de datos. El evento sale de `eventos/<slug>/invitacion.csv` (o, en el formato anterior, de `layout.xlsx`); invitaciones, respuestas, aperturas y ajustes se guardan en CSV en esa carpeta (ver `eventos/README.md`). Una plantilla (`plantilla=SI`) responde 404 en todo lo público y no tiene panel.
 
@@ -129,26 +129,33 @@ Se entra con `clave_panel` (mínimo 8 caracteres): en `ajustes.csv`, donde la po
 | GET | `/admin/events/{slug}/version` | `{ version }`: huella de los archivos del evento. El panel la consulta cada 5 s y recarga solo si cambió (en vivo sin base de datos) |
 | PUT | `/admin/events/{slug}/tables` | `{ assignments: [{ invitation, slot, table: 1…999 \| null }] }` → el panel actualizado. Todo o nada; `422` si el lugar está vacío o la persona no asistirá |
 
-Sin sesión válida: `401` "Tu sesión terminó. Escribe la clave de nuevo."
+Sin sesión válida: `401` "Tu sesión terminó. Entra de nuevo."
 
 ## Gestor (`/api/manager`)
 
-La clave maestra sale de `GESTOR_CLAVE` (16 caracteres o más; sin ella, todo responde `403`). La sesión es un token cifrado con alcance `manager` (12 h) que se manda como `Authorization: Bearer`; un token del panel no sirve aquí. Todo lo de abajo, salvo la sesión, lleva `throttle:240,1` (el editor guarda solo mientras se escribe).
+Cada persona entra con su usuario y su clave (`eventos/_gestor/usuarios.csv`, solo el hash). `GESTOR_CLAVE` (16 caracteres o más) enciende el gestor —sin ella, todo responde `403`— y sirve para crear la primera cuenta; después ya no entra. La sesión es un token cifrado con alcance `manager` y el usuario (12 h) que se manda como `Authorization: Bearer`; deja de servir si esa persona cambia su clave o pierde el acceso, y si cambia `GESTOR_CLAVE`. Un token del panel no sirve aquí. Todo lo de abajo, salvo la sesión, lleva `throttle:240,1` (el editor guarda solo mientras se escribe). Lo que se publica, crea o cambia en los ajustes queda anotado con el `usuario` y el `nombre` de quien lo hizo.
 
 Lo que viaja es el **diseño**: `{ event, colors, fonts, texts, page, sections: [{ id, fields, items }] }`, las filas de `invitacion.csv` agrupadas. La **versión** es la huella del archivo: `b-…` el borrador, `p-…` lo publicado, `a-…` un evento todavía en el formato anterior.
 
 | Método | Ruta | Cuerpo → respuesta |
 |---|---|---|
-| POST | `/manager/session` | `{ password }` → `{ token, expires_at }` · `422` clave incorrecta · `403` sin `GESTOR_CLAVE` · throttle 5/min por IP |
+| GET | `/manager/session` | `{ enabled, setup }`: si el gestor está encendido y si falta crear la primera cuenta · throttle 60/min |
+| POST | `/manager/session` | `{ username, password }` → `{ token, expires_at, user }` · `422` usuario o clave incorrectos (el mismo mensaje si el usuario no existe) · `403` sin `GESTOR_CLAVE`, o cuenta sin acceso (solo si la clave era correcta) · throttle 5/min por IP |
+| POST | `/manager/setup` | `{ master_password, name, username, password }` → `201 { token, expires_at, user }`: la primera cuenta, que administra · `409` si ya hay cuentas · `422` clave maestra incorrecta o datos inválidos · throttle 5/min por IP |
+| GET | `/manager/me` | `{ user }` · `user` = `{ username, name, role: admin\|editor, active, must_change_password, created_at, last_login_at }` (nunca la clave) |
+| PUT | `/manager/me/password` | `{ current_password, password }` (10–128 caracteres, distinta de la actual y del usuario) → `{ token, expires_at, user }`: las sesiones anteriores de esa persona dejan de servir · `422` · throttle 5/min por persona |
+| GET | `/manager/users` | Solo *admin* (`403` si no): `{ users }` |
+| POST | `/manager/users` | Solo *admin*: `{ name, username, role }` → `201 { user, password }` (clave temporal; se ve esta vez y la persona la cambia al entrar) · `409` usuario repetido · `422` |
+| PUT | `/manager/users/{username}` | Solo *admin*: `{ name?, role?, active?, reset_password? }` → `{ user, password? }` · `404` · `422` si te quitas el acceso o el rol a ti, pides tu propia clave temporal o no quedaría nadie activo que administre |
 | GET | `/manager/catalog` | `{ catalog }`: tipos de sección (campos, lista, adornos, bloques de texto, `hidden_without`), grupos de `evento`, colores, fuentes, efectos, límites |
-| GET | `/manager/events` | `{ events: [{ slug, title, type, celebrant, starts_at, published, template, format: design\|legacy, has_draft, pending, updated_at, cover: { theme, colors, font }, counts: { invitations, guests, attending } }] }` |
+| GET | `/manager/events` | `{ events: [{ slug, title, type, celebrant, starts_at, published, template, format: design\|legacy, has_draft, pending, updated_at, last_publish: null\|{ published_at, origin, by: null\|{ username, name } }, cover: { theme, colors, font }, counts: { invitations, guests, attending } }] }` |
 | POST | `/manager/events` | `{ slug, source: blank\|event, from?, template?, event? }` → `201 { slug, panel_password }` (clave nueva; `null` en plantillas) · `409` ya existe · `422` slug inválido o reservado (`vista-previa`, `gestor`, `api`, `media`, `nuevo`). Copia el diseño y `media/` (sin `originales/`); nunca los CSV del sistema, `respaldos/` ni `borrador/`. Nace con `publicado=NO` |
 | GET | `/manager/events/{slug}/design` | `{ slug, design, version, source: draft\|live\|legacy, has_draft, pending, changes, config, issues, brand, settings, warnings, conversion: null\|{ identical, differences, errors } }`. Un evento en el formato anterior llega convertido (todavía sin escribir nada) |
 | PUT | `/manager/events/{slug}/draft` | `{ design, version }` → `{ version, has_draft, pending, changes, config, issues, brand }`. La `config` se arma en modo tolerante (con errores, igual responde). `409 { message, version, design }` si alguien guardó antes · `422` si el diseño pasa de los límites |
 | DELETE | `/manager/events/{slug}/draft` | Descarta el borrador → lo mismo que `GET design` |
 | POST | `/manager/events/{slug}/publish` | `{ version, replace_owner_deadline? }` → `{ published_at, migrated, version }` · `422 { issues }` si hay errores · `409` versión vieja. Respalda lo publicado, escribe atómico, borra el borrador y anota en `respaldos/publicaciones.csv`. Con `replace_owner_deadline`, quita la fecha que movió el cliente |
 | PUT | `/manager/events/{slug}/settings` | `{ panel_password?, published? }` → `{ settings }`. Aplica al instante; el historial anota "(cambiada)", nunca la clave |
-| GET | `/manager/events/{slug}/history` | `{ versions: [{ id, published_at, bytes }] }` (las últimas 50) |
+| GET | `/manager/events/{slug}/history` | `{ current: null\|{ published_at, origin, by }, versions: [{ id, published_at, origin, by, replaced_at, bytes }] }` (las últimas 50). `current` es la que ven los invitados; en cada versión de antes, `published_at`/`origin`/`by` salen de la bitácora (`null` si no hay registro) y `replaced_at` es cuándo dejó de verse. `origin`: `borrador`, `formato anterior`, `nueva` o `copia de <slug>` |
 | POST | `/manager/events/{slug}/history/{id}/restore` | Esa versión pasa al borrador → lo mismo que `GET design` |
 | GET | `/manager/events/{slug}/media` | `{ files: [{ name, url, kind, bytes, width, height, modified, used_in }], total_bytes }` |
 | POST | `/manager/events/{slug}/media` | `multipart: file, purpose?: fondo\|foto\|adorno, trim?` → `201 { file }`. Imágenes jpg, png, webp o gif (≤ 15 MB, revisadas con `finfo`; nunca SVG ni HTML) → WebP con nombre único (`nombre-3f9a.webp`); audio mp3 o m4a (≤ 20 MB) |
@@ -156,7 +163,7 @@ Lo que viaja es el **diseño**: `{ event, colors, fonts, texts, page, sections: 
 | GET | `/manager/events/{slug}/export?format=csv\|xlsx\|zip` | El archivo (`invitacion-<slug>.<formato>`). El zip lleva `invitacion.csv` y `media/`. Nunca la clave |
 | POST | `/manager/events/{slug}/import` | `multipart: file` (csv, xlsx —también del formato anterior— o zip) → lo mismo que `GET design` + `import: { warnings, media }`. Queda en el borrador. Revisa zip-slip, tamaño (200 MB) y cantidad de archivos (300) |
 
-Sin sesión válida: `401` "Tu sesión terminó. Escribe la clave de nuevo."
+Sin sesión válida: `401` "Tu sesión terminó. Entra de nuevo."
 
 ## CORS (`.env`)
 

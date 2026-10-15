@@ -13,7 +13,7 @@ eventos/<slug>/
 ├── media/                 ← fotos, fondos, adornos y audio (WebP/PNG/JPG/MP3)
 │   └── originales/        ← PNG/JPG tal como salen de Canva; `media:optimizar` los pasa a WebP
 ├── ajustes.csv            ← lo que aplica al instante: clave del panel, si se ve, si es plantilla, fecha límite del cliente
-├── ajustes-historial.csv  ← cada cambio de ajustes (la clave sale como "(cambiada)", nunca escrita)
+├── ajustes-historial.csv  ← cada cambio de ajustes y quién lo hizo (la clave sale como "(cambiada)", nunca escrita)
 ├── invitaciones.csv       ← cada enlace generado en el panel: id, token, invitados, para, creada
 ├── respuestas.csv         ← un renglón por persona: invitacion, para, lugar, nombre, asistira, respondida, mesa
 ├── respuestas-historial.csv ← cada envío, en orden (solo crece; es el respaldo fino)
@@ -22,13 +22,15 @@ eventos/<slug>/
 ├── resumen.csv            ← detalle por invitación (lo rehace `invitaciones:resumen`)
 └── respaldos/             ← copia del día de cada archivo antes de cambiarlo, y además:
     ├── invitacion-AAAAMMDD-HHMMSS.csv   ← la versión publicada que había antes de cada publicación (las últimas 50)
-    ├── publicaciones.csv                ← bitácora: cuándo se publicó y qué versión
+    ├── publicaciones.csv                ← bitácora: cuándo se publicó (o se creó o migró) y quién
     └── formato-anterior-<fecha>/        ← el layout.xlsx de antes, al migrar
 ```
 
+Aparte de los eventos, `eventos/_gestor/usuarios.csv` guarda las cuentas del gestor (usuario, nombre, rol, si tiene acceso y el hash de su clave; nunca la clave). `_gestor` nunca es un evento.
+
 Los archivos que escribe el sistema se pueden **abrir** en Excel para consultarlos, pero **no se editan ni se guardan desde Excel**: los escribe la API. `invitacion.csv` sí se puede editar (ver "Editar sin el gestor").
 
-- Gestor: `http://localhost:5173/gestor` (pide la clave maestra, `GESTOR_CLAVE` en `api/.env`).
+- Gestor: `http://localhost:5173/gestor` (cada quien con su usuario; la primera vez pide crear tu cuenta con la clave maestra, `GESTOR_CLAVE` en `api/.env`).
 - Panel del cliente: `http://localhost:5173/panel/<slug>` (pide su clave; se genera en el gestor).
 - Invitación general (sin pases): `http://localhost:5173/e/<slug>`.
 - Invitación personal: `http://localhost:5173/i/<token>` (la genera el panel).
@@ -37,7 +39,10 @@ La invitación se diseña para celular primero; en una computadora o tablet acos
 
 ## El gestor
 
-1. **Entrar:** `/gestor`, con la clave maestra (`GESTOR_CLAVE`, de 16 caracteres o más). Sin esa variable el gestor no abre. La sesión dura 12 horas en ese navegador.
+1. **Entrar:** `/gestor`, cada persona con su usuario y su clave. La sesión dura 12 horas en ese navegador.
+   - **La primera vez** pide "Crea la primera cuenta" con la clave maestra (`GESTOR_CLAVE`, 16 caracteres o más; sin ella el gestor no abre). Esa cuenta *administra*.
+   - **Personas** (menú de tu cuenta, si administras): agregar a alguien le da una clave temporal, con un mensaje listo para mandárselo; al entrar elige la suya. Ahí también se cambia su rol (*Administra* o *Edita*), se le da otra clave temporal o se le quita el acceso (su nombre se queda en el historial).
+   - **Cambiar mi clave**, en el mismo menú. Si alguien se queda fuera: `php artisan gestor:usuario <usuario> --clave-nueva`.
 2. **Invitaciones y plantillas:** cada tarjeta trae sus colores, su letra, si se ve, si tiene cambios sin publicar y cuántos confirmaron. En su menú ⋯: duplicar, guardar como plantilla y descargar.
 3. **Nueva invitación:** en blanco (todas las secciones con textos de ejemplo), desde una plantilla o como copia de otra. Se copian el diseño y `media/`. **Nunca** se copian los enlaces, las respuestas ni la clave del panel: se genera una clave nueva. Nace oculta.
 4. **El editor** (`/gestor/<slug>`):
@@ -55,9 +60,9 @@ La invitación se diseña para celular primero; en una computadora o tablet acos
    - **"Aa" de cada texto:** letra, color (de la paleta o uno propio) y tamaño (50 % a 250 %). "Usar en todas las secciones" lo pasa a los textos de toda la invitación.
 5. **Guardado:** todo se guarda solo, en el borrador. Los invitados no ven nada hasta **Publicar**. ⌘/Ctrl + Z deshace y ⌘/Ctrl + Shift + Z rehace.
 6. **Publicar:** muestra qué cambió. Si algo está mal (una fecha, un enlace que no empieza con `https://`), lo dice, lleva al campo y no deja publicar. La primera vez ofrece hacerla visible.
-7. **Historial:** las últimas 50 versiones publicadas. "Restaurar" trae una al borrador para revisarla y publicarla.
+7. **Historial:** quién publicó la versión que ven los invitados y las 50 de antes, cada una con quién la publicó y cuándo. "Restaurar" trae una al borrador para revisarla y publicarla.
 8. **Descargar o importar:** `invitacion.csv`, Excel (con una hoja `guia` que explica cada campo) o zip con la invitación y su `media/`. Lo importado queda en el borrador. También acepta el Excel del formato anterior.
-9. **Dos ventanas a la vez:** si las dos cambian la misma invitación, la segunda que guarda pregunta si cargar lo de la otra o conservar lo suyo.
+9. **Dos ventanas (o dos personas) a la vez:** si las dos cambian la misma invitación, la segunda que guarda pregunta si cargar lo de la otra o conservar lo suyo.
 10. **Imágenes y audio:**
     - Se suben arrastrando o desde la biblioteca.
     - Las fotos grandes se reducen en el navegador (2400 px) y en el servidor quedan en WebP, con su transparencia. Audio: MP3 o M4A.
@@ -274,6 +279,12 @@ docker compose exec api php artisan invitacion:migrar <slug> --probar   # compar
 docker compose exec api php artisan invitacion:migrar <slug>            # migra solo si la invitación queda idéntica
 docker compose exec api php artisan invitacion:migrar --todos           # todos los que siguen en el formato anterior
 docker compose exec api php artisan invitacion:migrar <slug> --limpiar  # después: mueve el layout viejo a respaldos/
+
+# Cuentas del gestor (para entrar si nadie recuerda su clave)
+docker compose exec api php artisan gestor:usuario                                    # lista
+docker compose exec api php artisan gestor:usuario <usuario> --nombre="Su nombre" [--rol=admin]   # crea (da una clave temporal)
+docker compose exec api php artisan gestor:usuario <usuario> --clave-nueva           # otra clave temporal
+docker compose exec api php artisan gestor:usuario <usuario> --quitar-acceso         # o --dar-acceso
 
 # Otros
 docker compose exec api php artisan invitaciones:resumen <slug>   # totales (como el panel) → resumen.csv

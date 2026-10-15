@@ -25,6 +25,18 @@ eventos/<slug>/
                              publicaciones.csv
 ```
 
+Fuera de los eventos, en la misma carpeta (y en el mismo disco en producción):
+
+```
+eventos/_gestor/
+├── usuarios.csv   las personas del gestor: usuario, nombre, rol (admin|editor), activo (SI|NO),
+│                  clave (solo el hash bcrypt), cambiar_clave (SI = tiene clave temporal),
+│                  creado, ultimo_acceso
+└── respaldos/     copia del día de usuarios.csv antes de cambiarlo
+```
+
+`_gestor` nunca puede ser la dirección de un evento (las direcciones empiezan con minúscula o número), así que no aparece en la lista ni en lo público.
+
 **`invitacion.csv`** tiene cuatro columnas: `seccion, elemento, campo, valor`. Los bloques `evento`, `colores`, `fuentes`, `textos` y `pagina` son datos; cualquier otro valor de `seccion` es una sección, en el orden en que aparece. Un número en `elemento` es un elemento de la lista de esa sección. El servidor la convierte en el `config` de la invitación con `InvitationConfigBuilder`; lo que no reconoce lo conserva y lo avisa.
 
 ```mermaid
@@ -70,7 +82,9 @@ erDiagram
 **Historiales** (solo crecen):
 
 - `respuestas-historial.csv`: `fecha, invitacion, asistira, nombres, agregados`.
-- `ajustes-historial.csv`: `fecha, clave, anterior, nuevo`.
+- `ajustes-historial.csv`: `fecha, clave, anterior, nuevo, usuario, nombre` (quién: una persona del gestor, `panel` si fue el dueño, `terminal` si fue un comando).
+- `respaldos/publicaciones.csv`: `fecha, origen, secciones, usuario, nombre`; un renglón por publicación, por invitación creada o copiada (`nueva`, `copia de <slug>`) y por migración (`formato anterior`). Con él, el historial dice quién publicó cada versión.
+- Si una bitácora gana una columna, el primer renglón nuevo la reescribe con ella y los renglones de antes la dejan vacía (`CsvFile::append`).
 
 **Lugares libres:** un lugar que no está en `respuestas.csv` está libre. No hay columna de "estado": el estado de una invitación se calcula de sus renglones.
 
@@ -93,7 +107,8 @@ erDiagram
 | Cada apertura se registra en `aperturas.csv` | `InvitationController` |
 | Dedicatoria: **una por enlace** (la segunda → `409`, revisado dentro del `flock`); nombre ≤ 80 y mensaje ≤ 600; no depende de la fecha límite | `DedicationController` + `InvitationService::dedicate` + `DedicationStore::add` |
 | Throttle de dedicatorias: 5/min por IP y token | `AppServiceProvider` |
-| Gestor: sin `GESTOR_CLAVE` de 16+ caracteres → `403`; login 5/min por IP; el resto 240/min | `ManagerAuth` + `EnsureManagerSession` + `routes/api.php` |
+| Gestor: sin `GESTOR_CLAVE` de 16+ caracteres → `403`; cada persona con su usuario y su clave (10+ caracteres, hash bcrypt); la clave maestra solo crea la primera cuenta; login 5/min por IP; el resto 240/min | `ManagerAuth` + `EnsureManagerSession` + `routes/api.php` |
+| Cuentas: solo quien administra agrega, cambia o quita el acceso; nadie se quita el acceso ni el rol a sí mismo y siempre queda alguien activo que administra; nadie se borra (el historial guarda su nombre); una clave temporal se cambia al entrar | `ManagerUsers` + `UserController` + `EnsureManagerAdmin` |
 | Borrador: se guarda solo si la versión que manda el editor es la actual (bajo candado); si no, `409` con la versión y el diseño de la otra ventana | `DesignStore::saveDraft` |
 | Publicar: en modo estricto (con errores → `422 { issues }`); respalda lo publicado, escribe atómico, borra el borrador y anota la bitácora | `DesignPublisher` |
 | Fecha límite al publicar: si el cliente ya la movió, la suya gana, salvo que el gestor elija reemplazarla (se borra solo su fecha; los cambios usados y el historial quedan) | `DesignPublisher` |

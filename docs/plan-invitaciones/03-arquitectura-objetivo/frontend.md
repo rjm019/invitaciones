@@ -9,7 +9,7 @@
 | `/i/:token` | `InvitationPage` | Invitación personal: un campo de nombre por invitado |
 | `/e/:slug` | `EventPage` | Invitación general (sin pases; botón de WhatsApp o sin confirmación) |
 | `/panel/:slug` | `PanelPage` | Panel del dueño; pide la `clave_panel` |
-| `/gestor` | `ManagerPage` | Gestor: entrada con la clave maestra, invitaciones y plantillas (carga aparte) |
+| `/gestor` | `ManagerPage` | Gestor: entrada con usuario y clave (la primera cuenta, con la clave maestra), invitaciones y plantillas (carga aparte) |
 | `/gestor/:slug` | `ManagerEditorPage` | El editor de una invitación |
 | `/gestor/vista-previa` | `ManagerPreviewPage` | La invitación dentro del editor (va en un iframe; `vista-previa` es un slug reservado) |
 | `/legacy/boda` | `legacy/BodaLegacy.vue` | Solo en desarrollo: referencia para el tema `boda-salvia` |
@@ -35,7 +35,8 @@ La lógica vive en `services/` (TS puro, sin Vue ni DOM global, con pruebas en V
 | `countdownService` · `calendarService` · `dateFormatService` | Cuenta regresiva con offset, mes del calendario y "Agregar a mi calendario", fechas en es-MX |
 | `audioService` · `spotifyPlayerService` · `effectsService` | Reproductor compartido (`MusicPlayer` y `MiniPlayer`) con MP3 o con la playlist de Spotify (API oficial del reproductor), efectos por nombre |
 | `spotifyService` · `weatherService` | Enlace de Spotify → reproductor (tema oscuro, español); clima del evento (textos, íconos, consejos, cuándo renovar) |
-| `managerService` | Llamadas del gestor (`/api/manager`): sesión, catálogo, eventos, diseño, borrador, publicar, historial, ajustes, media, descargar e importar |
+| `managerService` | Llamadas del gestor (`/api/manager`): sesión, primera cuenta, mi clave, personas, catálogo, eventos, diseño, borrador, publicar, historial, ajustes, media, descargar e importar |
+| `managerAccountService` | Cuentas del gestor sin servidor: el usuario que se propone para una persona nueva, el mensaje con su acceso, sus iniciales y "Ana la publicó" |
 | `designService` · `designHistoryService` | Operaciones inmutables sobre el diseño (campos, elementos, secciones: agregar, duplicar, mover, ocultar, quitar) y deshacer/rehacer (50 pasos; lo escrito seguido en un campo cuenta como uno) |
 | `stylePatchService` | Diseño → parche de estilo para la vista previa (paleta, fuentes, colores y estilos de texto por sección), con el mismo mapeo que el servidor |
 | `previewProtocol` · `previewService` | Mensajes entre el editor y su iframe (con su validación) y lo que la vista previa simula: aplicar el parche, invitación de ejemplo de 4 lugares, respuesta del RSVP y clima de ejemplo |
@@ -57,7 +58,7 @@ La lógica vive en `services/` (TS puro, sin Vue ni DOM global, con pruebas en V
 | `useCountdown` · `useTimelineProgress` | Cuenta regresiva y línea del itinerario |
 | `useInView` · `useParallax` · `useScrollLock` · `useReducedMotion` | Efectos y accesibilidad |
 | `useClipboard` | Copiar con `navigator.clipboard` |
-| `useManagerSession` | Sesión del gestor (en `localStorage`, 12 h), compartida por el inicio y el editor; con 401 sale con el aviso |
+| `useManagerSession` | Sesión del gestor: quién entró y su token (en `localStorage`, 12 h), compartida por el inicio, el editor y las otras pestañas (evento `storage`); con clave temporal todavía no está "adentro" (`mustChangePassword`); con 401 sale con el aviso |
 | `useDesignEditor` | El editor de una invitación: diseño con deshacer, autoguardado (400 ms, máximo 2 s, una petición a la vez), 409, publicar, descartar, restaurar, importar |
 | `useEditorContext` | `provide/inject` de lo que comparten los paneles del editor (diseño, catálogo, config, marca, selección, biblioteca) |
 | `usePreviewHost` · `usePreview` | El editor del lado de su iframe (manda config, parche y selección; escucha toques); la invitación sabe que está en vista previa (sobre abierto, sin sonido) |
@@ -162,6 +163,8 @@ Va en su propio pedazo del build (rutas perezosas): la invitación pública no c
 
 - Editor → vista previa: `config` (con la vista: sobre abierto o cerrado, invitado general o de ejemplo, sonido, elegir o probar, etiquetas), `display`, `patch`, `select` y `replay`.
 - Vista previa → editor: `ready`, `rendered` (qué secciones sí se pintaron, para la pista "no se ve"), `hover`, `pick` (`{key, block}`: la sección y el texto tocados, por `data-section-key` y `data-text`) y `tokens` (colores y letras ya calculados, para el selector de color y la tarjeta para WhatsApp).
+
+**Cuentas:** `ManagerLogin` decide qué mostrar: gestor apagado, "Crea la primera cuenta" (con la clave maestra), entrar con usuario y clave, o "Elige tu clave" si se entró con una temporal. En el inicio, `AccountMenu` (cambiar mi clave con `PasswordDialog`, y si administra, `PeopleDialog`: agregar con clave temporal y el mensaje listo para mandar, rol, clave temporal nueva, quitar o devolver el acceso). El historial y las tarjetas dicen quién publicó.
 
 **Componentes** (`components/manager/`): `EditorTopBar`, `SectionList`, `PreviewFrame`, `SectionInspector` (con `FieldInput`, `ItemListEditor`, `SectionDesign` y `TextStyleControl`), `StylePanel` (con `ColorField`/`ColorPicker` y `FontPicker`), `GeneralPanel` (con `SharePreview`), y los diálogos `AddSectionDialog`, `MediaLibraryDialog`, `PublishDialog`, `HistoryDialog`, `TransferDialog`, `ConflictDialog`, `NewEventDialog`. Base: `GDialog`, `GPopover`, `ToastHost`, `ManagerIcon`.
 

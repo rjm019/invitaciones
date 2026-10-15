@@ -13,7 +13,7 @@ El plan completo está en `docs/plan-invitaciones/`. **Lee primero** `docs/plan-
 ## Fase en curso
 
 - **Fase actual:** Pasos 2a, 3 y 2b terminados, más el **panel del dueño** (`/panel/:slug`, entra con `clave_panel`: en `ajustes.csv` en el formato nuevo, en el layout en el anterior): genera enlaces por número de invitados, lista de invitaciones y de invitados con su mesa, se actualiza en vivo (consulta de versión cada 5 s), fecha límite cambiable hasta 3 veces. La invitación personal (`/i/:token`) muestra un campo por invitado; los nombres enviados quedan fijos. Secciones `clima` (Open-Meteo: típico y luego pronóstico) y `playlist`; la música puede salir de un MP3 o de Spotify (`musica_fuente`; NAT usa MP3 para que suene completa). Cada sección es un panel con su fondo y el mismo espacio entre todas (`--section-gap`); secciones `sin_ninos` y `dedicatoria` (una por enlace, `dedicatorias.csv`, pestaña en el panel); efecto `cambio_de_color`; sección `hospedaje` (pestaña `hoteles`). El panel se ve con los colores de su invitación ("XV de Nat") y "Enviar" arma un PDF con la invitación (el diseño del sobre de NAT.pdf: `tarjeta_fondo`, `tarjeta_frase`, `tarjeta_texto`) y su enlace oculto (QR en puntos azules integrado al fondo, y toque); ese QR es el que leerá la recepción. Todo en CSV. **Publicado en Fly.io** (`https://invitaciones-jiro.fly.dev`, ver `docs/plan-invitaciones/06-despliegue/despliegue.md`). Formato: `eventos/README.md`.
-- **Fase 8 — gestor de plantillas** (14-oct, rama `feature/gestor-plantillas`, sin push ni merge): `/gestor` (clave maestra `GESTOR_CLAVE`) arma invitaciones y plantillas con la invitación a la vista (colores y tamaños al instante; lo demás con la config del servidor en ~0.5 s), borrador con autoguardado y **Publicar**, historial, biblioteca de media, descargar/importar csv, xlsx o zip. Formato `invitacion.csv` (`seccion, elemento, campo, valor`; letra/color/tamaño por bloque de texto; colores y adornos por sección); `clave_panel`, `publicado` y `plantilla` en `ajustes.csv`. NAT local ya migrado (`invitacion:migrar`, verificado idéntico). Producción sin cambios: el runbook (`docs/plan-invitaciones/06-despliegue/despliegue.md`) corre **solo cuando el usuario lo pida**. Detalle: `docs/plan-invitaciones/04-fases/fase-8-gestor-de-plantillas.md`.
+- **Fase 8 — gestor de plantillas** (14-oct, rama `feature/gestor-plantillas`, sin push ni merge): `/gestor` (una cuenta por persona en `eventos/_gestor/usuarios.csv`; `GESTOR_CLAVE` lo enciende y crea la primera; el historial dice quién publicó qué) arma invitaciones y plantillas con la invitación a la vista (colores y tamaños al instante; lo demás con la config del servidor en ~0.5 s), borrador con autoguardado y **Publicar**, historial, biblioteca de media, descargar/importar csv, xlsx o zip. Formato `invitacion.csv` (`seccion, elemento, campo, valor`; letra/color/tamaño por bloque de texto; colores y adornos por sección); `clave_panel`, `publicado` y `plantilla` en `ajustes.csv`. NAT local ya migrado (`invitacion:migrar`, verificado idéntico). Producción sin cambios: el runbook (`docs/plan-invitaciones/06-despliegue/despliegue.md`) corre **solo cuando el usuario lo pida**. Detalle: `docs/plan-invitaciones/04-fases/fase-8-gestor-de-plantillas.md`.
 - **Prioridad:** invitaciones (XV NAT: RSVP cierra 6-nov-2026, evento 28-nov-2026). El buscador espera.
 - **Ramas:** `main` (el motor, en `origin/main`) y `feature/gestor-plantillas` (el gestor; espera revisión).
 
@@ -37,6 +37,7 @@ docker compose exec api php artisan invitacion:validar <slug>
 docker compose exec api php artisan invitacion:exportar <slug> --formato=zip     # csv, xlsx o zip
 docker compose exec api php artisan invitacion:importar <slug> <archivo>        # al borrador
 docker compose exec api php artisan invitacion:migrar <slug> --probar           # Excel anterior → invitacion.csv
+docker compose exec api php artisan gestor:usuario [<usuario> --clave-nueva]     # cuentas del gestor
 
 # Recepción (pruebas del importador y modelos)
 docker run --rm -v "$PWD/recepcion":/app -w /app node:20-alpine node tests/importador.test.js
@@ -44,7 +45,7 @@ docker run --rm -v "$PWD/recepcion":/app -w /app node:20-alpine node tests/impor
 
 Producción (Fly.io, cuenta `tu cuenta personal`): `fly deploy --ha=false` publica el código; `deploy/subir-evento.sh <slug>` sube media (y el layout anterior, si lo hay) sin pisar los CSV que escribe la app; `invitacion.csv` solo con `--forzar` (allá la edita el gestor; respalda antes la del servidor). `deploy/bajar-evento.sh <slug>` trae un evento del servidor a una carpeta nueva.
 
-Gestor en local: `GESTOR_CLAVE` (16+ caracteres) en `api/.env` y `http://localhost:5173/gestor`.
+Gestor en local: `GESTOR_CLAVE` (16+ caracteres) en `api/.env` y `http://localhost:5173/gestor`; la primera vez pide crear tu cuenta con esa clave.
 
 Los puertos del host se cambian con `API_PORT`, `WEB_PORT` y `RECEPCION_PORT` (8000 y 8080 ya los usan otros proyectos en esta máquina).
 
