@@ -16,7 +16,8 @@ import type { ResolvedSection } from '@/types/event'
  * Mientras el sobre está cerrado la página no hace scroll y la portada ocupa la pantalla.
  * Ya abierto, la portada se ajusta a su contenido: la tarjeta se queda donde está y lo de
  * abajo sube, para que el espacio hasta la siguiente sección sea el mismo de todas. Con
- * "menos movimiento" la tarjeta ya aparece afuera.
+ * "menos movimiento" la tarjeta ya aparece afuera; en la vista previa del gestor el sobre
+ * sí se ve cerrado (para revisar la portada) y abre sin animación.
  */
 const props = defineProps<{ section: ResolvedSection }>()
 const { event } = useEvent()
@@ -31,7 +32,9 @@ const decor = computed(() => props.section.decor)
 const hasEnvelope = computed(() => !!decor.value.envelope)
 // En el editor del gestor el sobre ya está abierto (salvo en "Ver como invitado").
 const phase = ref<'closed' | 'opening' | 'open'>(
-  hasEnvelope.value && !reduced.value && !preview.value?.envelopeOpen ? 'closed' : 'open',
+  hasEnvelope.value && (!reduced.value || !!preview.value) && !preview.value?.envelopeOpen
+    ? 'closed'
+    : 'open',
 )
 useScrollLock(() => phase.value === 'closed')
 
@@ -63,6 +66,10 @@ function open() {
     )
   }
   void music?.play() // dentro del toque: así iOS sí deja sonar
+  if (reduced.value) {
+    phase.value = 'open' // sin animación (solo pasa en la vista previa del gestor)
+    return
+  }
   celebration?.celebrate('stars') // estrellitas doradas mientras sale la tarjeta
   phase.value = 'opening'
   // por si animationend no llega (la animación dura 1.5 s a velocidad 1)
