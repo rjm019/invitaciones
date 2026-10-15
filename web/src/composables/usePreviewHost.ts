@@ -3,7 +3,7 @@ import {
   readFromPreview,
   wrap,
   type PreviewDisplay,
-  type StylePatch,
+  type PreviewPatch,
   type ToPreview,
 } from '@/services/previewProtocol'
 import type { EventConfig } from '@/types/event'
@@ -19,7 +19,7 @@ export interface PreviewHandlers {
 
 /**
  * El editor del lado de su vista previa (el iframe /gestor/vista-previa): le manda la
- * config, los cambios de estilo al instante y qué sección mostrar, y escucha qué tocó la
+ * config, el estilo y los textos al instante y qué sección mostrar, y escucha qué tocó la
  * persona. Solo acepta mensajes de ese iframe, del mismo origen y con forma conocida. Si el
  * iframe se recarga, le vuelve a mandar lo último en cuanto avisa que está listo.
  */
@@ -70,7 +70,7 @@ export function usePreviewHost(
     if (ready.value) post({ type: 'display', display })
   }
 
-  function sendPatch(patch: StylePatch): void {
+  function sendPatch(patch: PreviewPatch): void {
     if (ready.value) post({ type: 'patch', patch })
   }
 

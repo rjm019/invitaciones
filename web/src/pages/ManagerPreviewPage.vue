@@ -7,13 +7,14 @@ import {
   wrap,
   type FromPreview,
   type PreviewDisplay,
+  type PreviewPatch,
 } from '@/services/previewProtocol'
-import { applyStylePatch } from '@/services/previewService'
+import { applyPreviewPatch } from '@/services/previewService'
 import type { EventConfig } from '@/types/event'
 
 /**
  * /gestor/vista-previa: la invitación dentro del editor (va en un iframe). El editor le
- * manda la config del borrador y los cambios de estilo al instante; ella le avisa qué
+ * manda la config del borrador y, al instante, el estilo y los textos; ella le avisa qué
  * sección o qué texto tocó la persona, y qué secciones sí se pintaron. Nunca pide nada al
  * servidor por su cuenta: todo llega del editor.
  */
@@ -91,7 +92,7 @@ function onMessage(e: MessageEvent): void {
       display.value = message.display
       break
     case 'patch':
-      if (config.value) config.value = applyStylePatch(config.value, message.patch)
+      queuePatch(message.patch)
       break
     case 'select':
       selected.value = message.key
@@ -102,6 +103,19 @@ function onMessage(e: MessageEvent): void {
       window.scrollTo(0, 0)
       break
   }
+}
+
+/** Lo que llega al instante se aplica una vez por cuadro (con cada tecla, solo lo último). */
+let queued: PreviewPatch | null = null
+let patchFrame = 0
+function queuePatch(patch: PreviewPatch): void {
+  queued = patch
+  if (patchFrame) return
+  patchFrame = requestAnimationFrame(() => {
+    patchFrame = 0
+    if (config.value && queued) config.value = applyPreviewPatch(config.value, queued)
+    queued = null
+  })
 }
 
 function scrollToSelected(): void {
@@ -251,6 +265,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', measure)
   observer?.disconnect()
   cancelAnimationFrame(frame)
+  cancelAnimationFrame(patchFrame)
   clearTimeout(renderTimer)
   document.documentElement.classList.remove('is-picking')
 })

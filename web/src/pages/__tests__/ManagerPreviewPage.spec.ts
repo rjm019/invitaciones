@@ -67,6 +67,34 @@ describe('ManagerPreviewPage', () => {
     expect(document.querySelector('[data-section-key="itinerario"]')).not.toBeNull()
   })
 
+  it('lo que llega al instante (estilo y textos) se aplica una vez por cuadro, con lo último', async () => {
+    const TitleStage = defineComponent({
+      props: { event: { type: Object, required: true } },
+      setup: (props) => () =>
+        h('h2', { class: 'titulo' }, (props.event as EventConfig).sections[0]?.title ?? ''),
+    })
+    wrapper = mount(ManagerPreviewPage, {
+      global: { stubs: { PreviewStage: TitleStage } },
+      attachTo: document.body,
+    })
+    const section = { type: 'itinerary', key: 'itinerario', effects: [], visible: true }
+    fromEditor({
+      type: 'config',
+      config: { ...config, sections: [{ ...section, title: 'Itinerario' }] } as EventConfig,
+      display,
+    })
+    await nextTick()
+
+    fromEditor({ type: 'patch', patch: { sections: { itinerario: { title: 'Pro' } } } })
+    fromEditor({ type: 'patch', patch: { sections: { itinerario: { title: 'Programa' } } } })
+    await nextTick()
+    expect(document.querySelector('.titulo')?.textContent).toBe('Itinerario')
+
+    await new Promise((done) => requestAnimationFrame(() => done(null)))
+    await nextTick()
+    expect(document.querySelector('.titulo')?.textContent).toBe('Programa')
+  })
+
   it('al tocar un texto manda su sección y su bloque, sin abrir nada de la invitación', async () => {
     await open()
     const title = document.querySelector<HTMLElement>('[data-text="title"]')!

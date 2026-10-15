@@ -2,11 +2,11 @@
 import { computed, onMounted, ref } from 'vue'
 import { useClipboard } from '@/composables/useClipboard'
 import { useEditor } from '@/composables/useEditorContext'
+import { useManagerPeople } from '@/composables/useManagerPeople'
 import { useManagerSession } from '@/composables/useManagerSession'
 import { useToasts } from '@/composables/useToasts'
 import { initials } from '@/services/managerAccountService'
-import * as managerService from '@/services/managerService'
-import type { ManagerSettings, ManagerUser, SettingsChange } from '@/types/design'
+import type { ManagerSettings, SettingsChange } from '@/types/design'
 import FieldInput from './FieldInput.vue'
 import ManagerIcon from './ManagerIcon.vue'
 import SharePreview from './SharePreview.vue'
@@ -19,7 +19,7 @@ import SharePreview from './SharePreview.vue'
  */
 const props = defineProps<{ settings: ManagerSettings | null }>()
 const emit = defineEmits<{ settings: [changes: SettingsChange] }>()
-const { isAdmin, withSession } = useManagerSession()
+const { isAdmin } = useManagerSession()
 const { slug, catalog, design, issues, setBlock } = useEditor()
 const { toast } = useToasts()
 const { copy } = useClipboard()
@@ -81,7 +81,7 @@ async function copyText(text: string, what: string): Promise<void> {
 }
 
 // Quién la edita: quien administra elige entre las personas que solo editan.
-const people = ref<ManagerUser[]>([])
+const { people, load: loadPeople } = useManagerPeople()
 const peopleError = ref('')
 const assigned = computed(() => new Set((props.settings?.people ?? []).map((p) => p.username)))
 const editors = computed(() =>
@@ -96,7 +96,7 @@ const assignedNames = computed(() =>
 onMounted(async () => {
   if (!isAdmin.value) return
   try {
-    people.value = await withSession((t) => managerService.listUsers(t))
+    await loadPeople()
   } catch (e) {
     peopleError.value = e instanceof Error ? e.message : 'No se pudo cargar la lista de personas.'
   }

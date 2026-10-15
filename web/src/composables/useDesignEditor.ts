@@ -11,6 +11,7 @@ import {
 import { sameDesign } from '@/services/designService'
 import { ApiError } from '@/services/http'
 import * as managerService from '@/services/managerService'
+import { needsServer } from '@/services/previewPatchService'
 import type {
   Catalog,
   Design,
@@ -28,10 +29,25 @@ export type SaveStatus = 'loading' | 'saved' | 'dirty' | 'saving' | 'offline' | 
 
 type WithSession = <T>(call: (token: string) => Promise<T>) => Promise<T>
 
-/** Pausa después de la última tecla antes de guardar, y espera máxima mientras se escribe. */
+/**
+ * Pausa después de la última tecla antes de guardar, y espera máxima mientras se escribe.
+ * Si la vista previa necesita al servidor para mostrar el cambio (una lista, una imagen, una
+ * sección nueva…), se guarda pronto; si ya lo muestra sola (estilo y textos tal cual), con
+ * calma: así escribir un párrafo no manda una petición cada segundo.
+ */
 export const SAVE_DELAY = 400
 export const SAVE_MAX_WAIT = 2000
+export const CALM_DELAY = 1000
+export const CALM_MAX_WAIT = 5000
 export const RETRY_DELAY = 4000
+
+/** El catálogo solo cambia con una versión nueva del sistema: se pide una vez por página. */
+let catalogRequest: Promise<Catalog> | null = null
+
+/** Olvida el catálogo ya pedido (para las pruebas). */
+export function forgetCatalog(): void {
+  catalogRequest = null
+}
 
 /**
  * El editor de una invitación: lo que la persona tiene enfrente (con deshacer y rehacer),
@@ -62,6 +78,7 @@ export function useDesignEditor(slug: string, withSession: WithSession) {
   let saved: Design | null = null
   let delayTimer: ReturnType<typeof setTimeout> | undefined
   let maxTimer: ReturnType<typeof setTimeout> | undefined
+  let maxDeadline = 0
   let retryTimer: ReturnType<typeof setTimeout> | undefined
   let inFlight: Promise<void> | null = null
   let queued = false
@@ -95,8 +112,12 @@ export function useDesignEditor(slug: string, withSession: WithSession) {
     status.value = 'loading'
     error.value = ''
     try {
+      catalogRequest ??= withSession((t) => managerService.getCatalog(t)).catch((e) => {
+        catalogRequest = null
+        throw e
+      })
       const [loadedCatalog, payload] = await Promise.all([
-        catalog.value ?? withSession((t) => managerService.getCatalog(t)),
+        catalog.value ?? catalogRequest,
         withSession((t) => managerService.getDesign(t, slug)),
       ])
       catalog.value = loadedCatalog
@@ -112,15 +133,31 @@ export function useDesignEditor(slug: string, withSession: WithSession) {
     clearTimeout(maxTimer)
     clearTimeout(retryTimer)
     maxTimer = undefined
+    maxDeadline = 0
   }
 
-  /** Hay algo nuevo que guardar. Con un conflicto abierto se espera a que la persona elija. */
+  /**
+   * Hay algo nuevo que guardar: pronto si la vista previa lo necesita del servidor, con calma
+   * si ya lo muestra sola. Con un conflicto abierto se espera a que la persona elija.
+   */
   function changed(): void {
     if (status.value === 'conflict') return
     status.value = 'dirty'
+    const calm = !!saved && !!design.value && !needsServer(saved, design.value)
+    const [delay, maxWait] = calm ? [CALM_DELAY, CALM_MAX_WAIT] : [SAVE_DELAY, SAVE_MAX_WAIT]
     clearTimeout(delayTimer)
-    delayTimer = setTimeout(() => void save(), SAVE_DELAY)
-    maxTimer ??= setTimeout(() => void save(), SAVE_MAX_WAIT)
+    delayTimer = setTimeout(() => void save(), delay)
+    const deadline = Date.now() + maxWait
+    if (!maxTimer || deadline < maxDeadline) {
+      clearTimeout(maxTimer)
+      maxDeadline = deadline
+      maxTimer = setTimeout(() => void save(), maxWait)
+    }
+  }
+
+  /** Al cambiar de pestaña o de app (o apagar la pantalla), lo pendiente se guarda ya. */
+  function onHidden(): void {
+    if (document.visibilityState === 'hidden' && status.value === 'dirty') void save()
   }
 
   /** Un cambio de la persona. `key` junta en un paso de "deshacer" lo que se escribe seguido. */
@@ -205,6 +242,7 @@ export function useDesignEditor(slug: string, withSession: WithSession) {
     apply(await withSession((t) => managerService.getDesign(t, slug)))
   }
 
+  /** Publica lo guardado; la respuesta ya trae el editor al día (no se vuelve a pedir). */
   async function publish(
     replaceOwnerDeadline = false,
   ): Promise<{ published_at: string; migrated: boolean }> {
@@ -212,8 +250,8 @@ export function useDesignEditor(slug: string, withSession: WithSession) {
     const result = await withSession((t) =>
       managerService.publish(t, slug, version.value, replaceOwnerDeadline),
     )
-    await reload()
-    return result
+    apply(result)
+    return { published_at: result.published_at, migrated: result.migrated }
   }
 
   async function discard(): Promise<void> {
@@ -255,7 +293,11 @@ export function useDesignEditor(slug: string, withSession: WithSession) {
     return result.import
   }
 
-  onBeforeUnmount(clearTimers)
+  document.addEventListener('visibilitychange', onHidden)
+  onBeforeUnmount(() => {
+    clearTimers()
+    document.removeEventListener('visibilitychange', onHidden)
+  })
 
   return {
     catalog,

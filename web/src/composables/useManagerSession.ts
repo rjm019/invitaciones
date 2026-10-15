@@ -74,8 +74,14 @@ export function useManagerSession() {
 
   /** Vuelve a leer mis datos (otra persona pudo cambiar mi nombre o mi rol). */
   async function refresh(): Promise<void> {
-    const fresh = await withSession((t) => managerService.getMe(t))
-    if (session.value) start({ ...session.value, user: fresh })
+    setUser(await withSession((t) => managerService.getMe(t)))
+  }
+
+  /** Mis datos al día, como llegan con la lista de invitaciones (sin pedirlos aparte). */
+  function setUser(fresh: ManagerUser): void {
+    const current = session.value
+    if (!current || current.user.username !== fresh.username) return
+    if (JSON.stringify(current.user) !== JSON.stringify(fresh)) start({ ...current, user: fresh })
   }
 
   function logout(reason = ''): void {
@@ -107,6 +113,7 @@ export function useManagerSession() {
     setup,
     changePassword,
     refresh,
+    setUser,
     logout,
     withSession,
   }

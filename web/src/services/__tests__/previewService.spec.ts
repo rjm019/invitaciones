@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  applyStylePatch,
+  applyPreviewPatch,
   previewInvitation,
   previewRespond,
   previewWeather,
@@ -28,7 +28,7 @@ const config = {
 
 describe('previewService', () => {
   it('un cambio de estilo se aplica sin esperar al servidor (y sin tocar lo demás)', () => {
-    const next = applyStylePatch(config, {
+    const next = applyPreviewPatch(config, {
       palette: { primary: '#C2185B' },
       extra_fonts: ['Great Vibes'],
       sections: { itinerario: { text_styles: { title: { color: 'accent' } } } },
@@ -44,6 +44,28 @@ describe('previewService', () => {
     expect(next.sections[0].colors).toBeUndefined()
     expect(next.sections[1]).toBe(config.sections[1])
     expect(config.palette).toEqual({ primary: '#96792C' })
+  })
+
+  it('los textos de las secciones y del evento también se ven al instante', () => {
+    const next = applyPreviewPatch(config, {
+      sections: {
+        itinerario: { colors: { text: '#111111' }, title: 'Programa' },
+        cierre: {},
+      },
+      event: {
+        title: 'XV de Ana',
+        subtitle: '',
+        celebrant: { full_name: 'Ana Sofía', short_name: 'Ana' },
+        venue: { name: 'Jardín', display_name: 'Jardín', city: 'Toluca', address: '' },
+      },
+    })
+    expect(next.sections[0]).toMatchObject({ key: 'itinerario', title: 'Programa' })
+    // Sin cambios, la sección es el mismo objeto: Vue no la vuelve a pintar.
+    expect(next.sections[1]).toBe(config.sections[1])
+    expect(next.celebrant).toEqual({ full_name: 'Ana Sofía', short_name: 'Ana' })
+    // Del salón solo cambia lo que se escribe (la foto y el mapa siguen siendo los del servidor).
+    expect(next.venue).toMatchObject({ city: 'Toluca', display_name: 'Jardín', name: 'Jardín' })
+    expect(next.title).toBe('XV de Ana')
   })
 
   it('la invitación de ejemplo confirma sin pasarse de sus lugares', () => {
