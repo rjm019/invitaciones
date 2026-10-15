@@ -1,0 +1,80 @@
+﻿seccion,elemento,campo,valor
+evento,,tipo,boda
+evento,,tema,marfil
+evento,,festejada,Valeria & Andrés
+evento,,festejada_corto,Valeria & Andrés
+evento,,subtitulo,nos casamos
+evento,,titulo,Valeria & Andrés · Nos casamos
+evento,,inicia,2027-03-20 17:00
+evento,,zona_horaria,America/Mexico_City
+evento,,salon,Hacienda San Gabriel
+evento,,salon_ciudad,"Puebla, Puebla"
+evento,,salon_direccion,Camino Real a Cholula 1200
+evento,,salon_maps,"https://maps.google.com/?q=Cholula,Puebla"
+evento,,rsvp_modo,token
+evento,,rsvp_limite,2027-02-27
+evento,,musica_fuente,spotify
+evento,,spotify,https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO
+portada,,visible,SI
+portada,,boton,Toca para abrir
+portada,,nombre_tamano,52
+musica,,visible,SI
+musica,,titulo,Nuestra canción
+frase,,visible,SI
+frase,,texto,"De todos los caminos, elegimos el que nos lleva a compartir la vida."
+fecha,,visible,SI
+fecha,,titulo,Guarda la fecha
+foto,,visible,SI
+foto,,imagen,retrato-boda.svg
+foto,,titulo,V & A
+ubicacion,,visible,SI
+ubicacion,,titulo,Dónde y cuándo
+ubicacion,,boton,Ver ubicación
+ubicacion,1,etiqueta,Ceremonia
+ubicacion,1,lugar,Parroquia de San Pedro
+ubicacion,1,hora,17:00
+ubicacion,1,direccion,"Centro de Cholula, Puebla"
+ubicacion,1,maps,https://maps.google.com/?q=Parroquia+San+Pedro+Cholula
+ubicacion,2,etiqueta,Recepción
+ubicacion,2,lugar,Hacienda San Gabriel
+ubicacion,2,hora,19:00
+ubicacion,2,direccion,Camino Real a Cholula 1200
+ubicacion,2,maps,"https://maps.google.com/?q=Cholula,Puebla"
+itinerario,,visible,SI
+itinerario,,titulo,La noche
+itinerario,1,hora,17:00
+itinerario,1,actividad,Ceremonia
+itinerario,1,icono,church
+itinerario,2,hora,19:00
+itinerario,2,actividad,Cóctel de bienvenida
+itinerario,2,icono,champagne-glasses
+itinerario,3,hora,20:30
+itinerario,3,actividad,Cena
+itinerario,3,icono,utensils
+itinerario,4,hora,22:00
+itinerario,4,actividad,Primer baile
+itinerario,4,icono,music
+vestimenta,,visible,SI
+vestimenta,,titulo,Código de vestimenta
+vestimenta,,subtitulo,Formal
+vestimenta,,texto,Nos encantará verte de gala. Reservamos el blanco para la novia.
+vestimenta,,colores,#2E2A26 #9A7F58 #D9CEBF
+hospedaje,,visible,SI
+hospedaje,,subtitulo,Para que nadie maneje de regreso
+hospedaje,1,nombre,Casa de las Flores
+hospedaje,1,nota,A cinco minutos de la hacienda
+hospedaje,1,maps,"https://maps.google.com/?q=Cholula,Puebla"
+hospedaje,2,nombre,Hotel del Portal
+hospedaje,2,nota,En el centro de Cholula
+hospedaje,2,maps,"https://maps.google.com/?q=Cholula,Puebla"
+cuenta_regresiva,,visible,SI
+cuenta_regresiva,,titulo,Falta muy poco
+cuenta_regresiva,,texto,Cada día que pasa es un día menos para celebrar contigo.
+confirmacion,,visible,SI
+confirmacion,,subtitulo,Tu presencia es nuestro mejor regalo.
+dedicatoria,,visible,SI
+dedicatoria,,titulo,Unas palabras para nosotros
+dedicatoria,,texto,"Escríbenos un deseo, un recuerdo o un consejo. Lo guardaremos para siempre."
+cierre,,visible,SI
+cierre,,titulo,¡Te esperamos!
+cierre,,texto,Gracias por ser parte de nuestra historia.

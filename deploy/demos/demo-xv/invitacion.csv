@@ -1,0 +1,82 @@
+﻿seccion,elemento,campo,valor
+evento,,tipo,xv
+evento,,tema,marfil
+evento,,festejada,Sofía Herrera
+evento,,festejada_corto,Sofía
+evento,,subtitulo,mis xv años
+evento,,titulo,Mis XV años · Sofía
+evento,,inicia,2027-05-15 20:00
+evento,,zona_horaria,America/Mexico_City
+evento,,salon,Jardín Las Magnolias
+evento,,salon_ciudad,"Guadalajara, Jalisco"
+evento,,salon_direccion,Av. de las Rosas 450
+evento,,salon_maps,"https://maps.google.com/?q=Guadalajara,Jalisco"
+evento,,rsvp_modo,token
+evento,,rsvp_limite,2027-04-30
+evento,,spotify,https://open.spotify.com/playlist/37i9dQZF1DWTwnEm1IYyoj
+colores,,fondo,#F8EFEC
+colores,,texto,#3A2A2A
+colores,,primario,#A9746D
+colores,,primario_fuerte,#8D5D57
+colores,,primario_claro,#EED6D0
+colores,,acento,#C99A92
+colores,,acento_suave,#F4E4E0
+colores,,acento_fuerte,#5A3D3A
+colores,,superficie,#FFFAF8
+colores,,marco,#E2C7C1
+colores,,panel,#FFFAF8
+colores,,panel_alt,#F6E8E4
+colores,,panel_warm,#FBF1EC
+portada,,visible,SI
+portada,,boton,Toca para abrir
+portada,,imagen_corona,corona.svg
+bendicion,,visible,SI
+bendicion,,texto,"Con la bendición de Dios y el amor de mi familia, te invito a celebrar el inicio de una nueva etapa."
+bendicion,1,rol,Mis papás
+bendicion,1,nombres,"Laura Méndez
+Ricardo Herrera"
+bendicion,2,rol,Mis padrinos
+bendicion,2,nombres,"Ana Paula Ríos
+Jorge Ríos"
+cuenta_regresiva,,visible,SI
+cuenta_regresiva,,titulo,La cuenta regresiva
+cuenta_regresiva,,imagen_corona,corona.svg
+foto,,visible,SI
+foto,,imagen,retrato-xv.svg
+foto,,titulo,Sofía
+ubicacion,,visible,SI
+ubicacion,,titulo,Te espero aquí
+ubicacion,,boton,Ver ubicación
+itinerario,,visible,SI
+itinerario,,titulo,Mi noche
+itinerario,,variante,zigzag
+itinerario,1,hora,20:00
+itinerario,1,actividad,Recepción
+itinerario,1,icono,door-open
+itinerario,2,hora,21:00
+itinerario,2,actividad,Vals
+itinerario,2,icono,crown
+itinerario,3,hora,21:30
+itinerario,3,actividad,Cena
+itinerario,3,icono,utensils
+itinerario,4,hora,23:00
+itinerario,4,actividad,¡A bailar!
+itinerario,4,icono,music
+playlist,,visible,SI
+playlist,,titulo,La playlist de mi noche
+playlist,,texto,Guárdala y llega cantando.
+playlist,,variante,lista
+clima,,visible,SI
+clima,,titulo,El clima de mi noche
+vestimenta,,visible,SI
+vestimenta,,titulo,Código de vestimenta
+vestimenta,,subtitulo,Formal
+vestimenta,,texto,El rosa es de la quinceañera: elige cualquier otro color.
+vestimenta,,colores,#5A3D3A #C99A92 #E2C7C1
+confirmacion,,visible,SI
+confirmacion,,subtitulo,¡Me haría muy feliz que vinieras!
+dedicatoria,,visible,SI
+dedicatoria,,titulo,Déjame un mensaje
+cierre,,visible,SI
+cierre,,titulo,¡Te espero!
+cierre,,texto,Esta noche no sería lo mismo sin ti.

@@ -14,7 +14,12 @@
   - **Cambió:** el correo va por SMTP de Resend con el mailer de Laravel (sin paquete extra): secretos `MAIL_*` + `COTIZACIONES_CORREO` (ver `06-despliegue/despliegue.md`).
   - `robots.txt`, `sitemap.xml` y `llms.txt` en `web/public/` (con la dirección de fly.dev: cambiarla al tener dominio).
   - **No publicar todavía:** la landing anuncia secciones de la fase 9 (mesa de regalos, álbum, trivia…) y enlaza a los demos (`/e/demo-…`), que aún no existen.
-- [ ] 2. Tema `marfil` + tipo graduación + 3 demos con las secciones actuales
+- [x] 2. Tema `marfil` + tipo graduación + 3 demos con las secciones actuales (15-oct)
+  - **Cambió:** sin fotos (ni de bancos libres): dibujos de línea fina y bloques de la paleta, como el álbum dibujado de la landing (pedido del usuario).
+  - Tema `web/src/themes/marfil/` con sus adornos en SVG (sobre, tarjeta, sello, ramas, divisor, destellos, tiara, moño, vestido y traje).
+  - Las muestras viven en `deploy/demos/` (`armar.py` las escribe; `instalar.sh` las copia a `eventos/`; `subir.sh` las sube a Fly) y abren en `/i/DemoBoda2026`, `/i/DemoXVAnos26` y `/i/DemoGradua26`. Entre las tres usan las 17 secciones.
+  - `demo=SI` en `ajustes.csv`: se puede confirmar y dejar dedicatoria, pero no se guarda nada ni se anotan las visitas; muestra el listón "Es una muestra · Cotizar".
+  - Landing: "o cualquier evento" en cada lista, "invitación" en vez de "enlace", la mesa de regalos al final, una tarjeta "Cualquier evento" y la sección de integraciones (Spotify, redes, YouTube, mapas, calendario, WhatsApp, clima). El celular fijo ya no se encima en ventanas bajas.
 - [ ] 3. Las secciones de la fase 9, actualizando los demos con cada una
 - [ ] 4. Video del hero, imágenes Open Graph, Lighthouse y publicar
 

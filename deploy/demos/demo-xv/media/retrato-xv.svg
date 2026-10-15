@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <!-- Muestra de XV años: bloques de la paleta recortados en arco, con un dibujo de línea. Sin fotos. -->
+  <defs>
+    <linearGradient id="t0" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf1ee"/><stop offset="1" stop-color="#efd8d2"/></linearGradient><linearGradient id="t1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3e0db"/><stop offset="1" stop-color="#d9b0a8"/></linearGradient><linearGradient id="t2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8ebe7"/><stop offset="1" stop-color="#e5c6bf"/></linearGradient><linearGradient id="t3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#efd6d0"/><stop offset="1" stop-color="#c99a92"/></linearGradient><linearGradient id="t4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fcf4f1"/><stop offset="1" stop-color="#ecd3cd"/></linearGradient>
+    <clipPath id="arco"><path d="M0 1000 V400 A400 400 0 0 1 800 400 V1000 Z"/></clipPath>
+  </defs>
+  <g clip-path="url(#arco)">
+    <rect x="0.0" y="0.0" width="252.0" height="233.5" rx="26" fill="url(#t0)"/><rect x="274.0" y="0.0" width="252.0" height="233.5" rx="26" fill="url(#t1)"/><rect x="548.0" y="0.0" width="252.0" height="233.5" rx="26" fill="url(#t2)"/><rect x="0.0" y="255.5" width="252.0" height="233.5" rx="26" fill="url(#t3)"/><rect x="274.0" y="255.5" width="252.0" height="233.5" rx="26" fill="url(#t4)"/><rect x="548.0" y="255.5" width="252.0" height="233.5" rx="26" fill="url(#t0)"/><rect x="0.0" y="511.0" width="252.0" height="233.5" rx="26" fill="url(#t1)"/><rect x="274.0" y="511.0" width="252.0" height="233.5" rx="26" fill="url(#t2)"/><rect x="548.0" y="511.0" width="252.0" height="233.5" rx="26" fill="url(#t3)"/><rect x="0.0" y="766.5" width="252.0" height="233.5" rx="26" fill="url(#t4)"/><rect x="274.0" y="766.5" width="252.0" height="233.5" rx="26" fill="url(#t0)"/><rect x="548.0" y="766.5" width="252.0" height="233.5" rx="26" fill="url(#t1)"/>
+  </g>
+  <g fill="none" stroke="#7f514b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" transform="translate(400 619)">
+    <path d="M-110 56 C-60 36 60 36 110 56"/><path d="M-100 46 L-76 -20 L-36 22 L0 -66 L36 22 L76 -20 L100 46"/><circle cx="0" cy="-76" r="8" fill="#7f514b"/>
+  </g>
+</svg>

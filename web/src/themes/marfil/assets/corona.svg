@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 90">
+  <!-- Tiara en línea fina. -->
+  <g fill="none" stroke="#a88f68" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 74 C38 64 102 64 126 74"/>
+    <path d="M18 70 L28 40 L48 58 L70 18 L92 58 L112 40 L122 70"/>
+    <path d="M40 66 C46 60 52 60 58 66 M82 66 C88 60 94 60 100 66"/>
+  </g>
+  <g fill="#c4ad8b">
+    <circle cx="70" cy="13" r="4"/>
+    <circle cx="28" cy="36" r="3"/>
+    <circle cx="112" cy="36" r="3"/>
+    <circle cx="70" cy="56" r="3.4"/>
+  </g>
+</svg>

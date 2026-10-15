@@ -55,6 +55,12 @@ final class InvitationService
         return null;
     }
 
+    /** ¿Es una muestra? (los demos de la landing: todo se puede probar, nada se guarda) */
+    public static function isDemo(Invitation $invitation): bool
+    {
+        return (bool) ($invitation->event['demo'] ?? false);
+    }
+
     /**
      * Registra nombres en los lugares libres. Los ya registrados no cambian.
      *
@@ -70,13 +76,12 @@ final class InvitationService
             throw new RsvpException($closed, 409);
         }
 
-        $this->responses->add(
-            $invitation->slug,
-            $invitation->record,
-            array_values(array_filter(array_map($this->cleanName(...), $names), fn ($n) => $n !== '')),
-            $attending,
-            $this->now($invitation->event),
-        );
+        $names = array_values(array_filter(array_map($this->cleanName(...), $names), fn ($n) => $n !== ''));
+        if (self::isDemo($invitation)) {
+            return $this->presentDemo($invitation, $names, $attending);
+        }
+
+        $this->responses->add($invitation->slug, $invitation->record, $names, $attending, $this->now($invitation->event));
 
         return $this->present($invitation);
     }
@@ -99,6 +104,11 @@ final class InvitationService
             throw new RsvpException('Escribe tu dedicatoria.', 422, 'message');
         }
 
+        if (self::isDemo($invitation)) {
+            return ['dedication' => ['name' => $name, 'message' => $message, 'sent_at' => $this->now($invitation->event)->toIso8601String()]]
+                + $this->present($invitation);
+        }
+
         $this->dedications->add($invitation->slug, $invitation->record, $name, $message, $this->now($invitation->event));
 
         return $this->present($invitation);
@@ -107,6 +117,9 @@ final class InvitationService
     /** Anota la apertura. Nunca debe tumbar la invitación: si falla, solo se reporta. */
     public function recordOpen(Invitation $invitation): void
     {
+        if (self::isDemo($invitation)) {
+            return; // las visitas a una muestra no se anotan
+        }
         try {
             $this->responses->recordOpen($invitation->slug, $invitation->record['id'], $this->now($invitation->event));
         } catch (Throwable $e) {
@@ -145,6 +158,46 @@ final class InvitationService
                 'sent_at' => CarbonImmutable::parse($dedication['sent_at'], $timezone)->toIso8601String(),
             ],
         ];
+    }
+
+    /**
+     * Una muestra responde como si guardara (los nombres aparecen fijos y se descuentan los
+     * lugares), con las mismas reglas de cupo, pero no escribe nada: cada visita empieza de cero.
+     *
+     * @param  list<string>  $names
+     * @return array<string, mixed>
+     *
+     * @throws RsvpException 422 si no hay lugares para todos los nombres
+     */
+    private function presentDemo(Invitation $invitation, array $names, bool $attending): array
+    {
+        $presented = $this->present($invitation);
+        $known = array_map(fn ($g) => ResponseStore::normalize($g['full_name']), $presented['guests']);
+        $new = [];
+        foreach ($names as $name) {
+            $key = ResponseStore::normalize($name);
+            if (! in_array($key, $known, true)) {
+                $known[] = $key;
+                $new[] = $name;
+            }
+        }
+        $used = array_column($presented['guests'], 'slot');
+        $free = array_values(array_diff(range(1, $invitation->record['passes']), $used));
+        if (count($new) > count($free)) {
+            $left = count($free);
+            throw new RsvpException(match ($left) {
+                0 => 'Tu invitación ya está completa.',
+                1 => 'Solo queda 1 lugar en tu invitación.',
+                default => "Solo quedan {$left} lugares en tu invitación.",
+            }, 422, 'guests');
+        }
+        $at = $this->now($invitation->event)->toIso8601String();
+        foreach ($new as $i => $name) {
+            $presented['guests'][] = ['slot' => $free[$i], 'full_name' => $name, 'attending' => $attending, 'responded_at' => $at];
+        }
+        $presented['remaining'] = max(0, $invitation->record['passes'] - count($presented['guests']));
+
+        return $presented;
     }
 
     private function now(array $event): CarbonImmutable

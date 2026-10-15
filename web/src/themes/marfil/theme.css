@@ -1,0 +1,39 @@
+/*
+ * Marfil: el tema neutro de las muestras (y de quien quiera algo sobrio). Papel marfil,
+ * champaña y carbón; los adornos son dibujos de línea fina (assets/*.svg), sin fotos.
+ * Cada invitación cambia la paleta en su bloque "colores" (rosa palo, azul noche…).
+ */
+:root[data-theme='marfil'] {
+  --color-bg: #f6f2ec;
+  --color-text: #2e2a26;
+  --color-primary: #9a7f58;
+  --color-primary-strong: #86704f;
+  --color-primary-soft: #e3d6c1;
+  --color-accent: #b9a58a;
+  --color-accent-soft: #ece4d8;
+  --color-accent-strong: #3b3631;
+  --color-surface: #fffdf9;
+  --color-frame: #d9cebf;
+  --color-lino: #f3ede4;
+  --color-panel: #fffdf9;
+  --color-panel-alt: #f2ece3;
+  --color-panel-warm: #f8f3ea;
+  --color-panel-pearl: linear-gradient(160deg, #fffefb 0%, #f7f2ea 55%, #fdfbf7 100%);
+
+  --shadow-card: 0 10px 30px rgb(46 42 38 / 0.08);
+  --shadow-button: 0 2px 6px rgb(46 42 38 / 0.18);
+  --panel-radius: 22px;
+  --panel-shadow: 0 8px 28px rgb(46 42 38 / 0.06);
+  --panel-border: 1px solid rgb(154 127 88 / 0.18);
+}
+
+/* Sombras y filo desde la paleta: si la invitación cambia sus colores, los siguen. */
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+  :root[data-theme='marfil'],
+  :root[data-theme='marfil'] .section--recolored {
+    --shadow-card: 0 10px 30px color-mix(in srgb, var(--color-text) 8%, transparent);
+    --shadow-button: 0 2px 6px color-mix(in srgb, var(--color-text) 18%, transparent);
+    --panel-shadow: 0 8px 28px color-mix(in srgb, var(--color-text) 6%, transparent);
+    --panel-border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+  }
+}

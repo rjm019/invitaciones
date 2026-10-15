@@ -43,7 +43,7 @@ class EventController extends Controller
             'from' => ['required_if:source,event', 'nullable', 'string', 'regex:/^[a-z0-9][a-z0-9-]{1,59}$/'],
             'template' => ['sometimes', 'boolean'],
             'event' => ['sometimes', 'array'],
-            'event.tipo' => ['nullable', Rule::in(['xv', 'boda', 'bautizo', 'cumple', 'otro'])],
+            'event.tipo' => ['nullable', Rule::in(['xv', 'boda', 'graduacion', 'bautizo', 'cumple', 'otro'])],
             'event.festejada' => ['nullable', 'string', 'max:120'],
             'event.festejada_corto' => ['nullable', 'string', 'max:40'],
             'event.pareja' => ['nullable', 'string', 'max:120'],

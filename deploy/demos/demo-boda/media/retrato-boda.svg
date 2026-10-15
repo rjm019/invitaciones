@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <!-- Muestra de boda: bloques de la paleta recortados en arco, con un dibujo de línea. Sin fotos. -->
+  <defs>
+    <linearGradient id="t0" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3ece2"/><stop offset="1" stop-color="#e4d6c1"/></linearGradient><linearGradient id="t1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9ddca"/><stop offset="1" stop-color="#cdb796"/></linearGradient><linearGradient id="t2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#efe7dc"/><stop offset="1" stop-color="#d8c8b2"/></linearGradient><linearGradient id="t3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6dccd"/><stop offset="1" stop-color="#c9b394"/></linearGradient><linearGradient id="t4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4eee6"/><stop offset="1" stop-color="#ddd0bd"/></linearGradient>
+    <clipPath id="arco"><path d="M0 1000 V400 A400 400 0 0 1 800 400 V1000 Z"/></clipPath>
+  </defs>
+  <g clip-path="url(#arco)">
+    <rect x="0.0" y="0.0" width="252.0" height="233.5" rx="26" fill="url(#t0)"/><rect x="274.0" y="0.0" width="252.0" height="233.5" rx="26" fill="url(#t1)"/><rect x="548.0" y="0.0" width="252.0" height="233.5" rx="26" fill="url(#t2)"/><rect x="0.0" y="255.5" width="252.0" height="233.5" rx="26" fill="url(#t3)"/><rect x="274.0" y="255.5" width="252.0" height="233.5" rx="26" fill="url(#t4)"/><rect x="548.0" y="255.5" width="252.0" height="233.5" rx="26" fill="url(#t0)"/><rect x="0.0" y="511.0" width="252.0" height="233.5" rx="26" fill="url(#t1)"/><rect x="274.0" y="511.0" width="252.0" height="233.5" rx="26" fill="url(#t2)"/><rect x="548.0" y="511.0" width="252.0" height="233.5" rx="26" fill="url(#t3)"/><rect x="0.0" y="766.5" width="252.0" height="233.5" rx="26" fill="url(#t4)"/><rect x="274.0" y="766.5" width="252.0" height="233.5" rx="26" fill="url(#t0)"/><rect x="548.0" y="766.5" width="252.0" height="233.5" rx="26" fill="url(#t1)"/>
+  </g>
+  <g fill="none" stroke="#7d6646" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" transform="translate(400 619)">
+    <circle cx="-40" cy="0" r="62"/><circle cx="40" cy="0" r="62"/><path d="M-52 -70 l12 -24 12 24 M-40 -94 v-14"/>
+  </g>
+</svg>

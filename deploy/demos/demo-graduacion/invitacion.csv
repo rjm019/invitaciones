@@ -1,0 +1,75 @@
+﻿seccion,elemento,campo,valor
+evento,,tipo,graduacion
+evento,,tema,marfil
+evento,,festejada,Diego Torres
+evento,,festejada_corto,Diego
+evento,,subtitulo,generación 2027
+evento,,titulo,Graduación · Diego Torres
+evento,,inicia,2027-07-09 18:00
+evento,,zona_horaria,America/Mexico_City
+evento,,salon,Salón Reforma
+evento,,salon_ciudad,Ciudad de México
+evento,,salon_direccion,Paseo de la Reforma 222
+evento,,salon_maps,https://maps.google.com/?q=Paseo+de+la+Reforma+222
+evento,,rsvp_modo,token
+evento,,rsvp_limite,2027-06-25
+colores,,fondo,#EEF0F4
+colores,,texto,#1F2A3D
+colores,,primario,#A9884F
+colores,,primario_fuerte,#8C6F3E
+colores,,primario_claro,#E6D7B8
+colores,,acento,#3B4C6B
+colores,,acento_suave,#DDE2EC
+colores,,acento_fuerte,#22304A
+colores,,superficie,#FBFBFD
+colores,,marco,#C9CFDB
+colores,,panel,#FBFBFD
+colores,,panel_alt,#E9ECF2
+colores,,panel_warm,#F5F1E8
+portada,,visible,SI
+portada,,boton,Toca para abrir
+frase,,visible,SI
+frase,,texto,Lo que hoy celebramos es todo lo que hiciste para llegar aquí.
+fecha,,visible,SI
+fecha,,titulo,Celebremos
+ubicacion,,visible,SI
+ubicacion,,titulo,Ceremonia y cena de gala
+ubicacion,,boton,Ver ubicación
+ubicacion,1,etiqueta,Ceremonia
+ubicacion,1,lugar,Auditorio Principal
+ubicacion,1,hora,18:00
+ubicacion,1,direccion,Ciudad Universitaria
+ubicacion,1,maps,https://maps.google.com/?q=Ciudad+Universitaria+CDMX
+ubicacion,2,etiqueta,Cena de gala
+ubicacion,2,lugar,Salón Reforma
+ubicacion,2,hora,21:00
+ubicacion,2,direccion,Paseo de la Reforma 222
+ubicacion,2,maps,https://maps.google.com/?q=Paseo+de+la+Reforma+222
+itinerario,,visible,SI
+itinerario,,titulo,El programa
+itinerario,1,hora,18:00
+itinerario,1,actividad,Ceremonia de graduación
+itinerario,1,icono,star
+itinerario,2,hora,21:00
+itinerario,2,actividad,Cena de gala
+itinerario,2,icono,utensils
+itinerario,3,hora,22:30
+itinerario,3,actividad,Brindis de la generación
+itinerario,3,icono,champagne-glasses
+itinerario,4,hora,23:00
+itinerario,4,actividad,Fiesta
+itinerario,4,icono,music
+sin_ninos,,visible,SI
+sin_ninos,,titulo,Una noche de gala
+sin_ninos,,subtitulo,Solo adultos
+sin_ninos,,texto,"Con todo el cariño, la cena es solo para adultos. Gracias por entenderlo."
+clima,,visible,SI
+clima,,titulo,El clima del gran día
+foto,,visible,SI
+foto,,imagen,retrato-graduacion.svg
+foto,,titulo,D. T.
+confirmacion,,visible,SI
+confirmacion,,subtitulo,Los lugares son contados: confírmanos a tiempo.
+cierre,,visible,SI
+cierre,,titulo,¡Gracias por acompañarme!
+cierre,,texto,Este logro también es de ustedes.

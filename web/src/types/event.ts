@@ -105,6 +105,8 @@ export interface EventConfig {
   starts_at: string | null
   timezone: string
   published: boolean
+  /** Una muestra (demo de la landing): se puede probar todo, pero no guarda nada. */
+  demo?: boolean
   rsvp: {
     mode: 'token' | 'open' | 'whatsapp' | 'off'
     deadline: string | null

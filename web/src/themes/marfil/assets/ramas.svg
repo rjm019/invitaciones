@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220">
+  <!-- Rama de hojas en línea fina. La portada la gira 180°: cuelga desde la esquina. -->
+  <defs>
+    <path id="hoja" d="M0 0 C7 -9 21 -9 30 0 C21 9 7 9 0 0 Z"/>
+  </defs>
+  <g fill="none" stroke="#a88f68" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M206 212 C170 170 120 130 70 100 C48 87 30 66 18 40"/>
+    <path d="M118 128 C104 148 98 170 100 192"/>
+    <path d="M70 100 C78 76 96 60 118 52"/>
+  </g>
+  <g fill="#efe6d8" stroke="#a88f68" stroke-width="1.1" stroke-linejoin="round">
+    <use href="#hoja" transform="translate(182 182) rotate(-150)"/>
+    <use href="#hoja" transform="translate(166 168) rotate(-60)"/>
+    <use href="#hoja" transform="translate(146 150) rotate(-160)"/>
+    <use href="#hoja" transform="translate(130 140) rotate(-55)"/>
+    <use href="#hoja" transform="translate(110 168) rotate(-205) scale(0.85)"/>
+    <use href="#hoja" transform="translate(101 188) rotate(-20) scale(0.8)"/>
+    <use href="#hoja" transform="translate(92 112) rotate(-165)"/>
+    <use href="#hoja" transform="translate(82 106) rotate(-70) scale(0.9)"/>
+    <use href="#hoja" transform="translate(96 66) rotate(-20) scale(0.85)"/>
+    <use href="#hoja" transform="translate(112 54) rotate(-80) scale(0.8)"/>
+    <use href="#hoja" transform="translate(48 80) rotate(-175) scale(0.9)"/>
+    <use href="#hoja" transform="translate(34 62) rotate(-95) scale(0.85)"/>
+    <use href="#hoja" transform="translate(22 46) rotate(-150) scale(0.75)"/>
+  </g>
+  <g fill="#c4ad8b">
+    <circle cx="18" cy="38" r="2.6"/>
+    <circle cx="120" cy="51" r="2.2"/>
+    <circle cx="100" cy="194" r="2.2"/>
+  </g>
+</svg>

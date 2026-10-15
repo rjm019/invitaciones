@@ -19,7 +19,7 @@ eventos/<slug>/
 ├── dedicatorias.csv         una dedicatoria por enlace: invitacion, para, nombre, dedicatoria, fecha
 ├── respuestas-eliminadas.csv   personas de invitaciones eliminadas: eliminada + columnas de respuestas
 ├── dedicatorias-eliminadas.csv dedicatorias de invitaciones eliminadas: eliminada + columnas de dedicatorias
-├── ajustes.csv              clave_panel, publicado, plantilla, personas_gestor y la fecha límite del cliente
+├── ajustes.csv              clave_panel, publicado, plantilla, demo (muestra: no guarda nada), personas_gestor y la fecha límite del cliente
 ├── ajustes-historial.csv    cada cambio de ajustes (solo crece)
 ├── resumen.csv              lo rehace `invitaciones:resumen`
 └── respaldos/               copia del día de cada archivo antes de cambiarlo; las últimas 50

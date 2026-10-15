@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Sello de lacre champaña con un destello al centro. -->
+  <defs>
+    <radialGradient id="cera" cx="0.38" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#d9c4a0"/>
+      <stop offset="0.6" stop-color="#b0946a"/>
+      <stop offset="1" stop-color="#8c7350"/>
+    </radialGradient>
+  </defs>
+  <path d="M50 4 C58 4 61 9 68 10 C75 12 80 11 85 17 C90 23 88 28 92 35 C96 42 96 46 95 53 C94 61 97 65 93 72 C89 79 83 79 78 85 C72 91 67 89 60 93 C53 96 47 96 40 94 C32 92 28 95 22 89 C16 83 16 78 11 72 C6 65 7 60 5 52 C4 44 8 40 9 33 C11 25 9 20 16 14 C23 8 28 10 35 7 C41 5 44 4 50 4 Z" fill="url(#cera)"/>
+  <circle cx="50" cy="50" r="31" fill="none" stroke="#f3ece2" stroke-opacity="0.55" stroke-width="1.2"/>
+  <circle cx="50" cy="50" r="27" fill="none" stroke="#7a6446" stroke-opacity="0.35" stroke-width="0.8"/>
+  <path d="M50 33 C51.6 44.5 55.5 48.4 67 50 C55.5 51.6 51.6 55.5 50 67 C48.4 55.5 44.5 51.6 33 50 C44.5 48.4 48.4 44.5 50 33 Z" fill="#f6efe3" fill-opacity="0.85"/>
+</svg>
