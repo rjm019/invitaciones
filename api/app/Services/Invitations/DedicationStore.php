@@ -10,13 +10,16 @@ use RuntimeException;
 /**
  * Dedicatorias de un evento (dedicatorias.csv): invitacion, para, nombre, dedicatoria,
  * fecha. Una por invitación (por enlace): la que ya se envió nunca se cambia. Antes de
- * escribir se respalda el archivo del día.
+ * escribir se respalda el archivo del día. Si el dueño elimina la invitación, su dedicatoria
+ * pasa a dedicatorias-eliminadas.csv con la fecha.
  */
 final class DedicationStore
 {
     public const FILE = 'dedicatorias.csv';
 
     public const HEADERS = ['invitacion', 'para', 'nombre', 'dedicatoria', 'fecha'];
+
+    public const DELETED = 'dedicatorias-eliminadas.csv';
 
     public const MAX_NAME = 80;
 
@@ -25,6 +28,7 @@ final class DedicationStore
     public function __construct(
         private readonly EventRepository $events,
         private readonly CsvFile $csv,
+        private readonly InvitationStore $invitations,
     ) {}
 
     /** @return array{name: string, message: string, sent_at: string}|null */
@@ -57,13 +61,16 @@ final class DedicationStore
      *
      * @param  array{id: string, label: string}  $invitation
      *
-     * @throws RsvpException 409 si esa invitación ya envió su dedicatoria
+     * @throws RsvpException 409 si esa invitación ya envió su dedicatoria · 404 si se eliminó
      */
     public function add(string $slug, array $invitation, string $name, string $message, CarbonImmutable $now): void
     {
         $path = $this->path($slug);
 
-        $this->csv->locked($path, function () use ($path, $invitation, $name, $message, $now) {
+        $this->csv->locked($path, function () use ($slug, $path, $invitation, $name, $message, $now) {
+            if (! $this->invitations->active($slug, $invitation['id'])) {
+                throw new RsvpException(InvitationService::NOT_FOUND, 404);
+            }
             $rows = $this->csv->read($path);
             foreach ($rows as $row) {
                 if (($row['invitacion'] ?? '') === $invitation['id']) {
@@ -81,6 +88,28 @@ final class DedicationStore
 
             $this->csv->backupDaily($path, $now);
             $this->csv->write($path, self::HEADERS, $rows);
+        });
+    }
+
+    /** Quita la dedicatoria de una invitación eliminada; true si tenía. */
+    public function removeInvitation(string $slug, string $invitationId, CarbonImmutable $now): bool
+    {
+        $path = $this->path($slug);
+
+        return $this->csv->locked($path, function () use ($path, $invitationId, $now) {
+            $rows = $this->csv->read($path);
+            $removed = array_values(array_filter($rows, fn ($r) => ($r['invitacion'] ?? '') === $invitationId));
+            if ($removed === []) {
+                return false;
+            }
+
+            foreach ($removed as $row) {
+                $this->csv->append(dirname($path).'/'.self::DELETED, ['eliminada', ...self::HEADERS], ['eliminada' => $now->format('Y-m-d H:i:s')] + $row);
+            }
+            $this->csv->backupDaily($path, $now);
+            $this->csv->write($path, self::HEADERS, array_values(array_filter($rows, fn ($r) => ($r['invitacion'] ?? '') !== $invitationId)));
+
+            return true;
         });
     }
 

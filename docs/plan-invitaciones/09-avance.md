@@ -36,7 +36,7 @@ El cambio más grande contra el plan: **no hay base de datos**. Todo vive en arc
   - `POST /public/invitations/{token}/rsvp`, con throttle de 10/min
   - `GET /public/events/{slug}/weather` (clima, con caché)
   - `GET /media/{slug}/{archivo}`
-- **Panel:** login con la clave del layout, más los endpoints para la lista, la versión, generar enlaces, la fecha límite y las mesas. Ver `03-arquitectura-objetivo/api-contrato.md`.
+- **Panel:** login con la clave del layout, más los endpoints para la lista, la versión, generar y eliminar enlaces, la fecha límite y las mesas. Eliminar (15-oct) borra también sus invitados y su dedicatoria; quedan en `respuestas-eliminadas.csv` y `dedicatorias-eliminadas.csv`. Ver `03-arquitectura-objetivo/api-contrato.md`.
 - **Comandos:**
   - `invitaciones:resumen`: totales y `resumen.csv`.
   - `layout:xlsx`: arma el Excel desde los CSV.

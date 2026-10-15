@@ -9,14 +9,16 @@ use Illuminate\Support\Str;
 
 /**
  * eventos/<slug>/invitaciones.csv: cada enlace que genera el dueño desde el panel.
- * id, token, invitados (para cuántas personas), para (nombre opcional en la invitación), creada.
- * Un token nunca cambia: es el enlace que ya se mandó.
+ * id, token, invitados (para cuántas personas), para (nombre opcional en la invitación), creada
+ * y eliminada (cuándo la borró el dueño; vacío = activa). Un token nunca cambia: es el enlace
+ * que ya se mandó. Una invitación eliminada se queda en el archivo para que su número no se
+ * vuelva a usar (sus aperturas y su historial no pasan a otra), pero ya no abre ni se lista.
  */
 final class InvitationStore
 {
     public const FILE = 'invitaciones.csv';
 
-    public const HEADERS = ['id', 'token', 'invitados', 'para', 'creada'];
+    public const HEADERS = ['id', 'token', 'invitados', 'para', 'creada', 'eliminada'];
 
     /** 12 caracteres [A-Za-z0-9]: ~71 bits, imposible de adivinar. */
     public const PATTERN = '/^[A-Za-z0-9]{12}$/';
@@ -29,7 +31,7 @@ final class InvitationStore
     ) {}
 
     /**
-     * Invitaciones del evento por id, en el orden en que se crearon.
+     * Invitaciones activas del evento por id, en el orden en que se crearon.
      *
      * @return array<string, array{id: string, token: string, passes: int, label: string, created_at: string}>
      */
@@ -44,7 +46,7 @@ final class InvitationStore
         foreach ($this->csv->read($dir.'/'.self::FILE) as $row) {
             $id = $row['id'] ?? '';
             $passes = (int) ($row['invitados'] ?? 0);
-            if ($id === '' || ! preg_match(self::PATTERN, $row['token'] ?? '') || $passes < 1) {
+            if ($id === '' || ! preg_match(self::PATTERN, $row['token'] ?? '') || $passes < 1 || ($row['eliminada'] ?? '') !== '') {
                 continue;
             }
             $out[$id] = [
@@ -111,6 +113,40 @@ final class InvitationStore
 
             return ['id' => $id, 'token' => $token, 'passes' => $passes, 'label' => $label, 'created_at' => $row['creada']];
         });
+    }
+
+    /**
+     * Marca la invitación como eliminada: su enlace deja de abrir en ese momento.
+     *
+     * null si no existe o ya estaba eliminada.
+     *
+     * @return array{id: string, token: string, passes: int, label: string, created_at: string}|null
+     */
+    public function delete(string $slug, string $id, CarbonImmutable $now): ?array
+    {
+        $path = $this->events->path($slug).'/'.self::FILE;
+
+        return $this->csv->locked($path, function () use ($slug, $id, $now, $path) {
+            $record = $this->all($slug)[$id] ?? null;
+            if ($record === null) {
+                return null;
+            }
+            $rows = array_map(
+                fn ($r) => ($r['id'] ?? '') === $id ? ['eliminada' => $now->format('Y-m-d H:i')] + $r : $r,
+                $this->csv->read($path),
+            );
+
+            $this->csv->backupDaily($path, $now);
+            $this->csv->write($path, self::HEADERS, $rows);
+
+            return $record;
+        });
+    }
+
+    /** ¿La invitación sigue activa? (las escrituras de invitados lo revisan dentro de su candado) */
+    public function active(string $slug, string $id): bool
+    {
+        return isset($this->all($slug)[$id]);
     }
 
     /** @return list<string> */

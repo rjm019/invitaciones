@@ -40,6 +40,7 @@ Route::prefix('admin/events/{slug}')->where(['slug' => '[a-z0-9-]+'])->group(fun
         Route::get('/version', [PanelController::class, 'version']);
         Route::put('/tables', [PanelController::class, 'updateTables']);
         Route::post('/invitations', [PanelController::class, 'storeInvitation']);
+        Route::delete('/invitations/{id}', [PanelController::class, 'destroyInvitation'])->where('id', '[0-9]+');
         Route::put('/deadline', [PanelController::class, 'updateDeadline']);
     });
 });

@@ -17,8 +17,8 @@ use Throwable;
 
 /**
  * Lo que ve y hace el dueño en el panel: la lista de enlaces generados (para cuántas
- * personas es cada uno y quiénes ya confirmaron), las dedicatorias, generar enlaces
- * nuevos, cambiar la fecha límite (hasta 3 veces) y asignar mesas a los invitados.
+ * personas es cada uno y quiénes ya confirmaron), las dedicatorias, generar y eliminar
+ * enlaces, cambiar la fecha límite (hasta 3 veces) y asignar mesas a los invitados.
  */
 final class PanelService
 {
@@ -185,6 +185,29 @@ final class PanelService
         $record = $this->invitations->create($slug, $passes, $label, CarbonImmutable::now($event['timezone']));
 
         return $this->present($slug, $event, $record, [], 0);
+    }
+
+    /**
+     * Elimina una invitación con sus invitados y su dedicatoria, y devuelve el panel
+     * actualizado. Primero se marca la invitación (el enlace deja de abrir y ya no acepta
+     * nombres); después se quitan sus personas y su dedicatoria, que quedan en los archivos
+     * de eliminados.
+     *
+     * @return array<string, mixed>
+     *
+     * @throws RsvpException 404 si no existe o ya se había eliminado
+     */
+    public function deleteInvitation(string $slug, string $id): array
+    {
+        $event = $this->event($slug);
+        $now = CarbonImmutable::now($event['timezone']);
+        if ($this->invitations->delete($slug, $id, $now) === null) {
+            throw new RsvpException("La invitación #{$id} no existe o ya se eliminó.", 404);
+        }
+        $this->responses->removeInvitation($slug, $id, $now);
+        $this->dedications->removeInvitation($slug, $id, $now);
+
+        return $this->overview($slug);
     }
 
     /**

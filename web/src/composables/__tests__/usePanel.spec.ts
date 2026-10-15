@@ -9,6 +9,7 @@ const api = vi.hoisted(() => ({
   createInvitation: vi.fn(),
   updateDeadline: vi.fn(),
   assignTables: vi.fn(),
+  deleteInvitation: vi.fn(),
 }))
 vi.mock('@/services/panelService', () => api)
 
@@ -98,6 +99,18 @@ describe('usePanel', () => {
     await panel.changeDeadline('2026-11-10')
     expect(panel.overview.value?.rsvp).toEqual({ changes_left: 2 })
   })
+  it('eliminar una invitación deja el panel como lo devuelve el servidor', async () => {
+    sessionStorage.setItem('panel:mis-xv', 't0k')
+    api.getOverview.mockResolvedValue({ ...overview, invitations: [{ id: '1' }] })
+    api.deleteInvitation.mockResolvedValue({ ...overview, version: 'v2' })
+    const panel = usePanel('mis-xv')
+    await panel.refresh()
+
+    await panel.remove('1')
+    expect(api.deleteInvitation).toHaveBeenCalledWith('mis-xv', 't0k', '1')
+    expect(panel.overview.value).toEqual({ ...overview, version: 'v2' })
+  })
+
   it('en vivo: solo recarga el panel cuando la huella del evento cambió', async () => {
     sessionStorage.setItem('panel:mis-xv', 't0k')
     api.getOverview.mockResolvedValue(overview)

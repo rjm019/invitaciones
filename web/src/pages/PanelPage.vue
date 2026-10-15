@@ -164,7 +164,9 @@ onMounted(() => {
           <InvitationList
             :invitations="overview.invitations"
             :highlight="highlight"
+            :dedications="overview.dedications"
             :assign="panel.assignTables"
+            :remove="panel.remove"
             @send="sending = $event"
           />
         </div>

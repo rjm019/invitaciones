@@ -51,6 +51,29 @@ export async function createInvitation(
   return data.invitation
 }
 
+/** Elimina una invitación con sus invitados y su dedicatoria; devuelve el panel ya actualizado. */
+export async function deleteInvitation(
+  slug: string,
+  token: string,
+  id: string,
+): Promise<PanelOverview> {
+  const { data } = await http.delete<PanelOverview>(
+    `${base(slug)}/invitations/${encodeURIComponent(id)}`,
+    auth(token),
+  )
+  return data
+}
+
+/** "Se borrarán también sus 2 invitados y su dedicatoria." (o nada si no tiene). */
+export function deletionWarning(invitation: PanelInvitation, hasDedication: boolean): string {
+  const n = invitation.guests.length
+  const parts = [
+    n === 1 ? 'su invitado' : n > 1 ? `sus ${n} invitados` : '',
+    hasDedication ? 'su dedicatoria' : '',
+  ].filter(Boolean)
+  return parts.length ? `Se borrarán también ${parts.join(' y ')}.` : ''
+}
+
 export async function updateDeadline(
   slug: string,
   token: string,

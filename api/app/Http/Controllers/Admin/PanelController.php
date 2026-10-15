@@ -11,7 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Panel del dueño (con sesión): lista de invitaciones, generar enlaces y cambiar la fecha límite.
+ * Panel del dueño (con sesión): lista de invitaciones, generar y eliminar enlaces y cambiar la fecha límite.
  */
 class PanelController extends Controller
 {
@@ -74,6 +74,15 @@ class PanelController extends Controller
         $label = trim((string) preg_replace('/\s+/u', ' ', (string) ($data['label'] ?? '')));
 
         return response()->json(['invitation' => $panel->createInvitation($slug, (int) $data['passes'], $label)], 201);
+    }
+
+    /**
+     * DELETE /api/admin/events/{slug}/invitations/{id} — elimina la invitación con sus
+     * invitados y su dedicatoria. Devuelve el panel actualizado.
+     */
+    public function destroyInvitation(string $slug, string $id, PanelService $panel): JsonResponse
+    {
+        return response()->json($panel->deleteInvitation($slug, $id));
     }
 
     /** PUT /api/admin/events/{slug}/deadline — { deadline: AAAA-MM-DD } (hasta 3 cambios) */
