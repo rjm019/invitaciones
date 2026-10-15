@@ -19,3 +19,5 @@ web/dist
 # Lo de la boda original (fotos reales y una canción con derechos) no se publica.
 web/public/*
 !web/public/favicon.ico
+!web/public/favicon.svg
+!web/public/apple-touch-icon.png
