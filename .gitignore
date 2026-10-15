@@ -13,9 +13,11 @@ docs/plan-invitaciones/02-diseno-nat/privado/
 recepcion/ejemplos/
 recepcion/prototipo/
 recepcion/data/
-# Boda original (referencia en desarrollo): fotos reales y canción con derechos. Solo el favicon se versiona.
+# Boda original (referencia en desarrollo): fotos reales y canción con derechos. Solo los íconos se versionan.
 web/public/*
 !web/public/favicon.ico
+!web/public/favicon.svg
+!web/public/apple-touch-icon.png
 api/storage/app/public/eventos/
 # Layouts de eventos: datos reales (contenido, fotos, familias, respuestas). Nunca al repo.
 eventos/*
