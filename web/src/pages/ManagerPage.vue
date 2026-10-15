@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import '@/components/manager/manager.css'
+import AccountMenu from '@/components/manager/AccountMenu.vue'
 import EventCard from '@/components/manager/EventCard.vue'
 import ManagerIcon from '@/components/manager/ManagerIcon.vue'
 import ManagerLogin from '@/components/manager/ManagerLogin.vue'
@@ -18,7 +19,7 @@ import type { ManagerEvent } from '@/types/design'
  * duplicar, guardar como plantilla y descargar su paquete.
  */
 const router = useRouter()
-const { authenticated, logout, withSession } = useManagerSession()
+const { authenticated, refresh, withSession } = useManagerSession()
 const { toast } = useToasts()
 
 const events = ref<ManagerEvent[]>([])
@@ -77,7 +78,11 @@ async function download(event: ManagerEvent): Promise<void> {
 
 onMounted(() => {
   document.title = 'Gestor de invitaciones'
-  if (authenticated.value) void load()
+  if (authenticated.value) {
+    void load()
+    // Otra persona pudo cambiar mi nombre o mi rol mientras no estaba.
+    refresh().catch(() => {})
+  }
 })
 watch(authenticated, (on) => {
   if (on) void load()
@@ -102,9 +107,7 @@ watch(authenticated, (on) => {
           <button type="button" class="g-btn g-btn--primary" @click="openNew()">
             <ManagerIcon name="plus" /> Nueva invitación
           </button>
-          <button type="button" class="g-btn g-btn--ghost" @click="logout()">
-            <ManagerIcon name="arrow-right-from-bracket" /> Salir
-          </button>
+          <AccountMenu />
         </div>
       </header>
 

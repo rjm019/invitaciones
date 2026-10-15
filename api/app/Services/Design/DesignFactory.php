@@ -34,6 +34,7 @@ final class DesignFactory
         private readonly DesignStore $store,
         private readonly DesignFile $file,
         private readonly EventSettings $settings,
+        private readonly PublicationLog $log,
     ) {}
 
     public static function allowedSlug(string $slug): bool
@@ -43,9 +44,10 @@ final class DesignFactory
 
     /**
      * @param  array<string, string>  $event  tipo, festejada, inicia…
+     * @param  array{usuario: string, nombre: string}|null  $by  quién la crea (para el historial)
      * @return array{slug: string, panel_password: ?string}
      */
-    public function create(string $slug, ?string $from, bool $template, array $event, ?CarbonImmutable $now = null): array
+    public function create(string $slug, ?string $from, bool $template, array $event, ?CarbonImmutable $now = null, ?array $by = null): array
     {
         $now ??= CarbonImmutable::now();
         if (! self::allowedSlug($slug)) {
@@ -86,7 +88,8 @@ final class DesignFactory
             'publicado' => 'NO',
             'plantilla' => $template ? 'SI' : null,
             'clave_panel' => $password,
-        ]), $now);
+        ]), $now, $by);
+        $this->log->add($dir, $now, $from === null ? 'nueva' : "copia de {$from}", count($design->sections), $by);
 
         return ['slug' => $slug, 'panel_password' => $password];
     }

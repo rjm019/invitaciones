@@ -6,6 +6,7 @@ use App\Services\Design\DesignConflict;
 use App\Services\Design\DesignPublisher;
 use App\Services\Design\DesignStore;
 use App\Services\Design\DesignTransfer;
+use App\Services\Design\PublicationLog;
 use App\Services\Design\PublishBlocked;
 use App\Services\Layout\EventRepository;
 use Illuminate\Console\Command;
@@ -55,7 +56,7 @@ class ImportInvitation extends Command
             return self::SUCCESS;
         }
         try {
-            $publisher->publish($slug, $store->version($slug));
+            $publisher->publish($slug, $store->version($slug), by: PublicationLog::TERMINAL);
         } catch (PublishBlocked $e) {
             $this->error($e->getMessage());
             foreach ($e->issues as $issue) {

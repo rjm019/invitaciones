@@ -81,6 +81,10 @@ import ringSvg from '@fortawesome/fontawesome-free/svgs/solid/ring.svg?raw'
 import giftSvg from '@fortawesome/fontawesome-free/svgs/solid/gift.svg?raw'
 import cakeCandlesSvg from '@fortawesome/fontawesome-free/svgs/solid/cake-candles.svg?raw'
 import textHeightSvg from '@fortawesome/fontawesome-free/svgs/solid/text-height.svg?raw'
+import usersSvg from '@fortawesome/fontawesome-free/svgs/solid/users.svg?raw'
+import userPlusSvg from '@fortawesome/fontawesome-free/svgs/solid/user-plus.svg?raw'
+import userSlashSvg from '@fortawesome/fontawesome-free/svgs/solid/user-slash.svg?raw'
+import userCheckSvg from '@fortawesome/fontawesome-free/svgs/solid/user-check.svg?raw'
 import swatchbookSvg from '@fortawesome/fontawesome-free/svgs/solid/swatchbook.svg?raw'
 import paintbrushSvg from '@fortawesome/fontawesome-free/svgs/solid/paintbrush.svg?raw'
 import userSvg from '@fortawesome/fontawesome-free/svgs/solid/user.svg?raw'
@@ -173,6 +177,10 @@ const ICONS: Record<string, string> = {
   gift: giftSvg,
   'cake-candles': cakeCandlesSvg,
   'text-height': textHeightSvg,
+  users: usersSvg,
+  'user-plus': userPlusSvg,
+  'user-slash': userSlashSvg,
+  'user-check': userCheckSvg,
   swatchbook: swatchbookSvg,
   paintbrush: paintbrushSvg,
   user: userSvg,

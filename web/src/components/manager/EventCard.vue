@@ -6,7 +6,8 @@ import ManagerIcon from './ManagerIcon.vue'
 
 /**
  * Una invitación (o plantilla) en el inicio del gestor: portada con sus colores y su letra,
- * si se ve, si tiene cambios sin publicar, cuántos confirmaron y sus acciones.
+ * si se ve, si tiene cambios sin publicar, quién la publicó la última vez, cuántos
+ * confirmaron y sus acciones.
  */
 const props = defineProps<{ event: ManagerEvent }>()
 const emit = defineEmits<{
@@ -39,6 +40,15 @@ const date = computed(() => {
   }).format(new Date(props.event.starts_at))
 })
 const confirmed = computed(() => props.event.counts.attending)
+const lastPublish = computed(() => {
+  const last = props.event.last_publish
+  if (!last?.by) return null
+  const day = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short' }).format(
+    new Date(last.published_at),
+  )
+  const created = last.origin === 'nueva' || last.origin.startsWith('copia de ')
+  return `${created ? 'Creada' : 'Publicada'} por ${last.by.name} · ${day}`
+})
 const TYPE: Record<string, string> = {
   xv: 'XV años',
   boda: 'Boda',
@@ -91,8 +101,9 @@ function act(action: 'duplicate' | 'template' | 'download'): void {
       </div>
       <p class="card__meta">
         <span>/e/{{ event.slug }}</span>
-        <span v-if="date">· {{ date }}</span>
+        <span v-if="date"> · {{ date }}</span>
       </p>
+      <p v-if="lastPublish" class="card__meta card__by">{{ lastPublish }}</p>
       <div class="card__badges">
         <span v-if="event.error" class="g-badge g-badge--danger"
           ><ManagerIcon name="triangle-exclamation" /> Con errores</span
@@ -237,6 +248,12 @@ function act(action: 'duplicate' | 'template' | 'download'): void {
 .card__meta {
   color: var(--g-faint);
   font-size: 12.5px;
+}
+.card__by {
+  overflow: hidden;
+  margin-top: -2px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .card__badges {
   display: flex;

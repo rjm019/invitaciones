@@ -5,6 +5,7 @@ namespace App\Services\Design;
 use App\Services\Csv\CsvFile;
 use App\Services\Layout\EventRepository;
 use Carbon\CarbonImmutable;
+use Carbon\Exceptions\InvalidFormatException;
 use RuntimeException;
 
 /**
@@ -33,6 +34,7 @@ final class DesignStore
         private readonly DesignFile $file,
         private readonly CsvFile $csv,
         private readonly LegacyLayoutConverter $converter,
+        private readonly PublicationLog $log,
     ) {}
 
     public function livePath(string $dir): string
@@ -148,20 +150,27 @@ final class DesignStore
     }
 
     /**
-     * Las versiones publicadas antes, la más reciente primero.
+     * Las versiones publicadas antes, la más reciente primero: cuándo dejó de verse cada una
+     * (replaced_at) y, según la bitácora, cuándo se publicó y quién (null si no hay registro).
      *
-     * @return list<array{id: string, published_at: string, bytes: int}>
+     * @return list<array{id: string, published_at: ?string, replaced_at: ?string, origin: ?string, by: array{username: string, name: string}|null, bytes: int}>
      */
     public function history(string $slug): array
     {
-        $dir = $this->dir($slug).'/respaldos';
+        $root = $this->dir($slug);
+        $dir = $root.'/respaldos';
+        $entries = $this->log->entries($root);
         $out = [];
         foreach (scandir($dir) ?: [] as $name) {
             if (preg_match(self::HISTORY_PATTERN, $name, $m) && is_file("{$dir}/{$name}")) {
-                $stamp = substr($m[1], 0, 15);
+                $replaced = self::stamp(substr($m[1], 0, 15));
+                $published = $replaced === null ? null : PublicationLog::before($entries, $replaced);
                 $out[] = [
                     'id' => $m[1],
-                    'published_at' => CarbonImmutable::createFromFormat('Ymd-His', $stamp)?->toIso8601String() ?? $stamp,
+                    'published_at' => $published['published_at'] ?? null,
+                    'replaced_at' => $replaced?->toIso8601String(),
+                    'origin' => $published['origin'] ?? null,
+                    'by' => $published['by'] ?? null,
                     'bytes' => (int) filesize("{$dir}/{$name}"),
                 ];
             }
@@ -210,6 +219,15 @@ final class DesignStore
         }
 
         return $id;
+    }
+
+    private static function stamp(string $value): ?CarbonImmutable
+    {
+        try {
+            return CarbonImmutable::createFromFormat('Ymd-His', $value) ?: null;
+        } catch (InvalidFormatException) {
+            return null;
+        }
     }
 
     private function dir(string $slug): string

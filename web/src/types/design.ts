@@ -126,6 +126,26 @@ export interface Catalog {
   limits: { sections: number; fields: number; items: number; value: number }
 }
 
+/** Una persona del gestor (la clave nunca viaja). */
+export interface ManagerUser {
+  username: string
+  name: string
+  role: 'admin' | 'editor'
+  active: boolean
+  /** Entró con una clave temporal: elige la suya antes de seguir. */
+  must_change_password: boolean
+  created_at: string | null
+  last_login_at: string | null
+}
+
+/** Quién publicó (o creó, o migró) una versión, según la bitácora del evento. */
+export interface PublishRecord {
+  published_at: string
+  /** borrador · formato anterior · nueva · copia de <slug> */
+  origin: string
+  by: { username: string; name: string } | null
+}
+
 /** Una tarjeta del inicio del gestor. */
 export interface ManagerEvent {
   slug: string
@@ -139,6 +159,7 @@ export interface ManagerEvent {
   has_draft: boolean
   pending: boolean
   updated_at: string | null
+  last_publish: PublishRecord | null
   cover: {
     theme: string | null
     colors: Partial<Record<'bg' | 'primary' | 'accent' | 'text', string>>
@@ -195,8 +216,20 @@ export interface MediaFile {
   used_in: { version: string; block: string; item: number | null; field: string }[]
 }
 
+/** Una versión que ya no ven los invitados (se puede restaurar al borrador). */
 export interface HistoryVersion {
   id: string
-  published_at: string
+  /** Cuándo se publicó y quién (null si la bitácora no lo registró). */
+  published_at: string | null
+  origin: string | null
+  by: { username: string; name: string } | null
+  /** Cuándo dejó de verse (se publicó la siguiente). */
+  replaced_at: string | null
   bytes: number
+}
+
+export interface DesignHistory {
+  /** La versión que ven los invitados ahora. */
+  current: PublishRecord | null
+  versions: HistoryVersion[]
 }

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\Design\LegacyMigrator;
+use App\Services\Design\PublicationLog;
 use App\Services\Layout\EventRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
@@ -22,7 +23,7 @@ class MigrateInvitation extends Command
 
     protected $description = 'Pasa eventos del Excel anterior a invitacion.csv, comprobando que la invitación quede idéntica';
 
-    public function handle(EventRepository $events, LegacyMigrator $migrator): int
+    public function handle(EventRepository $events, LegacyMigrator $migrator, PublicationLog $log): int
     {
         $slug = (string) $this->argument('slug');
         if ($slug === '' && ! $this->option('todos')) {
@@ -62,13 +63,13 @@ class MigrateInvitation extends Command
                 continue;
             }
 
-            $ok = $this->migrate($one, $migrator, $now) && $ok;
+            $ok = $this->migrate($one, (string) $events->path($one), $migrator, $log, $now) && $ok;
         }
 
         return $ok ? self::SUCCESS : self::FAILURE;
     }
 
-    private function migrate(string $slug, LegacyMigrator $migrator, CarbonImmutable $now): bool
+    private function migrate(string $slug, string $dir, LegacyMigrator $migrator, PublicationLog $log, CarbonImmutable $now): bool
     {
         $check = $migrator->check($slug, $now);
         foreach ($check['warnings'] as $warning) {
@@ -101,7 +102,8 @@ class MigrateInvitation extends Command
             return true;
         }
 
-        $migrator->apply($slug, $check['design'], $check['settings'], $now);
+        $migrator->apply($slug, $check['design'], $check['settings'], $now, PublicationLog::TERMINAL);
+        $log->add($dir, $now, 'formato anterior', count($check['design']->sections), PublicationLog::TERMINAL);
         $this->info("{$slug}: listo, ahora usa eventos/{$slug}/invitacion.csv (el layout viejo se copió a respaldos/).");
 
         return true;

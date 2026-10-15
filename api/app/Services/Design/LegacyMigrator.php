@@ -72,8 +72,9 @@ final class LegacyMigrator
      * Deja el evento en el formato nuevo con este diseño.
      *
      * @param  array<string, string>  $legacySettings  clave_panel y publicado del layout viejo
+     * @param  array{usuario: string, nombre: string}|null  $by  quién migra (para el historial de ajustes)
      */
-    public function apply(string $slug, Design $design, array $legacySettings, CarbonImmutable $now): void
+    public function apply(string $slug, Design $design, array $legacySettings, CarbonImmutable $now, ?array $by = null): void
     {
         $dir = $this->events->path($slug) ?? throw new RuntimeException("No existe el evento {$slug}.");
         $this->backupLegacy($dir, $now, move: false);
@@ -88,7 +89,7 @@ final class LegacyMigrator
             }
         }
         if ($changes !== []) {
-            $this->settings->put($dir, $changes, $now);
+            $this->settings->put($dir, $changes, $now, $by);
         }
         $this->file->write($dir.'/'.DesignFile::FILE, $design);
         $this->events->forget($slug);

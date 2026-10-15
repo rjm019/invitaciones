@@ -9,7 +9,7 @@ use Carbon\CarbonImmutable;
  * eventos/<slug>/ajustes.csv: lo que cambia al instante, sin tocar la invitación ni pasar
  * por "Publicar": la fecha límite que mueve el dueño desde su panel, y lo que pone el
  * gestor (la clave del panel del cliente, si la invitación se ve y si es plantilla).
- * ajustes-historial.csv guarda cada cambio (de la clave, nunca su valor).
+ * ajustes-historial.csv guarda cada cambio y quién lo hizo (de la clave, nunca su valor).
  */
 final class EventSettings
 {
@@ -18,6 +18,11 @@ final class EventSettings
     public const HISTORY = 'ajustes-historial.csv';
 
     public const MAX_DEADLINE_CHANGES = 3;
+
+    public const HISTORY_HEADERS = ['fecha', 'clave', 'anterior', 'nuevo', 'usuario', 'nombre'];
+
+    /** @var array{usuario: string, nombre: string} el dueño, desde su panel */
+    public const OWNER = ['usuario' => 'panel', 'nombre' => 'Cliente (panel)'];
 
     /** Lo que el gestor cambia desde su panel (además de la fecha límite del dueño). */
     public const MANAGED = ['clave_panel', 'publicado', 'plantilla'];
@@ -48,7 +53,7 @@ final class EventSettings
     }
 
     /**
-     * Guarda la nueva fecha límite y cuenta el cambio.
+     * Guarda la nueva fecha límite que pone el dueño y cuenta el cambio.
      *
      * @return int cambios usados
      *
@@ -73,11 +78,12 @@ final class EventSettings
                 array_keys($settings),
                 $settings,
             ));
-            $this->csv->append($dir.'/'.self::HISTORY, ['fecha', 'clave', 'anterior', 'nuevo'], [
+            $this->csv->append($dir.'/'.self::HISTORY, self::HISTORY_HEADERS, [
                 'fecha' => $now->format('Y-m-d H:i:s'),
                 'clave' => 'rsvp_limite',
                 'anterior' => (string) $previous,
                 'nuevo' => $date,
+                ...self::OWNER,
             ]);
 
             return $used + 1;
@@ -89,12 +95,13 @@ final class EventSettings
      * historial. La clave del panel se anota como "(cambiada)", nunca su valor.
      *
      * @param  array<string, string|null>  $changes
+     * @param  array{usuario: string, nombre: string}|null  $by  quién lo cambia (una persona del gestor o la terminal)
      */
-    public function put(string $dir, array $changes, CarbonImmutable $now): void
+    public function put(string $dir, array $changes, CarbonImmutable $now, ?array $by = null): void
     {
         $path = $dir.'/'.self::FILE;
 
-        $this->csv->locked($path, function () use ($dir, $path, $changes, $now) {
+        $this->csv->locked($path, function () use ($dir, $path, $changes, $now, $by) {
             $settings = $this->read($dir);
             $log = [];
             foreach ($changes as $key => $value) {
@@ -112,6 +119,8 @@ final class EventSettings
                         'clave' => $key,
                         'anterior' => $secret ? ($before === null ? '' : '(oculta)') : (string) $before,
                         'nuevo' => $secret ? ($after === null ? '(quitada)' : '(cambiada)') : (string) $after,
+                        'usuario' => $by['usuario'] ?? '',
+                        'nombre' => CsvFile::safe($by['nombre'] ?? ''),
                     ];
                 }
             }
@@ -126,7 +135,7 @@ final class EventSettings
                 $settings,
             ));
             foreach ($log as $row) {
-                $this->csv->append($dir.'/'.self::HISTORY, ['fecha', 'clave', 'anterior', 'nuevo'], $row);
+                $this->csv->append($dir.'/'.self::HISTORY, self::HISTORY_HEADERS, $row);
             }
         });
     }

@@ -8,23 +8,17 @@ const emit = defineEmits<{ theirs: []; mine: [] }>()
 </script>
 
 <template>
-  <GDialog
-    :open="open"
-    title="Esta invitación se cambió en otra ventana"
-    size="sm"
-    :dismissable="false"
-  >
+  <GDialog :open="open" title="Alguien más cambió esta invitación" size="sm" :dismissable="false">
     <p class="g-note g-note--warn">
       <ManagerIcon name="triangle-exclamation" />
       <span
-        >Alguien guardó cambios mientras tenías esta página abierta. El autoguardado se pausó para
-        no perder nada.</span
+        >Otra persona (o tú, en otra ventana) guardó cambios mientras tenías esta página abierta. El
+        autoguardado se pausó para no perder nada.</span
       >
     </p>
     <ul class="conflict">
       <li>
-        <strong>Cargar la más reciente:</strong> ves lo que guardó la otra ventana (lo de aquí se
-        descarta).
+        <strong>Cargar la más reciente:</strong> ves lo que se guardó allá (lo de aquí se descarta).
       </li>
       <li><strong>Conservar la mía:</strong> lo de esta ventana queda encima.</li>
     </ul>
