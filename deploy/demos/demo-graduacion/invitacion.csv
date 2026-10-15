@@ -49,7 +49,7 @@ itinerario,,visible,SI
 itinerario,,titulo,El programa
 itinerario,1,hora,18:00
 itinerario,1,actividad,Ceremonia de graduación
-itinerario,1,icono,star
+itinerario,1,icono,graduation-cap
 itinerario,2,hora,21:00
 itinerario,2,actividad,Cena de gala
 itinerario,2,icono,utensils

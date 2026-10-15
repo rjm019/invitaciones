@@ -80,6 +80,7 @@ import champagneGlassesSvg from '@fortawesome/fontawesome-free/svgs/solid/champa
 import ringSvg from '@fortawesome/fontawesome-free/svgs/solid/ring.svg?raw'
 import giftSvg from '@fortawesome/fontawesome-free/svgs/solid/gift.svg?raw'
 import cakeCandlesSvg from '@fortawesome/fontawesome-free/svgs/solid/cake-candles.svg?raw'
+import graduationCapSvg from '@fortawesome/fontawesome-free/svgs/solid/graduation-cap.svg?raw'
 import textHeightSvg from '@fortawesome/fontawesome-free/svgs/solid/text-height.svg?raw'
 import usersSvg from '@fortawesome/fontawesome-free/svgs/solid/users.svg?raw'
 import userPlusSvg from '@fortawesome/fontawesome-free/svgs/solid/user-plus.svg?raw'
@@ -180,6 +181,7 @@ const ICONS: Record<string, string> = {
   ring: ringSvg,
   gift: giftSvg,
   'cake-candles': cakeCandlesSvg,
+  'graduation-cap': graduationCapSvg,
   'text-height': textHeightSvg,
   users: usersSvg,
   'user-plus': userPlusSvg,

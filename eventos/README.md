@@ -158,7 +158,7 @@ Los tipos, en el orden de la invitación de NAT. Solo `foto`, `frase` y `cierre`
 | `dedicatoria` | `titulo`, `texto`, `boton` | — | — | `divisor` | `mensaje`, `autor` |
 | `cierre` | `titulo`, `texto` | — | — | `flores`, `corona` | — |
 
-**Íconos del itinerario** (`icono`): un archivo de `media/` (`copas.webp`) o un nombre: `utensils`, `church`, `crown`, `music`, `heart`, `ring`, `dove`, `gift`, `cake-candles`, `door-open`, `champagne-glasses`, `location-dot`.
+**Íconos del itinerario** (`icono`): un archivo de `media/` (`copas.webp`) o un nombre: `utensils`, `church`, `crown`, `music`, `heart`, `ring`, `dove`, `gift`, `cake-candles`, `graduation-cap`, `door-open`, `champagne-glasses`, `location-dot`.
 
 **Campos de cualquier sección:**
 
