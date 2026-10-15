@@ -12,8 +12,8 @@ Se eligió Fly.io porque es barato y tiene disco persistente. La app guarda todo
 | App | `invitaciones-jiro`, región `dfw` (Dallas) |
 | Servidor | 1 máquina `shared-cpu-1x`, 512 MB, sin swap. Sin visitas se **suspende** (guarda su memoria) y despierta en unos cientos de ms; si Fly no puede reanudarla, arranca de cero (~5 s) |
 | Disco | Volumen `eventos` de 1 GB, cifrado, montado en `/data` |
-| Datos | `/data/eventos/<slug>/` (layout, media y los CSV que escribe la app) y `/data/cache/` (clima y límites de envíos) |
-| Secretos | `APP_KEY` (`fly secrets`). Si cambia, se cierran las sesiones del panel y del gestor. `GESTOR_CLAVE` (16 caracteres o más): la clave maestra de `/gestor`; sin ella el gestor no abre (todavía no está puesta: ver "Gestor: primera publicación") |
+| Datos | `/data/eventos/<slug>/` (layout, media y los CSV que escribe la app), `/data/eventos/_gestor/usuarios.csv` (las cuentas del gestor) y `/data/cache/` (clima y límites de envíos) |
+| Secretos | `APP_KEY` (`fly secrets`). Si cambia, se cierran las sesiones del panel y del gestor. `GESTOR_CLAVE` (16 caracteres o más): enciende `/gestor` y sirve para crear la primera cuenta (después cada persona entra con la suya); sin ella el gestor no abre y, si cambia, se cierran todas las sesiones del gestor (todavía no está puesta: ver "Gestor: primera publicación") |
 | Costo | ~2–3 USD/mes (máquina por uso + disco 0.15 USD/GB) |
 
 **Imagen** (`Dockerfile` de la raíz):
@@ -44,6 +44,7 @@ deploy/bajar-evento.sh nat             # traer todo el evento del servidor a eve
 fly logs                               # ver lo que pasa
 fly ssh console                        # entrar al servidor
 fly ssh sftp get /data/eventos/nat/respuestas.csv respuestas.csv   # bajar las respuestas
+fly ssh console -C "php /var/www/api/artisan gestor:usuario"        # ver las cuentas del gestor
 fly volumes snapshots list <id-del-volumen>                            # respaldos del disco
 ```
 
@@ -59,6 +60,8 @@ fly volumes snapshots list <id-del-volumen>                            # respald
 - La API guarda una copia del día de cada CSV antes de cambiarlo (`respaldos/`), pero en el mismo disco.
 - Antes y después del evento, baja el evento completo con `deploy/bajar-evento.sh <slug>` (o solo `respuestas.csv`, `dedicatorias.csv` e `invitaciones.csv` con `fly ssh sftp get`).
 - Cada publicación del gestor guarda la versión anterior en `respaldos/` (las últimas 50) y se puede restaurar desde su historial.
+- Las cuentas del gestor: `fly ssh sftp get /data/eventos/_gestor/usuarios.csv` (solo trae los hash de las claves, nunca las claves).
+- **Si nadie recuerda su clave del gestor:** `fly ssh console -C "sh -c 'cd /var/www/api && php artisan gestor:usuario <usuario> --clave-nueva && chown -R www-data:www-data /data/eventos/_gestor'"` muestra una clave temporal (la persona elige la suya al entrar). El `chown` es porque el comando corre como root y la app escribe como `www-data`.
 
 ## Pendiente
 
@@ -73,14 +76,15 @@ fly volumes snapshots list <id-del-volumen>                            # respald
 
 **Solo cuando lo pidas.** Hasta entonces producción sigue como está: NAT con su Excel y sin `/gestor`. Conviene hacerlo fuera de horas pico.
 
-0. **Antes:** lo pendiente de `09-avance.md` → "Qué falta": renombrar la carpeta en el disco (`mv … /data/eventos/nat`) y subir el Excel de NAT con lo último (`deploy/subir-evento.sh nat`). La migración del paso 6 parte del Excel que hay **en el servidor**.
+0. **Antes:** lo pendiente de `09-avance.md` → "Qué falta": renombrar la carpeta en el disco (`mv … /data/eventos/nat`) y subir el Excel de NAT con lo último (`deploy/subir-evento.sh nat`). La migración del paso 7 parte del Excel que hay **en el servidor**.
 1. **La clave maestra:** `fly secrets set GESTOR_CLAVE='<16 caracteres o más>'`. Reinicia la máquina unos segundos. La eliges tú; no se escribe en ningún archivo.
 2. **El código:** merge de `feature/gestor-plantillas` a `main` y `fly deploy --ha=false`. NAT sigue funcionando con su Excel: un evento sin `invitacion.csv` se lee como antes.
-3. **Respaldo:** `deploy/bajar-evento.sh nat` (copia completa en tu Mac).
-4. **Ensayo:** en `https://invitaciones-jiro.fly.dev/gestor`, "Nueva invitación" → "Copiar /e/nat" como `nat-ensayo`. Cambia algo, publica y revisa la vista previa y el historial. Después bórrala: `fly ssh console -C "rm -rf /data/eventos/nat-ensayo"`.
-5. **Revisar la migración:** `fly ssh console -C "sh -c 'cd /var/www/api && php artisan invitacion:migrar nat --probar'"`. Debe decir que la invitación queda **idéntica**. Si muestra diferencias, para aquí.
-6. **Migrar:** `fly ssh console -C "sh -c 'cd /var/www/api && php artisan invitacion:migrar nat && chown -R www-data:www-data /data/eventos/nat'"`. Escribe `invitacion.csv`, pasa `clave_panel` y `publicado` a `ajustes.csv` y copia el Excel a `respaldos/formato-anterior-<fecha>/`. No toca invitaciones ni respuestas.
-7. **Revisar:** `/e/nat`, una `/i/<token>` que ya hayas mandado, `/panel/nat` (la misma clave de siempre) y `/gestor` (NAT ya sin "Formato anterior").
+3. **Tu cuenta:** abre `https://invitaciones-jiro.fly.dev/gestor` → "Crea la primera cuenta" con la clave maestra, tu nombre, tu usuario y tu clave. Es la única vez que se usa la maestra para entrar. A las demás personas las agregas desde tu menú → "Personas del gestor".
+4. **Respaldo:** `deploy/bajar-evento.sh nat` (copia completa en tu Mac).
+5. **Ensayo:** en el gestor, "Nueva invitación" → "Copiar /e/nat" como `nat-ensayo`. Cambia algo, publica y revisa la vista previa y el historial (debe decir que tú la publicaste). Después bórrala: `fly ssh console -C "rm -rf /data/eventos/nat-ensayo"`.
+6. **Revisar la migración:** `fly ssh console -C "sh -c 'cd /var/www/api && php artisan invitacion:migrar nat --probar'"`. Debe decir que la invitación queda **idéntica**. Si muestra diferencias, para aquí.
+7. **Migrar:** `fly ssh console -C "sh -c 'cd /var/www/api && php artisan invitacion:migrar nat && chown -R www-data:www-data /data/eventos/nat'"`. Escribe `invitacion.csv`, pasa `clave_panel` y `publicado` a `ajustes.csv`, copia el Excel a `respaldos/formato-anterior-<fecha>/` y lo anota en la bitácora como "Terminal". No toca invitaciones ni respuestas.
+8. **Revisar:** `/e/nat`, una `/i/<token>` que ya hayas mandado, `/panel/nat` (la misma clave de siempre) y `/gestor` (NAT ya sin "Formato anterior").
 
 **Si algo sale mal:** borra `/data/eventos/nat/invitacion.csv` y quita `clave_panel` y `publicado` de `/data/eventos/nat/ajustes.csv` (o restaura el `ajustes-<fecha>.csv` de `respaldos/`). El Excel sigue en su lugar, así que NAT vuelve a leerse como antes.
 

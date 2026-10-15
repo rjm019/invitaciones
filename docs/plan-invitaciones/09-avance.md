@@ -10,7 +10,7 @@ La invitación de Nat y su panel ya están **publicados en Fly.io**. Tras renomb
 
 El cambio más grande contra el plan: **no hay base de datos**. Todo vive en archivos por evento (`eventos/<slug>/`): el diseño y el contenido en `invitacion.csv` (antes, un Excel `layout.xlsx`), y las invitaciones, respuestas y ajustes en CSV que escribe la API.
 
-**Nuevo (14-oct, rama `feature/gestor-plantillas`):** el **gestor** (`/gestor`), un editor visual para armar invitaciones y plantillas con la invitación a la vista, y el formato `invitacion.csv`, que reemplaza a `layout.xlsx`. NAT local ya está migrado; producción sigue igual hasta que corras el runbook. Detalle en `04-fases/fase-8-gestor-de-plantillas.md`.
+**Nuevo (14-oct, rama `feature/gestor-plantillas`):** el **gestor** (`/gestor`), un editor visual para armar invitaciones y plantillas con la invitación a la vista, con una cuenta por persona, y el formato `invitacion.csv`, que reemplaza a `layout.xlsx`. NAT local ya está migrado; producción sigue igual hasta que corras el runbook. Detalle en `04-fases/fase-8-gestor-de-plantillas.md`.
 
 ## Qué está hecho
 
@@ -289,14 +289,20 @@ Pedidos sobre capturas del celular:
 - **Migración verificada:** `invitacion:migrar` arma la invitación de las dos formas y solo escribe si salen idénticas. **NAT local migrado** (capturas a 390 y 1440 px iguales; los CSV del sistema con el mismo hash).
 - **Letra, color y tamaño por texto:** cada bloque (título, subtítulo, texto, botón y los propios: horas, nombres, números…) con `<bloque>_fuente`, `_color` y `_tamano`; `textos` los pone para toda la invitación.
 - **Por sección:** colores propios (`color_<token>`) y cambiar o quitar cada adorno del tema (`imagen_<adorno>`).
-- **Gestor** (`/gestor`, clave maestra `GESTOR_CLAVE`):
+- **Gestor** (`/gestor`):
   - Inicio con invitaciones y plantillas; nueva invitación en blanco, desde plantilla o copia (sin enlaces, respuestas ni clave).
   - Editor: secciones (arrastrar, ocultar, agregar), la invitación de verdad en celular o computadora (tocar un texto abre su estilo), inspector armado desde el catálogo, Estilo (paletas, selector de color, letras), Datos generales (con la tarjeta para WhatsApp en vivo).
   - Colores y tamaños cambian **al instante**; lo demás en ~0.5 s. Autoguardado, deshacer, publicar con lista de cambios, historial, conflicto entre ventanas.
   - Biblioteca de imágenes y audio (WebP con transparencia, recorte de Canva, "en uso"); descargar e importar csv, Excel o zip.
-- **Desde la terminal:** `invitacion:validar`, `invitacion:exportar`, `invitacion:importar` e `invitacion:migrar`.
+- **Una cuenta por persona** (pregunta 39): cada quien entra con su usuario y su clave (`eventos/_gestor/usuarios.csv`, solo el hash).
+  - La primera cuenta se crea en `/gestor` con la clave maestra `GESTOR_CLAVE`; después la maestra ya no entra (solo enciende el gestor).
+  - Quien *administra* agrega personas (con una clave temporal que se ve una vez, y el mensaje listo para mandarlo), cambia su rol y les da o quita el acceso. Quien llega con clave temporal elige la suya al entrar. Cada quien cambia su clave desde su menú.
+  - El historial dice quién publicó cada versión ("Beto la publicó el 14 oct…") y la tarjeta del inicio, quién publicó la última vez. `publicaciones.csv` y `ajustes-historial.csv` guardan `usuario` y `nombre` (el dueño aparece como `panel`; los comandos, como `terminal`).
+  - Si alguien se queda fuera: `php artisan gestor:usuario <usuario> --clave-nueva` da una clave temporal desde la terminal.
+- **Favicon propio:** el sobre del gestor (índigo, con un corazón de lacre) en lugar del logo de Vue, en la invitación, el panel y el gestor (`favicon.svg`, `favicon.ico` de 16/32/48 y el ícono de iPhone).
+- **Desde la terminal:** `invitacion:validar`, `invitacion:exportar`, `invitacion:importar`, `invitacion:migrar` y `gestor:usuario`.
 - **Producción:** `deploy/subir-evento.sh` ya no sube `invitacion.csv` sin `--forzar` (allá la edita el gestor); `deploy/bajar-evento.sh` trae un evento del servidor.
-- **Pruebas:** API 159 (981 aserciones); web 257, más lint, type-check y build en verde.
+- **Pruebas:** API 169 (1108 aserciones); web 263, más lint, type-check y build en verde.
 
 ### Invitación personal y confirmación
 
@@ -349,6 +355,7 @@ Pedidos sobre capturas del celular:
 | `layout.xlsx` con 9 pestañas | `invitacion.csv`: una hoja de 4 columnas; se descarga e importa como csv, Excel o zip | Decisión tuya (14-oct): mucho más simple, sin perder el Excel |
 | Clave del panel y "publicado" en el Excel | En `ajustes.csv`, al instante y fuera del diseño | Que copiar o exportar una invitación nunca lleve la clave |
 | Letras y colores solo para toda la invitación | Letra, color y tamaño por bloque de texto y colores por sección | Decisión tuya (14-oct) |
+| Una clave maestra para entrar al gestor (D12) | Una cuenta por persona, con rol, clave temporal y quién publicó qué | Decisión tuya (14-oct, pregunta 39) |
 
 ## Qué falta
 
@@ -369,9 +376,10 @@ Pedidos sobre capturas del celular:
 
 ### Gestor (rama `feature/gestor-plantillas`)
 
-1. **Revisar la rama** (tú): `/gestor` en local con `GESTOR_CLAVE` en `api/.env`. Si está bien: merge a `main` y push.
-2. **Runbook de producción, solo cuando lo pidas** (`06-despliegue/despliegue.md` → "Gestor: primera publicación"): `fly secrets set GESTOR_CLAVE=…`, `fly deploy`, ensayo con una copia de NAT y `invitacion:migrar nat` en el servidor.
-3. **Etapa F, después del 28-nov:** quitar el camino del Excel y `layout:xlsx`; pasar las fixtures al formato nuevo.
+1. **Revisar la rama** (tú, pregunta 35: "todavía no"): `http://localhost:5173/gestor`; la primera vez pide crear tu cuenta con la clave maestra de `api/.env` (`GESTOR_CLAVE`). Si está bien: merge a `main` y push.
+2. **Runbook de producción, solo cuando lo pidas** (`06-despliegue/despliegue.md` → "Gestor: primera publicación"): `fly secrets set GESTOR_CLAVE=…`, `fly deploy`, crear tu cuenta en `/gestor`, ensayo con una copia de NAT e `invitacion:migrar nat` en el servidor.
+3. **Decidir** si en la vista previa del gestor el sobre se ve siempre cerrado aunque la persona tenga "reducir movimiento" (pregunta 38).
+4. **Etapa F, después del 28-nov:** quitar el camino del Excel y `layout:xlsx`; pasar las fixtures al formato nuevo.
 
 ### Después del evento real o cuando se decida
 
