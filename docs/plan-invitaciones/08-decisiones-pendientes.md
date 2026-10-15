@@ -22,6 +22,9 @@ Marca tu elección. Lo que esté en **negritas** es la recomendación y lo que e
 | D16 | Estilo de los textos | **Letra, color y tamaño por bloque de texto y por sección** · Solo para toda la invitación | Combinaciones de letras | **Decidido (14-oct):** `<bloque>_fuente`, `_color` (hex o nombre de la paleta) y `_tamano` (50–250 %); `textos` vale para toda la invitación y la sección gana |
 | D17 | Quién ve qué en el gestor | Todos ven todas · **Cada quien las suyas** | Varias personas armando invitaciones de distintos clientes | **Decidido (14-oct, pregunta 40):** quien *edita* ve solo las invitaciones que creó o le asignan (`ajustes.csv` → `personas_gestor`); quien *administra* ve todas y las asigna en "Datos generales" → "Quién la edita". Las plantillas son de todos. Entrar a una que no es tuya responde "no está asignada a ti" |
 
+| D18 | Raíz del sitio | Nada · **Landing de ventas con cotización** | Traer clientes | **Decidido (15-oct):** landing sin precios con "Cotizar" (deja su teléfono; aviso en el gestor y por correo), 3 demos (boda, XV, graduación) en un tema neutro nuevo. Marca: Jiro Solutions; dominio propio después (`jirosolutions.com/.mx` y `invites.…`). Ver `04-fases/fase-10-landing-y-demos.md` |
+| D19 | Secciones nuevas | — | Lo que falta en bodas y XV | **Decidido (15-oct):** ubicación por lugar, mesa de regalos, galería, video (YouTube, archivo, Instagram, Facebook), publicación de redes, álbum (2 fotos por enlace; visible de 5 a 20 días después del evento y luego se borra), trivia e itinerario en vivo. Ver `04-fases/fase-9-secciones-nuevas.md` |
+
 Cuando decidas, actualiza esta tabla (o díselo a Claude Code en VS Code) para que el plan y el `CLAUDE.md` queden alineados.
 
 ## Preguntas abiertas (13-oct-2026)
@@ -60,7 +63,7 @@ Salieron durante la implementación y se juntaron para el final. Al responder un
 9. **WhatsApp de la invitación general:** ¿qué número (`rsvp_whatsapp`) lleva el botón de `/e/nat`?
 10. **"Asistiré / No asistiré":** hoy aplica a todos los nombres de un mismo envío, como en la imagen. ¿O prefieres elegirlo por persona?
 11. **Nombre de la invitación:** el nombre opcional ("Familia Pérez") se muestra en el sobre. ¿Está bien, o debe ser solo una nota interna?
-12. **Enlaces generados:** hoy no se pueden borrar ni cambiar sus invitados. ¿Hace falta?
+12. **Enlaces generados:** ~~hoy no se pueden borrar~~ ya se pueden eliminar desde el panel, con sus invitados y su dedicatoria (15-oct). ¿Hace falta también cambiar para cuántos invitados es un enlace ya enviado?
 13. **Canción para la festejada:** el mensaje ya está, como dedicatoria (una por enlace). ¿Quieres también pedir una canción?
 14. **Mesas:** hoy son números del 1 al 999, igual que en el buscador. ¿Necesitas mesas con nombre ("Honor", "Principal")? ¿Y un cupo por mesa que avise cuando se llene?
 
@@ -107,3 +110,9 @@ Salieron durante la implementación y se juntaron para el final. Al responder un
 38. **"Ver como invitado" y "reducir movimiento":** si en tu computadora está activado "reducir movimiento", la invitación nunca muestra el sobre cerrado (igual que a un invitado con esa opción), así que ese botón no cambia nada. ¿Está bien, o quieres que en el gestor siempre se vea cerrado? *Explicado (14-oct):* "reducir movimiento" es una opción de accesibilidad del sistema (Mac: Ajustes → Accesibilidad → Pantalla); tu Mac la tiene apagada, por eso en local ves el sobre cerrado igual que en producción. Solo afecta a quien edite con esa opción encendida: en su vista previa nunca vería el sobre cerrado. *Decidido (14-oct): cerrado en el gestor.* Hecho: en la vista previa del gestor ("Ver como invitado") el sobre se ve cerrado aunque la persona tenga "reducir movimiento", y abre sin animación; a los invitados no les cambia nada.
 39. **Una o varias personas en el gestor:** hoy hay una sola clave maestra para todos (D12). Si va a entrar más gente a armar invitaciones, conviene una cuenta por persona (y saber quién publicó qué). ¿Hace falta? *Hecho (14-oct): una cuenta por persona (D12).*
 40. **Quién ve qué en el gestor:** hoy cada persona ve y edita todas las invitaciones (y quien administra, además, las cuentas). ¿Está bien así, o cada quien debería ver solo las suyas (las que creó o las que le asignes)? *Decidido (14-oct): cada quien las suyas (D17).* Hecho.
+
+**Landing (fase 10)**
+
+41. **Aviso de privacidad:** nombre del responsable (persona o empresa) y correo de contacto para derechos ARCO.
+42. **Cotizaciones:** ¿a qué correo llegan (`COTIZACIONES_CORREO`)? Hace falta una cuenta de Resend (gratis) para `RESEND_API_KEY`.
+43. **WhatsApp del negocio:** número para el botón de respaldo del formulario y el pie de la landing.
