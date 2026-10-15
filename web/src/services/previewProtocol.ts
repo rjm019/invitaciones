@@ -20,19 +20,29 @@ export interface PreviewDisplay {
   labels: Record<string, string>
 }
 
-/** Cambios de estilo que se ven al instante, antes de que el servidor responda. */
-export interface StylePatch {
+/** Lo que se ve al instante, antes de que el servidor responda: estilo y textos tal cual. */
+export interface PreviewPatch {
   palette?: Record<string, string>
   fonts?: Record<string, string>
   extra_fonts?: string[]
-  /** key de la sección → sus colores y estilos de texto (reemplazan los que tenía). */
-  sections?: Record<string, Pick<SectionConfig, 'colors' | 'text_styles'>>
+  /** key de la sección → sus colores, estilos de texto y textos (reemplazan los que tenía). */
+  sections?: Record<
+    string,
+    Pick<SectionConfig, 'colors' | 'text_styles' | 'title' | 'subtitle' | 'text' | 'button'>
+  >
+  /** Del evento: el título, los nombres y el salón. */
+  event?: {
+    title: string
+    subtitle: string
+    celebrant: Record<string, string>
+    venue: { name: string; display_name: string; city: string; address: string }
+  }
 }
 
 export type ToPreview =
   | { type: 'config'; config: EventConfig; display: PreviewDisplay }
   | { type: 'display'; display: PreviewDisplay }
-  | { type: 'patch'; patch: StylePatch }
+  | { type: 'patch'; patch: PreviewPatch }
   | { type: 'select'; key: string | null }
   | { type: 'replay' }
 
@@ -68,7 +78,7 @@ function isDisplay(v: unknown): v is PreviewDisplay {
   )
 }
 
-function isPatch(v: unknown): v is StylePatch {
+function isPatch(v: unknown): v is PreviewPatch {
   if (!isRecord(v)) return false
   if (v.palette !== undefined && !isStringRecord(v.palette)) return false
   if (v.fonts !== undefined && !isStringRecord(v.fonts)) return false
@@ -79,10 +89,30 @@ function isPatch(v: unknown): v is StylePatch {
     return false
   if (
     v.sections !== undefined &&
-    !(isRecord(v.sections) && Object.entries(v.sections).every(([k, s]) => isKey(k) && isRecord(s)))
+    !(
+      isRecord(v.sections) &&
+      Object.entries(v.sections).every(([k, s]) => isKey(k) && isRecord(s) && isSectionTexts(s))
+    )
   )
     return false
+  if (v.event !== undefined && !isEventTexts(v.event)) return false
   return true
+}
+
+const isText = (v: unknown) => v === undefined || typeof v === 'string'
+
+function isSectionTexts(v: Record<string, unknown>): boolean {
+  return ['title', 'subtitle', 'text', 'button'].every((key) => isText(v[key]))
+}
+
+function isEventTexts(v: unknown): boolean {
+  return (
+    isRecord(v) &&
+    typeof v.title === 'string' &&
+    typeof v.subtitle === 'string' &&
+    isStringRecord(v.celebrant) &&
+    isStringRecord(v.venue)
+  )
 }
 
 function isConfig(v: unknown): v is EventConfig {

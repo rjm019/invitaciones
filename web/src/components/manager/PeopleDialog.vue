@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useClipboard } from '@/composables/useClipboard'
+import { useManagerPeople } from '@/composables/useManagerPeople'
 import { useManagerSession } from '@/composables/useManagerSession'
 import { useToasts } from '@/composables/useToasts'
 import {
@@ -25,7 +26,7 @@ const { withSession, user: me } = useManagerSession()
 const { toast } = useToasts()
 const { copy, copied } = useClipboard()
 
-const people = ref<ManagerUser[]>([])
+const { people, load: loadPeople, put } = useManagerPeople()
 const loading = ref(false)
 const error = ref('')
 const adding = ref(false)
@@ -42,7 +43,7 @@ const taken = computed(() => people.value.map((p) => p.username))
 async function load(): Promise<void> {
   loading.value = true
   try {
-    people.value = await withSession((t) => managerService.listUsers(t))
+    await loadPeople(true)
     error.value = ''
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'No se pudo cargar la lista.'
@@ -76,10 +77,6 @@ function startAdding(): void {
   adding.value = true
 }
 
-function replace(updated: ManagerUser): void {
-  people.value = people.value.map((p) => (p.username === updated.username ? updated : p))
-}
-
 async function add(): Promise<void> {
   const name = form.value.name.trim()
   const username = form.value.username.trim().toLowerCase()
@@ -93,7 +90,7 @@ async function add(): Promise<void> {
     const created = await withSession((t) =>
       managerService.createUser(t, { name, username, role: form.value.role }),
     )
-    people.value = [...people.value, created.user]
+    put(created.user)
     handout.value = {
       name: created.user.name,
       message: accessMessage(gestorUrl, created.user.username, created.password),
@@ -115,7 +112,7 @@ async function change(
   busy.value = person.username
   try {
     const result = await withSession((t) => managerService.updateUser(t, person.username, changes))
-    replace(result.user)
+    put(result.user)
     if (result.password) {
       handout.value = {
         name: result.user.name,

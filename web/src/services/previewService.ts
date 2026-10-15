@@ -1,31 +1,41 @@
 import type { EventConfig } from '@/types/event'
 import type { Invitation, InvitationGuest, RsvpPayload } from '@/types/invitation'
 import type { EventWeather } from '@/types/weather'
-import type { StylePatch } from './previewProtocol'
+import type { PreviewPatch } from './previewProtocol'
 
 /** Lugares de la invitación de ejemplo que usa la vista previa del gestor. */
 export const PREVIEW_PASSES = 4
 
+const SECTION_PATCHED = ['colors', 'text_styles', 'title', 'subtitle', 'text', 'button'] as const
+
 /**
- * Aplica un cambio de estilo a la config que ya se está viendo, sin esperar al servidor:
- * paleta, fuentes y los colores y estilos de texto de algunas secciones.
+ * Aplica lo que se ve al instante a la config que ya se está viendo, sin esperar al
+ * servidor: paleta, fuentes, los textos del evento y los colores, estilos y textos de cada
+ * sección. Una sección sin cambios conserva su objeto (Vue no la vuelve a pintar).
  */
-export function applyStylePatch(config: EventConfig, patch: StylePatch): EventConfig {
+export function applyPreviewPatch(config: EventConfig, patch: PreviewPatch): EventConfig {
   const next: EventConfig = { ...config }
   if (patch.palette) next.palette = { ...patch.palette }
   if (patch.fonts) next.fonts = { ...patch.fonts }
   if (patch.extra_fonts) next.extra_fonts = [...patch.extra_fonts]
+  if (patch.event) {
+    next.title = patch.event.title
+    next.subtitle = patch.event.subtitle
+    next.celebrant = { ...patch.event.celebrant } as EventConfig['celebrant']
+    next.venue = { ...config.venue, ...patch.event.venue }
+  }
   if (patch.sections) {
     const changes = patch.sections
-    next.sections = config.sections.map((section) =>
-      section.key && changes[section.key]
-        ? {
-            ...section,
-            colors: changes[section.key].colors,
-            text_styles: changes[section.key].text_styles,
-          }
-        : section,
-    )
+    next.sections = config.sections.map((section) => {
+      const change = section.key ? changes[section.key] : undefined
+      if (!change) return section
+      const same = SECTION_PATCHED.every(
+        (key) => JSON.stringify(section[key]) === JSON.stringify(change[key]),
+      )
+      return same
+        ? section
+        : { ...section, ...Object.fromEntries(SECTION_PATCHED.map((key) => [key, change[key]])) }
+    })
   }
   return next
 }

@@ -107,9 +107,15 @@ export async function getCatalog(token: string): Promise<Catalog> {
   return data.catalog
 }
 
-export async function listEvents(token: string): Promise<ManagerEvent[]> {
-  const { data } = await http.get<{ events: ManagerEvent[] }>('/manager/events', auth(token))
-  return data.events
+/** Las invitaciones que ve esta persona y sus datos al día (nombre y rol). */
+export async function listEvents(
+  token: string,
+): Promise<{ events: ManagerEvent[]; user: ManagerUser }> {
+  const { data } = await http.get<{ events: ManagerEvent[]; user: ManagerUser }>(
+    '/manager/events',
+    auth(token),
+  )
+  return data
 }
 
 export interface NewEvent {
@@ -159,13 +165,14 @@ export async function discardDraft(token: string, slug: string): Promise<DesignP
   return data
 }
 
+/** Publica; responde también lo mismo que getDesign (el editor ya al día). */
 export async function publish(
   token: string,
   slug: string,
   version: string,
   replaceOwnerDeadline = false,
-): Promise<{ published_at: string; migrated: boolean; version: string }> {
-  const { data } = await http.post<{ published_at: string; migrated: boolean; version: string }>(
+): Promise<DesignPayload & { published_at: string; migrated: boolean }> {
+  const { data } = await http.post<DesignPayload & { published_at: string; migrated: boolean }>(
     `${event(slug)}/publish`,
     { version, replace_owner_deadline: replaceOwnerDeadline },
     auth(token),

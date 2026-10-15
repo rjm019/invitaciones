@@ -19,7 +19,7 @@ import type { ManagerEvent } from '@/types/design'
  * duplicar, guardar como plantilla y descargar su paquete.
  */
 const router = useRouter()
-const { authenticated, isAdmin, refresh, withSession } = useManagerSession()
+const { authenticated, isAdmin, setUser, withSession } = useManagerSession()
 const { toast } = useToasts()
 
 const events = ref<ManagerEvent[]>([])
@@ -52,7 +52,10 @@ useFontSamples(
 async function load(): Promise<void> {
   loading.value = true
   try {
-    events.value = await withSession((t) => managerService.listEvents(t))
+    const list = await withSession((t) => managerService.listEvents(t))
+    events.value = list.events
+    // Otra persona pudo cambiar mi nombre o mi rol mientras no estaba: llega con la lista.
+    setUser(list.user)
     error.value = ''
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'No se pudo cargar la lista.'
@@ -78,11 +81,7 @@ async function download(event: ManagerEvent): Promise<void> {
 
 onMounted(() => {
   document.title = 'Gestor de invitaciones'
-  if (authenticated.value) {
-    void load()
-    // Otra persona pudo cambiar mi nombre o mi rol mientras no estaba.
-    refresh().catch(() => {})
-  }
+  if (authenticated.value) void load()
 })
 watch(authenticated, (on) => {
   if (on) void load()

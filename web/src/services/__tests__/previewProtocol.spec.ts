@@ -27,6 +27,22 @@ describe('previewProtocol', () => {
         patch: { palette: { primary: '#000000' } },
       }),
     ).toMatchObject({ type: 'patch' })
+    // Con los textos de una sección y los del evento.
+    expect(
+      readToPreview({
+        channel: PREVIEW_CHANNEL,
+        type: 'patch',
+        patch: {
+          sections: { itinerario: { title: 'Programa', text: undefined } },
+          event: {
+            title: 'XV de Ana',
+            subtitle: '',
+            celebrant: { full_name: 'Ana' },
+            venue: { name: '', display_name: '', city: 'Toluca', address: '' },
+          },
+        },
+      }),
+    ).toMatchObject({ type: 'patch' })
 
     // Otro canal, otra forma o datos raros: se ignoran.
     expect(readToPreview({ type: 'replay' })).toBeNull()
@@ -49,6 +65,20 @@ describe('previewProtocol', () => {
         channel: PREVIEW_CHANNEL,
         type: 'patch',
         patch: { palette: { primary: 3 } },
+      }),
+    ).toBeNull()
+    expect(
+      readToPreview({
+        channel: PREVIEW_CHANNEL,
+        type: 'patch',
+        patch: { sections: { itinerario: { title: { html: '<b>' } } } },
+      }),
+    ).toBeNull()
+    expect(
+      readToPreview({
+        channel: PREVIEW_CHANNEL,
+        type: 'patch',
+        patch: { event: { title: 'XV', subtitle: '', celebrant: { full_name: 1 }, venue: {} } },
       }),
     ).toBeNull()
     expect(readToPreview('hola')).toBeNull()

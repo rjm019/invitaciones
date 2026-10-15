@@ -164,4 +164,25 @@ describe('useManagerSession', () => {
     window.dispatchEvent(Object.assign(new Event('storage'), { key: STORAGE_KEY }))
     expect(session.authenticated.value).toBe(false)
   })
+
+  it('mis datos al día llegan con la lista; si no cambiaron, no se vuelve a guardar nada', async () => {
+    localStorage.setItem(STORAGE_KEY, stored())
+    const { useManagerSession } = await fresh()
+    const session = useManagerSession()
+    const setItem = vi.spyOn(Storage.prototype, 'setItem')
+
+    session.setUser(person())
+    expect(setItem).not.toHaveBeenCalled()
+
+    session.setUser(person({ name: 'Ana L.', role: 'editor' }))
+    expect(session.user.value?.name).toBe('Ana L.')
+    expect(session.isAdmin.value).toBe(false)
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).user.name).toBe('Ana L.')
+
+    // Lo de otra persona no se mezcla con mi sesión.
+    session.setUser(person({ username: 'beto', name: 'Beto' }))
+    expect(session.user.value?.username).toBe('ana')
+    setItem.mockRestore()
+    expect(api.getMe).not.toHaveBeenCalled()
+  })
 })

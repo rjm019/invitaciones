@@ -26,8 +26,8 @@ import { useToasts } from '@/composables/useToasts'
 import { createAssetResolver } from '@/services/assetService'
 import { addSection, sectionLabel } from '@/services/designService'
 import * as managerService from '@/services/managerService'
+import { previewPatch } from '@/services/previewPatchService'
 import type { PreviewDisplay } from '@/services/previewProtocol'
-import { stylePatch } from '@/services/stylePatchService'
 import { loadTheme, themeAssets } from '@/themes'
 import type { ThemeManifest } from '@/themes/types'
 import type { DesignIssue, SettingsChange } from '@/types/design'
@@ -160,11 +160,12 @@ watch(
   { immediate: true },
 )
 
-// La config del servidor (cada guardado) y, encima, lo último de estilo (al instante).
+// La config del servidor (cada guardado) y, encima, lo último de estilo y de los textos que
+// pasan tal cual (al instante).
 let lastPatch = ''
 function sendPatch(force = false): void {
   if (!editor.catalog.value || !editor.design.value) return
-  const patch = stylePatch(editor.catalog.value, editor.design.value)
+  const patch = previewPatch(editor.catalog.value, editor.design.value)
   const json = JSON.stringify(patch)
   if (force || json !== lastPatch) {
     lastPatch = json

@@ -16,17 +16,28 @@ const api = vi.hoisted(() => ({
 }))
 vi.mock('@/services/managerService', () => api)
 
-import { RETRY_DELAY, SAVE_DELAY, SAVE_MAX_WAIT, useDesignEditor } from '../useDesignEditor'
+import {
+  CALM_DELAY,
+  CALM_MAX_WAIT,
+  forgetCatalog,
+  RETRY_DELAY,
+  SAVE_DELAY,
+  SAVE_MAX_WAIT,
+  useDesignEditor,
+} from '../useDesignEditor'
 
-const design = (titulo = 'Itinerario'): Design => ({
+const design = (titulo = 'Itinerario', actividad = 'Recepción'): Design => ({
   event: { tema: 'jardin-azul' },
   colors: {},
   fonts: {},
   texts: {},
   page: {},
-  sections: [{ id: 'itinerario', fields: { visible: 'SI', titulo }, items: [] }],
+  sections: [{ id: 'itinerario', fields: { visible: 'SI', titulo }, items: [{ actividad }] }],
 })
-const titled = (titulo: string) => design(titulo)
+/** Un cambio que la vista previa necesita del servidor (un elemento de la lista). */
+const titled = (titulo: string) => design('Itinerario', titulo)
+/** Un cambio que la vista previa ya muestra sola (el título de la sección). */
+const retitled = (titulo: string) => design(titulo)
 
 const payload = (d = design(), version = 'b-1'): DesignPayload => ({
   slug: 'mis-xv',
@@ -85,11 +96,12 @@ async function open() {
 }
 
 const savedTitles = () =>
-  api.saveDraft.mock.calls.map(([, , d]) => (d as Design).sections[0].fields.titulo)
+  api.saveDraft.mock.calls.map(([, , d]) => (d as Design).sections[0].items[0].actividad)
 
 describe('useDesignEditor', () => {
   beforeEach(() => {
     vi.useFakeTimers()
+    forgetCatalog()
     Object.values(api).forEach((m) => m.mockReset())
     api.getCatalog.mockResolvedValue({ version: 1, sections: [] })
     api.getDesign.mockResolvedValue(payload())
@@ -135,6 +147,59 @@ describe('useDesignEditor', () => {
     expect(editor.status.value).toBe('saved')
     expect(editor.version.value).toBe('b-2')
     expect(editor.changes.value).toHaveLength(1)
+  })
+
+  it('lo que la vista previa ya muestra (estilo, títulos) se guarda con calma', async () => {
+    api.saveDraft.mockResolvedValue(built('b-2'))
+    const editor = await open()
+
+    editor.update(retitled('Programa'), 'itinerario:titulo')
+    await vi.advanceTimersByTimeAsync(SAVE_DELAY)
+    expect(api.saveDraft).not.toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(CALM_DELAY - SAVE_DELAY)
+    expect(api.saveDraft).toHaveBeenCalledTimes(1)
+
+    // Escribiendo sin parar, una vez cada CALM_MAX_WAIT.
+    await flushPromises()
+    api.saveDraft.mockClear()
+    for (let t = 0; t < CALM_MAX_WAIT; t += CALM_DELAY / 2) {
+      editor.update(retitled(`Programa ${t}`), 'itinerario:titulo')
+      await vi.advanceTimersByTimeAsync(CALM_DELAY / 2)
+    }
+    expect(api.saveDraft).toHaveBeenCalledTimes(1)
+  })
+
+  it('si a lo tranquilo se suma algo que necesita al servidor, se guarda pronto', async () => {
+    api.saveDraft.mockResolvedValue(built('b-2'))
+    const editor = await open()
+
+    editor.update(retitled('Programa'))
+    await vi.advanceTimersByTimeAsync(SAVE_DELAY / 2)
+    editor.update({
+      ...retitled('Programa'),
+      sections: [{ ...retitled('Programa').sections[0], items: [{ actividad: 'Vals' }] }],
+    })
+    await vi.advanceTimersByTimeAsync(SAVE_DELAY)
+    expect(api.saveDraft).toHaveBeenCalledTimes(1)
+  })
+
+  it('al ocultar la pestaña, lo pendiente se guarda ya', async () => {
+    api.saveDraft.mockResolvedValue(built('b-2'))
+    const editor = await open()
+    editor.update(retitled('Programa'))
+
+    const visibility = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
+    document.dispatchEvent(new Event('visibilitychange'))
+    visibility.mockRestore()
+    expect(api.saveDraft).toHaveBeenCalledTimes(1)
+  })
+
+  it('el catálogo se pide una sola vez aunque se abran varias invitaciones', async () => {
+    await open()
+    wrapper?.unmount()
+    await open()
+    expect(api.getCatalog).toHaveBeenCalledTimes(1)
+    expect(api.getDesign).toHaveBeenCalledTimes(2)
   })
 
   it('si se escribe sin parar, guarda de todos modos cada poco', async () => {
@@ -192,7 +257,7 @@ describe('useDesignEditor', () => {
     editor.redo()
     await vi.advanceTimersByTimeAsync(SAVE_DELAY)
     await flushPromises()
-    expect(savedTitles()).toEqual(['Nuevo', 'Itinerario', 'Nuevo'])
+    expect(savedTitles()).toEqual(['Nuevo', 'Recepción', 'Nuevo'])
   })
 
   it('409: se detiene y pregunta; "conservar la mía" guarda encima de la otra', async () => {
@@ -268,27 +333,26 @@ describe('useDesignEditor', () => {
     expect(api.saveDraft).toHaveBeenCalledTimes(1)
   })
 
-  it('al publicar, primero guarda lo pendiente y publica esa versión', async () => {
+  it('al publicar, primero guarda lo pendiente, publica esa versión y no vuelve a pedirla', async () => {
     api.saveDraft.mockResolvedValue(built('b-2'))
     api.publish.mockResolvedValue({
+      ...payload(titled('Último'), 'p-2'),
+      source: 'live',
+      pending: false,
       published_at: '2026-10-14T12:00:00Z',
       migrated: false,
-      version: 'p-2',
     })
     const editor = await open()
     editor.update(titled('Último'))
 
-    api.getDesign.mockResolvedValue({
-      ...payload(titled('Último'), 'p-2'),
-      source: 'live',
-      pending: false,
-    })
     const publishing = editor.publish(true)
     await vi.advanceTimersByTimeAsync(0)
-    await publishing
+    expect(await publishing).toEqual({ published_at: '2026-10-14T12:00:00Z', migrated: false })
     expect(savedTitles()).toEqual(['Último'])
     expect(api.publish).toHaveBeenCalledWith('tok', 'mis-xv', 'b-2', true)
+    expect(api.getDesign).toHaveBeenCalledTimes(1)
     expect(editor.source.value).toBe('live')
+    expect(editor.version.value).toBe('p-2')
     expect(editor.pending.value).toBe(false)
   })
 
