@@ -10,7 +10,7 @@ for slug in demo-boda demo-xv demo-graduacion; do
   tmp="$(mktemp -t demo)"
   (cd "$here/$slug" && COPYFILE_DISABLE=1 tar -czf "$tmp" --exclude '.DS_Store' .)
   remote="/data/eventos/$slug"
-  echo "Subiendo $slug…"
+  echo "Subiendo ${slug}…"
   fly --config "$config" ssh console -C "sh -c 'rm -rf $remote && mkdir -p $remote && tar -xzf - -C $remote && chown -R www-data:www-data $remote'" < "$tmp"
   rm -f "$tmp"
 done
