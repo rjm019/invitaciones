@@ -12,7 +12,7 @@ eventos/<slug>/
 │   └── invitacion.csv     ← lo que se edita en el gestor (solo si hay cambios sin publicar)
 ├── media/                 ← fotos, fondos, adornos y audio (WebP/PNG/JPG/MP3)
 │   └── originales/        ← PNG/JPG tal como salen de Canva; `media:optimizar` los pasa a WebP
-├── ajustes.csv            ← lo que aplica al instante: clave del panel, si se ve, si es plantilla, fecha límite del cliente
+├── ajustes.csv            ← lo que aplica al instante: clave del panel, si se ve, si es plantilla, quién la edita en el gestor, fecha límite del cliente
 ├── ajustes-historial.csv  ← cada cambio de ajustes y quién lo hizo (la clave sale como "(cambiada)", nunca escrita)
 ├── invitaciones.csv       ← cada enlace generado en el panel: id, token, invitados, para, creada
 ├── respuestas.csv         ← un renglón por persona: invitacion, para, lugar, nombre, asistira, respondida, mesa
@@ -43,6 +43,7 @@ La invitación se diseña para celular primero; en una computadora o tablet acos
    - **La primera vez** pide "Crea la primera cuenta" con la clave maestra (`GESTOR_CLAVE`, 16 caracteres o más; sin ella el gestor no abre). Esa cuenta *administra*.
    - **Personas** (menú de tu cuenta, si administras): agregar a alguien le da una clave temporal, con un mensaje listo para mandárselo; al entrar elige la suya. Ahí también se cambia su rol (*Administra* o *Edita*), se le da otra clave temporal o se le quita el acceso (su nombre se queda en el historial).
    - **Cambiar mi clave**, en el mismo menú. Si alguien se queda fuera: `php artisan gestor:usuario <usuario> --clave-nueva`.
+   - **Quién ve qué:** quien *edita* ve solo las invitaciones que creó o que le asignaron, y todas las plantillas. Quien *administra* ve todas y las asigna en "Datos generales" → "Quién la edita" (queda en `ajustes.csv` → `personas_gestor`).
 2. **Invitaciones y plantillas:** cada tarjeta trae sus colores, su letra, si se ve, si tiene cambios sin publicar y cuántos confirmaron. En su menú ⋯: duplicar, guardar como plantilla y descargar.
 3. **Nueva invitación:** en blanco (todas las secciones con textos de ejemplo), desde una plantilla o como copia de otra. Se copian el diseño y `media/`. **Nunca** se copian los enlaces, las respuestas ni la clave del panel: se genera una clave nueva. Nace oculta.
 4. **El editor** (`/gestor/<slug>`):
@@ -53,7 +54,7 @@ La invitación se diseña para celular primero; en una computadora o tablet acos
    - **Centro:** la invitación de verdad, en celular o en computadora.
      - **Elegir:** tocar una sección la abre a la derecha; tocar un texto abre su "Aa".
      - **Probar:** la invitación funciona (botones, sobre, formulario de ejemplo).
-     - "Enlace personal" la muestra como una invitación de ejemplo de 4 lugares. "Ver como invitado" la muestra con el sobre cerrado.
+     - "Enlace personal" la muestra como una invitación de ejemplo de 4 lugares. "Ver como invitado" la muestra con el sobre cerrado (también si tu computadora tiene "reducir movimiento"; entonces abre sin animación).
    - **Derecha:** lo elegido. Cada sección tiene dos pestañas:
      - **Contenido:** sus textos (cada uno con su "Aa"), su lista, sus imágenes y los datos del evento que se ven en ella (el salón en Ubicación, la música en Música, la fecha límite en Confirmación).
      - **Diseño:** fondo, colores propios, imágenes del tema, animaciones y ancho en computadora.
