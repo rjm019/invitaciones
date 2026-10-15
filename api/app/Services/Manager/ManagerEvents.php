@@ -5,6 +5,7 @@ namespace App\Services\Manager;
 use App\Services\Design\Design;
 use App\Services\Design\DesignStore;
 use App\Services\Design\Normalizer;
+use App\Services\Design\PublicationLog;
 use App\Services\Invitations\InvitationStore;
 use App\Services\Invitations\ResponseStore;
 use App\Services\Layout\EventRepository;
@@ -14,7 +15,8 @@ use Throwable;
 
 /**
  * La lista del inicio del gestor: cada evento y cada plantilla con lo necesario para su
- * tarjeta (título, fecha, si se ve, si tiene cambios sin publicar, colores, confirmados).
+ * tarjeta (título, fecha, si se ve, si tiene cambios sin publicar, quién publicó la última
+ * vez, colores, confirmados).
  * Se lee de la invitación directamente (sin armar el config): es rápido aunque haya muchas.
  */
 final class ManagerEvents
@@ -24,6 +26,7 @@ final class ManagerEvents
         private readonly DesignStore $store,
         private readonly InvitationStore $invitations,
         private readonly ResponseStore $responses,
+        private readonly PublicationLog $log,
     ) {}
 
     /** @return list<array<string, mixed>> */
@@ -74,6 +77,7 @@ final class ManagerEvents
             'pending' => $current['source'] === 'draft' && $published !== null
                 && $this->store->pending($slug),
             'updated_at' => $this->updatedAt($dir),
+            'last_publish' => $published !== null ? $this->log->last($dir) : null,
             'cover' => [
                 'theme' => $design->event('tema'),
                 'colors' => array_filter([

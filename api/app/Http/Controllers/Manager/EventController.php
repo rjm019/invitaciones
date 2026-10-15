@@ -7,6 +7,7 @@ use App\Services\Design\DesignFactory;
 use App\Services\Invitations\EventSettings;
 use App\Services\Layout\EventRepository;
 use App\Services\Manager\DesignPayload;
+use App\Services\Manager\ManagerAuth;
 use App\Services\Manager\ManagerEvents;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
@@ -64,6 +65,7 @@ class EventController extends Controller
                 $data['source'] === 'event' ? $data['from'] : null,
                 (bool) ($data['template'] ?? false),
                 array_map(fn ($v) => (string) $v, array_filter($data['event'] ?? [], fn ($v) => $v !== null)),
+                by: ManagerAuth::actor($request),
             );
         } catch (RuntimeException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
@@ -102,7 +104,7 @@ class EventController extends Controller
         if (array_key_exists('published', $data)) {
             $changes['publicado'] = $data['published'] ? 'SI' : 'NO';
         }
-        $settings->put($dir, $changes, CarbonImmutable::now());
+        $settings->put($dir, $changes, CarbonImmutable::now(), ManagerAuth::actor($request));
         $events->forget($slug);
 
         return response()->json(['settings' => $payload->settings($slug)]);

@@ -24,22 +24,24 @@ final class DesignPublisher
         private readonly EventSettings $settings,
         private readonly LegacyMigrator $migrator,
         private readonly CsvFile $csv,
+        private readonly PublicationLog $log,
     ) {}
 
     /**
      * @param  bool  $replaceOwnerDeadline  si el dueño movió la fecha límite desde su panel y el
      *                                      gestor publica otra, ¿gana la del gestor?
+     * @param  array{usuario: string, nombre: string}|null  $by  quién publica (para la bitácora)
      * @return array{published_at: string, migrated: bool, version: string}
      *
      * @throws DesignConflict si la invitación cambió desde $expected
      * @throws PublishBlocked si tiene errores o no hay cambios
      */
-    public function publish(string $slug, string $expected, bool $replaceOwnerDeadline = false, ?CarbonImmutable $now = null): array
+    public function publish(string $slug, string $expected, bool $replaceOwnerDeadline = false, ?CarbonImmutable $now = null, ?array $by = null): array
     {
         $dir = $this->events->path($slug) ?? throw new RuntimeException('Evento no encontrado.');
         $now ??= CarbonImmutable::now();
 
-        return $this->csv->locked($this->store->livePath($dir), function () use ($slug, $dir, $expected, $replaceOwnerDeadline, $now) {
+        return $this->csv->locked($this->store->livePath($dir), function () use ($slug, $dir, $expected, $replaceOwnerDeadline, $now, $by) {
             $version = $this->store->version($slug);
             if (! hash_equals($version, $expected)) {
                 throw new DesignConflict($version);
@@ -67,11 +69,11 @@ final class DesignPublisher
             // cambios que el dueño ya usó se conservan).
             $deadlineChanged = $published['design']->event('rsvp_limite') !== $current['design']->event('rsvp_limite');
             if ($replaceOwnerDeadline && $deadlineChanged && trim($ownSettings['rsvp_limite'] ?? '') !== '') {
-                $this->settings->put($dir, ['rsvp_limite' => null], $now);
+                $this->settings->put($dir, ['rsvp_limite' => null], $now, $by);
             }
 
             if ($migrated) {
-                $this->migrator->apply($slug, $current['design'], $published['settings'], $now);
+                $this->migrator->apply($slug, $current['design'], $published['settings'], $now, $by);
             } else {
                 $this->store->archiveLive($dir, $now);
                 $this->file->write($this->store->livePath($dir), $current['design']);
@@ -79,7 +81,7 @@ final class DesignPublisher
             if ($current['source'] === 'draft') {
                 @unlink($this->store->draftPath($dir));
             }
-            $this->log($dir, $now, $migrated ? 'formato anterior' : 'borrador', count($current['design']->sections));
+            $this->log->add($dir, $now, $migrated ? 'formato anterior' : 'borrador', count($current['design']->sections), $by);
             $this->events->forget($slug);
 
             return [
@@ -88,19 +90,5 @@ final class DesignPublisher
                 'version' => $this->store->version($slug),
             ];
         });
-    }
-
-    /** Bitácora de publicaciones (respaldos/publicaciones.csv). */
-    private function log(string $dir, CarbonImmutable $now, string $source, int $sections): void
-    {
-        $backups = $dir.'/respaldos';
-        if (! is_dir($backups) && ! mkdir($backups, 0775, true) && ! is_dir($backups)) {
-            return;
-        }
-        $this->csv->append($backups.'/publicaciones.csv', ['fecha', 'origen', 'secciones'], [
-            'fecha' => $now->format('Y-m-d H:i:s'),
-            'origen' => $source,
-            'secciones' => $sections,
-        ]);
     }
 }

@@ -64,8 +64,13 @@ class EventsTest extends TestCase
 
         $files = array_values(array_diff(scandir("{$this->eventos}/copia"), ['.', '..']));
         sort($files);
-        $this->assertSame(['.ajustes-historial.csv.lock', '.ajustes.csv.lock', 'ajustes-historial.csv', 'ajustes.csv', 'invitacion.csv', 'media'], $files);
+        $this->assertSame(['.ajustes-historial.csv.lock', '.ajustes.csv.lock', 'ajustes-historial.csv', 'ajustes.csv', 'invitacion.csv', 'media', 'respaldos'], $files);
         $this->assertFileExists("{$this->eventos}/copia/media/salon.webp");
+        // Sus respaldos empiezan de cero: solo la bitácora, que dice quién la creó.
+        $this->assertSame(['.publicaciones.csv.lock', 'publicaciones.csv'], array_values(array_diff(scandir("{$this->eventos}/copia/respaldos"), ['.', '..'])));
+        $log = $this->readCsv('copia', 'respaldos/publicaciones.csv');
+        $this->assertSame(['copia de nueva', 'ana', 'Ana Prueba'], [$log[0]['origen'], $log[0]['usuario'], $log[0]['nombre']]);
+        $this->assertSame('ana', $this->readCsv('copia', 'ajustes-historial.csv')[0]['usuario']);
         // Copia lo que el gestor tenía enfrente (el borrador), nunca los enlaces del otro evento.
         $this->getJson('/api/manager/events/copia/design')->assertJsonPath('design.event.festejada', 'Del Borrador');
         $this->getJson('/api/public/invitations/NuevaToken01')->assertJsonPath('event.slug', 'nueva');

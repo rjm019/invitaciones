@@ -44,7 +44,7 @@ const STATUS: Record<SaveStatus, { icon: string; text: string; tone: string }> =
   saving: { icon: 'spinner', text: 'Guardando…', tone: '' },
   offline: { icon: 'wifi', text: 'Sin conexión: reintentando', tone: 'warn' },
   error: { icon: 'triangle-exclamation', text: 'No se pudo guardar', tone: 'danger' },
-  conflict: { icon: 'triangle-exclamation', text: 'Cambiada en otra ventana', tone: 'danger' },
+  conflict: { icon: 'triangle-exclamation', text: 'Alguien más la cambió', tone: 'danger' },
 }
 const state = computed(() => STATUS[props.status])
 const sourceLabel = computed(() => {

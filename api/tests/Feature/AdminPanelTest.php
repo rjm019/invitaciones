@@ -163,6 +163,7 @@ class AdminPanelTest extends TestCase
         // El cambio vive en ajustes.csv (el Excel del dueño no se toca) y aplica en todos lados.
         $this->assertSame('2026-11-08', array_column($this->readCsv('prueba', EventSettings::FILE), 'valor', 'clave')['rsvp_limite']);
         $this->assertCount(3, $this->readCsv('prueba', EventSettings::HISTORY));
+        $this->assertSame('panel', $this->readCsv('prueba', EventSettings::HISTORY)[0]['usuario']);
         $this->getJson('/api/public/events/prueba')->assertJsonPath('event.rsvp.deadline', '2026-11-08');
 
         CarbonImmutable::setTestNow('2026-11-08 20:00:00 America/Mexico_City');

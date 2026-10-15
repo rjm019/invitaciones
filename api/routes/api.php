@@ -8,6 +8,7 @@ use App\Http\Controllers\Manager\EventController as ManagerEventController;
 use App\Http\Controllers\Manager\MediaController as ManagerMediaController;
 use App\Http\Controllers\Manager\SessionController as ManagerSessionController;
 use App\Http\Controllers\Manager\TransferController;
+use App\Http\Controllers\Manager\UserController;
 use App\Http\Controllers\Public\DedicationController;
 use App\Http\Controllers\Public\EventController;
 use App\Http\Controllers\Public\InvitationController;
@@ -43,12 +44,24 @@ Route::prefix('admin/events/{slug}')->where(['slug' => '[a-z0-9-]+'])->group(fun
     });
 });
 
-// Gestor de invitaciones (/gestor): crea y diseña invitaciones. Se entra con GESTOR_CLAVE.
+// Gestor de invitaciones (/gestor): crea y diseña invitaciones. Cada persona entra con su
+// usuario; GESTOR_CLAVE lo enciende y crea la primera cuenta.
 Route::prefix('manager')->group(function () {
+    Route::get('/session', [ManagerSessionController::class, 'status'])->middleware('throttle:60,1');
     Route::post('/session', [ManagerSessionController::class, 'store'])->middleware('throttle:manager-login');
+    Route::post('/setup', [ManagerSessionController::class, 'setup'])->middleware('throttle:manager-login');
 
     // 240/min: el editor guarda solo (con pausa de 400 ms) mientras se escribe.
     Route::middleware(['manager', 'throttle:240,1'])->group(function () {
+        Route::get('/me', [ManagerSessionController::class, 'me']);
+        Route::put('/me/password', [ManagerSessionController::class, 'password'])->middleware('throttle:manager-password');
+
+        Route::middleware('manager.admin')->group(function () {
+            Route::get('/users', [UserController::class, 'index']);
+            Route::post('/users', [UserController::class, 'store']);
+            Route::put('/users/{username}', [UserController::class, 'update'])->where('username', '[a-z0-9._@-]+');
+        });
+
         Route::get('/catalog', CatalogController::class);
         Route::get('/events', [ManagerEventController::class, 'index']);
         Route::post('/events', [ManagerEventController::class, 'store']);

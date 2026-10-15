@@ -7,9 +7,11 @@ use App\Services\Design\DesignConflict;
 use App\Services\Design\DesignInput;
 use App\Services\Design\DesignPublisher;
 use App\Services\Design\DesignStore;
+use App\Services\Design\PublicationLog;
 use App\Services\Design\PublishBlocked;
 use App\Services\Layout\EventRepository;
 use App\Services\Manager\DesignPayload;
+use App\Services\Manager\ManagerAuth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use RuntimeException;
@@ -34,7 +36,7 @@ class DesignController extends Controller
 
     /**
      * PUT /api/manager/events/{slug}/draft — { design, version }
-     * → { version, has_draft, pending, config, issues, brand } · 409 si cambió en otra ventana.
+     * → { version, has_draft, pending, config, issues, brand } · 409 si otra persona u otra ventana la cambió.
      */
     public function save(Request $request, string $slug): JsonResponse
     {
@@ -83,7 +85,12 @@ class DesignController extends Controller
         ], ['version.*' => 'Falta la versión de la invitación.']);
 
         try {
-            $published = $publisher->publish($slug, $data['version'], (bool) ($data['replace_owner_deadline'] ?? false));
+            $published = $publisher->publish(
+                $slug,
+                $data['version'],
+                (bool) ($data['replace_owner_deadline'] ?? false),
+                by: ManagerAuth::actor($request),
+            );
         } catch (DesignConflict $e) {
             return $this->conflict($slug, $e);
         } catch (PublishBlocked $e) {
@@ -93,10 +100,21 @@ class DesignController extends Controller
         return response()->json($published);
     }
 
-    /** GET /api/manager/events/{slug}/history — las versiones publicadas antes. */
-    public function history(string $slug): JsonResponse
+    /**
+     * GET /api/manager/events/{slug}/history → { current, versions }: quién publicó la versión
+     * que ven los invitados, y las anteriores (cada una con quién la publicó, si se sabe).
+     */
+    public function history(string $slug, PublicationLog $log): JsonResponse
     {
-        return $this->missing($slug) ?? response()->json(['versions' => $this->store->history($slug)]);
+        if ($missing = $this->missing($slug)) {
+            return $missing;
+        }
+        $dir = (string) $this->events->path($slug);
+
+        return response()->json([
+            'current' => $this->events->hasDesign($slug) ? $log->last($dir) : null,
+            'versions' => $this->store->history($slug),
+        ]);
     }
 
     /** POST /api/manager/events/{slug}/history/{id}/restore — esa versión pasa al borrador. */
@@ -122,7 +140,7 @@ class DesignController extends Controller
     private function conflict(string $slug, DesignConflict $e): JsonResponse
     {
         return response()->json([
-            'message' => 'Esta invitación se cambió en otra ventana.',
+            'message' => 'Alguien más cambió esta invitación (otra persona u otra ventana).',
             'version' => $e->version,
             'design' => $this->store->current($slug)['design']->toArray(),
         ], 409);

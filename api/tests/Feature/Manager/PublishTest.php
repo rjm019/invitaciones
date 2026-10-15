@@ -55,6 +55,38 @@ class PublishTest extends TestCase
             ->assertJsonPath('design.sections.3.fields.titulo', 'Itinerario');
     }
 
+    public function test_the_history_says_who_published_each_version(): void
+    {
+        $version = $this->draft('nueva', function ($design) {
+            $design['sections'][3]['fields']['titulo'] = 'Programa';
+
+            return $design;
+        });
+        $this->postJson('/api/manager/events/nueva/publish', ['version' => $version])->assertOk();
+
+        $this->travel(5)->minutes();
+        $editor = $this->asManager('beto', 'editor')->getJson('/api/manager/events/nueva/design')->json();
+        $editor['design']['sections'][3]['fields']['titulo'] = 'Agenda';
+        $version = $this->putJson('/api/manager/events/nueva/draft', ['design' => $editor['design'], 'version' => $editor['version']])->json('version');
+        $this->postJson('/api/manager/events/nueva/publish', ['version' => $version])->assertOk();
+
+        $log = $this->readCsv('nueva', 'respaldos/publicaciones.csv');
+        $this->assertSame([['ana', 'Ana Prueba'], ['beto', 'Beto Prueba']], array_map(fn ($r) => [$r['usuario'], $r['nombre']], $log));
+
+        $history = $this->getJson('/api/manager/events/nueva/history')->assertOk()->json();
+        $this->assertSame('Beto Prueba', $history['current']['by']['name']);
+        $this->assertCount(2, $history['versions']);
+        // "Programa" la publicó Ana y dejó de verse cuando publicó Beto.
+        $this->assertSame('ana', $history['versions'][0]['by']['username']);
+        $this->assertSame('borrador', $history['versions'][0]['origin']);
+        $this->assertLessThan($history['versions'][0]['replaced_at'], $history['versions'][0]['published_at']);
+        // La primera (la del archivo de prueba) no tiene registro de quién.
+        $this->assertNull($history['versions'][1]['by']);
+        $this->assertNull($history['versions'][1]['published_at']);
+
+        $this->getJson('/api/manager/events')->assertJsonPath('events.0.last_publish.by.name', 'Beto Prueba');
+    }
+
     public function test_nothing_to_publish_and_mistakes_block_publishing(): void
     {
         $editor = $this->asManager()->getJson('/api/manager/events/nueva/design')->json();

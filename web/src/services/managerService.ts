@@ -2,10 +2,11 @@ import type {
   Catalog,
   Design,
   DesignBuild,
+  DesignHistory,
   DesignPayload,
-  HistoryVersion,
   ManagerEvent,
   ManagerSettings,
+  ManagerUser,
   MediaFile,
 } from '@/types/design'
 import { http } from './http'
@@ -15,13 +16,88 @@ import { http } from './http'
 export interface ManagerSession {
   token: string
   expires_at: string
+  user: ManagerUser
 }
 
 const auth = (token: string) => ({ headers: { Authorization: `Bearer ${token}` } })
 const event = (slug: string) => `/manager/events/${encodeURIComponent(slug)}`
 
-export async function login(password: string): Promise<ManagerSession> {
-  const { data } = await http.post<ManagerSession>('/manager/session', { password })
+/** ¿El gestor está encendido? ¿Falta crear la primera cuenta? */
+export async function getStatus(): Promise<{ enabled: boolean; setup: boolean }> {
+  const { data } = await http.get<{ enabled: boolean; setup: boolean }>('/manager/session')
+  return data
+}
+
+export async function login(username: string, password: string): Promise<ManagerSession> {
+  const { data } = await http.post<ManagerSession>('/manager/session', { username, password })
+  return data
+}
+
+export interface FirstAccount {
+  master_password: string
+  name: string
+  username: string
+  password: string
+}
+
+/** La primera cuenta (administra), con la clave maestra. */
+export async function setup(account: FirstAccount): Promise<ManagerSession> {
+  const { data } = await http.post<ManagerSession>('/manager/setup', account)
+  return data
+}
+
+export async function getMe(token: string): Promise<ManagerUser> {
+  const { data } = await http.get<{ user: ManagerUser }>('/manager/me', auth(token))
+  return data.user
+}
+
+/** Cambia mi clave; la sesión anterior deja de servir y llega una nueva. */
+export async function changePassword(
+  token: string,
+  current: string,
+  password: string,
+): Promise<ManagerSession> {
+  const { data } = await http.put<ManagerSession>(
+    '/manager/me/password',
+    { current_password: current, password },
+    auth(token),
+  )
+  return data
+}
+
+export async function listUsers(token: string): Promise<ManagerUser[]> {
+  const { data } = await http.get<{ users: ManagerUser[] }>('/manager/users', auth(token))
+  return data.users
+}
+
+/** Agrega una persona; la clave temporal llega una sola vez. */
+export async function createUser(
+  token: string,
+  person: { name: string; username: string; role: ManagerUser['role'] },
+): Promise<{ user: ManagerUser; password: string }> {
+  const { data } = await http.post<{ user: ManagerUser; password: string }>(
+    '/manager/users',
+    person,
+    auth(token),
+  )
+  return data
+}
+
+export async function updateUser(
+  token: string,
+  username: string,
+  changes: Partial<{
+    name: string
+    role: ManagerUser['role']
+    active: boolean
+    reset_password: true
+  }>,
+): Promise<{ user: ManagerUser; password?: string }> {
+  const { data } = await http.put<{ user: ManagerUser; password?: string }>(
+    `/manager/users/${encodeURIComponent(username)}`,
+    changes,
+    auth(token),
+  )
   return data
 }
 
@@ -96,12 +172,9 @@ export async function publish(
   return data
 }
 
-export async function getHistory(token: string, slug: string): Promise<HistoryVersion[]> {
-  const { data } = await http.get<{ versions: HistoryVersion[] }>(
-    `${event(slug)}/history`,
-    auth(token),
-  )
-  return data.versions
+export async function getHistory(token: string, slug: string): Promise<DesignHistory> {
+  const { data } = await http.get<DesignHistory>(`${event(slug)}/history`, auth(token))
+  return data
 }
 
 export async function restoreVersion(
