@@ -1,6 +1,6 @@
 # Avance y cambios contra el plan
 
-**Actualizado:** 14-oct-2026. **Ramas:** `main` (el motor, en `origin/main` desde `d2915da`) y `feature/gestor-plantillas` (el gestor y el formato nuevo, sin push ni merge: espera tu revisión).
+**Actualizado:** 15-oct-2026. **Ramas:** `main` (el motor, en `origin/main` desde `d2915da`) y `feature/gestor-plantillas` (el gestor y el formato nuevo, sin push ni merge: espera tu revisión).
 
 Este archivo dice **qué se hizo, qué cambió contra el plan original y qué falta**. Las fases de `04-fases/` tienen sus casillas marcadas con la misma información. Las dudas abiertas están en `08-decisiones-pendientes.md`.
 
@@ -10,7 +10,7 @@ La invitación de Nat y su panel ya están **publicados en Fly.io**. Tras renomb
 
 El cambio más grande contra el plan: **no hay base de datos**. Todo vive en archivos por evento (`eventos/<slug>/`): el diseño y el contenido en `invitacion.csv` (antes, un Excel `layout.xlsx`), y las invitaciones, respuestas y ajustes en CSV que escribe la API.
 
-**Nuevo (14-oct, rama `feature/gestor-plantillas`):** el **gestor** (`/gestor`), un editor visual para armar invitaciones y plantillas con la invitación a la vista, con una cuenta por persona, y el formato `invitacion.csv`, que reemplaza a `layout.xlsx`. NAT local ya está migrado; producción sigue igual hasta que corras el runbook. Detalle en `04-fases/fase-8-gestor-de-plantillas.md`.
+**Nuevo (14-oct, rama `feature/gestor-plantillas`):** el **gestor** (`/gestor`), un editor visual para armar invitaciones y plantillas con la invitación a la vista, con una cuenta por persona, y el formato `invitacion.csv`, que reemplaza a `layout.xlsx`. NAT local ya está migrado; producción sigue igual hasta que corras el runbook. Detalle en `04-fases/fase-8-gestor-de-plantillas.md`. El 15-oct, el gestor pasó a darle al servidor dos tercios menos de trabajo (−66 %) con la mitad de las peticiones, y los textos se ven al instante en la vista previa.
 
 ## Qué está hecho
 
@@ -304,7 +304,32 @@ Pedidos sobre capturas del celular:
 - **Favicon propio:** el sobre del gestor (índigo, con un corazón de lacre) en lugar del logo de Vue, en la invitación, el panel y el gestor (`favicon.svg`, `favicon.ico` de 16/32/48 y el ícono de iPhone).
 - **Desde la terminal:** `invitacion:validar`, `invitacion:exportar`, `invitacion:importar`, `invitacion:migrar` y `gestor:usuario`.
 - **Producción:** `deploy/subir-evento.sh` ya no sube `invitacion.csv` sin `--forzar` (allá la edita el gestor); `deploy/bajar-evento.sh` trae un evento del servidor.
-- **Pruebas:** API 171 (1148 aserciones); web 266, más lint, type-check y build en verde.
+- **Pruebas:** API 171 (1148 aserciones); web 266, más lint, type-check y build en verde. (Con la etapa del 15-oct: API 178 y web 280.)
+
+### El gestor le pide menos al servidor (15-oct, rama `feature/gestor-plantillas`)
+
+Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el servidor". Nada de lo que hace el gestor cambió; lo único que se nota es que los textos ahora se ven al instante en la vista previa.
+
+- **Menos peticiones:**
+  - Lo que la vista previa ya muestra sola (colores, letras, tamaños y los textos que pasan tal cual: títulos, subtítulos, textos, botones, nombres y salón) se guarda con calma: 1 s después de dejar de escribir, o cada 5 s si se escribe sin parar.
+  - Lo demás se guarda a los 400 ms, como antes.
+  - El catálogo, las personas y mis datos ya no se piden dos veces, y publicar no vuelve a pedir el diseño.
+- **Cada petición cuesta menos:** guardar o abrir lee cada archivo una vez (antes, el borrador hasta 5 veces por guardado).
+- **Producción** (en `deploy/`, sale con el próximo deploy):
+  - Apache entrega las fotos sin pasar por PHP; también ayuda a la invitación pública.
+  - El JSON va comprimido.
+  - Las páginas ya no abren sesión ni mandan cookies que nadie usaba.
+- **Medido** con la imagen de producción (1 CPU, 512 MB) y una sesión de edición guionada, mediana de 3 corridas:
+
+  | | Antes | Después | Cambio |
+  |---|---|---|---|
+  | Peticiones a PHP con caché | 58 | 28 | −52 % |
+  | Peticiones a PHP la primera vez | 89 | 28 | −69 % |
+  | Trabajo del servidor por sesión, con caché | 520 ms | 177 ms | −66 % |
+  | Trabajo del servidor por sesión, primera vez | 640 ms | 193 ms | −70 % |
+  | Datos enviados con caché | 608 KB | 68 KB | −89 % |
+
+  El detalle y cómo se midió está en `04-fases/fase-8-gestor-de-plantillas.md` → H.
 
 ### Invitación personal y confirmación
 
@@ -359,6 +384,8 @@ Pedidos sobre capturas del celular:
 | Letras y colores solo para toda la invitación | Letra, color y tamaño por bloque de texto y colores por sección | Decisión tuya (14-oct) |
 | Una clave maestra para entrar al gestor (D12) | Una cuenta por persona, con rol, clave temporal y quién publicó qué | Decisión tuya (14-oct, pregunta 39) |
 | Todos ven todas las invitaciones del gestor | Quien edita ve las suyas; quien administra ve y asigna todas (D17) | Decisión tuya (14-oct, pregunta 40) |
+| Autoguardado a los 400 ms para todo (plan del gestor) | Dos ritmos: 400 ms si la vista previa necesita al servidor; 1 s (máximo 5 s) si ya lo muestra sola, con los textos al instante | Pedido tuyo (15-oct): menos demanda en el servidor |
+| Fotos y audio servidos por Laravel | Los entrega Apache directo del disco (Laravel solo en desarrollo) | Mismo pedido |
 
 ## Qué falta
 

@@ -1,11 +1,11 @@
 # Fase 8 — Gestor de plantillas y formato `invitacion.csv`
 
 **Objetivo:** que cualquiera arme una invitación sin tocar Excel: secciones, orden, colores con selector, letras, imágenes, ubicaciones, textos y música, con la invitación a la vista mientras se edita. Y que todo siga en un archivo que se abre en Excel y se puede desarmar y volver a armar.
-**Duración real:** 14-oct-2026.
+**Duración real:** 14-oct-2026 (y la etapa H, 15-oct).
 **Rama:** `feature/gestor-plantillas` (sin push, merge ni deploy hasta que la revises).
 **Referencias:** `eventos/README.md` (formato y uso), `../03-arquitectura-objetivo/api-contrato.md` (API del gestor), `../03-arquitectura-objetivo/frontend.md` (cómo está armado), `../06-despliegue/despliegue.md` (runbook de producción).
 
-> **Estado (14-oct-2026): etapas A–E y G (una cuenta por persona) hechas en la rama; falta tu revisión.** NAT local ya está en el formato nuevo (la migración salió "idéntica"). Producción no cambió: el runbook corre solo cuando lo pidas. La etapa F (limpieza) es después del 28-nov.
+> **Estado (15-oct-2026): etapas A–E, G (una cuenta por persona) y H (menos trabajo para el servidor) hechas en la rama; falta tu revisión.** NAT local ya está en el formato nuevo (la migración salió "idéntica"). Producción no cambió: el runbook corre solo cuando lo pidas. La etapa F (limpieza) es después del 28-nov.
 > Casillas: `[x]` hecho · `[x] ~~…~~ Cambió:` resuelto de otra forma · `[ ]` pendiente.
 
 ## Decisiones (14-oct)
@@ -94,11 +94,73 @@
 - [x] Cada quien las suyas (pregunta 40): `ManagerAccess` (`ajustes.csv` → `personas_gestor`), `manager.event` en todo `/events/{slug}/…` (403 "no está asignada a ti"), la lista filtrada, quien crea queda asignado, copiar solo lo que ves (las plantillas, todos), y "Quién la edita" en Datos generales (quien administra marca a las personas; quien edita ve quiénes la editan). `AccessTest`; QA con Ricardo y Beto.
 - [x] Sobre en la vista previa (pregunta 38): "Ver como invitado" lo muestra cerrado aunque haya "reducir movimiento" y abre sin animación. `HeroEnvelopeSection.spec`; QA con el movimiento reducido emulado.
 
+### H. El gestor le pide menos al servidor (15-oct: `247b1d7`, `7f0d492`, `1f574b9`)
+
+Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el servidor", sin perder nada de lo que hace.
+
+- [x] **API: cada operación lee la invitación una sola vez.**
+  - `DesignState` y `StoredDesign`: el borrador y la publicada se leen una vez, y se descifran solo si alguien los pide.
+  - La versión es la huella de los bytes del archivo. En lo que escribe el sistema es la misma de antes, así que una ventana abierta durante un deploy no se entera.
+  - Guardar responde con lo que acaba de escribir, sin volver a leerlo. Antes, cada guardado leía y descifraba el borrador 5 veces y la publicada 2.
+- [x] **API: menos trabajo repetido.**
+  - `media()` arma la URL base una vez.
+  - `ajustes.csv` y `usuarios.csv` se leen una vez por operación.
+  - Las plantillas no cuentan invitados.
+- [x] **API: respuestas que ahorran peticiones.**
+  - `GET /events` trae también `user`: el inicio ya no pide `/me`.
+  - `POST /publish` responde con el editor al día: ya no se pide el diseño otra vez.
+- [x] **Editor: los textos se ven al instante.**
+  - El parche de la vista previa (`previewPatchService`, antes `stylePatchService`) suma títulos, subtítulos, textos y botones de cada sección, y el título, los nombres y el salón del evento, con el `trim` de PHP.
+  - La vista previa lo aplica una vez por cuadro.
+- [x] **Editor: autoguardado con dos ritmos.**
+  - Si la vista previa necesita al servidor para verse, 400 ms después de la última tecla (2 s como máximo), igual que antes.
+  - Si ya lo muestra sola (estilo y esos textos), 1 s después (5 s como máximo).
+  - Al ocultar la pestaña se guarda en ese momento.
+- [x] **Editor: no se pide dos veces lo mismo.** El catálogo y las personas se piden una vez por página (`useManagerPeople`), y mis datos llegan con la lista.
+- [x] **Producción (`deploy/`, sin deploy todavía).**
+  - Apache entrega `/media` directo del disco, con 304 y rangos; Laravel solo ve lo que no coincide.
+  - El JSON va comprimido.
+  - `php artisan optimize`.
+  - Las páginas (invitación, panel y gestor) ya no abren sesión ni mandan cookies que nadie usaba.
+- [x] **Medido** con la imagen de producción en un contenedor de 1 CPU y 512 MB, con los datos en un volumen como el de Fly. La sesión de edición está guionada en Chrome sin ventana:
+  - Arrastrar el color principal y el tamaño de los títulos.
+  - Escribir un título y una frase.
+  - Cambiar dos actividades y el nombre corto.
+  - Ocultar, mover y agregar secciones.
+  - Abrir la biblioteca, publicar y volver al inicio.
+
+  Mediana de 3 corridas:
+
+  | | Antes | Después | Cambio |
+  |---|---|---|---|
+  | Peticiones a PHP, con caché del navegador | 58 | 28 | −52 % |
+  | Peticiones a PHP, primera vez (fotos sin caché) | 89 | 28 | −69 % |
+  | Guardados del borrador | 45 | 19 | −58 % |
+  | Bytes enviados, con caché | 608 KB | 68 KB | −89 % |
+  | CPU por guardado (peticiones seguidas) | 10.1 ms | 6.9 ms | −32 % |
+  | CPU por abrir el editor | 8.4 ms | 6.0 ms | −29 % |
+  | CPU por foto | 3.7 ms | 0.5 ms | −85 % |
+  | **Trabajo del servidor por sesión, con caché** (peticiones × su costo) | 520 ms | 177 ms | **−66 %** |
+  | **Trabajo del servidor por sesión, primera vez** | 640 ms | 193 ms | **−70 %** |
+  | CPU del contenedor en la sesión, con caché (medida directa) | 2.63 s | 1.56 s | −41 % |
+  | CPU del contenedor en la sesión, primera vez (medida directa) | 2.82 s | 2.15 s | −24 % |
+
+  En esta Mac (M1), una petición suelta gasta varias veces más CPU que en ráfaga, porque a veces cae en los núcleos de eficiencia. Eso tapa parte del ahorro en la medida directa, que además varía mucho entre corridas (la misma versión dio de 1.3 a 2.2 s). Por eso la comparación principal es el trabajo por sesión: las peticiones que hizo cada sesión, por el costo de cada tipo medido en ráfaga (mediana de 3, alternando versiones). En Fly (x86, sin esos núcleos) el ahorro debe quedar más cerca de esa cifra. El JSON comprimido le suma ~0.5 ms a cada respuesta (por eso el catálogo sube de 3.0 a 3.7 ms), a cambio de mandar ~75 % menos.
+- [x] **QA en la imagen de producción (23/23):**
+  - Media: 200 con ETag y `nosniff`, 304, rangos del MP3; `_gestor`, `originales/`, `.csv` y `.php` no se entregan.
+  - HTML, CSS, JS y JSON con gzip.
+  - El título se ve en la vista previa antes de guardar y se guarda al segundo.
+  - Una actividad se guarda pronto; ocultar la pestaña guarda.
+  - Sin errores de la página.
+- [x] **Pruebas:**
+  - API 178: `DesignStateTest`; guardar responde lo mismo que abrir; lista con `user`; publicar con el editor; páginas sin cookies.
+  - Web 280: `previewPatchService`, `previewService`, `previewProtocol`, los dos ritmos en `useDesignEditor`, `useManagerPeople` y `setUser`.
+
 ## Cómo se prueba
 
 ```bash
-docker compose exec api php artisan test                  # 171 pruebas
-docker compose exec web npm run test                      # 266 pruebas
+docker compose exec api php artisan test                  # 178 pruebas
+docker compose exec web npm run test                      # 280 pruebas
 docker compose exec web npm run lint && docker compose exec web npx vue-tsc --build --force
 docker compose exec web npm run build
 ```

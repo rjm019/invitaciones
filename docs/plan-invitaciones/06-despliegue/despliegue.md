@@ -21,8 +21,11 @@ Se eligió Fly.io porque es barato y tiene disco persistente. La app guarda todo
 - Se arma en dos etapas: primero se compila la invitación (Vue, con `VITE_API_URL` vacío) y luego va con Laravel sobre `php:8.3-apache`.
 - Apache sirve los archivos de `public/` con `KeepAlive Off` (con prefork, cada conexión abierta del proxy ocupaba un proceso y las demás hacían fila).
 - Cualquier ruta que no sea `/api` ni `/media` responde `public/app.html`, que es la invitación compilada (`SpaController`). En `/e/{slug}` y `/i/{token}`, la página ya lleva los datos en `window.__BOOT__`, así la invitación no espera otra petición.
+- **La media la entrega Apache directo** (`AliasMatch` a `${EVENTOS_PATH}/<slug>/media/<archivo>`), sin arrancar PHP por cada foto: con las mismas reglas que `MediaController` (solo el primer nivel de `media/`, extensiones de imagen y audio; `_gestor`, `originales/` y `..` nunca coinciden) y sus encabezados (`Cache-Control` de 7 días, `nosniff`, `noindex`). Además contesta 304 y rangos (el MP3). Lo que no coincida lo sigue respondiendo Laravel; en desarrollo, todo.
+- **El JSON va comprimido** (`AddOutputFilterByType DEFLATE application/json`, fuera del `VirtualHost` para que se sume al `deflate.conf` de Debian); el HTML, el CSS y el JS ya lo iban.
+- Las páginas (invitación, panel y gestor) no abren sesión de Laravel ni mandan cookies: nada las usa (la API trabaja con tokens).
 - `.dockerignore` deja fuera `eventos/`, `docs/`, `recepcion/`, los `.env` y lo de la boda original en `web/public` (fotos reales y una canción con derechos).
-- `deploy/` trae la configuración de Apache (12 procesos como máximo), la de PHP y el arranque. El arranque crea las carpetas del disco y cachea la configuración de Laravel.
+- `deploy/` trae la configuración de Apache (12 procesos como máximo), la de PHP y el arranque. El arranque crea las carpetas del disco, le pasa `EVENTOS_PATH` a Apache y deja en caché la configuración, las rutas, las vistas y los eventos de Laravel (`php artisan optimize`).
 - PHP acepta subidas de hasta 60 MB (`upload_max_filesize=60M`, `post_max_size=64M`) para el audio y los zip del gestor; cada imagen se limita en la app (15 MB y un máximo de megapíxeles, con `memory_limit` alto solo mientras se convierte a WebP).
 - En `/gestor*` la página lleva `X-Robots-Tag: noindex` y `Content-Security-Policy: frame-ancestors 'self'` (la vista previa es un iframe del mismo sitio).
 
@@ -95,4 +98,5 @@ fly volumes snapshots list <id-del-volumen>                            # respald
 - [ ] `docker compose exec api php artisan test`, `docker compose exec web npm run test` y `docker compose exec web npm run build` en verde.
 - [ ] `fly deploy --ha=false`.
 - [ ] Abrir `/up`, `/e/<slug>`, `/panel/<slug>` y `/gestor`. Confirmar con una invitación de prueba y borrarla del CSV si hace falta.
+- [ ] La media sale de Apache y el JSON comprimido: `curl -sI https://invitaciones-jiro.fly.dev/media/nat/sobre.webp` trae `ETag` y `X-Content-Type-Options: nosniff` (Laravel no manda `ETag`), y `curl -sI -H 'Accept-Encoding: gzip' https://invitaciones-jiro.fly.dev/api/public/events/nat` trae `Content-Encoding: gzip`.
 - [ ] `fly logs` sin errores.
