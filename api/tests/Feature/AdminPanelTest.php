@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Services\Invitations\DedicationStore;
 use App\Services\Invitations\EventSettings;
 use App\Services\Invitations\InvitationStore;
+use App\Services\Invitations\ResponseStore;
+use App\Services\Invitations\RsvpException;
 use Carbon\CarbonImmutable;
 use Tests\Concerns\CopiesEventFixtures;
 use Tests\TestCase;
@@ -229,6 +232,67 @@ class AdminPanelTest extends TestCase
             ->assertJsonPath('errors', ['assignments.0.table' => ['La mesa debe ser un número de 1 a 999.']]);
         $this->putJson('/api/admin/events/prueba/tables', ['assignments' => [['invitation' => '2', 'slot' => 1, 'table' => 5]]])
             ->assertUnauthorized();
+    }
+
+    public function test_deletes_an_invitation_with_its_guests_and_dedication(): void
+    {
+        $token = $this->login();
+        $this->postJson('/api/public/invitations/Fam1Token001/rsvp', [
+            'attending' => true,
+            'guests' => [['full_name' => 'Ana Prueba'], ['full_name' => 'Luis Prueba']],
+        ])->assertOk();
+        $this->postJson('/api/public/invitations/Fam1Token001/dedication', ['name' => 'Ana', 'message' => '¡Felicidades!'])->assertOk();
+        $this->postJson('/api/public/invitations/Fam3Token003/dedication', ['name' => 'Eva', 'message' => 'Te quiero.'])->assertOk();
+        $before = $this->getJson('/api/admin/events/prueba/version', $this->auth($token))->json('version');
+
+        $data = $this->deleteJson('/api/admin/events/prueba/invitations/1', [], $this->auth($token))->assertOk()->json();
+
+        // El panel ya viene sin ella, con los totales al día, y su huella cambió (otras pestañas se enteran).
+        $this->assertSame(['2', '3'], array_column($data['invitations'], 'id'));
+        $this->assertSame(['invitations' => 2, 'seats' => 3, 'attending' => 0, 'declined' => 1, 'empty' => 2], $data['summary']);
+        $this->assertSame(['Eva'], array_column($data['dedications'], 'name'));
+        $this->assertNotSame($before, $data['version']);
+
+        // El enlace ya no abre ni acepta nombres.
+        $this->getJson('/api/public/invitations/Fam1Token001')->assertNotFound();
+        $this->postJson('/api/public/invitations/Fam1Token001/rsvp', ['attending' => true, 'guests' => [['full_name' => 'Otra']]])->assertNotFound();
+
+        // Sus personas y su dedicatoria salen de los archivos y quedan en los de eliminados, con la fecha.
+        $this->assertSame(['2'], array_column($this->readCsv('prueba', ResponseStore::FILE), 'invitacion'));
+        $this->assertSame(['3'], array_column($this->readCsv('prueba', DedicationStore::FILE), 'invitacion'));
+        $deleted = $this->readCsv('prueba', ResponseStore::DELETED);
+        $this->assertSame(['Ana Prueba', 'Luis Prueba'], array_column($deleted, 'nombre'));
+        $this->assertSame('2026-10-13 12:00:00', $deleted[0]['eliminada']);
+        $this->assertSame(['¡Felicidades!'], array_column($this->readCsv('prueba', DedicationStore::DELETED), 'dedicatoria'));
+
+        // La invitación se queda marcada: su número no se vuelve a usar.
+        $this->assertSame('2026-10-13 12:00', $this->readCsv('prueba', InvitationStore::FILE)[0]['eliminada']);
+        $this->postJson('/api/admin/events/prueba/invitations', ['passes' => 2], $this->auth($token))
+            ->assertCreated()
+            ->assertJsonPath('invitation.id', '4');
+
+        // Si alguien estaba confirmando justo cuando se eliminó, su envío no deja personas sueltas.
+        $record = ['id' => '1', 'token' => 'Fam1Token001', 'passes' => 3, 'label' => 'Familia Prueba', 'created_at' => ''];
+        try {
+            app(ResponseStore::class)->add('prueba', $record, ['Tarde'], true, CarbonImmutable::now());
+            $this->fail('Una invitación eliminada no acepta nombres.');
+        } catch (RsvpException $e) {
+            $this->assertSame(404, $e->status);
+        }
+        $this->assertSame(['2'], array_column($this->readCsv('prueba', ResponseStore::FILE), 'invitacion'));
+    }
+
+    public function test_deleting_needs_a_session_and_an_existing_invitation(): void
+    {
+        $this->deleteJson('/api/admin/events/prueba/invitations/1')->assertUnauthorized();
+
+        $token = $this->login();
+        $this->deleteJson('/api/admin/events/prueba/invitations/9', [], $this->auth($token))
+            ->assertNotFound()
+            ->assertJsonPath('message', 'La invitación #9 no existe o ya se eliminó.');
+        $this->deleteJson('/api/admin/events/prueba/invitations/2', [], $this->auth($token))->assertOk();
+        $this->deleteJson('/api/admin/events/prueba/invitations/2', [], $this->auth($token))->assertNotFound();
+        $this->deleteJson('/api/admin/events/prueba/invitations/abc', [], $this->auth($token))->assertClientError();
     }
 
     public function test_the_password_never_reaches_the_public_invitation(): void

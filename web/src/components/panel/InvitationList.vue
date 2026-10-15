@@ -1,19 +1,27 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useClipboard } from '@/composables/useClipboard'
-import { filterInvitations, invitationProgress, parseTable } from '@/services/panelService'
-import type { PanelInvitation, TableAssignment } from '@/types/panel'
+import {
+  deletionWarning,
+  filterInvitations,
+  invitationProgress,
+  parseTable,
+} from '@/services/panelService'
+import type { PanelDedication, PanelInvitation, TableAssignment } from '@/types/panel'
 
 /**
  * Invitaciones generadas: se despliega al tocar el título (cerrada al entrar, para que el
  * panel se vea limpio). De cada una: para cuántos invitados es, quiénes ya respondieron, su
  * mesa y "Enviar" (la imagen para WhatsApp). El enlace no se muestra: solo "copiar link" o
- * "ver link", discretos.
+ * "ver link", discretos. "eliminar" pide confirmarlo ahí mismo: se borra con sus invitados y
+ * su dedicatoria, y el enlace deja de abrir.
  */
 const props = defineProps<{
   invitations: PanelInvitation[]
   highlight: string | null
+  dedications: PanelDedication[]
   assign: (assignments: TableAssignment[]) => Promise<void>
+  remove: (id: string) => Promise<void>
 }>()
 const emit = defineEmits<{ send: [invitation: PanelInvitation] }>()
 
@@ -53,6 +61,33 @@ async function seatAll(inv: PanelInvitation) {
     }
   } finally {
     tableSaving.value = null
+  }
+}
+
+const confirming = ref<string | null>(null)
+const removing = ref<string | null>(null)
+const removeError = ref('')
+const warning = (inv: PanelInvitation) =>
+  deletionWarning(
+    inv,
+    props.dedications.some((d) => d.invitation === inv.id),
+  )
+
+function askRemove(inv: PanelInvitation) {
+  confirming.value = inv.id
+  removeError.value = ''
+}
+
+async function confirmRemove(inv: PanelInvitation) {
+  removing.value = inv.id
+  removeError.value = ''
+  try {
+    await props.remove(inv.id)
+    confirming.value = null
+  } catch (e) {
+    removeError.value = e instanceof Error ? e.message : 'No se pudo eliminar.'
+  } finally {
+    removing.value = null
   }
 }
 
@@ -180,6 +215,44 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
             >
               {{ revealed === inv.id ? 'ocultar link' : 'ver link' }}
             </button>
+            <button
+              v-if="confirming !== inv.id"
+              type="button"
+              class="p-link item__remove"
+              @click="askRemove(inv)"
+            >
+              eliminar
+            </button>
+          </div>
+          <div
+            v-if="confirming === inv.id"
+            class="item__confirm"
+            role="alertdialog"
+            :aria-labelledby="`remove-${inv.id}`"
+          >
+            <p :id="`remove-${inv.id}`" class="item__confirm-text">
+              ¿Eliminar la invitación #{{ inv.id }}{{ inv.label ? ` (${inv.label})` : '' }}?
+              {{ warning(inv) }} El enlace dejará de abrir y no se puede deshacer.
+            </p>
+            <div class="item__confirm-actions">
+              <button
+                type="button"
+                class="p-button p-button--small item__confirm-yes"
+                :disabled="removing === inv.id"
+                @click="confirmRemove(inv)"
+              >
+                {{ removing === inv.id ? 'Eliminando…' : 'Sí, eliminar' }}
+              </button>
+              <button
+                type="button"
+                class="p-button p-button--small p-button--ghost"
+                :disabled="removing === inv.id"
+                @click="confirming = null"
+              >
+                Cancelar
+              </button>
+            </div>
+            <p v-if="removeError" class="p-error" role="alert">{{ removeError }}</p>
           </div>
           <a
             v-if="revealed === inv.id"
@@ -367,6 +440,34 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
   align-items: center;
   gap: 0.4rem 1.1rem;
   margin-top: 0.2rem;
+}
+.item__remove {
+  margin-left: auto;
+}
+.item__remove:hover {
+  color: var(--p-no);
+}
+.item__confirm {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--p-no) 40%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--p-no) 6%, var(--p-card));
+}
+.item__confirm-text {
+  margin: 0;
+  font-size: 0.95rem;
+}
+.item__confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.item__confirm-yes {
+  border-color: var(--p-no);
+  background: var(--p-no);
+  box-shadow: none;
 }
 .item__url {
   overflow-wrap: anywhere;

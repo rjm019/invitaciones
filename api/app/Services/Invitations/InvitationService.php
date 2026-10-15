@@ -12,6 +12,8 @@ use Throwable;
  */
 final class InvitationService
 {
+    public const NOT_FOUND = 'Invitación no encontrada.';
+
     public function __construct(
         private readonly EventRepository $events,
         private readonly InvitationStore $invitations,

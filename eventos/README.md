@@ -14,11 +14,12 @@ eventos/<slug>/
 │   └── originales/        ← PNG/JPG tal como salen de Canva; `media:optimizar` los pasa a WebP
 ├── ajustes.csv            ← lo que aplica al instante: clave del panel, si se ve, si es plantilla, quién la edita en el gestor, fecha límite del cliente
 ├── ajustes-historial.csv  ← cada cambio de ajustes y quién lo hizo (la clave sale como "(cambiada)", nunca escrita)
-├── invitaciones.csv       ← cada enlace generado en el panel: id, token, invitados, para, creada
+├── invitaciones.csv       ← cada enlace generado en el panel: id, token, invitados, para, creada, eliminada
 ├── respuestas.csv         ← un renglón por persona: invitacion, para, lugar, nombre, asistira, respondida, mesa
 ├── respuestas-historial.csv ← cada envío, en orden (solo crece; es el respaldo fino)
 ├── aperturas.csv          ← cada vez que se abre una invitación
 ├── dedicatorias.csv       ← una dedicatoria por enlace: invitacion, para, nombre, dedicatoria, fecha
+├── respuestas-eliminadas.csv, dedicatorias-eliminadas.csv ← las personas y dedicatorias de las invitaciones eliminadas, con la fecha
 ├── resumen.csv            ← detalle por invitación (lo rehace `invitaciones:resumen`)
 └── respaldos/             ← copia del día de cada archivo antes de cambiarlo, y además:
     ├── invitacion-AAAAMMDD-HHMMSS.csv   ← la versión publicada que había antes de cada publicación (las últimas 50)
@@ -252,6 +253,7 @@ Si algo está mal, la API responde con la lista de errores en español (qué sec
 2. Entra a `/panel/<slug>` y escribe la clave. El panel se ve con los colores y las letras de la invitación (el azul es lo principal) y su título en grande ("XV de Nat"). La sesión dura 12 horas y solo en esa pestaña.
 3. **Generar enlace**: escribe para cuántos invitados es (1 a 30) y, si quieres, el nombre que aparecerá en el sobre ("Familia Pérez"). Queda lista para **Enviar**.
 4. **Invitaciones generadas** (se despliega al tocarla): para cuántos invitados es cada una, quiénes ya confirmaron y cuántas veces se abrió. "Mesa para todos" sienta de una vez a los que asisten de esa invitación. El enlace no se muestra: solo "copiar link" o "ver link".
+   - **eliminar**: pide confirmarlo ahí mismo (dice cuántos invitados y si hay dedicatoria). La invitación queda marcada en `invitaciones.csv` (columna `eliminada`; su número no se vuelve a usar) y su enlace deja de abrir; sus personas salen de `respuestas.csv` y su dedicatoria de `dedicatorias.csv`, y quedan en `respuestas-eliminadas.csv` y `dedicatorias-eliminadas.csv` por si hay que recuperarlas a mano.
    - **Enviar**: arma la invitación con los colores del evento (nombre, para quién es, fecha, salón y un QR) como **PDF**. Al tocarlo en cualquier parte se abre la invitación; el enlace no se ve. En el celular abre el menú de compartir para elegir WhatsApp; en la computadora descarga el PDF y abre WhatsApp con el mensaje (sin el enlace) para adjuntarlo. También se puede descargar la imagen sola.
 5. **Invitados**: la lista completa de personas de todas las invitaciones (filtros: asistirán, no asistirán, sin mesa, lugares libres) con su **mesa** (número de 1 a 999; vacío la quita). Arriba, cuántas personas hay en cada mesa. La mesa se guarda en `respuestas.csv` (columna `mesa`), lista para el buscador de recepción.
 6. **Dedicatorias**: las que dejaron los invitados (una por enlace), la más reciente primero, con buscador.

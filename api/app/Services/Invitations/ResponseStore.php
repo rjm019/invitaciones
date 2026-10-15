@@ -14,6 +14,8 @@ use RuntimeException;
  *   La mesa la asigna el dueño desde el panel.
  * - respuestas-historial.csv: cada envío, en orden (solo crece).
  * - aperturas.csv: cada vez que se abre una invitación.
+ * - respuestas-eliminadas.csv: las personas de las invitaciones que el dueño eliminó, con
+ *   la fecha (para recuperarlas a mano si hiciera falta).
  */
 final class ResponseStore
 {
@@ -22,6 +24,8 @@ final class ResponseStore
     public const HISTORY = 'respuestas-historial.csv';
 
     public const OPENS = 'aperturas.csv';
+
+    public const DELETED = 'respuestas-eliminadas.csv';
 
     public const HEADERS = ['invitacion', 'para', 'lugar', 'nombre', 'asistira', 'respondida', 'mesa'];
 
@@ -32,6 +36,7 @@ final class ResponseStore
     public function __construct(
         private readonly EventRepository $events,
         private readonly CsvFile $csv,
+        private readonly InvitationStore $invitations,
     ) {}
 
     /**
@@ -61,13 +66,19 @@ final class ResponseStore
      * @param  list<string>  $names
      * @return list<string> nombres que sí se agregaron
      *
-     * @throws RsvpException 422 si no hay lugares para todos los nombres nuevos
+     * @throws RsvpException 422 si no hay lugares para todos los nombres nuevos · 404 si la
+     *                       invitación se eliminó mientras tanto
      */
     public function add(string $slug, array $invitation, array $names, bool $attending, CarbonImmutable $now): array
     {
         $path = $this->path($slug, self::FILE);
 
-        $added = $this->csv->locked($path, function () use ($path, $invitation, $names, $attending, $now) {
+        $added = $this->csv->locked($path, function () use ($slug, $path, $invitation, $names, $attending, $now) {
+            // Dentro del candado: si el dueño la eliminó, sus invitados ya se quitaron y no
+            // deben volver a aparecer.
+            if (! $this->invitations->active($slug, $invitation['id'])) {
+                throw new RsvpException(InvitationService::NOT_FOUND, 404);
+            }
             $rows = $this->csv->read($path);
             $mine = array_filter($rows, fn ($r) => ($r['invitacion'] ?? '') === $invitation['id']);
 
@@ -157,6 +168,34 @@ final class ResponseStore
 
             $this->csv->backupDaily($path, $now);
             $this->csv->write($path, self::HEADERS, $rows);
+        });
+    }
+
+    /**
+     * Quita a todas las personas de una invitación (al eliminarla) y las deja en
+     * respuestas-eliminadas.csv con la fecha.
+     *
+     * @return int cuántas personas se quitaron
+     */
+    public function removeInvitation(string $slug, string $invitationId, CarbonImmutable $now): int
+    {
+        $path = $this->path($slug, self::FILE);
+
+        return $this->csv->locked($path, function () use ($slug, $path, $invitationId, $now) {
+            $rows = $this->csv->read($path);
+            $keep = array_values(array_filter($rows, fn ($r) => ($r['invitacion'] ?? '') !== $invitationId));
+            $removed = array_values(array_filter($rows, fn ($r) => ($r['invitacion'] ?? '') === $invitationId));
+            if ($removed === []) {
+                return 0;
+            }
+
+            foreach ($removed as $row) {
+                $this->csv->append($this->path($slug, self::DELETED), ['eliminada', ...self::HEADERS], ['eliminada' => $now->format('Y-m-d H:i:s')] + $row);
+            }
+            $this->csv->backupDaily($path, $now);
+            $this->csv->write($path, self::HEADERS, $keep);
+
+            return count($removed);
         });
     }
 

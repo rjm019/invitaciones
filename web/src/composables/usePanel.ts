@@ -83,6 +83,11 @@ export function usePanel(slug: string) {
     return invitation
   }
 
+  /** Elimina la invitación (con sus invitados y su dedicatoria) y deja el panel al día. */
+  async function remove(id: string): Promise<void> {
+    overview.value = await withSession((t) => panelService.deleteInvitation(slug, t, id))
+  }
+
   /**
    * ¿Hay algo nuevo? (alguien abrió o confirmó su invitación). Pide solo la huella del
    * evento y, si cambió, vuelve a cargar el panel. Pensado para llamarse cada pocos segundos.
@@ -130,6 +135,7 @@ export function usePanel(slug: string) {
     refresh,
     checkForChanges,
     create,
+    remove,
     changeDeadline,
     assignTables,
   }

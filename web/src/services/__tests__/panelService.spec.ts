@@ -1,13 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { get, post, put } = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), put: vi.fn() }))
-vi.mock('../http', () => ({ http: { get, post, put } }))
+const { get, post, put, del } = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  del: vi.fn(),
+}))
+vi.mock('../http', () => ({ http: { get, post, put, delete: del } }))
 
 import {
   assignTables,
   changesLabel,
   createInvitation,
   deadlineBounds,
+  deleteInvitation,
+  deletionWarning,
   filterDedications,
   filterGuests,
   filterInvitations,
@@ -39,7 +46,7 @@ const inv = (over: Partial<PanelInvitation> = {}): PanelInvitation => ({
 })
 
 describe('panelService', () => {
-  beforeEach(() => [get, post, put].forEach((m) => m.mockReset()))
+  beforeEach(() => [get, post, put, del].forEach((m) => m.mockReset()))
 
   it('entra con la clave y manda el token en cada llamada', async () => {
     post.mockResolvedValueOnce({ data: { token: 't0k', expires_at: 'x' } })
@@ -80,6 +87,37 @@ describe('panelService', () => {
       { deadline: '2026-11-10' },
       expect.anything(),
     )
+  })
+
+  it('elimina una invitación y devuelve el panel actualizado', async () => {
+    del.mockResolvedValueOnce({ data: { version: 'v4', invitations: [] } })
+    await expect(deleteInvitation('mis-xv', 't0k', '3')).resolves.toEqual({
+      version: 'v4',
+      invitations: [],
+    })
+    expect(del).toHaveBeenCalledWith('/admin/events/mis-xv/invitations/3', {
+      headers: { Authorization: 'Bearer t0k' },
+    })
+  })
+
+  it('al eliminar, avisa qué más se borra', () => {
+    const guest = { full_name: 'Ana', attending: true, table: null, responded_at: null }
+    expect(deletionWarning(inv(), false)).toBe('')
+    expect(deletionWarning(inv(), true)).toBe('Se borrarán también su dedicatoria.')
+    expect(deletionWarning(inv({ guests: [{ ...guest, slot: 1 }] }), false)).toBe(
+      'Se borrarán también su invitado.',
+    )
+    expect(
+      deletionWarning(
+        inv({
+          guests: [
+            { ...guest, slot: 1 },
+            { ...guest, slot: 2 },
+          ],
+        }),
+        true,
+      ),
+    ).toBe('Se borrarán también sus 2 invitados y su dedicatoria.')
   })
 
   it('avance de cada invitación', () => {

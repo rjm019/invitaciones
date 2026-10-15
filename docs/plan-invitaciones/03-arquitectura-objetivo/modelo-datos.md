@@ -17,6 +17,8 @@ eventos/<slug>/
 ├── respuestas-historial.csv cada envío, en orden (solo crece)
 ├── aperturas.csv            cada vez que se abre un enlace (solo crece)
 ├── dedicatorias.csv         una dedicatoria por enlace: invitacion, para, nombre, dedicatoria, fecha
+├── respuestas-eliminadas.csv   personas de invitaciones eliminadas: eliminada + columnas de respuestas
+├── dedicatorias-eliminadas.csv dedicatorias de invitaciones eliminadas: eliminada + columnas de dedicatorias
 ├── ajustes.csv              clave_panel, publicado, plantilla, personas_gestor y la fecha límite del cliente
 ├── ajustes-historial.csv    cada cambio de ajustes (solo crece)
 ├── resumen.csv              lo rehace `invitaciones:resumen`
@@ -59,6 +61,7 @@ erDiagram
       int invitados "1 a 30: cuántos campos tiene el formulario"
       string para "opcional: nombre en el sobre"
       datetime creada
+      datetime eliminada "vacío = activa; con fecha ya no abre ni se lista"
     }
     respuestas {
       int invitacion FK
@@ -117,6 +120,7 @@ erDiagram
 | La clave del panel nunca va en el diseño: no se exporta, no se copia al duplicar ni al hacer plantilla, y el historial de ajustes dice "(cambiada)" | `EventSettings` + `DesignFactory` + `DesignTransfer` |
 | Nueva invitación o copia: solo el diseño y `media/` (sin `originales/`); nunca enlaces, respuestas, `respaldos/` ni `borrador/`; nace con `publicado=NO` y clave nueva | `DesignFactory` |
 | Plantilla (`plantilla=SI`): `404` en todo lo público y sin panel | `EventRepository` |
+| Eliminar una invitación (panel): se marca `eliminada` en `invitaciones.csv` (el número nunca se reutiliza, así sus aperturas e historial no pasan a otra) y el enlace da `404`; sus personas y su dedicatoria pasan a `*-eliminadas.csv`. Un envío que llega justo después ya no escribe nada (`404`): `ResponseStore::add` y `DedicationStore::add` revisan dentro de su candado que la invitación siga activa | `PanelService::deleteInvitation` + `InvitationStore::delete` |
 | Media: jpg, png, webp o gif (≤ 15 MB, revisado con `finfo`; nunca SVG ni HTML) → WebP; mp3 o m4a (≤ 20 MB); no se borra lo que la invitación usa (publicada o borrador) | `MediaLibrary` + `ImageOptimizer` |
 
 ## Escritura segura (`CsvFile`)
