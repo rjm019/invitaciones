@@ -19,6 +19,7 @@
 | Textos | Cada bloque de texto de cada sección con su letra, color y tamaño; el título separado del texto para combinarlos |
 | Acceso | ~~Una clave maestra para todos~~ **Cambió (14-oct, noche):** una cuenta por persona, y el historial dice quién publicó qué. La clave maestra enciende el gestor y crea la primera cuenta |
 | Plantillas de ejemplo | Ninguna por ahora: "solo me importa tener funcionando la de NAT" (pregunta 37) |
+| Quién ve qué | Cada quien las suyas; quien administra ve y asigna todas; las plantillas son de todos (pregunta 40) |
 
 ## Etapas
 
@@ -79,7 +80,7 @@
 - [ ] Pasar las fixtures de pruebas al formato nuevo.
 - [ ] Conservar `LegacyLayoutConverter` para importar Excel viejos.
 
-### G. Una cuenta por persona y favicon (`1e4afad`, `e80b803`)
+### G. Cuentas por persona, quién ve qué, el sobre y el favicon (`1e4afad`, `e80b803`, `a42ef8d`, `656289c`)
 
 - [x] `ManagerUsers` (`eventos/_gestor/usuarios.csv`: usuario, nombre, rol, activo, hash de la clave, clave temporal, creada y último acceso; "_gestor" nunca puede ser un evento) y `ManagerAuth` (token por persona; deja de servir si cambia su clave, si pierde el acceso o si cambia la clave maestra).
 - [x] Primera cuenta con la clave maestra (`POST /setup`, solo sin cuentas); entrar con usuario y clave (mismo mensaje si el usuario no existe; tarda lo mismo); `GET /me` y cambiar mi clave (`PUT /me/password`, sesión nueva).
@@ -90,12 +91,14 @@
 - [x] UI: entrada con usuario y clave, "Crea la primera cuenta", "Elige tu clave" (con la temporal), menú de la cuenta, "Personas del gestor" con el mensaje listo para mandar, "Cambiar mi clave"; las pestañas del mismo navegador siguen la sesión nueva.
 - [x] Pruebas: `SessionTest` y `UsersTest` (API), `useManagerSession` y `managerAccountService` (web). QA a mano en escritorio y celular: primera cuenta, agregar a Beto, su clave, publicar, historial, quitarle el acceso (su sesión responde 401).
 - [x] Favicon propio (el sobre del gestor) en lugar del de Vue: `favicon.svg`, `favicon.ico` (16, 32 y 48) y `apple-touch-icon.png`.
+- [x] Cada quien las suyas (pregunta 40): `ManagerAccess` (`ajustes.csv` → `personas_gestor`), `manager.event` en todo `/events/{slug}/…` (403 "no está asignada a ti"), la lista filtrada, quien crea queda asignado, copiar solo lo que ves (las plantillas, todos), y "Quién la edita" en Datos generales (quien administra marca a las personas; quien edita ve quiénes la editan). `AccessTest`; QA con Ricardo y Beto.
+- [x] Sobre en la vista previa (pregunta 38): "Ver como invitado" lo muestra cerrado aunque haya "reducir movimiento" y abre sin animación. `HeroEnvelopeSection.spec`; QA con el movimiento reducido emulado.
 
 ## Cómo se prueba
 
 ```bash
-docker compose exec api php artisan test                  # 169 pruebas
-docker compose exec web npm run test                      # 263 pruebas
+docker compose exec api php artisan test                  # 171 pruebas
+docker compose exec web npm run test                      # 266 pruebas
 docker compose exec web npm run lint && docker compose exec web npx vue-tsc --build --force
 docker compose exec web npm run build
 ```

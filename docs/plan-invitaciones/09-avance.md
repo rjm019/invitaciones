@@ -299,10 +299,12 @@ Pedidos sobre capturas del celular:
   - Quien *administra* agrega personas (con una clave temporal que se ve una vez, y el mensaje listo para mandarlo), cambia su rol y les da o quita el acceso. Quien llega con clave temporal elige la suya al entrar. Cada quien cambia su clave desde su menú.
   - El historial dice quién publicó cada versión ("Beto la publicó el 14 oct…") y la tarjeta del inicio, quién publicó la última vez. `publicaciones.csv` y `ajustes-historial.csv` guardan `usuario` y `nombre` (el dueño aparece como `panel`; los comandos, como `terminal`).
   - Si alguien se queda fuera: `php artisan gestor:usuario <usuario> --clave-nueva` da una clave temporal desde la terminal.
+  - **Cada quien las suyas** (pregunta 40, D17): quien *edita* ve solo las invitaciones que creó o le asignan (`ajustes.csv` → `personas_gestor`); quien *administra* ve todas y las asigna en "Datos generales" → "Quién la edita". Las plantillas son de todos.
+- **El sobre en la vista previa** (pregunta 38): con "reducir movimiento" encendido, "Ver como invitado" igual muestra el sobre cerrado y abre sin animación (solo en el gestor; a los invitados no les cambia).
 - **Favicon propio:** el sobre del gestor (índigo, con un corazón de lacre) en lugar del logo de Vue, en la invitación, el panel y el gestor (`favicon.svg`, `favicon.ico` de 16/32/48 y el ícono de iPhone).
 - **Desde la terminal:** `invitacion:validar`, `invitacion:exportar`, `invitacion:importar`, `invitacion:migrar` y `gestor:usuario`.
 - **Producción:** `deploy/subir-evento.sh` ya no sube `invitacion.csv` sin `--forzar` (allá la edita el gestor); `deploy/bajar-evento.sh` trae un evento del servidor.
-- **Pruebas:** API 169 (1108 aserciones); web 263, más lint, type-check y build en verde.
+- **Pruebas:** API 171 (1148 aserciones); web 266, más lint, type-check y build en verde.
 
 ### Invitación personal y confirmación
 
@@ -356,6 +358,7 @@ Pedidos sobre capturas del celular:
 | Clave del panel y "publicado" en el Excel | En `ajustes.csv`, al instante y fuera del diseño | Que copiar o exportar una invitación nunca lleve la clave |
 | Letras y colores solo para toda la invitación | Letra, color y tamaño por bloque de texto y colores por sección | Decisión tuya (14-oct) |
 | Una clave maestra para entrar al gestor (D12) | Una cuenta por persona, con rol, clave temporal y quién publicó qué | Decisión tuya (14-oct, pregunta 39) |
+| Todos ven todas las invitaciones del gestor | Quien edita ve las suyas; quien administra ve y asigna todas (D17) | Decisión tuya (14-oct, pregunta 40) |
 
 ## Qué falta
 
@@ -378,8 +381,7 @@ Pedidos sobre capturas del celular:
 
 1. **Revisar la rama** (tú, pregunta 35: "todavía no"): `http://localhost:5173/gestor`; la primera vez pide crear tu cuenta con la clave maestra de `api/.env` (`GESTOR_CLAVE`). Si está bien: merge a `main` y push.
 2. **Runbook de producción, solo cuando lo pidas** (`06-despliegue/despliegue.md` → "Gestor: primera publicación"): `fly secrets set GESTOR_CLAVE=…`, `fly deploy`, crear tu cuenta en `/gestor`, ensayo con una copia de NAT e `invitacion:migrar nat` en el servidor.
-3. **Decidir** si en la vista previa del gestor el sobre se ve siempre cerrado aunque la persona tenga "reducir movimiento" (pregunta 38).
-4. **Etapa F, después del 28-nov:** quitar el camino del Excel y `layout:xlsx`; pasar las fixtures al formato nuevo.
+3. **Etapa F, después del 28-nov:** quitar el camino del Excel y `layout:xlsx`; pasar las fixtures al formato nuevo.
 
 ### Después del evento real o cuando se decida
 

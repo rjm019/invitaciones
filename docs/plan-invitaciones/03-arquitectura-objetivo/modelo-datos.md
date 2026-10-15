@@ -17,7 +17,7 @@ eventos/<slug>/
 ├── respuestas-historial.csv cada envío, en orden (solo crece)
 ├── aperturas.csv            cada vez que se abre un enlace (solo crece)
 ├── dedicatorias.csv         una dedicatoria por enlace: invitacion, para, nombre, dedicatoria, fecha
-├── ajustes.csv              clave_panel, publicado, plantilla y la fecha límite del cliente
+├── ajustes.csv              clave_panel, publicado, plantilla, personas_gestor y la fecha límite del cliente
 ├── ajustes-historial.csv    cada cambio de ajustes (solo crece)
 ├── resumen.csv              lo rehace `invitaciones:resumen`
 └── respaldos/               copia del día de cada archivo antes de cambiarlo; las últimas 50
@@ -108,6 +108,7 @@ erDiagram
 | Dedicatoria: **una por enlace** (la segunda → `409`, revisado dentro del `flock`); nombre ≤ 80 y mensaje ≤ 600; no depende de la fecha límite | `DedicationController` + `InvitationService::dedicate` + `DedicationStore::add` |
 | Throttle de dedicatorias: 5/min por IP y token | `AppServiceProvider` |
 | Gestor: sin `GESTOR_CLAVE` de 16+ caracteres → `403`; cada persona con su usuario y su clave (10+ caracteres, hash bcrypt); la clave maestra solo crea la primera cuenta; login 5/min por IP; el resto 240/min | `ManagerAuth` + `EnsureManagerSession` + `routes/api.php` |
+| Quién ve qué: quien edita solo ve las invitaciones que creó o le asignaron (`ajustes.csv` → `personas_gestor`: "ana, beto") y todas las plantillas; quien administra ve todas y es quien asigna. En otra invitación todo responde `403` | `ManagerAccess` + `EnsureManagerEventAccess` + `ManagerEvents::list` |
 | Cuentas: solo quien administra agrega, cambia o quita el acceso; nadie se quita el acceso ni el rol a sí mismo y siempre queda alguien activo que administra; nadie se borra (el historial guarda su nombre); una clave temporal se cambia al entrar | `ManagerUsers` + `UserController` + `EnsureManagerAdmin` |
 | Borrador: se guarda solo si la versión que manda el editor es la actual (bajo candado); si no, `409` con la versión y el diseño de la otra ventana | `DesignStore::saveDraft` |
 | Publicar: en modo estricto (con errores → `422 { issues }`); respalda lo publicado, escribe atómico, borra el borrador y anota la bitácora | `DesignPublisher` |
