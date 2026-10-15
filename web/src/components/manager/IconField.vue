@@ -15,6 +15,7 @@ const ICONS = [
   { name: 'music', label: 'Música' },
   { name: 'cake-candles', label: 'Pastel' },
   { name: 'crown', label: 'Corona' },
+  { name: 'graduation-cap', label: 'Birrete' },
   { name: 'ring', label: 'Anillos' },
   { name: 'heart', label: 'Corazón' },
   { name: 'dove', label: 'Paloma' },

@@ -231,7 +231,7 @@ event('demo-graduacion', 'DemoGradua26', 'Familia Torres', 2, [
     ('ubicacion', '2', 'maps', 'https://maps.google.com/?q=Paseo+de+la+Reforma+222'),
     ('itinerario', 'visible', 'SI'),
     ('itinerario', 'titulo', 'El programa'),
-    ('itinerario', '1', 'hora', '18:00'), ('itinerario', '1', 'actividad', 'Ceremonia de graduación'), ('itinerario', '1', 'icono', 'star'),
+    ('itinerario', '1', 'hora', '18:00'), ('itinerario', '1', 'actividad', 'Ceremonia de graduación'), ('itinerario', '1', 'icono', 'graduation-cap'),
     ('itinerario', '2', 'hora', '21:00'), ('itinerario', '2', 'actividad', 'Cena de gala'), ('itinerario', '2', 'icono', 'utensils'),
     ('itinerario', '3', 'hora', '22:30'), ('itinerario', '3', 'actividad', 'Brindis de la generación'), ('itinerario', '3', 'icono', 'champagne-glasses'),
     ('itinerario', '4', 'hora', '23:00'), ('itinerario', '4', 'actividad', 'Fiesta'), ('itinerario', '4', 'icono', 'music'),

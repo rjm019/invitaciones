@@ -12,6 +12,7 @@ import ringSvg from '@fortawesome/fontawesome-free/svgs/solid/ring.svg?raw'
 import doveSvg from '@fortawesome/fontawesome-free/svgs/solid/dove.svg?raw'
 import giftSvg from '@fortawesome/fontawesome-free/svgs/solid/gift.svg?raw'
 import cakeCandlesSvg from '@fortawesome/fontawesome-free/svgs/solid/cake-candles.svg?raw'
+import graduationCapSvg from '@fortawesome/fontawesome-free/svgs/solid/graduation-cap.svg?raw'
 import playSvg from '@fortawesome/fontawesome-free/svgs/solid/play.svg?raw'
 import pauseSvg from '@fortawesome/fontawesome-free/svgs/solid/pause.svg?raw'
 import backwardSvg from '@fortawesome/fontawesome-free/svgs/solid/backward.svg?raw'
@@ -55,6 +56,7 @@ const ICONS: Record<string, string> = {
   dove: doveSvg,
   gift: giftSvg,
   'cake-candles': cakeCandlesSvg,
+  'graduation-cap': graduationCapSvg,
   play: playSvg,
   pause: pauseSvg,
   backward: backwardSvg,

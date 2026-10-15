@@ -41,6 +41,7 @@ const frameStyle = computed(() =>
         ref="track"
         class="itinerary__list"
         :class="`itinerary__list--${section.variant ?? 'zigzag'}`"
+        :style="{ '--rows': items.length }"
       >
         <span class="itinerary__line" aria-hidden="true">
           <span class="itinerary__line-fill" :style="{ transform: `scaleY(${fill})` }" />
@@ -53,8 +54,10 @@ const frameStyle = computed(() =>
           :class="i % 2 === 0 ? 'itinerary__item--left' : 'itinerary__item--right'"
           :style="{ gridRow: i + 1 }"
         >
-          <AppIcon v-if="item.icon" :name="item.icon" class="itinerary__icon" />
-          <span class="itinerary__label" data-text="activity">{{ item.label }}</span>
+          <span class="itinerary__what">
+            <AppIcon v-if="item.icon" :name="item.icon" class="itinerary__icon" />
+            <span class="itinerary__label" data-text="activity">{{ item.label }}</span>
+          </span>
           <time class="itinerary__time" data-text="time" :datetime="item.time">{{
             time12h(item.time)
           }}</time>
@@ -156,6 +159,10 @@ const frameStyle = computed(() =>
   gap: 0.15rem;
   color: var(--color-text);
 }
+/* En zigzag el ícono y la actividad se apilan con la hora, como si no hubiera envoltura. */
+.itinerary__what {
+  display: contents;
+}
 .itinerary__item--left {
   grid-column: 1;
 }
@@ -181,13 +188,54 @@ const frameStyle = computed(() =>
   letter-spacing: 0.06em;
   color: var(--t-time-color);
 }
-/* Variante "lista": todas las actividades de un lado. En pantallas muy angostas también. */
-.itinerary__list--lista .itinerary__item {
-  grid-column: 3;
-  justify-items: start;
+/*
+ * Variante "lista": la hora a la izquierda, la línea en medio y el ícono con la actividad
+ * a la derecha. Cada fila crece con su texto (una actividad larga ocupa dos renglones sin
+ * encimarse) y la columna de la hora mide lo que la hora más ancha (subgrid).
+ */
+.itinerary__list--lista {
+  grid-template-columns: auto 1.75rem 1fr;
+  grid-auto-rows: minmax(3.6rem, auto);
+  row-gap: var(--space-1);
+  column-gap: 0.6rem;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
 }
+.itinerary__list--lista .itinerary__line {
+  /* Absoluta dentro de su área: sin el final explícito llegaría hasta el borde. */
+  grid-column: 2 / 3;
+  grid-row: 1 / span var(--rows);
+}
+.itinerary__list--lista .itinerary__item {
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+  column-gap: inherit;
+}
+.itinerary__list--lista .itinerary__time {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: end;
+  white-space: nowrap;
+}
+.itinerary__list--lista .itinerary__what {
+  grid-column: 3;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  justify-self: start;
+  text-align: start;
+}
+.itinerary__list--lista .itinerary__icon {
+  flex: none;
+  margin: 0;
+  font-size: 1rem;
+}
+/* Zigzag en pantallas muy angostas: todas las actividades de un lado. */
 @container (max-width: 260px) {
-  .itinerary__item {
+  .itinerary__list--zigzag .itinerary__item {
     grid-column: 3;
     justify-items: start;
   }
