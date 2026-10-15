@@ -1,10 +1,11 @@
 # Jiro Solutions — Invitaciones digitales a la medida
 
-> Diseñamos invitaciones digitales elegantes y hechas a la medida para bodas, XV años y graduaciones en México. Lema: "Hacemos posibles tus sueños. Nada es imposible para nosotros."
+> Diseñamos invitaciones digitales elegantes y hechas a la medida para bodas, XV años, graduaciones y cualquier evento en México. Lema: "Hacemos posibles tus sueños. Nada es imposible para nosotros."
 
-- Cada familia recibe un enlace privado que ya sabe para cuántas personas es; confirman escribiendo sus nombres, sin descargar ninguna app.
+- Cada familia recibe su propia invitación privada, que ya sabe para cuántas personas es; confirman escribiendo sus nombres, sin descargar ninguna app.
 - El festejado ve en vivo quién abrió, quién confirmó, cuántas personas vienen y en qué mesa está cada una; la recepción encuentra a cada invitado con un QR.
-- Secciones a elegir: sobre animado con música, ceremonia y recepción con mapa y calendario, mesa de regalos y lluvia de sobres, itinerario, código de vestimenta, hospedaje, galería, video, trivia, dedicatorias, álbum de los invitados y más. Si el cliente imagina algo distinto, se diseña.
+- Secciones a elegir: una entrada animada con música, ceremonia y recepción con mapa y calendario, itinerario, código de vestimenta, hospedaje, galería, video, trivia, dedicatorias, álbum de los invitados y mesa de regalos, entre muchas más. Si el cliente imagina algo distinto, se diseña.
+- Integraciones: Spotify (canción o playlist), publicaciones de Instagram, Facebook o TikTok, YouTube, Google Maps y Waze, calendario, WhatsApp, el clima del día y otras apps a pedido.
 - No hay paquetes ni precios fijos: cada invitación se cotiza a la medida. Para cotizar, el cliente deja su WhatsApp en la página y le escribimos en menos de 24 horas.
 
 ## Páginas
