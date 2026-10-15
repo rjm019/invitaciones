@@ -49,4 +49,18 @@ return [
 
     'gestor_clave' => (string) env('GESTOR_CLAVE', ''),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Cotizaciones de la landing
+    |--------------------------------------------------------------------------
+    |
+    | Correo que recibe el aviso de cada cotización nueva. Vacío: solo se ven en el
+    | gestor. El envío usa el mailer de siempre (MAIL_*); con Resend, por SMTP:
+    | MAIL_MAILER=smtp, MAIL_HOST=smtp.resend.com, MAIL_PORT=465, MAIL_SCHEME=smtps,
+    | MAIL_USERNAME=resend y MAIL_PASSWORD=<la API key>. Todo como secretos de Fly.
+    |
+    */
+
+    'cotizaciones_correo' => (string) env('COTIZACIONES_CORREO', ''),
+
 ];

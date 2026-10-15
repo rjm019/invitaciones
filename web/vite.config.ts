@@ -2,10 +2,13 @@ import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { landingPlugin } from './landing/build/landingPlugin'
+
+const root = fileURLToPath(new URL('.', import.meta.url))
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), landingPlugin(root)],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -24,6 +27,20 @@ export default defineConfig({
           '/media': { target: process.env.VITE_API_PROXY },
         }
       : undefined,
+  },
+  build: {
+    rollupOptions: {
+      // La invitación (SPA) y las páginas de la landing (HTML estático, ver landing/build/).
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        ...Object.fromEntries(
+          ['index', 'boda', 'xv-anos', 'graduacion', 'privacidad', 'enviada'].map((page) => [
+            `landing-${page}`,
+            fileURLToPath(new URL(`./landing/${page}.html`, import.meta.url)),
+          ]),
+        ),
+      },
+    },
   },
   // La vista previa (build de producción) usa el mismo reenvío de /api y /media.
   preview: { host: true },

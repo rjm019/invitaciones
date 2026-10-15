@@ -7,16 +7,19 @@ import EventCard from '@/components/manager/EventCard.vue'
 import ManagerIcon from '@/components/manager/ManagerIcon.vue'
 import ManagerLogin from '@/components/manager/ManagerLogin.vue'
 import NewEventDialog from '@/components/manager/NewEventDialog.vue'
+import QuotesDialog from '@/components/manager/QuotesDialog.vue'
 import ToastHost from '@/components/manager/ToastHost.vue'
 import { useFontSamples } from '@/composables/useFontSamples'
 import { useManagerSession } from '@/composables/useManagerSession'
+import { usePolling } from '@/composables/usePolling'
 import { useToasts } from '@/composables/useToasts'
 import * as managerService from '@/services/managerService'
 import type { ManagerEvent } from '@/types/design'
 
 /**
  * /gestor — inicio del gestor: las invitaciones y las plantillas, crear una nueva,
- * duplicar, guardar como plantilla y descargar su paquete.
+ * duplicar, guardar como plantilla y descargar su paquete. Quien administra ve además las
+ * cotizaciones que llegan de la landing, con un contador de las nuevas.
  */
 const router = useRouter()
 const { authenticated, isAdmin, setUser, withSession } = useManagerSession()
@@ -49,6 +52,21 @@ useFontSamples(
   () => events.value.map((e) => e.celebrant || e.title).join(''),
 )
 
+const quotesOpen = ref(false)
+const newQuotes = ref(0)
+
+/** Cuántas cotizaciones nuevas hay (solo quien administra; si falla, se deja como estaba). */
+async function countQuotes(): Promise<void> {
+  if (!isAdmin.value) return
+  try {
+    newQuotes.value = await withSession((t) => managerService.countQuotes(t))
+  } catch {
+    // El contador no es crítico.
+  }
+}
+// Cada minuto, mientras la pestaña está a la vista.
+usePolling(countQuotes, 60_000, () => authenticated.value && isAdmin.value)
+
 async function load(): Promise<void> {
   loading.value = true
   try {
@@ -56,6 +74,7 @@ async function load(): Promise<void> {
     events.value = list.events
     // Otra persona pudo cambiar mi nombre o mi rol mientras no estaba: llega con la lista.
     setUser(list.user)
+    void countQuotes()
     error.value = ''
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'No se pudo cargar la lista.'
@@ -103,6 +122,18 @@ watch(authenticated, (on) => {
           </div>
         </div>
         <div class="home__actions">
+          <button
+            v-if="isAdmin"
+            type="button"
+            class="g-btn g-btn--ghost"
+            :aria-label="`Cotizaciones${newQuotes ? `: ${newQuotes} nuevas` : ''}`"
+            @click="quotesOpen = true"
+          >
+            <ManagerIcon name="inbox" /> Cotizaciones
+            <span v-if="newQuotes" class="g-badge g-badge--accent" aria-hidden="true">{{
+              newQuotes
+            }}</span>
+          </button>
           <button type="button" class="g-btn g-btn--primary" @click="openNew()">
             <ManagerIcon name="plus" /> Nueva invitación
           </button>
@@ -193,6 +224,12 @@ watch(authenticated, (on) => {
       :from="dialog.from"
       :template="dialog.template"
       @close="dialog.open = false"
+    />
+    <QuotesDialog
+      v-if="isAdmin"
+      :open="quotesOpen"
+      @close="quotesOpen = false"
+      @changed="newQuotes = $event"
     />
     <ToastHost />
   </div>

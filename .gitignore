@@ -18,6 +18,10 @@ web/public/*
 !web/public/favicon.ico
 !web/public/favicon.svg
 !web/public/apple-touch-icon.png
+!web/public/robots.txt
+!web/public/sitemap.xml
+!web/public/llms.txt
+!web/public/og/
 api/storage/app/public/eventos/
 # Layouts de eventos: datos reales (contenido, fotos, familias, respuestas). Nunca al repo.
 eventos/*

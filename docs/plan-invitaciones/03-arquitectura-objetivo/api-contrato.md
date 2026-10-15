@@ -115,6 +115,12 @@ PDF con el nombre de la familia, los asistentes y un QR (que contiene el token).
 
 ---
 
+### Cotizaciones (landing)
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| POST | `/public/quotes` | `{ telefono, nombre?, tipo: boda\|xv\|graduacion\|otro, fecha_evento?: AAAA-MM-DD, idea? (600), pagina?, privacidad: aceptado, empresa (trampa), t (ms en que se abrió la página) }` → `201 { ok }`. El teléfono se guarda en E.164 (`+52` + 10 dígitos; otro país con `+`). `422` con mensajes en español · `429` después de 5 por hora por IP. Si el campo trampa trae algo o pasan menos de 3 s desde `t`, responde `201` pero no guarda (contra robots, sin captcha). Sin JS (POST de formulario): redirige a `/cotizacion-enviada`, o a `/#cotizar` si algo está mal. Se guarda en `eventos/_gestor/cotizaciones.csv` y, después de responder, se avisa por correo a `COTIZACIONES_CORREO` (si está) |
+
 ## Panel del dueño (sin base de datos)
 
 Se entra con `clave_panel` (mínimo 8 caracteres): en `ajustes.csv`, donde la pone el gestor, o en el layout (`evento → clave_panel`) en el formato anterior. La sesión es un token cifrado con `APP_KEY` (12 h; deja de servir si la clave cambia) que se manda como `Authorization: Bearer`.
@@ -147,6 +153,11 @@ Lo que viaja es el **diseño**: `{ event, colors, fonts, texts, page, sections: 
 | PUT | `/manager/me/password` | `{ current_password, password }` (10–128 caracteres, distinta de la actual y del usuario) → `{ token, expires_at, user }`: las sesiones anteriores de esa persona dejan de servir · `422` · throttle 5/min por persona |
 | GET | `/manager/users` | Solo *admin* (`403` si no): `{ users }` |
 | POST | `/manager/users` | Solo *admin*: `{ name, username, role }` → `201 { user, password }` (clave temporal; se ve esta vez y la persona la cambia al entrar) · `409` usuario repetido · `422` |
+| GET | `/manager/quotes` | Solo *admin*: `{ quotes: [{ id, created_at, name, phone, type, event_date, idea, page, status, note, handled_by, updated_at }], new }` (la más reciente primero) |
+| GET | `/manager/quotes/count` | Solo *admin*: `{ new }` (el contador del inicio del gestor, cada minuto) |
+| PUT | `/manager/quotes/{id}` | Solo *admin*: `{ status?: nueva\|contactada\|cotizada\|cerrada\|descartada, note? }` → `{ quote }` (anota quién la atendió) · `404` · `422` |
+| DELETE | `/manager/quotes/{id}` | Solo *admin*: la borra del archivo (derechos ARCO) → `204` · `404` |
+| GET | `/manager/quotes/export` | Solo *admin*: `cotizaciones.csv` (UTF-8 con BOM, para Excel) |
 | PUT | `/manager/users/{username}` | Solo *admin*: `{ name?, role?, active?, reset_password? }` → `{ user, password? }` · `404` · `422` si te quitas el acceso o el rol a ti, pides tu propia clave temporal o no quedaría nadie activo que administre |
 | GET | `/manager/catalog` | `{ catalog }`: tipos de sección (campos, lista, adornos, bloques de texto, `hidden_without`), grupos de `evento`, colores, fuentes, efectos, límites |
 | GET | `/manager/events` | Solo las que ve esa persona: `{ events: [{ slug, title, type, celebrant, starts_at, published, template, format: design\|legacy, has_draft, pending, updated_at, last_publish: null\|{ published_at, origin, by: null\|{ username, name } }, people: [usernames], cover: { theme, colors, font }, counts: { invitations, guests, attending } }], user }`. `user` son los datos al día de quien pide (lo mismo que `/me`): el inicio no los pide aparte. Las plantillas traen sus conteos en 0 (no tienen invitados) |

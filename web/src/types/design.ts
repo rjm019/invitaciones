@@ -138,6 +138,27 @@ export interface ManagerUser {
   last_login_at: string | null
 }
 
+export type QuoteStatus = 'nueva' | 'contactada' | 'cotizada' | 'cerrada' | 'descartada'
+
+/** Una cotización que llegó desde la landing. */
+export interface Quote {
+  id: string
+  created_at: string | null
+  name: string | null
+  /** E.164: "+525512345678". */
+  phone: string
+  type: 'boda' | 'xv' | 'graduacion' | 'otro'
+  event_date: string | null
+  idea: string | null
+  /** Desde qué página la pidió ("/invitaciones-digitales-boda"). */
+  page: string | null
+  status: QuoteStatus
+  note: string | null
+  /** Usuario del gestor que la atendió por última vez. */
+  handled_by: string | null
+  updated_at: string | null
+}
+
 /** Quién publicó (o creó, o migró) una versión, según la bitácora del evento. */
 export interface PublishRecord {
   published_at: string
