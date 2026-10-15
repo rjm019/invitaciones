@@ -72,7 +72,8 @@
 - [x] `deploy/subir-evento.sh`: siempre media/ y el layout anterior si lo hay; `invitacion.csv` solo con `--forzar`, respaldando antes la del servidor; avisa si hay un borrador allá.
 - [x] `deploy/bajar-evento.sh` (nuevo): trae un evento del servidor a una carpeta nueva, sin pisar la local.
 - [x] Probados los dos scripts con un `fly` simulado (el servidor en una carpeta temporal): no tocan respuestas, ajustes ni el borrador; con `--forzar` respaldan; bajar no sobrescribe.
-- [ ] **Runbook de producción: solo cuando lo pidas** (`../06-despliegue/despliegue.md` → "Gestor: primera publicación").
+- [x] **Runbook de producción, pasos 1 y 2** (15-oct): `GESTOR_CLAVE` y `fly deploy` (release v6). Producción ya tiene el gestor; NAT sigue con su Excel hasta que se publique desde el gestor.
+- [ ] Pasos 3 a 8: tu cuenta, el respaldo, el ensayo y pasar NAT al formato nuevo (al publicarla desde el gestor, por ejemplo con la playlist).
 
 ### F. Limpieza (después del 28-nov-2026)
 
@@ -94,7 +95,7 @@
 - [x] Cada quien las suyas (pregunta 40): `ManagerAccess` (`ajustes.csv` → `personas_gestor`), `manager.event` en todo `/events/{slug}/…` (403 "no está asignada a ti"), la lista filtrada, quien crea queda asignado, copiar solo lo que ves (las plantillas, todos), y "Quién la edita" en Datos generales (quien administra marca a las personas; quien edita ve quiénes la editan). `AccessTest`; QA con Ricardo y Beto.
 - [x] Sobre en la vista previa (pregunta 38): "Ver como invitado" lo muestra cerrado aunque haya "reducir movimiento" y abre sin animación. `HeroEnvelopeSection.spec`; QA con el movimiento reducido emulado.
 
-### H. El gestor le pide menos al servidor (15-oct: `247b1d7`, `7f0d492`, `1f574b9`)
+### H. El gestor le pide menos al servidor (15-oct: `247b1d7`, `7f0d492`, `1f574b9`, `ccaf682`)
 
 Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el servidor", sin perder nada de lo que hace.
 
@@ -119,7 +120,7 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
 - [x] **Editor: no se pide dos veces lo mismo.** El catálogo y las personas se piden una vez por página (`useManagerPeople`), y mis datos llegan con la lista.
 - [x] **Producción (`deploy/`, sin deploy todavía).**
   - Apache entrega `/media` directo del disco, con 304 y rangos; Laravel solo ve lo que no coincide.
-  - El JSON va comprimido.
+  - El JSON no se comprime en Apache: en producción se vio que el proxy de Fly ya lo comprime al salir, así que hacerlo aquí solo gastaba CPU (`ccaf682`). HTML, CSS y JS los sigue comprimiendo Apache, como antes.
   - `php artisan optimize`.
   - Las páginas (invitación, panel y gestor) ya no abren sesión ni mandan cookies que nadie usaba.
 - [x] **Medido** con la imagen de producción en un contenedor de 1 CPU y 512 MB, con los datos en un volumen como el de Fly. La sesión de edición está guionada en Chrome sin ventana:
@@ -136,7 +137,6 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
   | Peticiones a PHP, con caché del navegador | 58 | 28 | −52 % |
   | Peticiones a PHP, primera vez (fotos sin caché) | 89 | 28 | −69 % |
   | Guardados del borrador | 45 | 19 | −58 % |
-  | Bytes enviados, con caché | 608 KB | 68 KB | −89 % |
   | CPU por guardado (peticiones seguidas) | 10.1 ms | 6.9 ms | −32 % |
   | CPU por abrir el editor | 8.4 ms | 6.0 ms | −29 % |
   | CPU por foto | 3.7 ms | 0.5 ms | −85 % |
@@ -145,10 +145,10 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
   | CPU del contenedor en la sesión, con caché (medida directa) | 2.63 s | 1.56 s | −41 % |
   | CPU del contenedor en la sesión, primera vez (medida directa) | 2.82 s | 2.15 s | −24 % |
 
-  En esta Mac (M1), una petición suelta gasta varias veces más CPU que en ráfaga, porque a veces cae en los núcleos de eficiencia. Eso tapa parte del ahorro en la medida directa, que además varía mucho entre corridas (la misma versión dio de 1.3 a 2.2 s). Por eso la comparación principal es el trabajo por sesión: las peticiones que hizo cada sesión, por el costo de cada tipo medido en ráfaga (mediana de 3, alternando versiones). En Fly (x86, sin esos núcleos) el ahorro debe quedar más cerca de esa cifra. El JSON comprimido le suma ~0.5 ms a cada respuesta (por eso el catálogo sube de 3.0 a 3.7 ms), a cambio de mandar ~75 % menos.
+  En esta Mac (M1), una petición suelta gasta varias veces más CPU que en ráfaga, porque a veces cae en los núcleos de eficiencia. Eso tapa parte del ahorro en la medida directa, que además varía mucho entre corridas (la misma versión dio de 1.3 a 2.2 s). Por eso la comparación principal es el trabajo por sesión: las peticiones que hizo cada sesión, por el costo de cada tipo medido en ráfaga (mediana de 3, alternando versiones). En Fly (x86, sin esos núcleos) el ahorro debe quedar más cerca de esa cifra. Se midió con el JSON comprimido en Apache, que le sumaba ~0.5 ms a cada respuesta (por eso el catálogo sube de 3.0 a 3.7 ms); en producción eso ya no está porque lo comprime Fly, así que el costo real es un poco menor.
 - [x] **QA en la imagen de producción (23/23):**
   - Media: 200 con ETag y `nosniff`, 304, rangos del MP3; `_gestor`, `originales/`, `.csv` y `.php` no se entregan.
-  - HTML, CSS, JS y JSON con gzip.
+  - HTML, CSS y JS con gzip.
   - El título se ve en la vista previa antes de guardar y se guarda al segundo.
   - Una actividad se guarda pronto; ocultar la pestaña guarda.
   - Sin errores de la página.
