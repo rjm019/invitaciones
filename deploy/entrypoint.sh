@@ -4,6 +4,8 @@
 set -e
 
 EVENTOS_PATH="${EVENTOS_PATH:-/data/eventos}"
+# Apache también la usa: entrega la media directo de ahí (apache-site.conf).
+export EVENTOS_PATH
 mkdir -p "$EVENTOS_PATH"
 chown -R www-data:www-data "$EVENTOS_PATH"
 # Caché (clima, límites de envíos) en el disco: sobrevive a que la máquina se apague.
@@ -13,9 +15,8 @@ if [ -n "${CACHE_FILE_PATH:-}" ]; then
 fi
 
 cd /var/www/api
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+# Configuración, rutas, vistas y eventos en caché: cada petición arranca con menos trabajo.
+php artisan optimize
 chown -R www-data:www-data storage bootstrap/cache
 
 exec "$@"

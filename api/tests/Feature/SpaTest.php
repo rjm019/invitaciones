@@ -107,4 +107,13 @@ class SpaTest extends TestCase
         }
         $this->get('/e/prueba')->assertHeaderMissing('Content-Security-Policy');
     }
+
+    public function test_pages_and_media_never_open_a_session_nor_set_cookies(): void
+    {
+        // Nada las usa: cada visita no escribe un archivo de sesión ni cifra cookies.
+        foreach (['/e/prueba', '/gestor', '/panel/prueba', '/media/prueba/no-existe.webp'] as $path) {
+            $response = $this->get($path);
+            $this->assertSame([], $response->headers->getCookies(), $path);
+        }
+    }
 }
