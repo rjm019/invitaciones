@@ -40,6 +40,12 @@ class PublishTest extends TestCase
         $published = $this->postJson('/api/manager/events/nueva/publish', ['version' => $version])->assertOk()->json();
 
         $this->assertFalse($published['migrated']);
+        // Responde con el editor ya al día: no hace falta pedirlo otra vez.
+        $editor = $this->getJson('/api/manager/events/nueva/design')->json();
+        foreach (['version', 'source', 'has_draft', 'pending', 'design', 'config', 'settings'] as $key) {
+            $this->assertEquals($editor[$key], $published[$key], $key);
+        }
+        $this->assertSame('live', $published['source']);
         $this->getJson('/api/public/events/nueva')->assertJsonPath('event.sections.3.title', 'Programa');
         $this->assertFileDoesNotExist("{$this->eventos}/nueva/borrador/invitacion.csv");
         $this->assertCount(1, glob("{$this->eventos}/nueva/respaldos/invitacion-*.csv"));

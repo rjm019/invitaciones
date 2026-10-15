@@ -50,13 +50,13 @@ class DesignController extends Controller
         $design = DesignInput::parse($request->input('design'));
 
         try {
-            $this->store->saveDraft($slug, $design, (string) $request->input('version'));
+            $state = $this->store->saveDraft($slug, $design, (string) $request->input('version'));
         } catch (DesignConflict $e) {
             return $this->conflict($slug, $e);
         }
         $this->events->forget($slug);
 
-        return response()->json($this->payload->built($slug));
+        return response()->json($this->payload->built($slug, $state));
     }
 
     /** DELETE /api/manager/events/{slug}/draft — descarta los cambios sin publicar. */
@@ -72,7 +72,8 @@ class DesignController extends Controller
 
     /**
      * POST /api/manager/events/{slug}/publish — { version, replace_owner_deadline? }
-     * → { published_at, migrated, version } · 422 con lo que hay que corregir · 409.
+     * → { published_at, migrated, version } y lo mismo que GET design (el editor ya no lo pide
+     * otra vez) · 422 con lo que hay que corregir · 409.
      */
     public function publish(Request $request, string $slug, DesignPublisher $publisher): JsonResponse
     {
@@ -97,7 +98,7 @@ class DesignController extends Controller
             return response()->json(['message' => $e->getMessage(), 'issues' => $e->issues], 422);
         }
 
-        return response()->json($published);
+        return response()->json([...$this->payload->full($slug), ...$published]);
     }
 
     /**

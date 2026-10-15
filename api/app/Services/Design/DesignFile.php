@@ -142,14 +142,17 @@ final class DesignFile
         return ! in_array(self::SHEET, $names, true) && in_array('evento', $names, true);
     }
 
-    /** Guarda invitacion.csv de forma atómica (temporal + rename). */
-    public function write(string $path, Design $design): void
+    /** Guarda invitacion.csv de forma atómica (temporal + rename); devuelve lo que escribió. */
+    public function write(string $path, Design $design): string
     {
         $dir = dirname($path);
         if (! is_dir($dir) && ! mkdir($dir, 0775, true) && ! is_dir($dir)) {
             throw new RuntimeException("No se pudo crear {$dir}");
         }
-        $this->csv->write($path, DesignCodec::HEADERS, $this->safeRows($design));
+        $bytes = $this->toCsv($design);
+        $this->csv->replace($path, $bytes);
+
+        return $bytes;
     }
 
     /** El mismo contenido que write(), como texto (para descargar). */

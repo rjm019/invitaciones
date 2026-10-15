@@ -248,9 +248,10 @@ final class EventRepository
         }
 
         $out = [];
+        $base = url("/media/{$slug}");
         foreach (scandir($dir.'/media') ?: [] as $file) {
             if (preg_match(self::MEDIA_FILE, $file) && is_file($dir.'/media/'.$file)) {
-                $out[$file] = url("/media/{$slug}/{$file}");
+                $out[$file] = "{$base}/{$file}";
             }
         }
 
