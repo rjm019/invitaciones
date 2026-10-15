@@ -63,6 +63,24 @@ class DraftTest extends TestCase
         $this->getJson('/api/public/events/nueva')->assertJsonPath('event.sections.3.title', 'Itinerario');
     }
 
+    public function test_what_saving_answers_is_what_opening_the_editor_gives(): void
+    {
+        $editor = $this->editor();
+        $design = $editor['design'];
+        $design['sections'][3]['items'][0]['actividad'] = 'Llegada';
+
+        $saved = $this->putJson('/api/manager/events/nueva/draft', ['design' => $design, 'version' => $editor['version']])->assertOk()->json();
+
+        $again = $this->editor();
+        foreach (['version', 'has_draft', 'pending', 'changes', 'config', 'issues', 'brand'] as $key) {
+            $this->assertEquals($again[$key], $saved[$key], $key);
+        }
+        // Y la versión nueva sirve para el siguiente guardado.
+        $this->putJson('/api/manager/events/nueva/draft', ['design' => $editor['design'], 'version' => $saved['version']])
+            ->assertOk()
+            ->assertJsonPath('pending', false);
+    }
+
     public function test_the_draft_can_have_mistakes_but_they_are_listed(): void
     {
         $editor = $this->editor();

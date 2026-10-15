@@ -67,27 +67,19 @@ final class CsvFile
      */
     public function write(string $path, array $headers, iterable $rows): void
     {
-        $tmp = dirname($path).'/.'.basename($path).'.'.bin2hex(random_bytes(4)).'.tmp';
-        $handle = fopen($tmp, 'wb');
-        if ($handle === false) {
-            throw new RuntimeException("No se pudo escribir en {$tmp}");
-        }
-
-        try {
+        $this->atomically($path, function ($handle) use ($headers, $rows) {
             fwrite($handle, self::BOM);
             $this->put($handle, $headers);
             foreach ($rows as $row) {
                 $this->put($handle, array_map(fn ($h) => $row[$h] ?? '', $headers));
             }
-            fflush($handle);
-        } finally {
-            fclose($handle);
-        }
+        });
+    }
 
-        if (! rename($tmp, $path)) {
-            @unlink($tmp);
-            throw new RuntimeException("No se pudo reemplazar {$path}");
-        }
+    /** Reemplaza el archivo con un contenido ya armado (con su BOM), también atómico. */
+    public function replace(string $path, string $contents): void
+    {
+        $this->atomically($path, fn ($handle) => fwrite($handle, $contents));
     }
 
     /**
@@ -181,6 +173,28 @@ final class CsvFile
     public static function unsafe(string $value): string
     {
         return preg_match("/^'[=+\\-@\t\r]/", $value) ? substr($value, 1) : $value;
+    }
+
+    /** @param  Closure(resource): mixed  $fill */
+    private function atomically(string $path, Closure $fill): void
+    {
+        $tmp = dirname($path).'/.'.basename($path).'.'.bin2hex(random_bytes(4)).'.tmp';
+        $handle = fopen($tmp, 'wb');
+        if ($handle === false) {
+            throw new RuntimeException("No se pudo escribir en {$tmp}");
+        }
+
+        try {
+            $fill($handle);
+            fflush($handle);
+        } finally {
+            fclose($handle);
+        }
+
+        if (! rename($tmp, $path)) {
+            @unlink($tmp);
+            throw new RuntimeException("No se pudo reemplazar {$path}");
+        }
     }
 
     /** @return list<string> los encabezados del archivo (sin el BOM) */

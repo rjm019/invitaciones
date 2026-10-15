@@ -55,21 +55,41 @@ final class DesignStore
     }
 
     /**
+     * Lo que hay en disco de la invitación (borrador y publicada), leído una sola vez: lo
+     * que una operación completa (abrir, guardar, publicar) necesita sin volver a leer.
+     */
+    public function state(string $slug): DesignState
+    {
+        $dir = $this->dir($slug);
+        $draft = is_file($this->draftPath($dir)) ? $this->read($this->draftPath($dir)) : null;
+        $live = $this->livePath($dir);
+        $legacy = ! is_file($live);
+
+        return new DesignState($dir, $draft, $legacy, function () use ($slug, $live, $legacy) {
+            if (! $legacy) {
+                return [$this->read($live), []];
+            }
+            $converted = $this->converter->convert($this->events->rawSheets($slug) ?? []);
+
+            return [StoredDesign::fromDesign($this->file, $converted['design'], $converted['warnings']), $converted['settings']];
+        });
+    }
+
+    /**
      * Lo que el gestor tiene enfrente: el borrador; si no hay, la publicada; si el evento
-     * sigue en el formato anterior, su conversión.
+     * sigue en el formato anterior, su conversión. El diseño es una lectura propia (se puede
+     * cambiar sin afectar a nadie más).
      *
      * @return array{design: Design, source: 'draft'|'live'|'legacy', warnings: list<string>, settings: array<string, string>}
      */
     public function current(string $slug): array
     {
-        $dir = $this->dir($slug);
-        if (is_file($this->draftPath($dir))) {
-            [$design, $warnings] = $this->file->read($this->draftPath($dir));
-
-            return ['design' => $design, 'source' => 'draft', 'warnings' => $warnings, 'settings' => []];
+        $state = $this->state($slug);
+        if ($state->draft !== null) {
+            return ['design' => $state->draft->design(), 'source' => 'draft', 'warnings' => $state->draft->warnings(), 'settings' => []];
         }
 
-        return $this->published($slug);
+        return $this->publishedOf($state);
     }
 
     /**
@@ -79,48 +99,43 @@ final class DesignStore
      */
     public function published(string $slug): array
     {
-        $dir = $this->dir($slug);
-        if (is_file($this->livePath($dir))) {
-            [$design, $warnings] = $this->file->read($this->livePath($dir));
+        return $this->publishedOf($this->state($slug));
+    }
 
-            return ['design' => $design, 'source' => 'live', 'warnings' => $warnings, 'settings' => []];
-        }
-
-        $converted = $this->converter->convert($this->events->rawSheets($slug) ?? []);
+    /**
+     * @return array{design: Design, source: 'live'|'legacy', warnings: list<string>, settings: array<string, string>}
+     */
+    public function publishedOf(DesignState $state): array
+    {
+        $published = $state->published();
 
         return [
-            'design' => $converted['design'],
-            'source' => 'legacy',
-            'warnings' => $converted['warnings'],
-            'settings' => $converted['settings'],
+            'design' => $published->design(),
+            'source' => $state->legacy ? 'legacy' : 'live',
+            'warnings' => $published->warnings(),
+            'settings' => $state->legacySettings(),
         ];
     }
 
     /** Huella de lo que el gestor tiene enfrente: cambia con cualquier cambio guardado. */
     public function version(string $slug): string
     {
-        $current = $this->current($slug);
-        $prefix = ['draft' => 'b', 'live' => 'p', 'legacy' => 'a'][$current['source']];
-
-        return $prefix.'-'.$this->file->hash($current['design']);
+        return $this->state($slug)->version();
     }
 
     /** ¿El borrador es distinto de lo publicado? */
     public function pending(string $slug): bool
     {
-        if (! $this->hasDraft($slug)) {
-            return false;
-        }
-
-        return $this->file->hash($this->current($slug)['design']) !== $this->file->hash($this->published($slug)['design']);
+        return $this->state($slug)->pending();
     }
 
     /**
-     * Guarda el borrador si nadie lo cambió desde $expected; devuelve la versión nueva.
+     * Guarda el borrador si nadie lo cambió desde $expected; devuelve cómo quedó (con el
+     * borrador que se acaba de escribir, sin volver a leerlo).
      *
      * @throws DesignConflict
      */
-    public function saveDraft(string $slug, Design $design, string $expected): string
+    public function saveDraft(string $slug, Design $design, string $expected): DesignState
     {
         $dir = $this->dir($slug);
         $path = $this->draftPath($dir);
@@ -129,13 +144,13 @@ final class DesignStore
         }
 
         return $this->csv->locked($path, function () use ($slug, $design, $expected, $path) {
-            $current = $this->version($slug);
+            $state = $this->state($slug);
+            $current = $state->version();
             if (! hash_equals($current, $expected)) {
                 throw new DesignConflict($current);
             }
-            $this->file->write($path, $design);
 
-            return $this->version($slug);
+            return $state->withDraft(StoredDesign::fromBytes($this->file, $this->file->write($path, $design)));
         });
     }
 
@@ -228,6 +243,16 @@ final class DesignStore
         } catch (InvalidFormatException) {
             return null;
         }
+    }
+
+    private function read(string $path): StoredDesign
+    {
+        $bytes = @file_get_contents($path);
+        if ($bytes === false) {
+            throw new RuntimeException('No se pudo leer '.basename($path));
+        }
+
+        return StoredDesign::fromBytes($this->file, $bytes);
     }
 
     private function dir(string $slug): string

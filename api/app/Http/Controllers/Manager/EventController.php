@@ -20,10 +20,15 @@ use RuntimeException;
 /** Eventos y plantillas: la lista, crear (en blanco o copiando) y los ajustes al instante. */
 class EventController extends Controller
 {
-    /** GET /api/manager/events — las que ve esta persona (quien administra, todas). */
+    /**
+     * GET /api/manager/events — las que ve esta persona (quien administra, todas) y sus datos
+     * al día (otra persona pudo cambiar su nombre o su rol): el inicio no pide /me aparte.
+     */
     public function index(Request $request, ManagerEvents $events): JsonResponse
     {
-        return response()->json(['events' => $events->list($request->attributes->get(ManagerAuth::ATTRIBUTE))]);
+        $user = $request->attributes->get(ManagerAuth::ATTRIBUTE);
+
+        return response()->json(['events' => $events->list($user), 'user' => ManagerUsers::present($user)]);
     }
 
     /**

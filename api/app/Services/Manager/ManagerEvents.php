@@ -51,24 +51,16 @@ final class ManagerEvents
     public function summary(string $slug): array
     {
         $dir = (string) $this->events->path($slug);
-        $settings = $this->events->settings($slug);
+        $own = $this->events->settings($slug);
         try {
-            $current = $this->store->current($slug);
+            // Borrador y publicada se leen una vez (y la publicada solo si hace falta).
+            $state = $this->store->state($slug);
+            $design = $state->current()->design();
         } catch (Throwable $e) {
             return ['slug' => $slug, 'title' => $slug, 'error' => 'No se pudo leer la invitación: '.$e->getMessage(), 'updated_at' => null];
         }
-        $design = $current['design'];
-        $settings = [...$current['settings'], ...array_filter($settings, fn ($v) => $v !== '')];
-        $published = $this->events->hasDesign($slug) ? $this->store->published($slug) : null;
-
-        $guests = 0;
-        $attending = 0;
-        foreach ($this->responses->all($slug) as $people) {
-            foreach ($people as $person) {
-                $guests++;
-                $attending += $person['attending'] ? 1 : 0;
-            }
-        }
+        $settings = [...($state->draft === null ? $state->legacySettings() : []), ...array_filter($own, fn ($v) => $v !== '')];
+        $template = Normalizer::yes($settings['plantilla'] ?? 'NO');
 
         return [
             'slug' => $slug,
@@ -76,15 +68,14 @@ final class ManagerEvents
             'type' => $design->event('tipo') ?? 'otro',
             'celebrant' => $design->event('festejada_corto') ?? $design->event('festejada'),
             'starts_at' => $this->startsAt($design),
-            'published' => Normalizer::yes($settings['publicado'] ?? 'SI') && ! Normalizer::yes($settings['plantilla'] ?? 'NO'),
-            'template' => Normalizer::yes($settings['plantilla'] ?? 'NO'),
-            'format' => $this->events->hasDesign($slug) ? 'design' : 'legacy',
-            'has_draft' => $current['source'] === 'draft',
-            'pending' => $current['source'] === 'draft' && $published !== null
-                && $this->store->pending($slug),
+            'published' => Normalizer::yes($settings['publicado'] ?? 'SI') && ! $template,
+            'template' => $template,
+            'format' => $state->legacy ? 'legacy' : 'design',
+            'has_draft' => $state->draft !== null,
+            'pending' => $state->draft !== null && ! $state->legacy && $state->pending(),
             'updated_at' => $this->updatedAt($dir),
-            'last_publish' => $published !== null ? $this->log->last($dir) : null,
-            'people' => $this->access->people($slug),
+            'last_publish' => $state->legacy ? null : $this->log->last($dir),
+            'people' => ManagerAccess::parse($own[ManagerAccess::SETTING] ?? ''),
             'cover' => [
                 'theme' => $design->event('tema'),
                 'colors' => array_filter([
@@ -95,12 +86,24 @@ final class ManagerEvents
                 ]),
                 'font' => $design->fonts['script'] ?? null,
             ],
-            'counts' => [
-                'invitations' => count($this->invitations->all($slug)),
-                'guests' => $guests,
-                'attending' => $attending,
-            ],
+            // Una plantilla no tiene invitados (su tarjeta no muestra conteos).
+            'counts' => $template ? ['invitations' => 0, 'guests' => 0, 'attending' => 0] : $this->counts($slug),
         ];
+    }
+
+    /** @return array{invitations: int, guests: int, attending: int} */
+    private function counts(string $slug): array
+    {
+        $guests = 0;
+        $attending = 0;
+        foreach ($this->responses->all($slug) as $people) {
+            foreach ($people as $person) {
+                $guests++;
+                $attending += $person['attending'] ? 1 : 0;
+            }
+        }
+
+        return ['invitations' => count($this->invitations->all($slug)), 'guests' => $guests, 'attending' => $attending];
     }
 
     /** @return array<string, mixed> lo que PanelService::titleFor necesita */

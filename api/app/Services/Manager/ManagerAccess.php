@@ -2,6 +2,7 @@
 
 namespace App\Services\Manager;
 
+use App\Services\Design\Normalizer;
 use App\Services\Layout\EventRepository;
 
 /**
@@ -19,9 +20,13 @@ final class ManagerAccess
     /** @param  array<string, string>  $user  la persona (un renglón de usuarios.csv) */
     public function can(array $user, string $slug): bool
     {
-        return ($user['rol'] ?? '') === 'admin'
-            || $this->events->isTemplate($slug)
-            || in_array($user['usuario'] ?? '', $this->people($slug), true);
+        if (($user['rol'] ?? '') === 'admin') {
+            return true;
+        }
+        $settings = $this->events->settings($slug);
+
+        return Normalizer::yes($settings['plantilla'] ?? 'NO')
+            || in_array($user['usuario'] ?? '', self::parse($settings[self::SETTING] ?? ''), true);
     }
 
     /** @return list<string> los usuarios asignados al evento */

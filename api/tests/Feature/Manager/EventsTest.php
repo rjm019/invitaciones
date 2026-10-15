@@ -19,7 +19,10 @@ class EventsTest extends TestCase
 
     public function test_lists_every_event_with_its_card(): void
     {
-        $events = collect($this->asManager()->getJson('/api/manager/events')->assertOk()->json('events'))->keyBy('slug');
+        $list = $this->asManager()->getJson('/api/manager/events')->assertOk();
+        // Con la lista llegan los datos al día de quien entra (el inicio no pide /me aparte).
+        $list->assertJsonPath('user.username', 'ana')->assertJsonPath('user.role', 'admin')->assertJsonMissingPath('user.clave');
+        $events = collect($list->json('events'))->keyBy('slug');
 
         $this->assertSame(['borrador', 'nueva', 'prueba', 'roto'], $events->keys()->sort()->values()->all());
         $this->assertSame('design', $events['nueva']['format']);
@@ -88,6 +91,10 @@ class EventsTest extends TestCase
             ->assertJsonPath('settings.panel_password', null);
         $this->putJson('/api/manager/events/plantilla-azul/settings', ['published' => true])->assertStatus(422);
         $this->getJson('/api/public/events/plantilla-azul')->assertNotFound();
+        // En la lista, sin invitados que contar.
+        $card = collect($this->getJson('/api/manager/events')->json('events'))->firstWhere('slug', 'plantilla-azul');
+        $this->assertTrue($card['template']);
+        $this->assertSame(['invitations' => 0, 'guests' => 0, 'attending' => 0], $card['counts']);
     }
 
     public function test_the_address_is_checked(): void

@@ -42,16 +42,18 @@ final class DesignPublisher
         $now ??= CarbonImmutable::now();
 
         return $this->csv->locked($this->store->livePath($dir), function () use ($slug, $dir, $expected, $replaceOwnerDeadline, $now, $by) {
-            $version = $this->store->version($slug);
+            // Borrador y publicada se leen una sola vez para toda la publicación.
+            $state = $this->store->state($slug);
+            $version = $state->version();
             if (! hash_equals($version, $expected)) {
                 throw new DesignConflict($version);
             }
 
-            $current = $this->store->current($slug);
-            if ($current['source'] === 'live') {
+            if ($state->source() === 'live') {
                 throw new PublishBlocked('No hay cambios por publicar.');
             }
-            $published = $this->store->published($slug);
+            $current = ['design' => $state->current()->design(), 'source' => $state->source()];
+            $published = $this->store->publishedOf($state);
             $migrated = $published['source'] === 'legacy';
             $ownSettings = $this->events->settings($slug);
 
