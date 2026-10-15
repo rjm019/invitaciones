@@ -22,7 +22,7 @@ Se eligió Fly.io porque es barato y tiene disco persistente. La app guarda todo
 - Apache sirve los archivos de `public/` con `KeepAlive Off` (con prefork, cada conexión abierta del proxy ocupaba un proceso y las demás hacían fila).
 - Cualquier ruta que no sea `/api` ni `/media` responde `public/app.html`, que es la invitación compilada (`SpaController`). En `/e/{slug}` y `/i/{token}`, la página ya lleva los datos en `window.__BOOT__`, así la invitación no espera otra petición.
 - **La media la entrega Apache directo** (`AliasMatch` a `${EVENTOS_PATH}/<slug>/media/<archivo>`), sin arrancar PHP por cada foto: con las mismas reglas que `MediaController` (solo el primer nivel de `media/`, extensiones de imagen y audio; `_gestor`, `originales/` y `..` nunca coinciden) y sus encabezados (`Cache-Control` de 7 días, `nosniff`, `noindex`). Además contesta 304 y rangos (el MP3). Lo que no coincida lo sigue respondiendo Laravel; en desarrollo, todo.
-- **El JSON va comprimido** (`AddOutputFilterByType DEFLATE application/json`, fuera del `VirtualHost` para que se sume al `deflate.conf` de Debian); el HTML, el CSS y el JS ya lo iban.
+- **Compresión:** el HTML, el CSS y el JS los comprime Apache (`deflate.conf` de Debian). El JSON lo comprime el proxy de Fly al salir (se ve sin `Vary` de Apache), así que Apache no lo hace: solo gastaría CPU. Si algún día se agrega un `AddOutputFilterByType`, va fuera del `VirtualHost`: dentro reemplaza la lista de `deflate.conf`.
 - Las páginas (invitación, panel y gestor) no abren sesión de Laravel ni mandan cookies: nada las usa (la API trabaja con tokens).
 - `.dockerignore` deja fuera `eventos/`, `docs/`, `recepcion/`, los `.env` y lo de la boda original en `web/public` (fotos reales y una canción con derechos).
 - `deploy/` trae la configuración de Apache (12 procesos como máximo), la de PHP y el arranque. El arranque crea las carpetas del disco, le pasa `EVENTOS_PATH` a Apache y deja en caché la configuración, las rutas, las vistas y los eventos de Laravel (`php artisan optimize`).
@@ -77,7 +77,9 @@ fly volumes snapshots list <id-del-volumen>                            # respald
 
 ## Gestor: primera publicación (runbook)
 
-**Solo cuando lo pidas.** Hasta entonces producción sigue como está: NAT con su Excel y sin `/gestor`. Conviene hacerlo fuera de horas pico.
+**Solo cuando lo pidas.** Conviene hacerlo fuera de horas pico.
+
+> **15-oct:** pasos 1 y 2 hechos (tu `GESTOR_CLAVE` y `fly deploy`, release v6). Ese día también se subió el Excel de NAT con la clave nueva del panel (`deploy/subir-evento.sh nat`; el contenido público quedó idéntico). NAT sigue con su Excel: falta lo del paso 3 en adelante. Si NAT se publica desde el gestor (por ejemplo, para la playlist), eso hace la migración del paso 7; antes conviene el paso 4 (respaldo).
 
 0. **Antes:** lo pendiente de `09-avance.md` → "Qué falta": renombrar la carpeta en el disco (`mv … /data/eventos/nat`) y subir el Excel de NAT con lo último (`deploy/subir-evento.sh nat`). La migración del paso 7 parte del Excel que hay **en el servidor**.
 1. **La clave maestra:** `fly secrets set GESTOR_CLAVE='<16 caracteres o más>'`. Reinicia la máquina unos segundos. La eliges tú; no se escribe en ningún archivo.

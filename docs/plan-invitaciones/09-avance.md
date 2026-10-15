@@ -317,7 +317,6 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
 - **Cada petición cuesta menos:** guardar o abrir lee cada archivo una vez (antes, el borrador hasta 5 veces por guardado).
 - **Producción** (en `deploy/`, sale con el próximo deploy):
   - Apache entrega las fotos sin pasar por PHP; también ayuda a la invitación pública.
-  - El JSON va comprimido.
   - Las páginas ya no abren sesión ni mandan cookies que nadie usaba.
 - **Medido** con la imagen de producción (1 CPU, 512 MB) y una sesión de edición guionada, mediana de 3 corridas:
 
@@ -327,7 +326,6 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
   | Peticiones a PHP la primera vez | 89 | 28 | −69 % |
   | Trabajo del servidor por sesión, con caché | 520 ms | 177 ms | −66 % |
   | Trabajo del servidor por sesión, primera vez | 640 ms | 193 ms | −70 % |
-  | Datos enviados con caché | 608 KB | 68 KB | −89 % |
 
   El detalle y cómo se midió está en `04-fases/fase-8-gestor-de-plantillas.md` → H.
 
@@ -406,8 +404,8 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
 
 ### Gestor (rama `feature/gestor-plantillas`)
 
-1. **Revisar la rama** (tú, pregunta 35: "todavía no"): `http://localhost:5173/gestor`; la primera vez pide crear tu cuenta con la clave maestra de `api/.env` (`GESTOR_CLAVE`). Si está bien: merge a `main` y push.
-2. **Runbook de producción, solo cuando lo pidas** (`06-despliegue/despliegue.md` → "Gestor: primera publicación"): `fly secrets set GESTOR_CLAVE=…`, `fly deploy`, crear tu cuenta en `/gestor`, ensayo con una copia de NAT e `invitacion:migrar nat` en el servidor.
+1. **Publicado (15-oct):** merge a `main` (local; falta el push a GitHub) y `fly deploy` con tu `GESTOR_CLAVE` (release v6). La clave nueva del panel de NAT se subió con su Excel.
+2. **Resto del runbook** (`06-despliegue/despliegue.md` → "Gestor: primera publicación"): crear tu cuenta en `/gestor`, respaldo, y pasar NAT al formato nuevo (al publicarla desde el gestor, por ejemplo con la playlist "Xv Nat").
 3. **Etapa F, después del 28-nov:** quitar el camino del Excel y `layout:xlsx`; pasar las fixtures al formato nuevo.
 
 ### Después del evento real o cuando se decida
