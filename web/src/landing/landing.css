@@ -339,7 +339,9 @@ h3 {
 /* ---------- El celular ---------- */
 
 .phone {
-  --w: clamp(15.5rem, 26vw, 19rem);
+  /* Nunca más alto que la pantalla: en una ventana baja, el celular fijo de "Nada es
+     imposible" se encimaba sobre el texto de abajo. */
+  --w: min(clamp(15.5rem, 26vw, 19rem), 33vh);
   position: relative;
   width: var(--w);
   aspect-ratio: 9 / 19.5;
@@ -588,7 +590,7 @@ h3 {
 /* Tres celebraciones */
 .events {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: clamp(1rem, 2.5vw, 1.6rem);
 }
 .event {
@@ -636,6 +638,11 @@ h3 {
 .event:hover::after {
   transform: translateX(100%);
 }
+@media (max-width: 1100px) {
+  .events {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 @media (max-width: 860px) {
   .events {
     grid-template-columns: 1fr;
@@ -645,6 +652,79 @@ h3 {
   }
   .event h3 {
     margin-top: 1.5rem;
+  }
+}
+
+.event--open {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--ivory);
+}
+.event--open p {
+  color: #cfc8bf;
+}
+.event--open .event__art,
+.event--open .link-arrow {
+  color: var(--champagne);
+}
+.event--open::after {
+  background: linear-gradient(115deg, transparent 40%, rgb(255 255 255 / 12%) 50%, transparent 60%);
+}
+
+.events__demos {
+  margin: clamp(1.8rem, 4vw, 2.6rem) 0 0;
+  text-align: center;
+  color: var(--ink-soft);
+}
+.events__demos a {
+  color: var(--champagne-deep);
+  font-weight: 500;
+  text-underline-offset: 3px;
+}
+
+/* Integraciones */
+.apps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(1rem, 2.5vw, 1.6rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.apps li {
+  padding: 1.6rem 1.5rem;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+.apps svg {
+  width: 1.7rem;
+  height: 1.7rem;
+  margin-bottom: 1.1rem;
+  color: var(--champagne-deep);
+}
+.apps h3 {
+  font-size: 1.35rem;
+  margin-bottom: 0.4rem;
+}
+.apps p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+.apps .apps__more {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--stone);
+}
+@media (max-width: 1100px) {
+  .apps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 520px) {
+  .apps {
+    grid-template-columns: 1fr;
   }
 }
 
