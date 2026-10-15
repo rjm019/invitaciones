@@ -24,6 +24,7 @@ final class DesignPayload
         private readonly InvitationConfigBuilder $builder,
         private readonly PanelService $panel,
         private readonly LegacyMigrator $migrator,
+        private readonly ManagerUsers $users,
     ) {}
 
     /** @return array<string, mixed> */
@@ -116,6 +117,17 @@ final class DesignPayload
             'panel_password' => $template ? null : ($settings['clave_panel'] ?? $this->events->eventValue($slug, 'clave_panel')),
             'owner_deadline' => ($settings['rsvp_limite'] ?? '') ?: null,
             'deadline_changes' => (int) ($settings['rsvp_limite_cambios'] ?? 0),
+            // Quién la ve en el gestor, además de quien administra.
+            'people' => array_map(function (string $username) {
+                $user = $this->users->find($username);
+
+                return [
+                    'username' => $username,
+                    'name' => $user['nombre'] ?? $username,
+                    'role' => $user['rol'] ?? 'editor',
+                    'active' => $user !== null && ManagerUsers::active($user),
+                ];
+            }, ManagerAccess::parse($settings[ManagerAccess::SETTING] ?? '')),
         ];
     }
 

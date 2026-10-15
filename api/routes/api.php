@@ -66,7 +66,8 @@ Route::prefix('manager')->group(function () {
         Route::get('/events', [ManagerEventController::class, 'index']);
         Route::post('/events', [ManagerEventController::class, 'store']);
 
-        Route::prefix('events/{slug}')->where(['slug' => '[a-z0-9-]+'])->group(function () {
+        // Quien edita solo entra a las invitaciones que creó o le asignaron (manager.event).
+        Route::prefix('events/{slug}')->where(['slug' => '[a-z0-9-]+'])->middleware('manager.event')->group(function () {
             Route::put('/settings', [ManagerEventController::class, 'settings']);
             Route::get('/design', [DesignController::class, 'show']);
             Route::put('/draft', [DesignController::class, 'save']);

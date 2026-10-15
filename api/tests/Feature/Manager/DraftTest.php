@@ -34,7 +34,7 @@ class DraftTest extends TestCase
         $this->assertSame('itinerario', $editor['design']['sections'][3]['id']);
         $this->assertSame(['portada', 'bendicion', 'foto', 'itinerario', 'vestimenta'], array_column($editor['config']['sections'], 'key'));
         $this->assertSame('XV de Nue', $editor['brand']['title']);
-        $this->assertSame(['published' => true, 'template' => false, 'panel_password' => 'clave-de-prueba-nueva', 'owner_deadline' => null, 'deadline_changes' => 0], $editor['settings']);
+        $this->assertSame(['published' => true, 'template' => false, 'panel_password' => 'clave-de-prueba-nueva', 'owner_deadline' => null, 'deadline_changes' => 0, 'people' => []], $editor['settings']);
         $this->assertNull($editor['conversion']);
         $this->assertStringStartsWith('p-', $editor['version']);
     }

@@ -1,22 +1,25 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useClipboard } from '@/composables/useClipboard'
 import { useEditor } from '@/composables/useEditorContext'
+import { useManagerSession } from '@/composables/useManagerSession'
 import { useToasts } from '@/composables/useToasts'
-import type { ManagerSettings } from '@/types/design'
+import { initials } from '@/services/managerAccountService'
+import * as managerService from '@/services/managerService'
+import type { ManagerSettings, ManagerUser, SettingsChange } from '@/types/design'
 import FieldInput from './FieldInput.vue'
 import ManagerIcon from './ManagerIcon.vue'
 import SharePreview from './SharePreview.vue'
 
 /**
  * "Datos generales": lo del evento (nombres, fecha, salón, confirmaciones, música, el
- * mensaje de WhatsApp y la tarjeta), el acceso del cliente a su panel y si la invitación
- * se ve. La clave y "visible" se guardan al instante (no esperan a "Publicar").
+ * mensaje de WhatsApp y la tarjeta), el acceso del cliente a su panel, si la invitación
+ * se ve y quién la edita en el gestor. Eso último, la clave y "visible" se guardan al
+ * instante (no esperan a "Publicar").
  */
-defineProps<{ settings: ManagerSettings | null }>()
-const emit = defineEmits<{
-  settings: [changes: { panel_password?: string | null; published?: boolean }]
-}>()
+const props = defineProps<{ settings: ManagerSettings | null }>()
+const emit = defineEmits<{ settings: [changes: SettingsChange] }>()
+const { isAdmin, withSession } = useManagerSession()
 const { slug, catalog, design, issues, setBlock } = useEditor()
 const { toast } = useToasts()
 const { copy } = useClipboard()
@@ -75,6 +78,34 @@ function newPassword(): void {
 }
 async function copyText(text: string, what: string): Promise<void> {
   if (await copy(text)) toast(`${what} copiado`)
+}
+
+// Quién la edita: quien administra elige entre las personas que solo editan.
+const people = ref<ManagerUser[]>([])
+const peopleError = ref('')
+const assigned = computed(() => new Set((props.settings?.people ?? []).map((p) => p.username)))
+const editors = computed(() =>
+  people.value.filter((p) => p.role === 'editor' && (p.active || assigned.value.has(p.username))),
+)
+const assignedNames = computed(() =>
+  (props.settings?.people ?? [])
+    .filter((p) => p.role !== 'admin')
+    .map((p) => p.name)
+    .join(', '),
+)
+onMounted(async () => {
+  if (!isAdmin.value) return
+  try {
+    people.value = await withSession((t) => managerService.listUsers(t))
+  } catch (e) {
+    peopleError.value = e instanceof Error ? e.message : 'No se pudo cargar la lista de personas.'
+  }
+})
+function assign(username: string, on: boolean): void {
+  const next = new Set(assigned.value)
+  if (on) next.add(username)
+  else next.delete(username)
+  emit('settings', { people: [...next] })
 }
 </script>
 
@@ -199,6 +230,42 @@ async function copyText(text: string, what: string): Promise<void> {
         </template>
       </section>
 
+      <section v-if="settings && !settings.template" class="g-group">
+        <h3 class="g-group__title">Quién la edita</h3>
+        <template v-if="isAdmin">
+          <p class="g-help">
+            Quien administra ve todas. Marca quién más la ve y la edita en el gestor.
+          </p>
+          <p v-if="peopleError" class="g-error" role="alert">{{ peopleError }}</p>
+          <ul v-if="editors.length" class="general__people">
+            <li v-for="p in editors" :key="p.username">
+              <label class="general__person">
+                <input
+                  type="checkbox"
+                  :checked="assigned.has(p.username)"
+                  @change="assign(p.username, ($event.target as HTMLInputElement).checked)"
+                />
+                <span class="general__avatar" aria-hidden="true">{{ initials(p.name) }}</span>
+                <span class="general__who">
+                  {{ p.name }}
+                  <small>{{ p.username }}{{ p.active ? '' : ' · sin acceso' }}</small>
+                </span>
+              </label>
+            </li>
+          </ul>
+          <p v-else-if="!peopleError" class="g-note">
+            <ManagerIcon name="users" />
+            <span
+              >Todavía no hay personas que solo editan. Agrégalas en tu menú → Personas del
+              gestor.</span
+            >
+          </p>
+        </template>
+        <p v-else class="g-help">
+          La editan {{ assignedNames || 'solo tú' }}, y quien administra el gestor.
+        </p>
+      </section>
+
       <section v-for="g in groups" :key="g.label" class="g-group">
         <h3 class="g-group__title">{{ g.label }}</h3>
         <p
@@ -316,6 +383,44 @@ async function copyText(text: string, what: string): Promise<void> {
 }
 .general__note {
   margin-bottom: 12px;
+}
+.general__people {
+  display: grid;
+  gap: 2px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.general__person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.general__person:hover {
+  background: var(--g-surface-2);
+}
+.general__avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--g-accent-soft);
+  color: var(--g-accent);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.general__who {
+  display: grid;
+  min-width: 0;
+}
+.general__who small {
+  color: var(--g-faint);
+  font-size: 12px;
 }
 .general__vars {
   display: flex;

@@ -4,6 +4,7 @@ namespace App\Services\Design;
 
 use App\Services\Invitations\EventSettings;
 use App\Services\Layout\EventRepository;
+use App\Services\Manager\ManagerAccess;
 use Carbon\CarbonImmutable;
 use RuntimeException;
 
@@ -88,6 +89,8 @@ final class DesignFactory
             'publicado' => 'NO',
             'plantilla' => $template ? 'SI' : null,
             'clave_panel' => $password,
+            // Quien la crea la ve en el gestor (las demás personas, si se la asignan).
+            ManagerAccess::SETTING => ($by['usuario'] ?? '') !== '' ? $by['usuario'] : null,
         ]), $now, $by);
         $this->log->add($dir, $now, $from === null ? 'nueva' : "copia de {$from}", count($design->sections), $by);
 

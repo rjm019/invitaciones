@@ -46,6 +46,7 @@ const payload = (d = design(), version = 'b-1'): DesignPayload => ({
     panel_password: null,
     owner_deadline: null,
     deadline_changes: 0,
+    people: [],
   },
   conversion: null,
 })

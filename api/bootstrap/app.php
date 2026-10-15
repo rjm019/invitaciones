@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureManagerAdmin;
+use App\Http\Middleware\EnsureManagerEventAccess;
 use App\Http\Middleware\EnsureManagerSession;
 use App\Http\Middleware\EnsurePanelSession;
 use Illuminate\Foundation\Application;
@@ -22,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'panel' => EnsurePanelSession::class,
             'manager' => EnsureManagerSession::class,
             'manager.admin' => EnsureManagerAdmin::class,
+            'manager.event' => EnsureManagerEventAccess::class,
         ]);
         // En Fly la conexión llega por su proxy: así las URLs (fotos de media) salen con https.
         $middleware->trustProxies(at: '*');

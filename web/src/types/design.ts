@@ -160,6 +160,8 @@ export interface ManagerEvent {
   pending: boolean
   updated_at: string | null
   last_publish: PublishRecord | null
+  /** Usuarios asignados (quien administra las ve todas). */
+  people: string[]
   cover: {
     theme: string | null
     colors: Partial<Record<'bg' | 'primary' | 'accent' | 'text', string>>
@@ -176,6 +178,16 @@ export interface ManagerSettings {
   /** Fecha límite que el dueño movió desde su panel (gana sobre la invitación). */
   owner_deadline: string | null
   deadline_changes: number
+  /** Quién la ve y la edita en el gestor, además de quien administra. */
+  people: { username: string; name: string; role: 'admin' | 'editor'; active: boolean }[]
+}
+
+/** Lo que cambia al instante desde "Datos generales" (no espera a "Publicar"). */
+export interface SettingsChange {
+  panel_password?: string | null
+  published?: boolean
+  /** Solo quien administra: los usuarios que la ven en el gestor. */
+  people?: string[]
 }
 
 export interface DesignChange {

@@ -19,7 +19,7 @@ import type { ManagerEvent } from '@/types/design'
  * duplicar, guardar como plantilla y descargar su paquete.
  */
 const router = useRouter()
-const { authenticated, refresh, withSession } = useManagerSession()
+const { authenticated, isAdmin, refresh, withSession } = useManagerSession()
 const { toast } = useToasts()
 
 const events = ref<ManagerEvent[]>([])
@@ -168,8 +168,14 @@ watch(authenticated, (on) => {
             <strong>Nada coincide con “{{ search }}”.</strong>
           </template>
           <template v-else-if="tab === 'events'">
-            <strong>Aún no hay invitaciones.</strong>
-            <span>Crea la primera: puedes partir de una plantilla o en blanco.</span>
+            <strong>{{
+              isAdmin ? 'Aún no hay invitaciones.' : 'Aún no tienes invitaciones.'
+            }}</strong>
+            <span v-if="isAdmin">Crea la primera: puedes partir de una plantilla o en blanco.</span>
+            <span v-else
+              >Crea una (desde una plantilla o en blanco) o pídele a quien administra que te asigne
+              alguna.</span
+            >
             <button type="button" class="g-btn g-btn--primary" @click="openNew()">
               <ManagerIcon name="plus" /> Nueva invitación
             </button>
