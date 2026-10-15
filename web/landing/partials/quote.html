@@ -1,0 +1,68 @@
+<section class="section section--sand" id="cotizar" aria-labelledby="cotizar-titulo">
+  <div class="wrap quote">
+    <div class="quote__intro" data-reveal>
+      <p class="eyebrow">Cotiza sin compromiso</p>
+      <h2 class="display" id="cotizar-titulo">Cuéntanos tu idea. <span class="script">Nosotros la hacemos realidad.</span></h2>
+      <p class="lead">Déjanos tu WhatsApp y te escribimos para conocer tu celebración. Cada invitación se cotiza a la medida de lo que imaginas.</p>
+      <ul class="quote__perks">
+        <li>Te respondemos en menos de 24 horas.</li>
+        <li>Sin paquetes cerrados: solo lo que tú quieres.</li>
+        <li>Tu número solo se usa para cotizarte.</li>
+      </ul>
+    </div>
+
+    <form class="form" data-quote-form action="/api/public/quotes" method="post" novalidate data-reveal style="--i: 1">
+      <div class="form__field">
+        <label for="q-telefono">WhatsApp o teléfono</label>
+        <input id="q-telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" placeholder="55 1234 5678" required aria-describedby="q-telefono-error" />
+        <p class="form__error" id="q-telefono-error" data-error="telefono" role="alert"></p>
+      </div>
+      <div class="form__field">
+        <label for="q-nombre">Tu nombre <small>(opcional)</small></label>
+        <input id="q-nombre" name="nombre" type="text" autocomplete="name" maxlength="80" />
+      </div>
+      <div class="form__field">
+        <label for="q-tipo">¿Qué celebras?</label>
+        <select id="q-tipo" name="tipo" required aria-describedby="q-tipo-error">
+          <option value="" disabled {{tipo==|selected}}>Elige una opción</option>
+          <option value="boda" {{tipo==boda}}>Boda</option>
+          <option value="xv" {{tipo==xv}}>XV años</option>
+          <option value="graduacion" {{tipo==graduacion}}>Graduación</option>
+          <option value="otro">Otra celebración</option>
+        </select>
+        <p class="form__error" id="q-tipo-error" data-error="tipo" role="alert"></p>
+      </div>
+      <div class="form__field">
+        <label for="q-fecha">Fecha del evento <small>(aproximada)</small></label>
+        <input id="q-fecha" name="fecha_evento" type="date" />
+      </div>
+      <div class="form__field form__field--full">
+        <label for="q-idea">Cuéntanos tu idea <small>(opcional)</small></label>
+        <textarea id="q-idea" name="idea" maxlength="600" placeholder="Colores, estilo, secciones que imaginas, lo que quieras…"></textarea>
+      </div>
+      <div class="form__trap" aria-hidden="true">
+        <label for="q-empresa">Empresa</label>
+        <input id="q-empresa" name="empresa" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+      <label class="form__check">
+        <input name="privacidad" type="checkbox" value="1" required aria-describedby="q-privacidad-error" />
+        <span>Acepto el <a href="/aviso-de-privacidad">aviso de privacidad</a>.</span>
+      </label>
+      <p class="form__error form__field--full" id="q-privacidad-error" data-error="privacidad" role="alert"></p>
+      <div class="form__actions">
+        <button class="btn" type="submit">Quiero mi cotización</button>
+        <p class="form__note">Sin costo y sin compromiso.</p>
+      </div>
+      <p class="form__error form__field--full" data-error="form" role="alert"></p>
+      <!-- @if whatsapp --><p class="form__note form__field--full">¿Prefieres escribirnos? <a href="https://wa.me/%WHATSAPP%" rel="noopener">Mándanos un WhatsApp</a>.</p><!-- @endif -->
+
+      <template data-done>
+        <div class="form__done">
+          <p class="eyebrow">Solicitud recibida</p>
+          <p class="display" tabindex="-1">¡Gracias! <span class="script">Pronto te escribimos.</span></p>
+          <p>Te contactaremos por WhatsApp en menos de 24 horas para conocer tu idea y cotizarla a la medida.</p>
+        </div>
+      </template>
+    </form>
+  </div>
+</section>

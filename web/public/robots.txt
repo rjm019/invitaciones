@@ -1,0 +1,13 @@
+# La landing se indexa; las invitaciones, los paneles y el gestor son privados.
+User-agent: *
+Allow: /
+Disallow: /i/
+Disallow: /e/
+Disallow: /panel/
+Disallow: /gestor
+Disallow: /api/
+Disallow: /media/
+Disallow: /landing/
+Disallow: /cotizacion-enviada
+
+Sitemap: https://invitaciones-jiro.fly.dev/sitemap.xml

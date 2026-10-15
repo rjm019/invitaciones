@@ -88,6 +88,8 @@ import userCheckSvg from '@fortawesome/fontawesome-free/svgs/solid/user-check.sv
 import swatchbookSvg from '@fortawesome/fontawesome-free/svgs/solid/swatchbook.svg?raw'
 import paintbrushSvg from '@fortawesome/fontawesome-free/svgs/solid/paintbrush.svg?raw'
 import userSvg from '@fortawesome/fontawesome-free/svgs/solid/user.svg?raw'
+import inboxSvg from '@fortawesome/fontawesome-free/svgs/solid/inbox.svg?raw'
+import whatsappSvg from '@fortawesome/fontawesome-free/svgs/brands/whatsapp.svg?raw'
 
 /**
  * Íconos del gestor (Font Awesome, empaquetados: el gestor va en su propio archivo y no
@@ -98,6 +100,8 @@ const props = defineProps<{ name: string; label?: string; spin?: boolean }>()
 const ICONS: Record<string, string> = {
   'arrow-left': arrowLeftSvg,
   plus: plusSvg,
+  inbox: inboxSvg,
+  whatsapp: whatsappSvg,
   eye: eyeSvg,
   'eye-slash': eyeSlashSvg,
   'grip-vertical': gripVerticalSvg,

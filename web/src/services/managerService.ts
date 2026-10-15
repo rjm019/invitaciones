@@ -8,6 +8,8 @@ import type {
   ManagerSettings,
   ManagerUser,
   MediaFile,
+  Quote,
+  QuoteStatus,
   SettingsChange,
 } from '@/types/design'
 import { http } from './http'
@@ -276,5 +278,44 @@ export async function importDesign(
   const { data } = await http.post<
     DesignPayload & { import: { warnings: string[]; media: string[] } }
   >(`${event(slug)}/import`, form, { ...auth(token), timeout: 120000 })
+  return data
+}
+
+/** Cotizaciones de la landing (solo quien administra), la más reciente primero. */
+export async function listQuotes(token: string): Promise<{ quotes: Quote[]; new: number }> {
+  const { data } = await http.get<{ quotes: Quote[]; new: number }>('/manager/quotes', auth(token))
+  return data
+}
+
+/** Cuántas cotizaciones siguen sin atender (barato: para el contador). */
+export async function countQuotes(token: string): Promise<number> {
+  const { data } = await http.get<{ new: number }>('/manager/quotes/count', auth(token))
+  return data.new
+}
+
+export async function updateQuote(
+  token: string,
+  id: string,
+  changes: { status?: QuoteStatus; note?: string | null },
+): Promise<Quote> {
+  const { data } = await http.put<{ quote: Quote }>(
+    `/manager/quotes/${encodeURIComponent(id)}`,
+    changes,
+    auth(token),
+  )
+  return data.quote
+}
+
+/** La borra de verdad (la persona pidió que se borren sus datos). */
+export async function deleteQuote(token: string, id: string): Promise<void> {
+  await http.delete(`/manager/quotes/${encodeURIComponent(id)}`, auth(token))
+}
+
+/** Todas las cotizaciones en CSV, para abrir en Excel. */
+export async function exportQuotes(token: string): Promise<Blob> {
+  const { data } = await http.get<Blob>('/manager/quotes/export', {
+    ...auth(token),
+    responseType: 'blob',
+  })
   return data
 }
