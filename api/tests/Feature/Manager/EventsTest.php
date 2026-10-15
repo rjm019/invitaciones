@@ -43,7 +43,8 @@ class EventsTest extends TestCase
         $this->assertMatchesRegularExpression('/^[a-z2-9]{4}-[a-z2-9]{4}-[a-z2-9]{4}$/', $created['panel_password']);
         $this->assertFileExists("{$this->eventos}/xv-ana/invitacion.csv");
         $settings = array_column($this->readCsv('xv-ana', 'ajustes.csv'), 'valor', 'clave');
-        $this->assertSame(['publicado' => 'NO', 'clave_panel' => $created['panel_password']], $settings);
+        // Quien la crea la ve en el gestor.
+        $this->assertSame(['publicado' => 'NO', 'clave_panel' => $created['panel_password'], 'personas_gestor' => 'ana'], $settings);
         // Oculta hasta que el gestor la haga visible; el panel del cliente ya abre.
         $this->getJson('/api/public/events/xv-ana')->assertNotFound();
         $this->postJson('/api/admin/events/xv-ana/session', ['password' => $created['panel_password']])->assertOk();

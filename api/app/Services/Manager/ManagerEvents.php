@@ -27,14 +27,20 @@ final class ManagerEvents
         private readonly InvitationStore $invitations,
         private readonly ResponseStore $responses,
         private readonly PublicationLog $log,
+        private readonly ManagerAccess $access,
     ) {}
 
-    /** @return list<array<string, mixed>> */
-    public function list(): array
+    /**
+     * @param  array<string, string>|null  $user  con una persona, solo lo que ella ve
+     * @return list<array<string, mixed>>
+     */
+    public function list(?array $user = null): array
     {
         $out = [];
         foreach ($this->events->slugs() as $slug) {
-            $out[] = $this->summary($slug);
+            if ($user === null || $this->access->can($user, $slug)) {
+                $out[] = $this->summary($slug);
+            }
         }
         usort($out, fn ($a, $b) => strcmp((string) $b['updated_at'], (string) $a['updated_at']));
 
@@ -78,6 +84,7 @@ final class ManagerEvents
                 && $this->store->pending($slug),
             'updated_at' => $this->updatedAt($dir),
             'last_publish' => $published !== null ? $this->log->last($dir) : null,
+            'people' => $this->access->people($slug),
             'cover' => [
                 'theme' => $design->event('tema'),
                 'colors' => array_filter([

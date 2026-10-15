@@ -19,6 +19,7 @@ import type {
   DesignIssue,
   DesignPayload,
   ManagerSettings,
+  SettingsChange,
 } from '@/types/design'
 import type { EventConfig } from '@/types/event'
 import type { PanelBrand } from '@/types/panel'
@@ -243,10 +244,7 @@ export function useDesignEditor(slug: string, withSession: WithSession) {
     await save()
   }
 
-  async function changeSettings(changes: {
-    panel_password?: string | null
-    published?: boolean
-  }): Promise<void> {
+  async function changeSettings(changes: SettingsChange): Promise<void> {
     settings.value = await withSession((t) => managerService.updateSettings(t, slug, changes))
   }
 

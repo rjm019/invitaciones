@@ -30,7 +30,7 @@ import type { PreviewDisplay } from '@/services/previewProtocol'
 import { stylePatch } from '@/services/stylePatchService'
 import { loadTheme, themeAssets } from '@/themes'
 import type { ThemeManifest } from '@/themes/types'
-import type { DesignIssue } from '@/types/design'
+import type { DesignIssue, SettingsChange } from '@/types/design'
 
 /**
  * /gestor/:slug — el editor de una invitación. A la izquierda sus partes (estilo, datos y
@@ -293,16 +293,23 @@ async function restore(id: string): Promise<void> {
     toast(e instanceof Error ? e.message : 'No se pudo restaurar.', 'error')
   }
 }
-async function changeSettings(changes: {
-  panel_password?: string | null
-  published?: boolean
-}): Promise<void> {
+async function changeSettings(changes: SettingsChange): Promise<void> {
   try {
     await editor.changeSettings(changes)
     if ('published' in changes)
       toast(changes.published ? 'La invitación ya se ve.' : 'La invitación quedó oculta.')
     else if (changes.panel_password)
       toast('Clave nueva guardada. Si el cliente tenía su panel abierto, entra con esta.', 'info')
+    else if (changes.people) {
+      const names = (editor.settings.value?.people ?? [])
+        .filter((p) => p.role !== 'admin')
+        .map((p) => p.name)
+      toast(
+        names.length
+          ? `Ahora la editan ${names.join(', ')} y quien administra.`
+          : 'Ahora solo la ve quien administra.',
+      )
+    }
   } catch (e) {
     toast(e instanceof Error ? e.message : 'No se pudo cambiar.', 'error')
   }

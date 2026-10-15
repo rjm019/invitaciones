@@ -8,6 +8,7 @@ import type {
   ManagerSettings,
   ManagerUser,
   MediaFile,
+  SettingsChange,
 } from '@/types/design'
 import { http } from './http'
 
@@ -193,7 +194,7 @@ export async function restoreVersion(
 export async function updateSettings(
   token: string,
   slug: string,
-  changes: { panel_password?: string | null; published?: boolean },
+  changes: SettingsChange,
 ): Promise<ManagerSettings> {
   const { data } = await http.put<{ settings: ManagerSettings }>(
     `${event(slug)}/settings`,

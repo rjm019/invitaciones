@@ -65,6 +65,8 @@ class PublishTest extends TestCase
         $this->postJson('/api/manager/events/nueva/publish', ['version' => $version])->assertOk();
 
         $this->travel(5)->minutes();
+        $this->managerUser('beto', 'editor');
+        $this->putJson('/api/manager/events/nueva/settings', ['people' => ['beto']])->assertOk();
         $editor = $this->asManager('beto', 'editor')->getJson('/api/manager/events/nueva/design')->json();
         $editor['design']['sections'][3]['fields']['titulo'] = 'Agenda';
         $version = $this->putJson('/api/manager/events/nueva/draft', ['design' => $editor['design'], 'version' => $editor['version']])->json('version');
