@@ -26,3 +26,82 @@ colores,,marco,#2E3034
 pagina,,difuminar,SI
 portada,,visible,SI
 portada,,boton,Toca para abrir
+portada,,efectos,reflectores horizonte escarcha reflejo bola_disco
+musica,,visible,SI
+musica,,titulo,Dale play
+bendicion,,visible,SI
+bendicion,,color_fondo,papel
+bendicion,,texto,"Con la bendición de Dios y el amor de nuestra familia, te invitamos a celebrar una noche muy especial."
+bendicion,1,rol,Mis papás
+bendicion,1,nombres,"Nombre Apellido
+Nombre Apellido"
+bendicion,2,rol,Mis padrinos
+bendicion,2,nombres,"Nombre Apellido
+Nombre Apellido"
+fecha,,visible,SI
+fecha,,titulo,Save the date
+foto,,visible,SI
+ubicacion,,visible,SI
+ubicacion,,color_fondo,marco
+ubicacion,,titulo,¿Cuándo y dónde?
+ubicacion,,boton,Ver en Maps
+frase,,visible,SI
+frase,,texto,"Esta noche, la ciudad brilla para nosotros"
+itinerario,,visible,SI
+itinerario,,color_fondo,papel
+itinerario,,titulo,Itinerario
+itinerario,1,hora,20:00
+itinerario,1,actividad,Recepción
+itinerario,1,icono,statue-of-liberty
+itinerario,2,hora,21:00
+itinerario,2,actividad,Cena
+itinerario,2,icono,utensils
+itinerario,3,hora,22:00
+itinerario,3,actividad,Brindis
+itinerario,3,icono,empire-state
+itinerario,4,hora,23:00
+itinerario,4,actividad,Fiesta
+itinerario,4,icono,disco-ball
+vestimenta,,visible,SI
+vestimenta,,titulo,Dress Code
+vestimenta,,subtitulo,Etiqueta rigurosa
+vestimenta,,texto,"Negro, blanco y plata. ¡Brilla con nosotros!"
+vestimenta,,colores,#000000 #C4C8CE #FFFFFF
+sin_ninos,,visible,SI
+sin_ninos,,texto,"Amamos a sus pequeños, pero esta noche es solo para adultos."
+cuenta_regresiva,,visible,SI
+cuenta_regresiva,,color_fondo,papel
+cuenta_regresiva,,titulo,Faltan
+cuenta_regresiva,,texto,La gran noche está cada vez más cerca.
+clima,,visible,SI
+hospedaje,,visible,SI
+hospedaje,,titulo,Recomendación de hospedaje
+hospedaje,1,nombre,Nombre del hotel
+hospedaje,1,nota,A unos pasos del salón
+hospedaje,2,nombre,Otro hotel
+hospedaje,2,nota,A unos 10 min en auto del salón
+mesa_regalos,,visible,SI
+mesa_regalos,,color_fondo,marco
+mesa_regalos,,texto,"Tu presencia es nuestro mejor regalo; si quieres consentirnos, aquí hay algunas ideas."
+mesa_regalos,,sobres_texto,"Si prefieres, puedes darnos tu regalo en un sobre:"
+mesa_regalos,,banco,Banco
+mesa_regalos,,cuenta,000000000000000000
+mesa_regalos,,titular,Nombre del titular
+mesa_regalos,,sobre_fisico,SI
+mesa_regalos,1,tienda,liverpool
+mesa_regalos,1,numero_evento,00000000
+mesa_regalos,1,enlace,https://mesaderegalos.liverpool.com.mx/
+mesa_regalos,2,tienda,amazon
+mesa_regalos,2,nota,Lista de deseos
+mesa_regalos,2,enlace,https://www.amazon.com.mx/
+mesa_regalos,3,tienda,palacio
+mesa_regalos,3,enlace,https://www.elpalaciodehierro.com/
+playlist,,visible,SI
+confirmacion,,visible,SI
+confirmacion,,color_fondo,papel
+confirmacion,,subtitulo,¡Agradecemos que confirmes tu asistencia!
+dedicatoria,,visible,SI
+cierre,,visible,SI
+cierre,,efectos,aparecer horizonte escarcha reflejo bola_disco
+cierre,,titulo,¡Te esperamos!
+cierre,,texto,Esta noche no sería lo mismo sin ti.

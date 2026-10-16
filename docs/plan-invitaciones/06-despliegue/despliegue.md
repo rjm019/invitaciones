@@ -1,6 +1,6 @@
 # Despliegue (Fly.io)
 
-**En producción desde el 13-oct-2026:** https://invitaciones-jiro.fly.dev. El primer evento es `/e/nat`, con su panel en `/panel/nat`.
+**En producción desde el 13-oct-2026:** https://invitaciones-jiro.fly.dev. El primer evento es `/e/nat`, con su panel en `/panel/nat`. **Hoy (16-oct): release v10**, con todo `main`: el gestor, la landing en `/` y sus tres muestras, los temas `marfil` y `nueva-york` y la mesa de regalos.
 
 Se eligió Fly.io porque es barato y tiene disco persistente. La app guarda todo en CSV, así que necesita un disco que sobreviva a reinicios y un solo servidor escribiendo. Los planes gratis de Koyeb y Render borran el disco y Cloud Run no tiene candados de archivo; la comparación está en `09-avance.md`.
 
@@ -13,7 +13,7 @@ Se eligió Fly.io porque es barato y tiene disco persistente. La app guarda todo
 | Servidor | 1 máquina `shared-cpu-1x`, 512 MB, sin swap. Sin visitas se **suspende** (guarda su memoria) y despierta en unos cientos de ms; si Fly no puede reanudarla, arranca de cero (~5 s) |
 | Disco | Volumen `eventos` de 1 GB, cifrado, montado en `/data` |
 | Datos | `/data/eventos/<slug>/` (layout, media y los CSV que escribe la app), `/data/eventos/_gestor/usuarios.csv` (las cuentas del gestor) y `/data/cache/` (clima y límites de envíos) |
-| Secretos | `APP_KEY` (`fly secrets`). Si cambia, se cierran las sesiones del panel y del gestor. `GESTOR_CLAVE` (16 caracteres o más): enciende `/gestor` y sirve para crear la primera cuenta (después cada persona entra con la suya); sin ella el gestor no abre y, si cambia, se cierran todas las sesiones del gestor (todavía no está puesta: ver "Gestor: primera publicación"). Cotizaciones de la landing (opcional): `COTIZACIONES_CORREO` (a dónde llega el aviso) y el correo por SMTP de Resend: `MAIL_MAILER=smtp`, `MAIL_HOST=smtp.resend.com`, `MAIL_PORT=465`, `MAIL_SCHEME=smtps`, `MAIL_USERNAME=resend`, `MAIL_PASSWORD=<API key de Resend>`, `MAIL_FROM_ADDRESS=onboarding@resend.dev` (mientras no haya dominio propio, Resend solo entrega a la cuenta dueña de la key). Sin ellos, las cotizaciones solo se ven en el gestor |
+| Secretos | `APP_KEY` (`fly secrets`). Si cambia, se cierran las sesiones del panel y del gestor. `GESTOR_CLAVE` (16 caracteres o más): enciende `/gestor` y sirve para crear la primera cuenta (después cada persona entra con la suya); sin ella el gestor no abre y, si cambia, se cierran todas las sesiones del gestor (puesta el 15-oct). *Revisado el 16-oct: en Fly solo están `APP_KEY` y `GESTOR_CLAVE`.* Cotizaciones de la landing (opcional): `COTIZACIONES_CORREO` (a dónde llega el aviso) y el correo por SMTP de Resend: `MAIL_MAILER=smtp`, `MAIL_HOST=smtp.resend.com`, `MAIL_PORT=465`, `MAIL_SCHEME=smtps`, `MAIL_USERNAME=resend`, `MAIL_PASSWORD=<API key de Resend>`, `MAIL_FROM_ADDRESS=onboarding@resend.dev` (mientras no haya dominio propio, Resend solo entrega a la cuenta dueña de la key). Sin ellos, las cotizaciones solo se ven en el gestor |
 | Costo | ~2–3 USD/mes (máquina por uso + disco 0.15 USD/GB) |
 
 **Imagen** (`Dockerfile` de la raíz):
@@ -44,6 +44,8 @@ fly deploy --ha=false                  # publicar el código (un solo servidor: 
 deploy/subir-evento.sh nat             # subir o actualizar media/ (y el layout, si sigue en el formato anterior)
 deploy/subir-evento.sh nat --forzar    # además reemplaza invitacion.csv en el servidor (respalda antes la de allá)
 deploy/bajar-evento.sh nat             # traer todo el evento del servidor a eventos/nat-servidor-<fecha>/
+deploy/plantillas/subir.sh nueva-york  # crear la plantilla en el servidor (si ya existe no la toca; --forzar reemplaza su invitacion.csv)
+deploy/demos/subir.sh                  # reemplazar las tres muestras de la landing
 fly logs                               # ver lo que pasa
 fly ssh console                        # entrar al servidor
 fly ssh sftp get /data/eventos/nat/respuestas.csv respuestas.csv   # bajar las respuestas
@@ -68,7 +70,8 @@ fly volumes snapshots list <id-del-volumen>                            # respald
 
 ## Pendiente
 
-- **Una sola vez, antes del próximo `subir-evento.sh`:** el evento cambió de carpeta (`nat`). En el disco de Fly hay que moverla con `fly ssh console -C "mv /data/eventos/<nombre-anterior> /data/eventos/nat"`; si no, `subir-evento.sh nat` crearía una carpeta nueva sin las invitaciones ni las respuestas.
+- ~~**Una sola vez, antes del próximo `subir-evento.sh`:** mover la carpeta del evento a `nat`.~~ *Hecho: revisado en el disco el 16-oct.*
+- Los secretos del correo de las cotizaciones (`MAIL_*` y `COTIZACIONES_CORREO`): la landing ya está publicada y sin ellos el aviso solo llega al gestor.
 
 - Vista previa de WhatsApp (Open Graph). Como Laravel ya sirve `app.html`, se puede inyectar el título y la imagen de cada evento ahí.
 - Dominio propio (opcional): `fly certs add <dominio>`, y luego cambiar `APP_URL` y `FRONTEND_URL`.
@@ -79,7 +82,9 @@ fly volumes snapshots list <id-del-volumen>                            # respald
 
 **Solo cuando lo pidas.** Conviene hacerlo fuera de horas pico.
 
-> **15-oct:** pasos 1 y 2 hechos (tu `GESTOR_CLAVE` y `fly deploy`, release v6). Ese día también se subió el Excel de NAT con la clave nueva del panel (`deploy/subir-evento.sh nat`; el contenido público quedó idéntico). NAT sigue con su Excel: falta lo del paso 3 en adelante. Si NAT se publica desde el gestor (por ejemplo, para la playlist), eso hace la migración del paso 7; antes conviene el paso 4 (respaldo).
+> **15-oct:** pasos 1 y 2 hechos (tu `GESTOR_CLAVE` y `fly deploy`, release v6). Ese día también se subió el Excel de NAT con la clave nueva del panel (`deploy/subir-evento.sh nat`; el contenido público quedó idéntico).
+>
+> **16-oct, revisado en el disco:** el paso 3 (tu cuenta, `_gestor/usuarios.csv`) y el 7 (NAT migrada, "formato anterior", 15-oct a las 19:19 UTC) ya están. NAT tiene un borrador sin publicar en el gestor. Los pasos 4–6 y 8 no se pueden comprobar desde aquí; el 8 (revisar) sigue sirviendo.
 
 0. **Antes:** lo pendiente de `09-avance.md` → "Qué falta": renombrar la carpeta en el disco (`mv … /data/eventos/nat`) y subir el Excel de NAT con lo último (`deploy/subir-evento.sh nat`). La migración del paso 7 parte del Excel que hay **en el servidor**.
 1. **La clave maestra:** `fly secrets set GESTOR_CLAVE='mi-clave-de-16-o-mas'` (escribe tu clave entre las comillas, **sin** `< >`: todo lo que quede entre las comillas es la clave). Reinicia la máquina unos segundos. La eliges tú; no se escribe en ningún archivo. Con `--stage` solo queda en espera hasta el siguiente `fly deploy` (o `fly secrets deploy`).
@@ -94,6 +99,34 @@ fly volumes snapshots list <id-del-volumen>                            # respald
 **Si algo sale mal:** borra `/data/eventos/nat/invitacion.csv` y quita `clave_panel` y `publicado` de `/data/eventos/nat/ajustes.csv` (o restaura el `ajustes-<fecha>.csv` de `respaldos/`). El Excel sigue en su lugar, así que NAT vuelve a leerse como antes.
 
 **Después:** los cambios de NAT se hacen en el gestor (o con `--forzar`, sabiendo que reemplaza lo de allá). `deploy/subir-evento.sh nat` sigue sirviendo para subir media.
+
+## Plantillas y una invitación armada en local
+
+**Plantilla del repositorio** (`deploy/plantillas/<nombre>/`):
+
+```bash
+deploy/plantillas/subir.sh nueva-york
+```
+
+- Crea `/data/eventos/plantilla-nueva-york/` con su `invitacion.csv` y `ajustes.csv` (`plantilla=SI`, `publicado=NO`), como `instalar.sh` en local. Después aparece en `/gestor` → Plantillas.
+- **16-oct:** ya se subió, pero era la versión de solo la portada. La completa (las 18 secciones) se sube con `deploy/plantillas/subir.sh nueva-york --forzar`.
+- Para quitar una plantilla: en el gestor, ⋯ → "Eliminar plantilla". Pasa a `/data/eventos/_gestor/papelera/`, y se recupera con `fly ssh console -C "mv /data/eventos/_gestor/papelera/<carpeta> /data/eventos/<slug>"`.
+- Si allá ya existe, no la toca: puede tener cambios hechos en el gestor. `--forzar` reemplaza su `invitacion.csv` (guarda antes la del servidor en `respaldos/invitacion-subida-<fecha>.csv`) y deja sus ajustes; si hay un borrador, lo avisa.
+- No hace falta `fly deploy`: el código del tema ya va en la imagen (release v10).
+- Sin consola: en el gestor, *Nueva* → en blanco, como plantilla → *Importar* `deploy/plantillas/nueva-york/invitacion.csv` → *Guardar plantilla*.
+
+**Una invitación armada en local** (por ejemplo, Ximena: en local `eventos/ximena`; en producción ya existe `xv-ximena`, oculta y con un borrador):
+
+1. En local, exportarla con su media. Queda en `eventos/`, fuera de git:
+   ```bash
+   docker compose exec api php artisan invitacion:exportar ximena --formato=zip --salida=/var/www/eventos/ximena.zip
+   ```
+2. En `/gestor` de producción, abrir `xv-ximena` → ⋯ → *Descargar o importar* → *Importar* el zip. Reemplaza el borrador de allá y sube la media (la foto del salón y las de los hoteles).
+3. Revisar en la vista previa (celular y computadora; *Enlace general* y *Invitación personal* para la mesa de regalos) y tocar *Publicar*.
+4. En *Datos generales*: *Visible* y la clave del cliente (el panel queda en `/panel/xv-ximena`).
+5. Borrar `eventos/ximena.zip` de tu Mac.
+
+Otra forma, sin el gestor: `deploy/subir-evento.sh <slug> --forzar` sube la media y reemplaza `invitacion.csv`. Necesita una carpeta local con ese mismo nombre y nunca sube `ajustes.csv`.
 
 ## Checklist de cada publicación
 

@@ -1,5 +1,12 @@
 # Estrategia de pruebas
 
+> **Hoy (16-oct-2026):** 202 pruebas de la API (PHPUnit, Pint limpio) y 330 de la web (Vitest, 64 archivos), más ESLint, `vue-tsc` y el build de Linux, todo en Docker (`CLAUDE.md` → Comandos). No hay CI todavía (fase 7). Las de los últimos cambios:
+> - **API:** `EventGiftsTest` (los datos bancarios nunca llegan al enlace general ni a su página precargada) y `EventEffectsTest` (efectos nuevos y opciones de la página).
+> - **Web:** `SectionShell.spec` (el ambiente de Nueva York, las franjas, las orillas y la bola disco), `useSectionComponents.spec` (diseños alternos y su respaldo), `effectsService`, `giftService`, `decorService`, `calendarService` (la semana del evento), `sectionService` (`withEdges`) y `previewProtocol` (la paleta vacía de PHP).
+> - **Regresión visual a mano:** capturas de NAT y de las muestras antes y después de cada cambio de diseño, con Chromium sin interfaz en Docker. Deben quedar iguales, salvo lo que se mueve con el tiempo.
+>
+> La tabla de abajo es el plan original; los casos que menciona BD o pases por familia ya no aplican (ver `../09-avance.md`).
+
 | Capa | Herramienta | Qué se prueba | Cuándo |
 |---|---|---|---|
 | API | PHPUnit (Feature) | Endpoints públicos y admin, reglas de RSVP, políticas, throttle | Fase 1 en adelante, en el CI |

@@ -70,6 +70,8 @@ final class ManagerEvents
             'starts_at' => $this->startsAt($design),
             'published' => Normalizer::yes($settings['publicado'] ?? 'SI') && ! $template,
             'template' => $template,
+            // Las muestras de la landing (demo=SI) van en su propia pestaña del inicio.
+            'demo' => Normalizer::yes($settings['demo'] ?? 'NO') && ! $template,
             'format' => $state->legacy ? 'legacy' : 'design',
             'has_draft' => $state->draft !== null,
             'pending' => $state->draft !== null && ! $state->legacy && $state->pending(),

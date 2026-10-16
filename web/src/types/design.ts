@@ -176,6 +176,8 @@ export interface ManagerEvent {
   starts_at: string | null
   published: boolean
   template: boolean
+  /** Una muestra de la landing (demo=SI): va en su propia pestaña del inicio. */
+  demo: boolean
   format: 'design' | 'legacy'
   has_draft: boolean
   pending: boolean

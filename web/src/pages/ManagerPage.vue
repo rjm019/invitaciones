@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import '@/components/manager/manager.css'
 import AccountMenu from '@/components/manager/AccountMenu.vue'
 import EventCard from '@/components/manager/EventCard.vue'
+import GDialog from '@/components/manager/GDialog.vue'
 import ManagerIcon from '@/components/manager/ManagerIcon.vue'
 import ManagerLogin from '@/components/manager/ManagerLogin.vue'
 import NewEventDialog from '@/components/manager/NewEventDialog.vue'
@@ -13,13 +14,15 @@ import { useFontSamples } from '@/composables/useFontSamples'
 import { useManagerSession } from '@/composables/useManagerSession'
 import { usePolling } from '@/composables/usePolling'
 import { useToasts } from '@/composables/useToasts'
+import { canDelete, groupByTab, searchEvents, type HomeTab } from '@/services/managerHomeService'
 import * as managerService from '@/services/managerService'
 import type { ManagerEvent } from '@/types/design'
 
 /**
- * /gestor — inicio del gestor: las invitaciones y las plantillas, crear una nueva,
- * duplicar, guardar como plantilla y descargar su paquete. Quien administra ve además las
- * cotizaciones que llegan de la landing, con un contador de las nuevas.
+ * /gestor — inicio del gestor: las invitaciones, las plantillas y las muestras de la landing
+ * (cada una en su pestaña), crear una nueva, duplicar, guardar como plantilla y descargar su
+ * paquete. Quien administra ve además las cotizaciones que llegan de la landing, con un
+ * contador de las nuevas, y puede eliminar plantillas (van a la papelera del servidor).
  */
 const router = useRouter()
 const { authenticated, isAdmin, setUser, withSession } = useManagerSession()
@@ -28,7 +31,7 @@ const { toast } = useToasts()
 const events = ref<ManagerEvent[]>([])
 const loading = ref(false)
 const error = ref('')
-const tab = ref<'events' | 'templates'>('events')
+const tab = ref<HomeTab>('events')
 const search = ref('')
 const dialog = ref<{ open: boolean; from: string | null; template: boolean }>({
   open: false,
@@ -36,15 +39,34 @@ const dialog = ref<{ open: boolean; from: string | null; template: boolean }>({
   template: false,
 })
 
-const own = computed(() => events.value.filter((e) => !e.template))
-const templates = computed(() => events.value.filter((e) => e.template))
-const shown = computed(() => {
-  const list = tab.value === 'events' ? own.value : templates.value
-  const q = search.value.trim().toLowerCase()
-  return q
-    ? list.filter((e) => `${e.title} ${e.slug} ${e.celebrant ?? ''}`.toLowerCase().includes(q))
-    : list
-})
+const groups = computed(() => groupByTab(events.value))
+const shown = computed(() => searchEvents(groups.value[tab.value], search.value))
+// La pestaña de muestras solo aparece si hay muestras.
+watch(
+  () => groups.value.demos.length,
+  (n) => {
+    if (!n && tab.value === 'demos') tab.value = 'events'
+  },
+)
+
+const toDelete = ref<ManagerEvent | null>(null)
+const deleting = ref(false)
+
+async function deleteTemplate(): Promise<void> {
+  const target = toDelete.value
+  if (!target) return
+  deleting.value = true
+  try {
+    await withSession((t) => managerService.deleteTemplate(t, target.slug))
+    events.value = events.value.filter((e) => e.slug !== target.slug)
+    toast(`Se eliminó la plantilla «${target.title}».`)
+    toDelete.value = null
+  } catch (e) {
+    toast(e instanceof Error ? e.message : 'No se pudo eliminar la plantilla.', 'error')
+  } finally {
+    deleting.value = false
+  }
+}
 
 // Los nombres de las portadas, cada uno en la letra de su invitación.
 useFontSamples(
@@ -151,7 +173,7 @@ watch(authenticated, (on) => {
               :aria-pressed="tab === 'events'"
               @click="tab = 'events'"
             >
-              Invitaciones <span class="home__count">{{ own.length }}</span>
+              Invitaciones <span class="home__count">{{ groups.events.length }}</span>
             </button>
             <button
               type="button"
@@ -160,7 +182,18 @@ watch(authenticated, (on) => {
               :aria-pressed="tab === 'templates'"
               @click="tab = 'templates'"
             >
-              Plantillas <span class="home__count">{{ templates.length }}</span>
+              Plantillas <span class="home__count">{{ groups.templates.length }}</span>
+            </button>
+            <button
+              v-if="groups.demos.length"
+              type="button"
+              role="tab"
+              :aria-selected="tab === 'demos'"
+              :aria-pressed="tab === 'demos'"
+              title="Las muestras que enlaza la landing"
+              @click="tab = 'demos'"
+            >
+              Muestras <span class="home__count">{{ groups.demos.length }}</span>
             </button>
           </div>
           <label class="home__search">
@@ -175,6 +208,11 @@ watch(authenticated, (on) => {
           <button type="button" class="g-btn g-btn--small" @click="load">Reintentar</button>
         </p>
 
+        <p v-if="tab === 'demos' && shown.length" class="home__hint">
+          Las muestras que enlaza la landing (<code>/i/Demo…</code>). No guardan confirmaciones ni
+          visitas; los cambios que publiques aquí los ven los clientes.
+        </p>
+
         <div v-if="loading && !events.length" class="home__grid" aria-busy="true">
           <div v-for="n in 3" :key="n" class="home__skeleton g-card" />
         </div>
@@ -184,11 +222,13 @@ watch(authenticated, (on) => {
             v-for="e in shown"
             :key="e.slug"
             :event="e"
+            :can-delete="canDelete(e, isAdmin)"
             @edit="router.push(`/gestor/${e.slug}`)"
             @use="openNew(e.slug)"
             @duplicate="openNew(e.slug, e.template)"
             @template="openNew(e.slug, true)"
             @download="download(e)"
+            @delete="toDelete = e"
           />
         </div>
 
@@ -210,9 +250,12 @@ watch(authenticated, (on) => {
               <ManagerIcon name="plus" /> Nueva invitación
             </button>
           </template>
-          <template v-else>
+          <template v-else-if="tab === 'templates'">
             <strong>Aún no hay plantillas.</strong>
             <span>En una invitación, usa “Guardar como plantilla” para reusar su diseño.</span>
+          </template>
+          <template v-else>
+            <strong>Aún no hay muestras.</strong>
           </template>
         </div>
       </main>
@@ -231,6 +274,32 @@ watch(authenticated, (on) => {
       @close="quotesOpen = false"
       @changed="newQuotes = $event"
     />
+    <GDialog
+      :open="!!toDelete"
+      title="¿Eliminar esta plantilla?"
+      size="sm"
+      :dismissable="!deleting"
+      @close="toDelete = null"
+    >
+      <p>
+        «{{ toDelete?.title }}» deja de aparecer en el gestor. Las invitaciones que ya se hicieron
+        con ella no cambian, y en el servidor queda una copia en la papelera por si hace falta
+        recuperarla.
+      </p>
+      <template #footer>
+        <button type="button" class="g-btn" :disabled="deleting" @click="toDelete = null">
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="g-btn g-btn--danger"
+          :disabled="deleting"
+          @click="deleteTemplate"
+        >
+          <ManagerIcon name="trash-can" /> {{ deleting ? 'Eliminando…' : 'Eliminar' }}
+        </button>
+      </template>
+    </GDialog>
     <ToastHost />
   </div>
 </template>
@@ -295,6 +364,11 @@ watch(authenticated, (on) => {
   background: var(--g-surface-3);
   color: var(--g-muted);
   font-size: 11px;
+}
+.home__hint {
+  margin-top: -6px;
+  color: var(--g-muted);
+  font-size: 13px;
 }
 .home__search {
   display: flex;

@@ -11,7 +11,7 @@ flowchart TD
   E -- sí --> F[5. Tema: tokens + manifiesto + assets]
   E -- no --> G[5b. Crear la sección genérica nueva]
   G --> F
-  F --> H[6. Contenido del evento - config JSON]
+  F --> H[6. Contenido del evento - en el gestor]
   H --> I[7. QA de fidelidad + checklist]
   I --> J[8. Publicar y enviar links]
   J --> K[9. Cierre post-evento]
@@ -54,22 +54,29 @@ flowchart TD
 2. **Crear el tema** en `src/themes/<id>/`:
    - `theme.css` con los tokens.
    - `manifest.ts` con fuentes, variantes, decoraciones e iconos.
-3. **Ajustar las variantes** de las secciones; nunca meter datos del evento en el tema.
+3. **Un diseño propio para cada sección**, aunque el contenido sea el mismo: el tema nuevo no es otro recoloreado (D20).
+   - Para cada sección, primero una idea del tema (Nueva York: elevador, boleto de Broadway, metro, Grand Central…).
+   - Después, usar un diseño que ya exista (`components/sections/variants/`, catálogo en `01-analisis-codigo/efectos-reutilizables.md`) o crear uno nuevo (`03-arquitectura-objetivo/frontend.md` §6). Todo diseño nuevo sirve después en cualquier tema.
+   - Los dibujos genéricos van en `themes/_shared/assets/`; los íconos nuevos, en `assets/icons/`.
+4. **Opciones de toda la invitación** en el manifiesto: la división entre secciones (`edges`; con la plantilla difuminada, `pagina,,difuminar,SI`), `buttons`, `confetti`, `metallic` y `corners`. Si el diseño pide un detalle que no existe (otra orilla, otro botón), se agrega como opción, no fijo en el tema.
+5. Nunca meter datos del evento en el tema.
 
 ## 6. Contenido del evento (15 min)
 
-- Crear el evento en el **panel admin**, o un JSON que cumpla `03-arquitectura-objetivo/evento.schema.json`.
-- **Familias:** importar el CSV `family_name,passes,phone`.
+- En el **gestor** (`/gestor`): *Nueva invitación* desde la plantilla del tema (o en blanco), y llenar cada sección con la invitación a la vista. El formato es `invitacion.csv` (`eventos/README.md`).
+- **La plantilla del tema:** guárdala en `deploy/plantillas/<id>/invitacion.csv` (solo diseño, sin datos de personas). Se instala con `deploy/plantillas/instalar.sh <id>` en local y con `subir.sh <id>` en Fly.
+- ~~**Familias:** importar el CSV `family_name,passes,phone`.~~ **Cambió:** los enlaces se generan en el panel por número de invitados.
 
 ## 7. QA (1 h)
 
 - Comparación visual lado a lado con las capturas (390 px y 1054 px).
+- Que no se parezca a otro tema y que los otros no cambien: capturas de NAT y de las muestras antes y después.
 - `05-calidad/checklist-qa.md` completo.
 
 ## 8. Publicar y enviar (30 min)
 
-- **Publicar el evento** en el panel admin.
-- **Enviar los links:** botón de WhatsApp por familia, o exportar la lista de links al cliente.
+- **Publicar** en el gestor; en *Datos generales*, *Visible* y la clave del cliente.
+- **Enviar los enlaces:** en el panel del cliente (`/panel/<slug>`), "Enviar" arma el PDF o la imagen con el QR para WhatsApp.
 - **Monitorear:** revisar las respuestas en el panel durante la semana del deadline.
 
 ## 9. Cierre post-evento

@@ -45,7 +45,7 @@ La invitación se diseña para celular primero; en una computadora o tablet acos
    - **Personas** (menú de tu cuenta, si administras): agregar a alguien le da una clave temporal, con un mensaje listo para mandárselo; al entrar elige la suya. Ahí también se cambia su rol (*Administra* o *Edita*), se le da otra clave temporal o se le quita el acceso (su nombre se queda en el historial).
    - **Cambiar mi clave**, en el mismo menú. Si alguien se queda fuera: `php artisan gestor:usuario <usuario> --clave-nueva`.
    - **Quién ve qué:** quien *edita* ve solo las invitaciones que creó o que le asignaron, y todas las plantillas. Quien *administra* ve todas y las asigna en "Datos generales" → "Quién la edita" (queda en `ajustes.csv` → `personas_gestor`).
-2. **Invitaciones y plantillas:** cada tarjeta trae sus colores, su letra, si se ve, si tiene cambios sin publicar y cuántos confirmaron. En su menú ⋯: duplicar, guardar como plantilla y descargar.
+2. **Invitaciones, plantillas y muestras:** cada una en su pestaña (las muestras de la landing, con `demo=SI`, van en "Muestras" para no llenar la lista; la pestaña solo sale si hay). Cada tarjeta trae sus colores, su letra, si se ve, si tiene cambios sin publicar y cuántos confirmaron. En su menú ⋯: duplicar, guardar como plantilla y descargar; en una plantilla, quien administra también puede **eliminarla** (ver "Plantillas").
 3. **Nueva invitación:** en blanco (todas las secciones con textos de ejemplo), desde una plantilla o como copia de otra. Se copian el diseño y `media/`. **Nunca** se copian los enlaces, las respuestas ni la clave del panel: se genera una clave nueva. Nace oculta.
 4. **El editor** (`/gestor/<slug>`):
    - **Izquierda:**
@@ -249,7 +249,7 @@ Sin configurar nada, el tema también pone mariposas que cruzan la pantalla de v
 
 **Secciones difuminadas** (`pagina,,difuminar,SI`, o el efecto `difuminar` en una sección): ninguna sección se ve como tarjeta; llegan a las orillas y se tocan, sin espacio entre ellas. Las que tienen color de fondo (`color_fondo`) son **franjas**: sus orillas de arriba y abajo se funden con lo que sigue. En `nueva-york` la ciudad corta las franjas grises (`color_fondo,marco`) y el **papel** (`color_fondo,papel`) asoma por una hoja rasgada, con la fibra y la sombra de la hoja negra; adentro de una franja de papel todo va en tinta. En otros temas la orilla es un degradado. Las que no tienen fondo van directo sobre el papel de la página.
 
-**Tema `nueva-york`:** una noche en Manhattan, de fondo negro. Sus adornos son dibujos (sobre perla, tarjeta negra con marco art déco, la corona del Chrysler, un sello con el Empire State); los paneles llevan esquinas escalonadas y los títulos brillo de metal. Cada sección tiene su propio diseño (tabla de "Diseños propios del tema"), bendición, itinerario, cuenta regresiva y confirmación van sobre papel, y ubicación y mesa de regalos en franja gris; en lugar de mariposas cae confeti plateado. Su plantilla está en `deploy/plantillas/nueva-york/` (`deploy/plantillas/instalar.sh nueva-york` la pone aquí) y ya viene con secciones difuminadas. Al ser oscura, el panel del dueño y la imagen para WhatsApp van en su versión oscura (el QR, en una placa clara para que se lea).
+**Tema `nueva-york`:** una noche en Manhattan, de fondo negro. Sus adornos son dibujos (sobre perla, tarjeta negra con marco art déco, la corona del Chrysler, un sello con el Empire State); los paneles llevan esquinas escalonadas y los títulos brillo de metal. Cada sección tiene su propio diseño (tabla de "Diseños de sección"), bendición, itinerario, cuenta regresiva y confirmación van sobre papel, y ubicación y mesa de regalos en franja gris; en lugar de mariposas cae confeti plateado. Su plantilla está en `deploy/plantillas/nueva-york/` (`deploy/plantillas/instalar.sh nueva-york` la pone aquí; `deploy/plantillas/subir.sh nueva-york`, en Fly) y ya viene con secciones difuminadas. Al ser oscura, el panel del dueño y la imagen para WhatsApp van en su versión oscura (el QR, en una placa clara para que se lea).
 
 **Escritorio** (`escritorio`): `completo` ocupa toda la fila; `mitad` se pone junto a la siguiente sección `mitad`. Una `mitad` sin pareja se queda con la fila completa. Vacío = lo que diga el tema (en `jardin-azul`: fecha | foto, ubicación | frase, itinerario | vestimenta, cuenta regresiva | confirmación).
 
@@ -284,6 +284,10 @@ El diseño nunca lleva la clave: descargar, copiar o hacer plantilla una invitac
 ## Plantillas
 
 Una plantilla es un evento con `plantilla=SI`: el mismo formato y la misma carpeta, en su propia pestaña del gestor. Se crean con "Guardar como plantilla" desde la tarjeta de una invitación (copia su diseño y su media) y se usan desde "Nueva invitación". En el gestor, "Publicar" en una plantilla dice "Guardar plantilla": lo publicado es lo que copian las invitaciones nuevas.
+
+**Eliminar una plantilla** (⋯ → "Eliminar plantilla"; solo quien administra): deja de aparecer en el gestor y las invitaciones que ya se hicieron con ella no cambian. Su carpeta no se borra: pasa a `_gestor/papelera/<plantilla>-<fecha>/`, y `_gestor/papelera/papelera.csv` anota quién la quitó y cuándo. Para recuperarla, regresa esa carpeta a `eventos/` con su nombre de antes. Las invitaciones no se eliminan desde el gestor: guardan sus enlaces y sus confirmaciones.
+
+Las del repositorio (`deploy/plantillas/`) se instalan con `deploy/plantillas/instalar.sh <nombre>` en local y `deploy/plantillas/subir.sh <nombre>` en Fly (`--forzar` la reemplaza allá por la versión del repositorio).
 
 ## Editar sin el gestor
 

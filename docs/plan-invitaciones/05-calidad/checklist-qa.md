@@ -36,6 +36,19 @@
 - [ ] El sobre, la línea del itinerario, el countdown y el reveal funcionan con fluidez.
 - [ ] Con "Reducir movimiento" activado en el sistema, no hay animaciones decorativas.
 
+## Diseño propio, secciones difuminadas y mesa de regalos (si la invitación los usa)
+
+- [ ] Las orillas de las franjas (hoja rasgada, ciudad, ola, festón) no dejan líneas, huecos ni costuras a 360, 390, 414 px y en escritorio.
+- [ ] Sobre el papel y sobre las franjas grises, los textos se leen (contraste) y las piezas oscuras (boleto, pase, letreros) conservan sus colores.
+- [ ] Ningún texto largo se parte a media palabra: el nombre de la portada, los letreros del itinerario, los nombres del programa.
+- [ ] Bolas disco, reflectores, escarcha, confeti y el tablero que cae van fluidos en un Android de gama media. Con "Reducir movimiento", todo quieto.
+- [ ] El elevador de la portada abre al tocar y la música empieza, también en iPhone.
+- [ ] Mesa de regalos:
+  - El enlace general (`/e/`) no muestra la cuenta y avisa que viene en la invitación personal; una invitación personal sí la muestra.
+  - "Copiar" (cuenta y número de evento) funciona en iPhone y en Android.
+  - Cada tienda abre su mesa.
+- [ ] Cambiar en el gestor el diseño de una sección a "Clásica" y de vuelta no rompe nada. NAT y las demás invitaciones no cambiaron (capturas antes y después).
+
 ## Rendimiento y accesibilidad (Lighthouse móvil)
 
 - [ ] Performance ≥ 85, Accessibility ≥ 95, Best Practices ≥ 95.

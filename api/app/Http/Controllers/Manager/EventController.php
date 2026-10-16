@@ -11,13 +11,14 @@ use App\Services\Manager\ManagerAccess;
 use App\Services\Manager\ManagerAuth;
 use App\Services\Manager\ManagerEvents;
 use App\Services\Manager\ManagerUsers;
+use App\Services\Manager\TemplateTrash;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use RuntimeException;
 
-/** Eventos y plantillas: la lista, crear (en blanco o copiando) y los ajustes al instante. */
+/** Eventos y plantillas: la lista, crear (en blanco o copiando), los ajustes al instante y eliminar plantillas. */
 class EventController extends Controller
 {
     /**
@@ -138,5 +139,24 @@ class EventController extends Controller
         $events->forget($slug);
 
         return response()->json(['settings' => $payload->settings($slug)]);
+    }
+
+    /**
+     * DELETE /api/manager/events/{slug} — solo plantillas y solo quien administra. La carpeta
+     * pasa a la papelera del gestor (_gestor/papelera/), no se borra.
+     * 200 { deleted } · 404 no existe · 422 es una invitación.
+     */
+    public function destroy(Request $request, string $slug, EventRepository $events, TemplateTrash $trash): JsonResponse
+    {
+        if ($events->path($slug) === null) {
+            return response()->json(['message' => 'Esa plantilla ya no existe.'], 404);
+        }
+        try {
+            $trash->discard($slug, ManagerAuth::actor($request), CarbonImmutable::now());
+        } catch (RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        return response()->json(['deleted' => $slug]);
     }
 }

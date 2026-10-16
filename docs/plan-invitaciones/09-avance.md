@@ -1,22 +1,31 @@
 # Avance y cambios contra el plan
 
-**Actualizado:** 16-oct-2026. **Ramas:** `main` (el motor, en `origin/main` desde `d2915da`) y `feature/gestor-plantillas` (el gestor y el formato nuevo, sin push ni merge: espera tu revisión).
+**Actualizado:** 16-oct-2026. **Rama:** todo está en `main` y en GitHub (`origin/main` = `976db50`, "Nuevo tema NY"): el motor, el gestor (unido el 15-oct), la landing, los temas `marfil` y `nueva-york` y la mesa de regalos. `feature/gestor-plantillas` y `feature/landing-y-secciones` ya quedaron dentro de `main`. **En Fly:** release v10 (16-oct), con todo lo anterior.
 
 Este archivo dice **qué se hizo, qué cambió contra el plan original y qué falta**. Las fases de `04-fases/` tienen sus casillas marcadas con la misma información. Las dudas abiertas están en `08-decisiones-pendientes.md`.
 
 ## Resumen
 
-La invitación de Nat y su panel ya están **publicados en Fly.io**. Tras renombrar la carpeta en producción (ver "Qué falta"), las direcciones son https://invitaciones-jiro.fly.dev/e/nat y `/panel/nat`. Faltan publicar lo último y responder las preguntas abiertas antes de mandar los enlaces. El RSVP cierra el 6-nov-2026.
+La invitación de Nat y su panel ya están **publicados en Fly.io**, en https://invitaciones-jiro.fly.dev/e/nat y `/panel/nat` (la carpeta ya se renombró). Lo último ya está publicado (release v10); faltan responder las preguntas abiertas antes de mandar los enlaces. El RSVP cierra el 6-nov-2026.
 
 El cambio más grande contra el plan: **no hay base de datos**. Todo vive en archivos por evento (`eventos/<slug>/`): el diseño y el contenido en `invitacion.csv` (antes, un Excel `layout.xlsx`), y las invitaciones, respuestas y ajustes en CSV que escribe la API.
 
-**Nuevo (14-oct, rama `feature/gestor-plantillas`):** el **gestor** (`/gestor`), un editor visual para armar invitaciones y plantillas con la invitación a la vista, con una cuenta por persona, y el formato `invitacion.csv`, que reemplaza a `layout.xlsx`. NAT local ya está migrado; producción sigue igual hasta que corras el runbook. Detalle en `04-fases/fase-8-gestor-de-plantillas.md`. El 15-oct, el gestor pasó a darle al servidor dos tercios menos de trabajo (−66 %) con la mitad de las peticiones, y los textos se ven al instante en la vista previa.
+**Nuevo (14-oct, rama `feature/gestor-plantillas`):** el **gestor** (`/gestor`), un editor visual para armar invitaciones y plantillas con la invitación a la vista, con una cuenta por persona, y el formato `invitacion.csv`, que reemplaza a `layout.xlsx`. NAT ya está en el formato nuevo, en local y en producción (allá, desde el 15-oct). Detalle en `04-fases/fase-8-gestor-de-plantillas.md`. El 15-oct, el gestor pasó a darle al servidor dos tercios menos de trabajo (−66 %) con la mitad de las peticiones, y los textos se ven al instante en la vista previa.
 
-**Nuevo (15-oct, rama `feature/landing-y-secciones`):** plan de las fases 9 (secciones nuevas) y 10 (landing con cotización y 3 demos). Hecho el paso 1 de la fase 10: la landing en `/` (inicio, boda, XV años, graduación y aviso de privacidad; SEO/AEO con JSON-LD, `sitemap.xml` y `llms.txt`) y las cotizaciones (formulario → `eventos/_gestor/cotizaciones.csv`, aviso por correo y la ventana "Cotizaciones" del gestor). Paso 2 también hecho: el tema neutro `marfil` (dibujos de línea, sin fotos), el tipo graduación y las 3 muestras (`deploy/demos/`, con `demo=SI`: no guardan nada). Sin publicar: la landing anuncia secciones de la fase 9 que todavía no existen.
+**Nuevo (15-oct, rama `feature/landing-y-secciones`):** plan de las fases 9 (secciones nuevas) y 10 (landing con cotización y 3 demos). Hecho el paso 1 de la fase 10: la landing en `/` (inicio, boda, XV años, graduación y aviso de privacidad; SEO/AEO con JSON-LD, `sitemap.xml` y `llms.txt`) y las cotizaciones (formulario → `eventos/_gestor/cotizaciones.csv`, aviso por correo y la ventana "Cotizaciones" del gestor). Paso 2 también hecho: el tema neutro `marfil` (dibujos de línea, sin fotos), el tipo graduación y las 3 muestras (`deploy/demos/`, con `demo=SI`: no guardan nada). No se iba a publicar todavía, porque la landing anuncia secciones de la fase 9 que no existen. Aun así salió con la release v9 de ese día (15-oct, 16:49), que llegó después de sus commits (ver abajo).
 
 **Nuevo (15-oct, noche, misma rama):** el tema **`nueva-york`** (negro, blanco perla y plata, art déco y brillo), seis efectos nuevos (horizonte de Manhattan, reflectores, luces de ciudad, escarcha, reflejo plateado y panorámica) y su plantilla `deploy/plantillas/nueva-york/` (solo diseño; las secciones se agregan en el gestor). El panel del dueño y la imagen para WhatsApp ya tienen versión oscura.
 
-**Nuevo (16-oct, madrugada, misma rama):** Nueva York ya no se parece a NAT: cada sección tiene **su propio diseño** (elevador art déco, tocadiscos, boleto de Broadway, letrero del metro, neón, letreros de calle, tablero de Grand Central, pase VIP, postal…). **Secciones difuminadas**: sin cortes entre secciones, con franjas de papel que asoman por una hoja rasgada y franjas grises cortadas por la ciudad. Efectos nuevos **bola disco** y **reflejos de bola disco**, confeti plateado, la sección **mesa de regalos** (fase 9) y la invitación de **Ximena** (local). Tres arreglos del gestor: la vista previa de una invitación en blanco, el menú ⋯ de las tarjetas y la vista previa que se quedaba en blanco.
+**Nuevo (16-oct, madrugada, misma rama):** Nueva York ya no se parece a NAT: cada sección tiene **su propio diseño** (elevador art déco, tocadiscos, boleto de Broadway, letrero del metro, neón, letreros de calle, tablero de Grand Central, pase VIP, postal…). **Secciones difuminadas**: sin cortes entre secciones, con franjas de papel que asoman por una hoja rasgada y franjas grises cortadas por la ciudad. Efectos nuevos **bola disco** y **reflejos de bola disco**, confeti plateado, la sección **mesa de regalos** (fase 9) y la invitación de **Ximena** (local). Tres arreglos del gestor: la vista previa de una invitación en blanco, el menú ⋯ de las tarjetas y la vista previa que se quedaba en blanco. Y todo quedó **parametrizable y reutilizable en cualquier tema**: los diseños de cada sección, la división entre secciones, los estilos de botón, el confeti, los títulos metálicos y las esquinas.
+
+**Nuevo (16-oct, mañana):** tú hiciste el commit (`976db50`), lo uniste a `main`, lo subiste a GitHub y lo publicaste en Fly (release v10). Revisado después: la landing y las tres muestras responden en producción (`/`, las páginas por evento y `/i/Demo…`), y por las horas están ahí desde la release v9 (15-oct), aunque la fase 10 decía esperar (pregunta 47). Para la plantilla de Nueva York en producción hay un comando nuevo: `deploy/plantillas/subir.sh nueva-york`.
+
+**Nuevo (16-oct, tarde):** al ver el gestor publicado, tres pedidos:
+- **La plantilla de Nueva York, completa:** solo traía la portada; ahora trae las 18 secciones con su diseño y textos de ejemplo.
+- **Eliminar plantillas** (van a una papelera del servidor, no se borran).
+- **Las tres muestras en su propia pestaña** ("Muestras").
+
+Falta `fly deploy` y `deploy/plantillas/subir.sh nueva-york --forzar`.
 
 ## Qué está hecho
 
@@ -354,7 +363,7 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
   - Imagen para WhatsApp: un nombre con mayúscula acentuada (SOFÍA) va un poco más chico para que la tilde no toque la frase de arriba; los SVG de los temas llevan su tamaño (sin él, el sello no salía en la imagen; también pasaba con `marfil`).
 - Probado en el navegador (celular y computadora) con un evento local de prueba, `eventos/prueba-ny` (todas las secciones, datos ficticios), el panel en oscuro y la imagen para WhatsApp. Pruebas: 305 del front y 194 de la API.
 
-### Nueva York con diseño propio, secciones difuminadas, bola disco y mesa de regalos (16-oct, rama `feature/landing-y-secciones`)
+### Nueva York con diseño propio, secciones difuminadas, bola disco y mesa de regalos (16-oct; en `main` y en Fly, release v10)
 
 - **Todo es parametrizable y reutilizable en cualquier diseño** (no se queda en una plantilla):
   - **Diseños de sección** (variantes) para cualquier tema: `components/sectionVariants.ts` (tipo → variante → componente en `components/sections/variants/`, o solo piel CSS en `variants/skins.css`). Cada uno se descarga solo si alguna sección lo pide y la invitación espera a tenerlo (`useSectionComponents`). En el gestor, *Diseño → Diseño* los ofrece todos (más "Clásica"); el tema solo pone los suyos por defecto.
@@ -362,7 +371,8 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
   - **Opciones de la página** (Estilo → Página; vacías = lo del tema, que las declara en su manifest): *División entre secciones* (`orilla`: degradado, hoja rasgada, ciudad, ola, festón o recta; cada sección puede cambiar la suya), *Estilo de los botones* (`botones`: degradado, sólido, contorno, art déco, boleto, neón o texto subrayado; variables `--btn-*` en `effects/buttons.css`, sin estilo los botones se ven como siempre), *Confeti*, *Títulos con brillo de metal* y *Esquinas de los paneles* (art déco o sin adorno; `effects/options.css`).
   - La paleta de la página se guarda en la raíz (`--root-*`) y `.page-palette` la recupera en piezas oscuras sobre papel; las esquinas déco son tokens (`--deco-corner-*`).
   - Comprobado: NAT y las muestras de Marfil se ven igual que antes (capturas comparadas) y una copia de Marfil con boleto, metro, tablero, avenida, pase, olas, botones déco y confeti se ve bien con sus colores.
-- **Nueva York, sección por sección** (`web/src/themes/nueva-york/sections/`; mismo contenido que siempre, diseño absolutamente distinto al de NAT):
+- **Cómo se reutiliza cada pieza** (qué hay, dónde vive y cómo se enciende): `01-analisis-codigo/efectos-reutilizables.md` → "Piezas de diseño reutilizables". Para agregar un diseño, una división o un estilo de botón nuevo: `03-arquitectura-objetivo/frontend.md` §6.
+- **Nueva York, sección por sección** (en `web/src/components/sections/variants/`, para cualquier tema; mismo contenido que siempre, diseño absolutamente distinto al de NAT):
   - Portada `elevador`: puertas art déco con su medallón, indicador de piso y botón de llamada; al tocar, la aguja recorre los pisos, se abren las puertas y aparece la tarjeta (con la música, como el sobre).
   - Música `vinilo` (tocadiscos que gira mientras suena), bendición `programa` (programa de mano de Broadway: el "reparto" con línea de puntos), fecha `boleto` (boleto plateado con talón y la semana del evento con su día encendido), foto `ventana` (la punta escalonada de un rascacielos con la ciudad detrás), ubicación `metro` (letrero de estación y la foto en marco de mosaico), frase `neon` (parpadea y se enciende), itinerario `avenida` (línea del metro en un poste con farol: estaciones con íconos y letreros de calle; al pie, la Estatua de la Libertad y el puente de Brooklyn), vestimenta `vitrinas` (escaparates de la Quinta Avenida), sin niños `cordon` (cordón de terciopelo), cuenta regresiva `tablero` (paletas de Grand Central que caen al cambiar), hospedaje `colgantes` (colgantes de puerta de hotel), mesa de regalos `bolsas`, confirmación `pase` (pase VIP con su cinta), dedicatoria `postal` (correo aéreo con timbre de la Estatua) y cierre `marquesina` (focos que corren). El clima y la playlist, con marco déco.
   - Íconos propios para el itinerario: Estatua de la Libertad, puente de Brooklyn, Empire State y bola disco (más taxi, coctel y ciudad de Font Awesome).
@@ -370,8 +380,21 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
 - **Bola disco** (`bola_disco`): bolas de espejos en 3D que giran de verdad (un solo transform), con rayos, destellos y sus reflejos recorriendo la sección; **reflejos** (`luces_disco`): solo los puntos de luz. **Confeti plateado** del tema (como las mariposas de NAT; se apaga con *Adornos que flotan y vuelan*). Los destellos de "Save the date": finos y cada uno titila solo.
 - **Mesa de regalos** (`mesa_regalos`, fase 9 §2): tiendas (Liverpool, Amazon, Palacio de Hierro, Sears, Costco u otra) con número de evento para copiar y botón a la mesa; lluvia de sobres con banco, CLABE de 4 en 4 (para copiar), titular y la caja en el salón. Con *Solo con enlace* (lo normal) el servidor quita los datos bancarios del enlace general y de la página `/e/` (`GiftPrivacy`); la vista previa del gestor en *Enlace general* lo imita.
 - **Gestor:** una invitación en blanco se quedaba en "Cargando la vista previa…" (PHP manda la paleta vacía como `[]` y la vista previa la rechazaba); el menú ⋯ de las tarjetas no salía (quedaba dentro de la tarjeta que se levanta al pasar el puntero: ahora se pinta aparte); en modo *Elegir*, un toque sobre Spotify elige la sección; el fondo de la página toma el color del tema (antes blanco donde el navegador no alcanzaba a pintar) y las secciones lejos de la pantalla pausan sus efectos.
-- **Ximena** (`eventos/ximena`, local, fuera del repo): XV, Nueva York difuminado, 21-nov-2026, salón Centala y los hoteles de NAT (con sus fotos), bolas disco en la portada y el cierre, y la mesa de regalos con datos de ejemplo. Era la muestra `prueba-ny`.
-- Pruebas: 330 del front y 202 de la API.
+- **En el gestor:** *Estilo → Página* muestra solas las opciones de `Catalog::PAGE` (secciones difuminadas, división entre secciones, botones, confeti, títulos metálicos, esquinas); en cada sección, *Diseño → Diseño* ofrece "Clásica" y los diseños alternos, y *División con las vecinas* cambia su orilla. El selector de íconos del itinerario suma los de Nueva York y la paleta, el color `papel`.
+- **Ximena** (`eventos/ximena`, local, fuera del repo): XV, Nueva York difuminado, 21-nov-2026, salón Centala y los hoteles de NAT (con sus fotos), bolas disco en la portada y el cierre, y la mesa de regalos con datos de ejemplo. Era la muestra `prueba-ny`. Todavía no está en producción (falta con sus datos reales; pregunta 44).
+- **Plantilla en producción:** `deploy/plantillas/subir.sh <nombre>` crea `/data/eventos/plantilla-<nombre>/` como `instalar.sh` en local (`plantilla=SI`, oculta). Si allá ya existe no la toca; con `--forzar` reemplaza su `invitacion.csv` y guarda antes la del servidor. Probado con un `fly` simulado (nueva, repetida, `--forzar` con borrador, nombres inválidos) y `shellcheck`.
+- Pruebas: 330 del front y 202 de la API; lint, type-check y build en verde.
+
+**Después, el mismo día (tarde), sobre el gestor publicado:**
+- **Plantilla `nueva-york` completa** (`deploy/plantillas/nueva-york/invitacion.csv`):
+  - Las 18 secciones con el diseño de la invitación de Ximena, con textos de ejemplo ("Nombre", "Nombre Apellido", "Nombre del salón", cuentas en ceros) y sin fotos ni datos de personas.
+  - Antes solo traía la portada, y por eso en producción no se veía el diseño.
+  - Validada y revisada en capturas a 390 px, con una copia visible temporal que después se borró.
+- **Eliminar plantillas** desde ⋯ (solo quien administra):
+  - La carpeta pasa a `_gestor/papelera/` con quién y cuándo (`papelera.csv`); se recupera regresándola a `eventos/`.
+  - Las invitaciones no se eliminan: guardan sus enlaces y sus confirmaciones.
+- **Pestaña "Muestras"** en el inicio del gestor, para las muestras de la landing (`demo=SI`). La tarjeta de una graduación ya dice "Graduación".
+- Pruebas: 333 del front y 205 de la API; lint, type-check y build en verde. Probado en el navegador (escritorio y celular): las pestañas, el menú, la confirmación y la papelera.
 
 ### Invitación personal y confirmación
 
@@ -428,17 +451,21 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
 | Todos ven todas las invitaciones del gestor | Quien edita ve las suyas; quien administra ve y asigna todas (D17) | Decisión tuya (14-oct, pregunta 40) |
 | Autoguardado a los 400 ms para todo (plan del gestor) | Dos ritmos: 400 ms si la vista previa necesita al servidor; 1 s (máximo 5 s) si ya lo muestra sola, con los textos al instante | Pedido tuyo (15-oct): menos demanda en el servidor |
 | Fotos y audio servidos por Laravel | Los entrega Apache directo del disco (Laravel solo en desarrollo) | Mismo pedido |
+| Un tema = tokens y adornos sobre las mismas secciones (`frontend.md` §4) | Cada tema con **su propio diseño de cada sección** (variantes que cualquier tema puede usar), adornos compartidos y opciones de diseño de toda la invitación | Pedido tuyo (16-oct): Nueva York debía ser absolutamente distinta de NAT, y todo reutilizable en otros diseños |
+| Secciones como paneles separados (13-oct) | Además, **secciones difuminadas**: franjas de orilla a orilla, sin cortes, con orillas con forma (hoja rasgada, ciudad, ola, festón) | Pedido tuyo (16-oct): integración orgánica, "actualmente se ve muy plana" |
+| Fase 9 en su orden (ubicación, itinerario en vivo y regalos) | La mesa de regalos se adelantó | Para la invitación de Ximena (16-oct) |
+| Landing publicada al terminar la fase 10 (paso 4) | En producción antes de las secciones que anuncia (desde la release v9, 15-oct) | Los deploys del 15 y 16-oct la incluyeron (pregunta 47) |
 
 ## Qué falta
 
 ### Antes de mandar los enlaces (RSVP cierra el 6-nov-2026)
 
 1. Responder las preguntas abiertas de `08-decisiones-pendientes.md`. Hay pendientes la hora del evento, el texto de WhatsApp, el número de WhatsApp y el cierre.
-2. **Repo** (D1): sigue público. Los commits del 13-oct ya están en `origin/main` (los subiste con `gh`). Falta que revoques el token viejo de GitHub (pregunta 24).
-3. **Publicación** (fase 7): ya está en Fly.io. Faltan, **en este orden**:
-   1. Renombrar la carpeta en el disco de Fly, que guarda las invitaciones y respuestas ya hechas: `fly ssh console -C "mv /data/eventos/<nombre-anterior> /data/eventos/nat"`. Va antes de subir el evento: si no, `subir-evento.sh nat` crearía una carpeta nueva vacía.
-   2. `fly deploy --ha=false`: clima, carga optimizada, suspend, ajustes de diseño, hospedaje, panel nuevo y la imagen para WhatsApp con tu diseño.
-   3. `deploy/subir-evento.sh nat`: Excel con canción, hoteles, "Nat", la clave nueva del panel y lo de la imagen; el MP3, las fotos de los hoteles y el fondo de la imagen.
+2. **Repo** (D1): sigue público. Todo `main` ya está en `origin/main` (lo último, `976db50`, el 16-oct). Falta que revoques el token viejo de GitHub (pregunta 24).
+3. **Publicación** (fase 7): ya está en Fly.io. *Revisado en el disco de Fly el 16-oct:* la carpeta ya se llama `nat`, el código va en la release v10 y NAT ya está en el formato nuevo (migrada el 15-oct; ver "Gestor"). Lo de antes, ya hecho:
+   1. ~~Renombrar la carpeta en el disco de Fly~~ (`/data/eventos/nat`).
+   2. ~~`fly deploy --ha=false`~~ (releases v6 a v10, 15 y 16-oct).
+   3. ~~`deploy/subir-evento.sh nat`~~ (15-oct, con la clave nueva del panel).
    4. Abrir `/e/nat`, `/panel/nat` y una invitación que ya hayas generado (`/i/…`, el enlace sigue igual).
    - Vista previa de WhatsApp (Open Graph). Laravel ya sirve `app.html`, así que se puede inyectar ahí.
    - CI con las pruebas.
@@ -446,17 +473,25 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
    - Dominio propio, si se quiere.
 4. QA en celulares reales con `05-calidad/checklist-qa.md`: audio en iPhone, Lighthouse y mandar un PDF de prueba por WhatsApp (iPhone y Android) para confirmar que al tocarlo abre la invitación.
 
-### Gestor (rama `feature/gestor-plantillas`)
+### Gestor
 
-1. **Publicado (15-oct):** merge a `main` (local; falta el push a GitHub) y `fly deploy` con tu `GESTOR_CLAVE` (release v6). La clave nueva del panel de NAT se subió con su Excel.
-2. **Resto del runbook** (`06-despliegue/despliegue.md` → "Gestor: primera publicación"): crear tu cuenta en `/gestor`, respaldo, y pasar NAT al formato nuevo (al publicarla desde el gestor, por ejemplo con la playlist "Xv Nat").
+1. **Publicado (15-oct):** merge a `main` y `fly deploy` con tu `GESTOR_CLAVE` (release v6); en GitHub desde el 16-oct. La clave nueva del panel de NAT se subió con su Excel.
+2. **Runbook** (`06-despliegue/despliegue.md` → "Gestor: primera publicación"): *revisado en el disco de Fly el 16-oct:* tu cuenta ya existe (`_gestor/usuarios.csv`) y NAT ya está en el formato nuevo (`respaldos/publicaciones.csv`: "formato anterior", 15-oct a las 19:19 UTC). Allá NAT tiene un **borrador sin publicar** en el gestor: publícalo o descártalo.
 3. **Etapa F, después del 28-nov:** quitar el camino del Excel y `layout:xlsx`; pasar las fixtures al formato nuevo.
 
 ### Tema Nueva York
 
-- Subir la plantilla a producción cuando se publique esta rama: en el gestor, *Nueva* → en blanco, como plantilla → *Importar* `deploy/plantillas/nueva-york/invitacion.csv`.
-- Probar en un iPhone y un Android reales que los efectos van fluidos (portada con elevador, bolas disco, reflectores y escarcha; confeti; tablero que cae) y que la vista previa del gestor ya no se queda en blanco al elegir una sección.
-- **Ximena:** sus datos reales (nombres de papás y padrinos, hora, foto, canción, playlist y mesa de regalos: la que tiene es de ejemplo) y subirla a producción.
+- **Plantilla en producción:** ya está en Fly, pero es la versión de solo la portada. Para la completa: `deploy/plantillas/subir.sh nueva-york --forzar` (no hace falta deploy; allá no tiene borrador).
+- **`fly deploy --ha=false`** para "Eliminar plantilla", la pestaña "Muestras" y la etiqueta "Graduación".
+- Probar en un iPhone y un Android reales que los efectos van fluidos (portada con elevador, bolas disco, reflectores y escarcha; confeti; tablero que cae) y que la vista previa del gestor ya no se queda en blanco al elegir una sección (pregunta 46).
+- **Ximena:** sus datos reales (nombres de papás y padrinos, hora, foto, canción, playlist y mesa de regalos: la que tiene es de ejemplo) y pasar el diseño local a producción (`06-despliegue/despliegue.md` → "Una invitación armada en local"). En producción ya existe `xv-ximena` (creada el 15-oct, oculta): está en `jardin-azul`, con el salón de ejemplo, el 21-nov a las **19:00** y un borrador. La local (`eventos/ximena`, Nueva York) dice 20:00.
+
+### Landing (ya en producción)
+
+- Decidir si se queda así mientras faltan las secciones que anuncia (galería, video, álbum, trivia…; pregunta 47).
+- El aviso de privacidad sin correo para los derechos ARCO y el pie sin WhatsApp (`web/landing/site.json`: `email` y `whatsapp` vacíos; preguntas 41 y 43).
+- En Fly no están los secretos del correo (`MAIL_*`, `COTIZACIONES_CORREO`): las cotizaciones solo se ven en el gestor (pregunta 42).
+- Agregar la mesa de regalos a las muestras (`deploy/demos/armar.py`) y volver a subirlas (`deploy/demos/subir.sh`).
 
 ### Después del evento real o cuando se decida
 

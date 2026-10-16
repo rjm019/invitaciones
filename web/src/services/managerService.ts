@@ -120,6 +120,11 @@ export async function listEvents(
   return data
 }
 
+/** Elimina una plantilla (solo quien administra): en el servidor pasa a la papelera del gestor. */
+export async function deleteTemplate(token: string, slug: string): Promise<void> {
+  await http.delete(event(slug), auth(token))
+}
+
 export interface NewEvent {
   slug: string
   source: 'blank' | 'event'

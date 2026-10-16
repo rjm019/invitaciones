@@ -80,6 +80,8 @@ Route::prefix('manager')->group(function () {
 
         // Quien edita solo entra a las invitaciones que creó o le asignaron (manager.event).
         Route::prefix('events/{slug}')->where(['slug' => '[a-z0-9-]+'])->middleware('manager.event')->group(function () {
+            // Eliminar: solo plantillas y solo quien administra (van a la papelera del gestor).
+            Route::delete('/', [ManagerEventController::class, 'destroy'])->middleware('manager.admin');
             Route::put('/settings', [ManagerEventController::class, 'settings']);
             Route::get('/design', [DesignController::class, 'show']);
             Route::put('/draft', [DesignController::class, 'save']);

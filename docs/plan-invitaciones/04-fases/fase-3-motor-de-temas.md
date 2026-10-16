@@ -4,12 +4,12 @@
 **Duración estimada:** 2 días.
 **Referencias:** `../03-arquitectura-objetivo/frontend.md`, `../01-analisis-codigo/efectos-reutilizables.md`.
 
-> **Estado (13-oct-2026): motor hecho; falta el tema `boda-salvia`.** El `config` sale del Excel del evento (pestañas `secciones`, `paleta` y `tipografia`), no de un JSON. Detalle en `../09-avance.md`.
+> **Estado (16-oct-2026): motor hecho, con tres temas (`jardin-azul`, `marfil` y `nueva-york`); falta el tema `boda-salvia`.** El `config` sale de `invitacion.csv` (antes, del Excel del evento), no de un JSON. Además, cada tema puede tener su propio diseño de cada sección (variantes que cualquier tema puede usar) y sus opciones de toda la invitación. Detalle en `../09-avance.md`.
 > Casillas: `[x]` hecho · `[x] ~~…~~ Cambió:` resuelto de otra forma · `[ ]` pendiente.
 
 ## Tareas
 
-- [x] `src/themes/index.ts`: registro con carga diferida (lazy). *Hoy solo está `jardin-azul`.* `themeService` pone `document.documentElement.dataset.theme = id` y carga `theme.css`.
+- [x] `src/themes/index.ts`: registro con carga diferida (lazy). *Hoy: `jardin-azul`, `marfil` y `nueva-york`, más `_shared/` (adornos que cualquier tema encuentra por nombre).* `themeService` pone `document.documentElement.dataset.theme = id` y carga `theme.css`.
   ```ts
   export const themes = {
     'jardin-azul':   () => import('./jardin-azul/manifest'),
@@ -36,6 +36,8 @@
 - [x] ~~Directiva `v-reveal` registrada globalmente.~~ **Cambió:** la aplica `SectionShell` como efecto `aparecer`, por sección, desde el Excel.
 - [x] `sectionRegistry` + props por sección, en `InvitationRenderer`.
 - [x] Carga de fuentes por tema y por evento (pestaña `tipografia`): `themeService` inyecta un solo `<link>` de Google Fonts.
+- [x] **Agregado (16-oct): diseños de sección por variante, para cualquier tema.** `components/sectionVariants.ts` dice qué diseño alterno tiene cada tipo. `useSectionComponents` descarga solo los que se usan, y la invitación espera a tenerlos. Hoy hay 14 componentes y 2 pieles CSS, los de Nueva York. Los adornos compartidos están en `themes/_shared/` (`themeAssets`, `decorOr`).
+- [x] **Agregado (16-oct): opciones de toda la invitación.** Secciones difuminadas, división entre secciones (`withEdges`), estilos de botón (`effects/buttons.css`), confeti, títulos metálicos y esquinas (`effects/options.css`). El tema pone sus valores en el manifiesto y la invitación los cambia en `pagina`.
 - [ ] **Tema `boda-salvia`:** pospuesto (la prioridad es NAT).
   - Portar colores, fuentes y decoraciones de `web/src/legacy/BodaLegacy.vue`.
   - Crear un evento de ejemplo con datos ficticios.
@@ -45,7 +47,7 @@
 
 ## Criterios de aceptación
 
-- Cambiar `config.theme` de `boda-salvia` a `jardin-azul` cambia el aspecto **sin** tocar código. *Pendiente: hoy hay un solo tema.*
+- Cambiar `config.theme` de `boda-salvia` a `jardin-azul` cambia el aspecto **sin** tocar código. *Se cumple con `jardin-azul`, `marfil` y `nueva-york` (en el gestor, Estilo → Diseño base); `boda-salvia` sigue pendiente.*
 - Quitar una clave de `config.sections` oculta esa sección. *Hecho: columna `visible` de la pestaña `secciones`.*
 - Lighthouse en móvil: Performance ≥ 85 y Accessibility ≥ 95 con el tema `boda-salvia`. *Pendiente.*
 

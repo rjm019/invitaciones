@@ -15,7 +15,7 @@
 
 ## Contexto
 
-El catálogo del gestor (`api/app/Services/Design/Catalog.php`, `SECTIONS`) tiene 17 tipos: portada, música, bendición, fecha, foto (una sola, en arco), ubicación, frase, itinerario, vestimenta, solo adultos, clima, hospedaje, playlist, cuenta regresiva, confirmación, dedicatoria y cierre. Le faltan piezas que hoy se dan por hechas en bodas y XV:
+El catálogo del gestor (`api/app/Services/Design/Catalog.php`, `SECTIONS`) tenía 17 tipos el 15-oct (18 desde el 16-oct, con `mesa_regalos`): portada, música, bendición, fecha, foto (una sola, en arco), ubicación, frase, itinerario, vestimenta, solo adultos, clima, hospedaje, playlist, cuenta regresiva, confirmación, dedicatoria y cierre. Le faltan piezas que hoy se dan por hechas en bodas y XV:
 - mesa de regalos con lluvia de sobres (imagen 1);
 - galería;
 - video;
@@ -173,6 +173,7 @@ El usuario además eligió dos ideas nuevas: **Trivia de la festejada** e **Itin
 - lectura en `InvitationConfigBuilder`;
 - componente en `web/src/components/sections/` (`SectionShell`, tokens, `data-text`, duraciones con `--motion-scale`);
 - línea en `sectionRegistry`;
+- su diseño en cada tema que tenga diseño propio (hoy `nueva-york`): una variante en `components/sections/variants/`, su línea en `sectionVariants.ts`, la opción en su `variante` y `sections[tipo].variant` en el manifiesto (ver `frontend.md` §6). Botones con `inv-btn` y `var(--btn-*, …)`;
 - `evento.schema.json` y `web/src/types/`;
 - prueba del builder (PHPUnit) y del servicio o componente (Vitest).
 
@@ -197,7 +198,7 @@ Los endpoints nuevos (álbum, trivia) llevan prueba Feature, mensajes en españo
   - la tercera foto se rechaza con `422`;
   - pico de memoria (`memory_get_peak_usage` en el log) < 200 MB;
   - con `CarbonImmutable::setTestNow`, probar antes del evento (no deja subir), el día (sí deja), el último día de la ventana (zip disponible), el día siguiente (`410`, álbum borrado, panel intacto) y `album_dias` fuera de 5–20 (se acota).
-- **Mesa de regalos:** la CLABE no aparece en `GET /api/public/events/<slug>` y sí en `/api/public/invitations/<token>`.
+- **Mesa de regalos:** la CLABE no aparece en `GET /api/public/events/<slug>` y sí en `/api/public/invitations/<token>`. *Hecho (16-oct): `EventGiftsTest`, que también revisa la página precargada `/e/`.*
 - **Trivia:** `correcta` no aparece en ningún JSON público; responder dos veces da `409`.
 - **Video y publicación:** abrir la invitación no hace ninguna petición a youtube.com ni a instagram.com hasta tocar play (pestaña de red en Chromium sin interfaz).
 - Capturas a 400 px y 1280 px de cada sección (Chromium sin interfaz, como en la prueba del panel).

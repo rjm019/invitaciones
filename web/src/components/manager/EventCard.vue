@@ -9,13 +9,14 @@ import ManagerIcon from './ManagerIcon.vue'
  * si se ve, si tiene cambios sin publicar, quién la publicó la última vez, cuántos
  * confirmaron y sus acciones.
  */
-const props = defineProps<{ event: ManagerEvent }>()
+const props = defineProps<{ event: ManagerEvent; canDelete?: boolean }>()
 const emit = defineEmits<{
   edit: []
   duplicate: []
   template: []
   use: []
   download: []
+  delete: []
 }>()
 
 const menuButton = ref<HTMLElement | null>(null)
@@ -52,6 +53,7 @@ const lastPublish = computed(() => {
 const TYPE: Record<string, string> = {
   xv: 'XV años',
   boda: 'Boda',
+  graduacion: 'Graduación',
   bautizo: 'Bautizo',
   cumple: 'Cumpleaños',
   otro: 'Evento',
@@ -63,10 +65,11 @@ function open(): void {
   else emit('edit')
 }
 
-function act(action: 'duplicate' | 'template' | 'download'): void {
+function act(action: 'duplicate' | 'template' | 'download' | 'delete'): void {
   menuOpen.value = false
   if (action === 'duplicate') emit('duplicate')
   else if (action === 'template') emit('template')
+  else if (action === 'delete') emit('delete')
   else emit('download')
 }
 </script>
@@ -179,6 +182,14 @@ function act(action: 'duplicate' | 'template' | 'download'): void {
         <button type="button" class="menu__item" @click="act('download')">
           <ManagerIcon name="file-zipper" /> Descargar paquete
         </button>
+        <button
+          v-if="canDelete"
+          type="button"
+          class="menu__item menu__item--danger"
+          @click="act('delete')"
+        >
+          <ManagerIcon name="trash-can" /> Eliminar plantilla
+        </button>
       </nav>
     </GPopover>
   </article>
@@ -288,6 +299,13 @@ function act(action: 'duplicate' | 'template' | 'download'): void {
 }
 .menu__item .g-icon {
   color: var(--g-muted);
+}
+.menu__item--danger,
+.menu__item--danger .g-icon {
+  color: var(--g-danger);
+}
+.menu__item--danger:hover {
+  background: var(--g-danger-soft);
 }
 @media (prefers-reduced-motion: reduce) {
   .card:hover {
