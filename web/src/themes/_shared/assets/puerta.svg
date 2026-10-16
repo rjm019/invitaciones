@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="800" viewBox="0 0 300 800">
+  <!-- Hoja izquierda de una puerta de elevador art déco (la derecha es la misma, volteada). -->
+  <defs><linearGradient id="m" x1="0" x2="1"><stop offset="0" stop-color="#1c1d21"/><stop offset="0.55" stop-color="#2d2f35"/><stop offset="1" stop-color="#202226"/></linearGradient><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9ebee"/><stop offset="1" stop-color="#9aa0a8"/></linearGradient></defs>
+  <rect width="300" height="800" fill="url(#m)"/>
+  <rect x="14" y="14" width="286" height="772" fill="none" stroke="url(#s)" stroke-width="2.5"/>
+  <rect x="24" y="24" width="276" height="752" fill="none" stroke="#8c9199" stroke-width="1"/>
+  <path d="M300 196L300 62M294.1 196.5L274 82.3M288.4 198.1L242.5 72.1M283 200.6L225 100.1M278.1 204L192 101.3M274 208.1L185.1 133.6M270.6 213L154.5 146M268.1 218.4L159 178.7M266.5 224.1L134.6 200.8M266 230L150 230M266.5 235.9L134.6 259.2M268.1 241.6L159 281.3M270.6 247L154.5 314M274 251.9L185.1 326.4M278.1 256L192 358.7M283 259.4L225 359.9M288.4 261.9L242.5 387.9M294.1 263.5L274 377.7M300 264L300 398" stroke="url(#s)" stroke-width="2" fill="none"/>
+  <path d="M300 54A176 176 0 0 0 300 406" fill="none" stroke="url(#s)" stroke-width="2.5"/>
+  <path d="M300 196A34 34 0 0 0 300 264" fill="none" stroke="url(#s)" stroke-width="2"/>
+  <path d="M300 170A60 60 0 0 0 300 290" fill="none" stroke="url(#s)" stroke-width="1"/>
+  <path d="M300 208A22 22 0 0 0 300 252Z" fill="url(#s)"/>
+  <path d="M24 460L47 448L70 460L93 448L116 460L139 448L162 460L185 448L208 460L231 448L254 460L277 448L300 460" fill="none" stroke="#8c9199" stroke-width="1.2"/>
+  <path d="M24 482L47 470L70 482L93 470L116 482L139 470L162 482L185 470L208 482L231 470L254 482L277 470L300 482" fill="none" stroke="#b9bec6" stroke-width="2"/>
+  <path d="M24 504L47 492L70 504L93 492L116 504L139 492L162 504L185 492L208 504L231 492L254 504L277 492L300 504" fill="none" stroke="#8c9199" stroke-width="1.2"/>
+  <path d="M54 540V680M84 540V680M114 540V680M144 540V680M174 540V680M204 540V680M234 540V680M264 540V680M294 540V680" stroke="#8c9199" stroke-width="1.2" opacity="0.8"/>
+  <rect x="24" y="696" width="276" height="66" fill="#191a1e" stroke="url(#s)" stroke-width="2"/>
+  <path d="M24 718H300M24 740H300" stroke="#8c9199" stroke-width="1"/>
+</svg>

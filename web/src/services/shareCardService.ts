@@ -1,4 +1,5 @@
 import type { PanelBrand, PanelInvitation } from '@/types/panel'
+import { isDarkPalette } from './colorService'
 import { dateParts, hourMinute, time12h } from './dateFormatService'
 
 /**
@@ -138,6 +139,8 @@ export interface CardStyle {
   serif: string
   /** Las mayúsculas finas: "MIS XV AÑOS", el nombre y "PARA" (rol `engraved`). */
   engraved: string
+  /** Invitación de fondo oscuro: el sobre se aclara apenas y el QR va en una placa clara. */
+  dark?: boolean
 }
 
 /**
@@ -158,6 +161,7 @@ export function cardStyle(
     script: fonts.script?.family ?? 'cursive',
     serif: fonts.serif?.family ?? 'Georgia',
     engraved: fonts.engraved?.family ?? fonts.caps?.family ?? 'Georgia',
+    dark: isDarkPalette({ bg: pick('bg', '#f3f1ec') }),
   }
 }
 
@@ -287,6 +291,8 @@ const inEye = (r: number, c: number, n: number) =>
  * El QR integrado al diseño: puntos redondos y esquinas redondeadas del color de la
  * invitación, sobre un halo claro que se desvanece en el fondo (sin recuadro blanco). Los
  * lectores lo leen igual: el halo deja claro el margen y las esquinas quedan completas.
+ * En un fondo oscuro el halo no alcanza: con `plate`, el QR va en una placa clara (como
+ * un boleto plateado) con su margen de lectura completo.
  */
 export function drawQr(
   ctx: CardContext,
@@ -295,15 +301,23 @@ export function drawQr(
   y: number,
   side: number,
   color: string,
+  plate?: string,
 ): void {
   const n = qr.size
   const m = side / n
   const mid = { x: x + side / 2, y: y + side / 2 }
-  const halo = ctx.createRadialGradient(mid.x, mid.y, side * 0.45, mid.x, mid.y, side * 0.95)
-  halo.addColorStop(0, 'rgba(255, 255, 255, 0.85)')
-  halo.addColorStop(1, 'rgba(255, 255, 255, 0)')
-  ctx.fillStyle = halo
-  ctx.fillRect(mid.x - side, mid.y - side, side * 2, side * 2)
+  if (plate) {
+    const pad = m * 3
+    ctx.fillStyle = plate
+    roundedRect(ctx, x - pad, y - pad, side + pad * 2, side + pad * 2, m * 3)
+    ctx.fill()
+  } else {
+    const halo = ctx.createRadialGradient(mid.x, mid.y, side * 0.45, mid.x, mid.y, side * 0.95)
+    halo.addColorStop(0, 'rgba(255, 255, 255, 0.85)')
+    halo.addColorStop(1, 'rgba(255, 255, 255, 0)')
+    ctx.fillStyle = halo
+    ctx.fillRect(mid.x - side, mid.y - side, side * 2, side * 2)
+  }
 
   ctx.fillStyle = color
   for (let r = 0; r < n; r++) {
@@ -360,9 +374,10 @@ export function drawShareCard(
     cover(ctx, art.background, 0, 0, W, H)
   } else {
     if (art.paper) cover(ctx, art.paper, 0, 0, W, H)
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'
+    // En un fondo oscuro, el sobre apenas se aclara y su filo es del color principal (plata).
+    ctx.fillStyle = style.dark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(255, 255, 255, 0.6)'
     ctx.fillRect(166, env.top, W - 332, env.bottom - env.top)
-    ctx.strokeStyle = style.primarySoft
+    ctx.strokeStyle = style.dark ? style.primary : style.primarySoft
     ctx.lineWidth = 2
     ctx.strokeRect(180, env.top + 14, W - 360, env.bottom - env.top - 28)
     if (art.seal) {
@@ -393,7 +408,9 @@ export function drawShareCard(
     spaced(ctx, upper(text.kicker), cx, 262, 16)
   }
   const name = upper(text.name)
-  const nameSize = fitFont(ctx, name, (s) => engraved(s), 250, W - 280)
+  // Una mayúscula con acento (SOFÍA) sube más: un poco más chica para no tocar la línea de arriba.
+  const nameMax = /[ÁÉÍÓÚÜ]/.test(name) ? 215 : 250
+  const nameSize = fitFont(ctx, name, (s) => engraved(s), nameMax, W - 280)
   const gold = ctx.createLinearGradient(0, 470 - nameSize * 0.65, 0, 470)
   gold.addColorStop(0, style.primarySoft)
   gold.addColorStop(0.6, style.primary)
@@ -411,7 +428,7 @@ export function drawShareCard(
   // largo, en dos renglones) y abajo cuántos pases.
   ctx.fillStyle = style.text
   ctx.save()
-  ctx.shadowColor = 'rgba(255, 255, 255, 0.45)'
+  ctx.shadowColor = style.dark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.45)'
   ctx.shadowOffsetY = 1
   const guest = text.guest ?? 'Tu invitación'
   const lines = addressLines(ctx, guest, script, 88, W - 480)
@@ -457,7 +474,8 @@ export function drawShareCard(
   // de 150 px: así se sigue leyendo desde otro celular).
   const qrY = y + 40
   const side = Math.max(150, Math.min(190, H - 110 - qrY))
-  drawQr(ctx, art.qr, cx - side / 2, qrY, side, style.accent)
+  if (style.dark) drawQr(ctx, art.qr, cx - side / 2, qrY, side, style.bg, style.primarySoft)
+  else drawQr(ctx, art.qr, cx - side / 2, qrY, side, style.accent)
   ctx.fillStyle = style.primary
   ctx.font = serif(24, true)
   ctx.fillText('toca o escanea para abrir', cx, qrY + side + 44)

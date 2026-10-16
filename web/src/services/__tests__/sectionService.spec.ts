@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { createAssetResolver } from '../assetService'
-import { placeOnDesktop, resolveSections, withContent, withPanels } from '../sectionService'
+import {
+  placeOnDesktop,
+  resolveSections,
+  withContent,
+  withEdges,
+  withPanels,
+} from '../sectionService'
 import type { DesktopWidth, ResolvedSection, SectionBackground, SectionConfig } from '@/types/event'
 
 const theme = {
@@ -96,6 +102,22 @@ describe('resolveSections', () => {
     expect(s.key).toBe('itinerario')
   })
 
+  it('con la página difuminada todas las secciones se funden (aunque apaguen sus efectos)', () => {
+    const list = resolveSections(
+      {
+        sections: [section({}), section({ effects: ['ninguno'] }), section({ effects: ['blend'] })],
+        page: { blend: true },
+      },
+      theme,
+      resolve,
+    )
+    expect(list.map((s) => s.effects)).toEqual([
+      ['reveal', 'timeline-fill', 'blend'],
+      ['blend'],
+      ['blend'],
+    ])
+  })
+
   it('dos secciones del mismo tipo reciben ids distintos para sus anclas', () => {
     const out = resolveSections(
       { sections: [section({ type: 'quote' }), section({ type: 'quote' })] },
@@ -174,6 +196,16 @@ describe('withContent', () => {
     expect(types(withContent(list, event(null), before))).toEqual(['hotels', 'quote'])
     expect(types(withContent(list, event(null, []), before))).toEqual(['quote'])
   })
+
+  it('la mesa de regalos solo aparece con alguna tienda o con la lluvia de sobres', () => {
+    const list = [section({ type: 'gifts' }), section({ type: 'quote' })]
+    const store = { store: 'liverpool', name: 'Liverpool', note: '', url: '', event_number: '1' }
+    const empty = { ...event(null), gifts: { stores: [], envelope: null } }
+    const full = { ...event(null), gifts: { stores: [store], envelope: null } }
+    expect(types(withContent(list, event(null), before))).toEqual(['quote'])
+    expect(types(withContent(list, empty, before))).toEqual(['quote'])
+    expect(types(withContent(list, full, before))).toEqual(['gifts', 'quote'])
+  })
 })
 
 describe('withPanels', () => {
@@ -220,8 +252,62 @@ describe('withPanels', () => {
     expect(colors(out)).toEqual(['panel', 'panel-alt', 'panel-pearl', 'panel'])
   })
 
+  it('las difuminadas no entran en la rotación; su propio color las vuelve franja', () => {
+    const list = sections({}, {}, { panelColor: 'panel-pearl' }, {}).map((s, i) =>
+      i > 0 ? { ...s, effects: ['blend'] } : s,
+    )
+    const out = withPanels(list, [A, B, C])
+    expect(colors(out)).toEqual(['panel', null, 'panel-pearl', null])
+  })
+
   it('sin fondos en el tema no cambia nada', () => {
     const list = sections({}, {})
     expect(withPanels(list)).toEqual(list)
+  })
+})
+
+describe('withEdges', () => {
+  const band = (s: Partial<ResolvedSection>) =>
+    ({
+      type: 'quote',
+      id: 'quote',
+      effects: ['blend'],
+      visible: true,
+      decor: {},
+      desktop: 'full',
+      panel: true,
+      ...s,
+    }) as ResolvedSection
+  const edges = (list: ResolvedSection[]) => list.map((s) => s.edge ?? null)
+
+  it('la sección gana; luego la página; luego el tema por color de fondo o el suyo', () => {
+    const list = [
+      band({ background: { color: 'paper' }, edge: 'wave' }),
+      band({ background: { color: 'paper' } }),
+      band({ background: { color: 'frame' } }),
+    ]
+    expect(edges(withEdges(list, 'scallop', { default: 'city', paper: 'torn' }))).toEqual([
+      'wave',
+      'scallop',
+      'scallop',
+    ])
+    expect(edges(withEdges(list, undefined, { default: 'city', paper: 'torn' }))).toEqual([
+      'wave',
+      'torn',
+      'city',
+    ])
+  })
+
+  it('sin nada elegido, el papel es hoja rasgada y lo demás queda en degradado', () => {
+    const list = [
+      band({ background: { color: 'paper' } }),
+      band({ background: { color: '#333333' } }),
+    ]
+    expect(edges(withEdges(list))).toEqual(['torn', null])
+  })
+
+  it('solo las franjas: sin fondo o sin difuminar, nada cambia', () => {
+    const list = [band({}), band({ effects: [], background: { color: 'paper' } })]
+    expect(withEdges(list, 'city')).toEqual(list)
   })
 })

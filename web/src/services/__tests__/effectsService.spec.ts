@@ -1,10 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import {
+  cityLights,
   confetti,
+  discoBalls,
+  discoRays,
+  discoSpots,
+  discoTiles,
   flutterPieces,
+  foilConfetti,
   glints,
+  glitter,
   motionTime,
   parallaxOffset,
+  searchlights,
   seededRandom,
   sparkles,
   splitLetters,
@@ -104,5 +112,123 @@ describe('motionTime', () => {
   it('cada duración pasa por la velocidad de la invitación', () => {
     expect(motionTime(2.4)).toBe('calc(2.4s * var(--motion-scale))')
     expect(motionTime(120, 'ms')).toBe('calc(120ms * var(--motion-scale))')
+  })
+})
+
+describe('luces de ciudad, escarcha y reflectores', () => {
+  it('las luces se reparten de arriba abajo, sin salirse, y no cambian entre visitas', () => {
+    const lights = cityLights('music-player')
+    expect(lights).toEqual(cityLights('music-player'))
+    expect(lights).toHaveLength(12)
+    const tops = lights.map((l) => l.top)
+    expect([...tops].sort((a, b) => a - b)).toEqual(tops)
+    for (const l of lights) {
+      expect(l.top).toBeGreaterThanOrEqual(2)
+      expect(l.top).toBeLessThanOrEqual(94)
+      expect(l.left).toBeGreaterThanOrEqual(3)
+      expect(l.left).toBeLessThanOrEqual(97)
+      expect(l.size).toBeGreaterThanOrEqual(0.7)
+      expect(l.size).toBeLessThanOrEqual(3.5)
+      expect(l.delay).toBeLessThanOrEqual(0)
+    }
+  })
+
+  it('la escarcha sale de la mitad de arriba y una de cada cuatro es estrellita', () => {
+    const specks = glitter('closing', 20)
+    expect(specks.filter((s) => s.star)).toHaveLength(5)
+    for (const s of specks) {
+      expect(s.top).toBeLessThanOrEqual(60)
+      expect(s.fall).toBeGreaterThan(0)
+      expect(Math.abs(s.sway)).toBeLessThanOrEqual(22)
+      expect(s.size).toBeLessThanOrEqual(s.star ? 12 : 4.5)
+    }
+  })
+
+  it('los reflectores salen de cada lado y se inclinan hacia el centro para cruzarse', () => {
+    const [left, right] = searchlights('countdown')
+    expect(left.left).toBeLessThan(25)
+    expect(right.left).toBeGreaterThan(75)
+    expect((left.from + left.to) / 2).toBeGreaterThan(0)
+    expect((right.from + right.to) / 2).toBeLessThan(0)
+    expect(left.to - left.from).toBeGreaterThanOrEqual(32)
+    expect(searchlights('countdown')).toEqual([left, right])
+    expect(searchlights('hero', 3)[1].left).toBe(50)
+  })
+})
+
+describe('bola disco y confeti plateado', () => {
+  it('las bolas cuelgan a los lados (nunca al centro), la segunda más chica y girando al revés', () => {
+    const [big, small] = discoBalls('hero-envelope')
+    expect(discoBalls('hero-envelope')).toEqual([big, small])
+    expect(Math.abs(big.left - 50)).toBeGreaterThan(25)
+    expect(Math.abs(small.left - 50)).toBeGreaterThan(25)
+    // una de cada lado
+    expect(Math.sign(big.left - 50)).toBe(-Math.sign(small.left - 50))
+    expect(small.size).toBeLessThan(big.size)
+    expect(big.reverse).toBe(false)
+    expect(small.reverse).toBe(true)
+    expect(big.delay).toBeLessThanOrEqual(0)
+  })
+
+  it('los espejos cubren la esfera de polo a polo, menos hacia los polos y casi cuadrados', () => {
+    const tiles = discoTiles('bola', 10)
+    const rows = [...new Set(tiles.map((t) => t.lat))]
+    expect(rows).toHaveLength(10)
+    expect(Math.min(...rows)).toBe(-81)
+    expect(Math.max(...rows)).toBe(81)
+    const perRow = (lat: number) => tiles.filter((t) => t.lat === lat)
+    expect(perRow(9)).toHaveLength(20)
+    expect(perRow(81).length).toBeLessThan(perRow(45).length)
+    for (const t of tiles) {
+      expect(t.w / t.h).toBeGreaterThan(0.6)
+      expect(t.w / t.h).toBeLessThan(1.5)
+      expect(t.lon).toBeGreaterThanOrEqual(0)
+      expect(t.lon).toBeLessThan(360)
+      expect(t.light).toBeGreaterThan(0.2)
+      expect(t.light).toBeLessThanOrEqual(1)
+    }
+    // unos pocos encendidos, no todos
+    const lit = tiles.filter((t) => t.light >= 0.9).length
+    expect(lit).toBeGreaterThan(3)
+    expect(lit).toBeLessThan(tiles.length / 4)
+  })
+
+  it('los rayos dan la vuelta completa', () => {
+    const rays = discoRays('bola', 8)
+    expect(rays).toHaveLength(8)
+    expect(rays[0].angle).toBeLessThan(45)
+    expect(rays[7].angle).toBeGreaterThan(300)
+    for (const r of rays) expect(r.length).toBeLessThanOrEqual(0.8)
+  })
+
+  it('los reflejos se reparten a lo alto y a lo largo del recorrido', () => {
+    const spots = discoSpots('closing', 26, 24)
+    expect(spots).toEqual(discoSpots('closing', 26, 24))
+    const tops = spots.map((s) => s.top)
+    expect([...tops].sort((a, b) => a - b)).toEqual(tops)
+    const phases = spots.map((s) => -s.delay)
+    for (const p of phases) {
+      expect(p).toBeGreaterThanOrEqual(0)
+      expect(p).toBeLessThanOrEqual(24)
+    }
+    // repartidos: en cada cuarto del recorrido hay reflejos
+    for (let q = 0; q < 4; q++) {
+      expect(phases.some((p) => p >= q * 6 && p < (q + 1) * 6)).toBe(true)
+    }
+    expect(spots.filter((s) => s.star).length).toBe(6)
+  })
+
+  it('el confeti cae repartido a lo ancho, en tiras, cuadritos y lentejuelas', () => {
+    const pieces = foilConfetti('ximena', 16)
+    expect(pieces).toEqual(foilConfetti('ximena', 16))
+    expect(new Set(pieces.map((p) => p.shape))).toEqual(new Set(['strip', 'square', 'disc']))
+    for (const p of pieces) {
+      expect(p.left).toBeGreaterThanOrEqual(2)
+      expect(p.left).toBeLessThanOrEqual(98)
+      expect(p.delay).toBeLessThanOrEqual(0)
+      expect(p.duration).toBeGreaterThanOrEqual(11)
+      if (p.shape === 'strip') expect(p.height).toBeGreaterThan(p.width)
+      else expect(p.height).toBe(p.width)
+    }
   })
 })

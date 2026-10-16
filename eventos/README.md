@@ -115,16 +115,26 @@ frase-2,,visible,NO
 | Bloque | Qué guarda |
 |---|---|
 | `evento` | Los datos generales (tabla de abajo) |
-| `colores` | La paleta, en hex: `fondo`, `texto`, `primario`, `primario_fuerte`, `primario_claro`, `acento`, `acento_suave`, `acento_fuerte` (el azul de los botones del panel), `superficie` y `marco`. Puedes inventar otros (`lino`) |
+| `colores` | La paleta, en hex: `fondo`, `texto`, `primario`, `primario_fuerte`, `primario_claro`, `acento`, `acento_suave`, `acento_fuerte` (el azul de los botones del panel), `superficie`, `marco` y `papel` (el de las franjas claras de las secciones difuminadas). Puedes inventar otros (`lino`) |
 | `fuentes` | Letras de Google Fonts por rol: `script` (títulos manuscritos), `script_mono` (frases), `serif` (párrafos y datos), `caps` (etiquetas en mayúsculas), `display` (la fecha grande y los números), `button` y `engraved` (las mayúsculas finas de la imagen para WhatsApp) |
 | `textos` | Letra, color y tamaño de **todos** los títulos, subtítulos, textos y botones (ver "Letra, color y tamaño") |
-| `pagina` | `fondo` (la imagen detrás de toda la invitación) y `decoracion` (las mariposas que cruzan la pantalla: SI/NO) |
+| `pagina` | `fondo` (la imagen detrás de toda la invitación), `decoracion` (las mariposas o el confeti que cruzan la pantalla: SI/NO), `difuminar` (SI: secciones difuminadas, sin cortes; ver "Fondos, efectos y escritorio") y los detalles de diseño de toda la invitación (tabla de abajo) |
+
+**Detalles de diseño de la página** (`pagina`; vacíos, los pone el tema). Sirven en cualquier tema y toman los colores de la paleta:
+
+| Campo | Valores |
+|---|---|
+| `orilla` | La división entre secciones (la orilla de las franjas con secciones difuminadas): `degradado`, `hoja` (rasgada), `ciudad`, `ola`, `feston` o `recta`. Cada sección puede cambiar la suya con su propio `orilla` |
+| `botones` | El estilo de todos los botones: `degradado`, `solido`, `contorno`, `deco` (doble filo), `boleto` (con muescas), `neon` o `texto` (subrayado) |
+| `confeti` | `SI`/`NO`: papel metálico que cae |
+| `metalico` | `SI`/`NO`: títulos, nombre, fecha y números con brillo de metal |
+| `esquinas` | Las esquinas de los paneles: `deco` (escalonadas) o `ninguna` |
 
 ### `evento`
 
 | Grupo | Campos |
 |---|---|
-| Evento | `tipo` (`xv`, `boda`, `graduacion`, `bautizo`, `cumple`, `otro`), `tema` (`jardin-azul` o `marfil`), `festejada`, `festejada_corto` (el nombre del sobre), `pareja`, `subtitulo` ("mis xv años"), `titulo` (el de la pestaña del navegador), `inicia` (AAAA-MM-DD HH:MM) y `zona_horaria` |
+| Evento | `tipo` (`xv`, `boda`, `graduacion`, `bautizo`, `cumple`, `otro`), `tema` (`jardin-azul`, `marfil` o `nueva-york`), `festejada`, `festejada_corto` (el nombre del sobre), `pareja`, `subtitulo` ("mis xv años"), `titulo` (el de la pestaña del navegador), `inicia` (AAAA-MM-DD HH:MM) y `zona_horaria` |
 | Salón | `salon`, `salon_nombre_visible`, `salon_ciudad` (también la usa el clima), `salon_direccion`, `salon_maps` (`https://…`), `salon_foto` y `clima_coordenadas` |
 | Confirmaciones | `rsvp_modo`, `rsvp_limite`, `rsvp_whatsapp`, `rsvp_pedir_cancion` y `rsvp_pedir_mensaje` |
 | Música | `musica_fuente`, `musica_audio` y `spotify` |
@@ -140,35 +150,59 @@ Los tipos, en el orden de la invitación de NAT. Solo `foto`, `frase` y `cierre`
 
 | Sección | Campos propios | Elementos de su lista | Datos de `evento` que muestra | Adornos (`imagen_…`) | Textos propios |
 |---|---|---|---|---|---|
-| `portada` | `boton` ("Toca para abrir") | — | `festejada_corto`, `festejada`, `subtitulo`, el salón | `sobre`, `tarjeta`, `flores`, `corona`, `mariposas`, `lacre` | `nombre` (el grande), `lugar`, `para` (el nombre en el sobre) |
+| `portada` | `boton` ("Toca para abrir"), `variante` | — | `festejada_corto`, `festejada`, `subtitulo`, el salón | `sobre`, `tarjeta`, `flores`, `corona`, `mariposas`, `lacre`, `puerta` | `nombre` (el grande), `lugar`, `para` (el nombre en el sobre) |
 | `musica` | `titulo` | — | `musica_fuente`, `musica_audio`, `spotify` | — | — |
 | `bendicion` | `texto`, `subtitulo` | `rol`, `nombres` (uno por línea): "Mis papás", "Mis padrinos" | — | `arco`, `hojas`, `divisor`, `lazo` | `rol`, `nombres` |
 | `fecha` | `titulo` | — | `inicia`, `zona_horaria` (el calendario sale de ahí) | `destellos` | `fecha`, `calendario` |
 | `foto` | `imagen` (recortada sin fondo), `titulo` (unas iniciales o un apodo en la esquina) | — | — | `marco`, `estrellas`, `mariposas` | — |
 | `ubicacion` | `titulo`, `boton` | Varias ubicaciones (misa y recepción): `etiqueta`, `lugar`, `hora`, `direccion`, `maps`, `foto` | El salón: `salon`, `salon_nombre_visible`, `salon_ciudad`, `salon_direccion`, `salon_maps`, `salon_foto` | — | `etiqueta`, `lugar`, `detalle` |
 | `frase` | `texto` | — | — | `divisor` | — |
-| `itinerario` | `titulo`, `variante` | `hora` (`17:00` o `5:00 pm`), `actividad`, `icono` | — | `marco` | `hora`, `actividad` |
+| `itinerario` | `titulo`, `variante` | `hora` (`17:00` o `5:00 pm`), `actividad`, `icono` | — | `marco`, `estatua`, `puente` | `hora`, `actividad` |
 | `vestimenta` | `titulo`, `subtitulo`, `texto`, `colores` (de 1 a 4 hex, separados por espacio) | — | — | `lacre`, `tarjeta`, `mujer`, `hombre` | — |
 | `sin_ninos` | `titulo`, `subtitulo` (la etiqueta "Solo adultos"), `texto` | — | — | `lazo` | — |
 | `clima` | `titulo`, `texto` | — | `salon_ciudad`, `clima_coordenadas` | — | `lugar`, `datos` |
 | `hospedaje` | `titulo`, `subtitulo`, `texto`, `boton` | `nombre` (obligatorio), `nota`, `direccion`, `maps`, `telefono`, `foto` | — | `tarjeta`, `divisor` | `nombre`, `nota`, `direccion` |
+| `mesa_regalos` | `titulo`, `texto`, `boton` ("Ver mesa"), `variante`; lluvia de sobres: `sobres_titulo`, `sobres_texto`, `banco`, `cuenta` (CLABE o tarjeta), `titular`, `sobre_fisico` (SI: "también habrá caja en el salón") y `solo_con_enlace` | `tienda` (`liverpool`, `amazon`, `palacio`, `sears`, `costco` u `otra`), `nombre` (si es otra), `nota`, `enlace`, `numero_evento` | — | — | `tienda`, `sobres`, `cuenta` |
 | `playlist` | `titulo`, `subtitulo`, `texto`, `boton`, `variante` | — | `spotify` | — | — |
 | `cuenta_regresiva` | `titulo`, `texto` | — | `inicia` | `corona`, `mariposa` | `numeros`, `unidades` |
 | `confirmacion` | `titulo`, `subtitulo`, `boton` | — | `rsvp_modo`, `rsvp_limite`, `rsvp_whatsapp` | `tarjeta`, `flores` | `fecha_limite` |
 | `dedicatoria` | `titulo`, `texto`, `boton` | — | — | `divisor` | `mensaje`, `autor` |
 | `cierre` | `titulo`, `texto` | — | — | `flores`, `corona` | — |
 
-**Íconos del itinerario** (`icono`): un archivo de `media/` (`copas.webp`) o un nombre: `utensils`, `church`, `crown`, `music`, `heart`, `ring`, `dove`, `gift`, `cake-candles`, `graduation-cap`, `door-open`, `champagne-glasses`, `location-dot`.
+**Íconos del itinerario** (`icono`): un archivo de `media/` (`copas.webp`) o un nombre: `utensils`, `church`, `crown`, `music`, `heart`, `ring`, `dove`, `gift`, `cake-candles`, `graduation-cap`, `door-open`, `champagne-glasses`, `location-dot`, y los de Nueva York: `statue-of-liberty`, `brooklyn-bridge`, `empire-state`, `disco-ball`, `taxi`, `martini-glass-citrus`, `city`.
+
+**Mesa de regalos** (`mesa_regalos`): cada tienda con su monograma, el número de evento (con botón para copiar) y el botón a la mesa; la lluvia de sobres con la cuenta de 4 en 4 (también para copiar). Con `solo_con_enlace` (encendido si no se escribe), **los datos bancarios solo llegan a las invitaciones personales** (`/i/<token>`): el servidor los quita del enlace general, que avisa "vienen en tu invitación personal". Sin tiendas ni lluvia de sobres, la sección no aparece.
+
+**Diseños de sección** (`variante`): además del de siempre, estas secciones tienen diseños alternos que **sirven en cualquier tema** (con sus colores y sus letras; sus dibujos salen del tema o, si no trae, de los compartidos). Nacieron para `nueva-york`, que los usa todos por defecto; `clasica` vuelve al de siempre:
+
+| Sección | `variante` | Cómo se ve |
+|---|---|---|
+| `portada` | `elevador` | Puertas de elevador art déco; al tocar, la aguja recorre los pisos y se abren (adorno `puerta`) |
+| `musica` | `vinilo` | Un tocadiscos: el disco gira mientras suena |
+| `bendicion` | `programa` | El programa de mano de un estreno de Broadway, con el "reparto" |
+| `fecha` | `boleto` | Boleto plateado con su talón y la semana del evento |
+| `foto` | `ventana` | La foto en la punta escalonada de un rascacielos, con la ciudad detrás |
+| `ubicacion` | `metro` | Letrero de estación del metro; la foto en marco de mosaico |
+| `frase` | `neon` | Letrero de neón que parpadea y se enciende |
+| `itinerario` | `avenida` | Línea del metro en un poste con farol, letreros de calle; al pie, la Estatua y el puente de Brooklyn |
+| `vestimenta` | `vitrinas` | Escaparates de la Quinta Avenida |
+| `sin_ninos` | `cordon` | Cordón de terciopelo con su letrero |
+| `cuenta_regresiva` | `tablero` | Tablero de llegadas de Grand Central (las paletas caen) |
+| `hospedaje` | `colgantes` | Colgantes de puerta de hotel |
+| `mesa_regalos` | `bolsas` | Bolsas de compras y un sobre déco |
+| `confirmacion` | `pase` | Pase VIP colgado de su cinta |
+| `dedicatoria` | `postal` | Postal de correo aéreo con timbre de la Estatua |
+| `cierre` | `marquesina` | Marquesina de Broadway con focos que corren |
 
 **Campos de cualquier sección:**
 
 - Textos: `titulo`, `subtitulo`, `texto`, `boton`.
-- Diseño: `variante`, `fondo`, `fondo_ajuste`, `color_fondo`, `overlay`, `fijo`, `efectos`, `escritorio`.
+- Diseño: `variante`, `fondo`, `fondo_ajuste`, `color_fondo`, `overlay`, `fijo`, `efectos`, `orilla` (la forma de sus orillas cuando es franja), `escritorio`.
 - `color_<color>`: colores propios de la sección (`color_primario`, `color_texto`…). Con alguno, la sección usa su propia paleta y lo que no cambies sigue a la de toda la invitación.
 - `imagen_<adorno>`: cambia una imagen del tema solo en esa sección (`imagen_sobre`, `imagen_marco`). El valor `ninguna` la quita.
 - Estilo de cada texto: `<bloque>_fuente`, `<bloque>_color` y `<bloque>_tamano` (abajo).
 
-Cada sección se pinta como un **panel** con su propio fondo y el mismo espacio entre todas (la portada va sin panel). Las que no traen `fondo` ni `color_fondo` se turnan los fondos del tema, así dos seguidas nunca se ven iguales.
+Cada sección se pinta como un **panel** con su propio fondo y el mismo espacio entre todas (la portada va sin panel). Las que no traen `fondo` ni `color_fondo` se turnan los fondos del tema, así dos seguidas nunca se ven iguales. Con **secciones difuminadas** (`pagina` → `difuminar`, o el efecto `difuminar` en una sola) no hay paneles: ver abajo.
 
 ### Letra, color y tamaño
 
@@ -197,11 +231,25 @@ Cada texto de la invitación es un **bloque**: los cuatro comunes (`titulo`, `su
 - `cascada`: los elementos de la sección entran uno tras otro (horas del itinerario, números del contador, horas del clima).
 - `acercamiento`: la foto se acerca muy despacio.
 - `cambio_de_color` (o `colores`): el fondo pasa despacio por los tonos del tema; en `vestimenta`, además, la tarjeta va y viene a negro con los textos en blanco.
-- `ninguno` apaga los que el tema trae por defecto.
+- Los del tema `nueva-york` (sirven en cualquier tema y toman los colores de la paleta):
+  - `horizonte` (o `ciudad`): Manhattan al pie de la sección (Empire State, Chrysler, One World Trade Center, el puente de Brooklyn…) en tres capas que avanzan a distinta velocidad; las ventanas se encienden a destiempo. En la portada llega a la orilla de la pantalla.
+  - `reflectores`: haces de luz que barren el cielo desde abajo, como en un estreno.
+  - `luces`: luces suaves y desenfocadas que flotan detrás.
+  - `escarcha` (o `brillitos`): brillitos que caen despacio.
+  - `reflejo`: de vez en cuando una luz cruza la sección; aviva solo lo claro (letras y filos plateados).
+  - `panoramica` (o `paneo`): la imagen de fondo de la sección se desliza de lado a lado (para una foto de la ciudad).
+  - `bola_disco` (o `disco`): bolas de espejos colgadas que giran, con rayos, destellos y sus reflejos recorriendo la sección.
+  - `luces_disco` (o `reflejos_disco`): solo los reflejos, puntos de luz que cruzan la sección.
+- `difuminar` (o `sin_cortes`, `integrar`): la sección deja de ser tarjeta (ver abajo).
+- `ninguno` apaga los que el tema trae por defecto (no quita `difuminar` si la página lo pide).
 
 Si la sección trae efectos, reemplazan a los del tema; vacía, se usan los del tema.
 
 Sin configurar nada, el tema también pone mariposas que cruzan la pantalla de vez en cuando (`pagina` → `decoracion`), pétalos y confeti al abrir el sobre y al confirmar asistencia, el corazón y las barras del reproductor que se mueven con la música, y el segundero que late. Todo se apaga si el celular tiene activado "reducir movimiento".
+
+**Secciones difuminadas** (`pagina,,difuminar,SI`, o el efecto `difuminar` en una sección): ninguna sección se ve como tarjeta; llegan a las orillas y se tocan, sin espacio entre ellas. Las que tienen color de fondo (`color_fondo`) son **franjas**: sus orillas de arriba y abajo se funden con lo que sigue. En `nueva-york` la ciudad corta las franjas grises (`color_fondo,marco`) y el **papel** (`color_fondo,papel`) asoma por una hoja rasgada, con la fibra y la sombra de la hoja negra; adentro de una franja de papel todo va en tinta. En otros temas la orilla es un degradado. Las que no tienen fondo van directo sobre el papel de la página.
+
+**Tema `nueva-york`:** una noche en Manhattan, de fondo negro. Sus adornos son dibujos (sobre perla, tarjeta negra con marco art déco, la corona del Chrysler, un sello con el Empire State); los paneles llevan esquinas escalonadas y los títulos brillo de metal. Cada sección tiene su propio diseño (tabla de "Diseños propios del tema"), bendición, itinerario, cuenta regresiva y confirmación van sobre papel, y ubicación y mesa de regalos en franja gris; en lugar de mariposas cae confeti plateado. Su plantilla está en `deploy/plantillas/nueva-york/` (`deploy/plantillas/instalar.sh nueva-york` la pone aquí) y ya viene con secciones difuminadas. Al ser oscura, el panel del dueño y la imagen para WhatsApp van en su versión oscura (el QR, en una placa clara para que se lea).
 
 **Escritorio** (`escritorio`): `completo` ocupa toda la fila; `mitad` se pone junto a la siguiente sección `mitad`. Una `mitad` sin pareja se queda con la fila completa. Vacío = lo que diga el tema (en `jardin-azul`: fecha | foto, ubicación | frase, itinerario | vestimenta, cuenta regresiva | confirmación).
 

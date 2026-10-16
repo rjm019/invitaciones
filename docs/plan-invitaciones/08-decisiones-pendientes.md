@@ -116,3 +116,9 @@ Salieron durante la implementación y se juntaron para el final. Al responder un
 41. **Aviso de privacidad:** nombre del responsable (persona o empresa) y correo de contacto para derechos ARCO.
 42. **Cotizaciones:** ¿a qué correo llegan (`COTIZACIONES_CORREO`)? Hace falta una cuenta de Resend (gratis) para `RESEND_API_KEY`.
 43. **WhatsApp del negocio:** número para el botón de respaldo del formulario y el pie de la landing.
+
+**Nueva York y Ximena (16-oct)**
+
+44. **Datos reales de Ximena** (`eventos/ximena`): hora del evento (dejé 8:00 pm), nombres de papás y padrinos (son de ejemplo), su foto (la ventana del rascacielos está vacía), la canción (MP3), la playlist (la de ahora es una pública de Spotify) y la mesa de regalos (Liverpool, Amazon y Palacio de Hierro con número y cuenta **de ejemplo**). Fecha límite para confirmar: dejé el 7-nov.
+45. **Publicar:** la rama `feature/landing-y-secciones` no tiene commit ni deploy. ¿Commit y, cuando lo revises, `fly deploy` + importar la plantilla de Nueva York y crear la invitación de Ximena en el gestor de producción?
+46. **Vista previa en blanco al elegir una sección:** no la pude reproducir aquí (el navegador de pruebas no usa la tarjeta de video); dejé tres medidas (un toque sobre Spotify ya no le llega a Spotify en modo *Elegir*, el fondo de la página toma el del tema y las secciones lejos de la pantalla pausan sus efectos). ¿En qué navegador te pasó, y te sigue pasando?

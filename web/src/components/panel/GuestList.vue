@@ -192,10 +192,10 @@ async function saveTable(row: GuestRow, event: Event) {
 .guests__filter.is-active {
   border-color: var(--p-accent);
   background: var(--p-accent);
-  color: #fff;
+  color: var(--p-on-accent);
 }
 .guests__filter.is-active span {
-  color: #fff;
+  color: var(--p-on-accent);
 }
 .guests__tables {
   display: flex;

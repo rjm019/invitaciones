@@ -246,6 +246,11 @@ function toggleEffect(key: string): void {
         @update:model-value="(v) => setField(section.id, 'variante', v)"
       />
       <FieldInput
+        :def="common('orilla')"
+        :model-value="f.orilla ?? ''"
+        @update:model-value="(v) => setField(section.id, 'orilla', v)"
+      />
+      <FieldInput
         :def="common('escritorio')"
         :model-value="f.escritorio ?? ''"
         @update:model-value="(v) => setField(section.id, 'escritorio', v)"

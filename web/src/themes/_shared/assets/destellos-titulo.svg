@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="160" viewBox="0 0 400 160">
+  <!-- Estrellitas plateadas alrededor de un título (cada una titila sola: ver sprites en el manifest). -->
+  <defs>
+    <path id="d" d="M0 -10 C0.8 -2 2 -0.8 10 0 C2 0.8 0.8 2 0 10 C-0.8 2 -2 0.8 -10 0 C-2 -0.8 -0.8 -2 0 -10 Z"/>
+    <radialGradient id="brillo">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#e8eaed"/>
+      <stop offset="1" stop-color="#aeb3ba"/>
+    </radialGradient>
+  </defs>
+  <g fill="url(#brillo)" opacity="0.8">
+    <use href="#d" transform="translate(42 50) scale(0.9)"/>
+    <use href="#d" transform="translate(20 100) scale(0.45)"/>
+    <use href="#d" transform="translate(80 122) scale(0.55)"/>
+    <use href="#d" transform="translate(122 22) scale(0.4)"/>
+    <use href="#d" transform="translate(358 38) scale(0.7)"/>
+    <use href="#d" transform="translate(384 92) scale(0.45)"/>
+    <use href="#d" transform="translate(326 116) scale(1.0)"/>
+    <use href="#d" transform="translate(262 146) scale(0.42)"/>
+    <use href="#d" transform="translate(232 16) scale(0.5)"/>
+  </g>
+</svg>

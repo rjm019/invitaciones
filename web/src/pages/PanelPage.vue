@@ -10,6 +10,7 @@ import ShareDialog from '@/components/panel/ShareDialog.vue'
 import { usePanel } from '@/composables/usePanel'
 import { usePanelTheme } from '@/composables/usePanelTheme'
 import { usePolling } from '@/composables/usePolling'
+import { isDarkPalette } from '@/services/colorService'
 import { deadlineBounds } from '@/services/panelService'
 import type { PanelInvitation } from '@/types/panel'
 
@@ -21,6 +22,8 @@ const props = defineProps<{ slug: string }>()
 const panel = usePanel(props.slug)
 const { token, overview, brand, loading, error, live } = panel
 const { theme, fonts } = usePanelTheme(brand)
+// Una invitación de fondo negro (Nueva York): el panel también va en oscuro.
+const dark = computed(() => isDarkPalette(brand.value?.palette ?? {}, theme.value?.dark))
 
 // En vivo: cada 5 s pregunta si hay algo nuevo (alguien abrió o confirmó) y solo entonces recarga.
 usePolling(
@@ -56,7 +59,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="panel">
+  <div class="panel" :class="{ 'panel--dark': dark }">
     <PanelLogin v-if="!token" :title="title" :notice="error" :login="panel.login" />
 
     <template v-else>
@@ -211,6 +214,8 @@ onMounted(() => {
  */
 .panel {
   --p-accent: var(--color-accent-strong, #3d6a92);
+  /* Letra sobre el acento (botones y filtros activos) */
+  --p-on-accent: #fff;
   --p-soft: color-mix(in srgb, var(--color-accent-soft, #c9dbe8) 55%, white);
   --p-gold: var(--color-primary, #96792c);
   --p-bg: var(--color-panel-alt, #eef3f8);
@@ -225,11 +230,31 @@ onMounted(() => {
   --p-font-body: var(--font-serif, Georgia, serif);
   min-height: 100vh;
   padding: 1rem 1rem 3rem;
-  background: radial-gradient(120% 60% at 50% 0%, #ffffff 0%, transparent 70%), var(--p-bg);
+  background:
+    radial-gradient(120% 60% at 50% 0%, var(--p-glow, #ffffff) 0%, transparent 70%), var(--p-bg);
   color: var(--p-text);
   font-family: var(--p-font-body);
   font-size: 1.08rem;
   line-height: 1.45;
+}
+/*
+ * Invitación oscura (fondo negro): tarjetas grafito con letra clara, botones del color
+ * principal (plata) con letra oscura, como los de la invitación, y verde y rojo un poco más
+ * claros para leerse sobre el grafito.
+ */
+.panel.panel--dark {
+  --p-accent: var(--color-primary, #c4c8ce);
+  --p-on-accent: var(--color-bg, #0b0b0c);
+  --p-soft: color-mix(in srgb, var(--color-text, #f3f3f1) 10%, transparent);
+  --p-bg: var(--color-bg, #0b0b0c);
+  --p-card: color-mix(in srgb, var(--color-surface, #141517) 85%, #3a3c40);
+  --p-text: var(--color-text, #f3f3f1);
+  --p-muted: color-mix(in srgb, var(--color-text, #f3f3f1) 62%, black);
+  --p-line: color-mix(in srgb, var(--color-text, #f3f3f1) 18%, transparent);
+  --p-glow: color-mix(in srgb, var(--color-primary, #c4c8ce) 16%, transparent);
+  --p-ok: #3f9a66;
+  --p-no: #c75a48;
+  color-scheme: dark;
 }
 .panel input[type='text'],
 .panel input[type='search'],
@@ -265,7 +290,7 @@ onMounted(() => {
   border: 1px solid var(--p-accent);
   border-radius: 999px;
   background: var(--p-accent);
-  color: #fff;
+  color: var(--p-on-accent);
   font: inherit;
   font-weight: 600;
   letter-spacing: 0.02em;

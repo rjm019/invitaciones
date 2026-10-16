@@ -60,7 +60,7 @@ const cardStyle = computed(() =>
           <a
             v-if="hotel.maps_url"
             :href="hotel.maps_url"
-            class="hotels__button btn-shine"
+            class="hotels__button btn-shine inv-btn"
             data-text="button"
             target="_blank"
             rel="noopener"
@@ -214,17 +214,21 @@ const cardStyle = computed(() =>
   display: inline-flex;
   align-items: center;
   padding: 0.3rem 1.1rem;
-  border-radius: 6px;
-  background: var(--button-gradient);
-  color: var(--t-button-color, var(--color-text));
+  border-radius: var(--btn-radius, 6px);
+  background: var(--btn-bg, var(--button-gradient));
+  /* Letra sobre el botón: la del tema (--color-on-button) o la del texto. */
+  color: var(--t-button-color, var(--btn-color, var(--color-on-button, var(--color-text))));
   font-family: var(--t-button-font, var(--font-button));
   font-weight: 600;
   font-size: calc(clamp(0.85rem, 4cqi, 1rem) * var(--t-button-size, 1));
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  text-decoration: underline;
+  letter-spacing: var(--btn-tracking, 0.04em);
+  text-transform: var(--btn-case, uppercase);
+  text-decoration: var(--btn-decoration, underline);
   text-underline-offset: 0.15em;
-  box-shadow: var(--shadow-button, none);
+  box-shadow: var(--btn-shadow, var(--shadow-button, none));
+  border: var(--btn-border, 0);
+  clip-path: var(--btn-clip, none);
+  text-shadow: var(--btn-glow, none);
 }
 .hotels__call {
   display: inline-flex;

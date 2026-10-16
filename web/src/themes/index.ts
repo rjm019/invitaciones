@@ -5,7 +5,8 @@ import type { ThemeManifest } from './types'
  *   manifest.ts  fuentes, fondo de página y defaults por sección
  *   theme.css    tokens y ajustes visuales bajo [data-theme="<id>"]
  *   assets/      decoraciones propias del tema (opcional; la media del evento tiene prioridad)
- * Agregar un tema es agregar una carpeta: no hay que registrarlo a mano.
+ * Agregar un tema es agregar una carpeta: no hay que registrarlo a mano. `_shared/` no es un
+ * tema: sus adornos los ven todos.
  */
 const manifests = import.meta.glob<{ default: ThemeManifest }>('./*/manifest.ts')
 const styles = import.meta.glob('./*/theme.css')
@@ -22,14 +23,22 @@ export async function loadTheme(id: string): Promise<ThemeManifest | null> {
   return mod.default
 }
 
-/** Assets del tema: nombre de archivo → URL. */
-export function themeAssets(id: string): Record<string, string> {
-  const prefix = `./${id}/assets/`
+/** Archivos de una carpeta de assets: nombre de archivo → URL. */
+function folder(prefix: string): Record<string, string> {
   return Object.fromEntries(
     Object.entries(assets)
       .filter(([path]) => path.startsWith(prefix))
       .map(([path, url]) => [path.slice(prefix.length), url]),
   )
+}
+
+/**
+ * Assets del tema: nombre de archivo → URL. Debajo van los adornos compartidos
+ * (`_shared/assets`: la Estatua, el puente, la puerta del elevador…), que cualquier tema y
+ * cualquier diseño de sección pueden usar por su nombre; los del tema ganan.
+ */
+export function themeAssets(id: string): Record<string, string> {
+  return { ...folder('./_shared/assets/'), ...folder(`./${id}/assets/`) }
 }
 
 /** Los temas que existen (para el editor del gestor): id de cada carpeta. */

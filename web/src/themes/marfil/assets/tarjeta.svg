@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 405">
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="405" viewBox="0 0 360 405">
   <!-- Tarjeta de papel con doble filo fino. -->
   <rect width="360" height="405" fill="#fffdf9"/>
   <rect x="14" y="14" width="332" height="377" fill="none" stroke="#c4ad8b" stroke-width="0.9"/>

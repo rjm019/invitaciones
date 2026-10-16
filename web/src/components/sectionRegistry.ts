@@ -16,6 +16,7 @@ import SpotifySection from './sections/SpotifySection.vue'
 import RsvpSection from './sections/RsvpSection.vue'
 import DedicationsSection from './sections/DedicationsSection.vue'
 import ClosingSection from './sections/ClosingSection.vue'
+import GiftsSection from './sections/GiftsSection.vue'
 
 /**
  * Tipo de sección (columna "seccion" del layout) → componente. Van todas en el mismo
@@ -41,4 +42,5 @@ export const sectionRegistry: Record<string, Component> = {
   rsvp: RsvpSection,
   dedications: DedicationsSection,
   closing: ClosingSection,
+  gifts: GiftsSection,
 }

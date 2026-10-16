@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="130" viewBox="0 0 120 130">
+  <!-- La corona del edificio Chrysler: arcos escalonados con ventanas en triángulo y la aguja. -->
+  <defs>
+    <linearGradient id="plata" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8a9099"/>
+      <stop offset="0.35" stop-color="#eef0f2"/>
+      <stop offset="0.55" stop-color="#a7adb5"/>
+      <stop offset="0.8" stop-color="#e2e5e9"/>
+      <stop offset="1" stop-color="#9aa0a8"/>
+    </linearGradient>
+  </defs>
+  <path d="M57.6 56 L60 3 L62.4 56 Z" fill="url(#plata)"/>
+  <path d="M24 126V118A36 36 0 0 1 96 118V126M31.5 126V100A28.5 28.5 0 0 1 88.5 100V126M39 126V84A21 21 0 0 1 81 84V126M46 126V70A14 14 0 0 1 74 70V126M52 126V58A8 8 0 0 1 68 58V126" fill="none" stroke="url(#plata)" stroke-width="1.8" stroke-linejoin="round"/>
+  <path d="M32.3 111.2L26.3 112.1L31.6 114.9ZM36.3 102.1L30.4 100.9L34.4 105.4ZM43.1 94.9L38 91.8L40.2 97.4ZM52 90.6L48.3 85.9L48.5 91.9ZM61.9 89.5L60 83.8L58.1 89.5ZM71.5 91.9L71.7 85.9L68 90.6ZM79.8 97.4L82 91.8L76.9 94.9ZM85.6 105.4L89.6 100.9L83.7 102.1ZM88.4 114.9L93.7 112.1L87.7 111.2ZM39.9 93.5L34 94.1L39.1 97.2ZM44.8 85.4L39.1 83.4L42.4 88.4ZM52.6 80.3L48.4 75.9L49.2 81.9ZM61.9 79L60 73.3L58.1 79ZM70.8 81.9L71.6 75.9L67.4 80.3ZM77.6 88.4L80.9 83.4L75.2 85.4ZM80.9 97.2L86 94.1L80.1 93.5ZM47.7 78L41.7 78.1L46.6 81.6ZM53.6 72L48.7 68.5L50.5 74.2ZM61.9 70.5L60 64.8L58.1 70.5ZM69.5 74.2L71.3 68.5L66.4 72ZM73.4 81.6L78.3 78.1L72.3 78ZM55.3 65.1L49.4 63.9L53.4 68.4ZM61.9 63.5L60 57.8L58.1 63.5ZM66.6 68.4L70.6 63.9L64.7 65.1ZM60.5 56.1L54.6 54.9L58.6 59.4ZM61.9 57.5L60 51.8L58.1 57.5ZM61.4 59.4L65.4 54.9L59.5 56.1Z" fill="#eef0f2"/>
+  <path d="M18 126 H102" stroke="url(#plata)" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

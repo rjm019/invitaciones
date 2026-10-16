@@ -21,6 +21,13 @@ const ICONS = [
   { name: 'dove', label: 'Paloma' },
   { name: 'gift', label: 'Regalo' },
   { name: 'location-dot', label: 'Lugar' },
+  { name: 'disco-ball', label: 'Bola disco' },
+  { name: 'martini-glass-citrus', label: 'Coctel' },
+  { name: 'statue-of-liberty', label: 'Estatua de la Libertad' },
+  { name: 'empire-state', label: 'Empire State' },
+  { name: 'brooklyn-bridge', label: 'Puente de Brooklyn' },
+  { name: 'taxi', label: 'Taxi' },
+  { name: 'city', label: 'Ciudad' },
 ]
 
 const props = defineProps<{ modelValue: string }>()

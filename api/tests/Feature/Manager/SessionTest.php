@@ -164,6 +164,6 @@ class SessionTest extends TestCase
         $this->asManager()->getJson('/api/manager/catalog')
             ->assertOk()
             ->assertJsonPath('catalog.version', 1)
-            ->assertJsonCount(17, 'catalog.sections');
+            ->assertJsonCount(18, 'catalog.sections');
     }
 }

@@ -6,6 +6,7 @@ import {
   hexToHsv,
   hslToHex,
   hsvToHex,
+  isDarkPalette,
   mix,
   normalizeHex,
   PALETTE_PRESETS,
@@ -56,10 +57,21 @@ describe('colorService', () => {
     expect(Object.values(palette).every((c) => /^#[0-9A-F]{6}$/.test(c))).toBe(true)
   })
 
-  it('las paletas sugeridas se leen bien y traen sus paneles', () => {
+  it('las paletas sugeridas se leen bien y traen sus paneles (o usan los de su tema)', () => {
     for (const preset of PALETTE_PRESETS) {
       expect(contrast(preset.colors.texto, preset.colors.fondo), preset.id).toBeGreaterThan(7)
-      expect(preset.colors.panel_alt, preset.id).toMatch(/^#[0-9A-F]{6}$/)
+      if (preset.theme) expect(preset.colors.panel_alt, preset.id).toBeUndefined()
+      else expect(preset.colors.panel_alt, preset.id).toMatch(/^#[0-9A-F]{6}$/)
     }
+  })
+})
+
+describe('isDarkPalette', () => {
+  it('decide por el fondo de la paleta y, sin fondo, por el tema', () => {
+    expect(isDarkPalette({ bg: '#0B0B0C' })).toBe(true)
+    expect(isDarkPalette({ bg: '#1C1C1C' })).toBe(true)
+    expect(isDarkPalette({ bg: '#F3F1EC' }, true)).toBe(false)
+    expect(isDarkPalette({}, true)).toBe(true)
+    expect(isDarkPalette({ bg: 'no es color' })).toBe(false)
   })
 })

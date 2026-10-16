@@ -1,5 +1,6 @@
 import type { ThemeManifest } from '@/themes/types'
 import type {
+  EdgeStyle,
   EventConfig,
   PlacedSection,
   ResolvedSection,
@@ -7,6 +8,7 @@ import type {
   SectionConfig,
 } from '@/types/event'
 import type { AssetResolver } from './assetService'
+import { hasGifts } from './giftService'
 import { spotifyEmbed } from './spotifyService'
 
 /** Palabras con las que el layout apaga los efectos que el tema trae por defecto. */
@@ -15,10 +17,11 @@ const NO_EFFECTS = ['ninguno', 'none']
 /**
  * Mezcla cada sección del layout con los defaults de su tema. Orden de prioridad:
  * tokens base → defaults del tema para ese tipo de sección → renglón del layout.
- * Las secciones con visible = NO no se devuelven.
+ * Las secciones con visible = NO no se devuelven. Con la página difuminada (page.blend),
+ * todas llevan además el efecto "blend": ninguna se ve como tarjeta.
  */
 export function resolveSections(
-  event: Pick<EventConfig, 'sections'>,
+  event: Pick<EventConfig, 'sections' | 'page'>,
   theme: Pick<ThemeManifest, 'sections'>,
   resolveAsset: AssetResolver,
 ): ResolvedSection[] {
@@ -28,7 +31,9 @@ export function resolveSections(
     .filter((s) => s.visible !== false)
     .map((section: SectionConfig) => {
       const defaults = theme.sections[section.type] ?? {}
-      const effects = section.effects?.length ? section.effects : (defaults.effects ?? [])
+      const own = section.effects?.length ? section.effects : (defaults.effects ?? [])
+      const effects = own.some((e) => NO_EFFECTS.includes(e)) ? [] : [...own]
+      if (event.page?.blend && !effects.includes('blend')) effects.push('blend')
 
       seen[section.type] = (seen[section.type] ?? 0) + 1
       const id = seen[section.type] > 1 ? `${section.type}-${seen[section.type]}` : section.type
@@ -56,7 +61,7 @@ export function resolveSections(
         panel: defaults.panel !== false,
         ...(defaults.panelColor ? { panelColor: defaults.panelColor } : {}),
         background: Object.keys(background).length ? background : undefined,
-        effects: effects.some((e) => NO_EFFECTS.includes(e)) ? [] : [...effects],
+        effects,
         decor,
         ...(sprites && Object.keys(sprites).length ? { sprites } : {}),
       }
@@ -68,17 +73,18 @@ const WEATHER_AFTER_MS = 24 * 60 * 60 * 1000
 
 /**
  * Quita las secciones que no tendrían nada que mostrar: la playlist sin un enlace de
- * Spotify válido, el hospedaje sin hoteles y el clima cuando el evento ya pasó. Así no
- * queda un hueco en la página.
+ * Spotify válido, el hospedaje sin hoteles, la mesa de regalos sin tiendas ni sobres y el
+ * clima cuando el evento ya pasó. Así no queda un hueco en la página.
  */
 export function withContent<T extends SectionConfig>(
   sections: T[],
-  event: Pick<EventConfig, 'music' | 'starts_at' | 'hotels'>,
+  event: Pick<EventConfig, 'music' | 'starts_at' | 'hotels' | 'gifts'>,
   now: number,
 ): T[] {
   return sections.filter((s) => {
     if (s.type === 'spotify') return spotifyEmbed(event.music.spotify_url) !== null
     if (s.type === 'hotels') return event.hotels.length > 0
+    if (s.type === 'gifts') return hasGifts(event.gifts)
     if (s.type === 'weather') {
       const start = event.starts_at ? Date.parse(event.starts_at) : NaN
       return Number.isFinite(start) && now < start + WEATHER_AFTER_MS
@@ -93,6 +99,9 @@ export function withContent<T extends SectionConfig>(
  * se ven iguales, aunque el layout oculte o reordene secciones. Con tres fondos en la
  * lista, tampoco se repiten en las filas de escritorio (izquierda | derecha). Con
  * `panelColor`, la sección gasta su turno pero se pinta de su color.
+ *
+ * Una sección difuminada (efecto "blend") no es panel: no entra en la rotación y va sobre
+ * el papel, salvo que traiga su propio fondo (o `panelColor`): entonces es una franja.
  */
 export function withPanels<T extends ResolvedSection>(
   sections: T[],
@@ -102,6 +111,11 @@ export function withPanels<T extends ResolvedSection>(
   let above: string | null = null
   return sections.map((section) => {
     let background = section.background
+    if (section.effects.includes('blend')) {
+      above = null
+      if (!background && section.panelColor) background = { color: section.panelColor }
+      return background === section.background ? section : { ...section, background }
+    }
     if (section.panel && !background && panels.length) {
       for (let tries = 0; tries < panels.length; tries++) {
         background = panels[turn++ % panels.length]
@@ -112,6 +126,33 @@ export function withPanels<T extends ResolvedSection>(
     }
     above = section.panel ? JSON.stringify(background ?? null) : null
     return background === section.background ? section : { ...section, background }
+  })
+}
+
+/**
+ * La orilla de cada franja (sección difuminada con fondo): la que pide la sección; si no,
+ * la de la página; si no, la que el tema pone para ese color de fondo (`paper`, `frame`…)
+ * o la suya de siempre. El papel, si nadie dice otra cosa, asoma por una hoja rasgada.
+ * Sin ninguna, se queda sin (SectionShell la pinta en degradado).
+ */
+export function withEdges<T extends ResolvedSection>(
+  sections: T[],
+  pageEdge?: EdgeStyle,
+  themeEdges: ThemeManifest['edges'] = {},
+): T[] {
+  return sections.map((section) => {
+    const background = section.background
+    if (!section.effects.includes('blend') || !(background?.color || background?.image)) {
+      return section
+    }
+    const token = background.color && !background.color.startsWith('#') ? background.color : ''
+    const edge =
+      section.edge ??
+      pageEdge ??
+      themeEdges[token] ??
+      themeEdges.default ??
+      (token === 'paper' ? 'torn' : undefined)
+    return edge && edge !== section.edge ? { ...section, edge } : section
   })
 }
 

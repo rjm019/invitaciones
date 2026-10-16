@@ -16,6 +16,11 @@
   --color-surface: #ffffff;
   --color-frame: #b8c6d4;
   --color-error: #b3261e;
+  /*
+   * Letra sobre los botones con degradado (--button-gradient). Sin declararla, los botones
+   * usan su color de siempre; un tema oscuro con botones claros la pone oscura.
+   * --color-on-button: …
+   */
   /* Versión oscura de una tarjeta (Dress Code con "cambio de color") */
   --color-night: #111111;
   --color-on-night: #ffffff;
@@ -25,6 +30,8 @@
   --color-panel-warm: #f8f1e3;
   /* Perla: para un panel que se pide aparte (panelColor). Puede ser un degradado. */
   --color-panel-pearl: #fdfcfa;
+  /* Papel: las franjas claras de las secciones difuminadas (orilla de hoja rasgada). */
+  --color-paper: #ffffff;
 
   /* Tipografía por rol */
   --font-script: cursive;
@@ -79,4 +86,56 @@
     var(--color-primary-strong) 55%,
     var(--color-primary) 100%
   );
+}
+
+/*
+ * Detrás de la invitación, el fondo del tema (applyTheme pone data-theme): lo que el
+ * navegador aún no alcanza a pintar al bajar rápido, o el rebote del iPhone, no se ve blanco.
+ */
+:root[data-theme] {
+  background-color: var(--color-bg);
+}
+
+/*
+ * La paleta de la página, guardada en la raíz (se resuelve ahí, con el tema y los colores
+ * de la invitación). Una pieza que debe verse con los colores de la página aunque esté en
+ * una sección que cambia los suyos (una franja de papel con tinta, colores propios) la
+ * recupera con .page-palette: el letrero del metro, los colgantes, el pase VIP…
+ */
+:root {
+  --root-text: var(--color-text);
+  --root-primary: var(--color-primary);
+  --root-primary-strong: var(--color-primary-strong);
+  --root-primary-soft: var(--color-primary-soft);
+  --root-accent: var(--color-accent);
+  --root-bg: var(--color-bg);
+  --root-surface: var(--color-surface);
+  /* Si el tema no la pone, queda sin valor y los botones usan la de siempre. */
+  --root-on-button: var(--color-on-button);
+}
+.page-palette,
+.section.section--rsvp--pase .rsvp__card {
+  --color-text: var(--root-text);
+  --color-primary: var(--root-primary);
+  --color-primary-strong: var(--root-primary-strong);
+  --color-primary-soft: var(--root-primary-soft);
+  --color-accent: var(--root-accent);
+  --color-bg: var(--root-bg);
+  --color-surface: var(--root-surface);
+  --color-on-button: var(--root-on-button);
+  --button-gradient: linear-gradient(
+    180deg,
+    var(--root-primary-soft) 0%,
+    var(--root-primary-strong) 55%,
+    var(--root-primary) 100%
+  );
+  color: var(--color-text);
+}
+
+/* Esquinas escalonadas art déco (máscaras: el color lo pone quien las usa). */
+:root {
+  --deco-corner-tl: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Cg fill=%22none%22 stroke=%22%23000%22%3E%3Cpath d=%22M0 18H6V6H18V0%22 stroke-width=%221.6%22/%3E%3Cpath d=%22M0 27H11V11H27V0%22 stroke-width=%220.8%22/%3E%3Cpath d=%22M15 12.5l2.5 2.5-2.5 2.5-2.5-2.5z%22 fill=%22%23000%22 stroke=%22none%22/%3E%3C/g%3E%3C/svg%3E');
+  --deco-corner-tr: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Cg fill=%22none%22 stroke=%22%23000%22 transform=%22matrix%28-1 0 0 1 40 0%29%22%3E%3Cpath d=%22M0 18H6V6H18V0%22 stroke-width=%221.6%22/%3E%3Cpath d=%22M0 27H11V11H27V0%22 stroke-width=%220.8%22/%3E%3Cpath d=%22M15 12.5l2.5 2.5-2.5 2.5-2.5-2.5z%22 fill=%22%23000%22 stroke=%22none%22/%3E%3C/g%3E%3C/svg%3E');
+  --deco-corner-bl: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Cg fill=%22none%22 stroke=%22%23000%22 transform=%22matrix%281 0 0 -1 0 40%29%22%3E%3Cpath d=%22M0 18H6V6H18V0%22 stroke-width=%221.6%22/%3E%3Cpath d=%22M0 27H11V11H27V0%22 stroke-width=%220.8%22/%3E%3Cpath d=%22M15 12.5l2.5 2.5-2.5 2.5-2.5-2.5z%22 fill=%22%23000%22 stroke=%22none%22/%3E%3C/g%3E%3C/svg%3E');
+  --deco-corner-br: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Cg fill=%22none%22 stroke=%22%23000%22 transform=%22matrix%28-1 0 0 -1 40 40%29%22%3E%3Cpath d=%22M0 18H6V6H18V0%22 stroke-width=%221.6%22/%3E%3Cpath d=%22M0 27H11V11H27V0%22 stroke-width=%220.8%22/%3E%3Cpath d=%22M15 12.5l2.5 2.5-2.5 2.5-2.5-2.5z%22 fill=%22%23000%22 stroke=%22none%22/%3E%3C/g%3E%3C/svg%3E');
 }

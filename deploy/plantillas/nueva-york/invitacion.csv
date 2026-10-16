@@ -1,0 +1,28 @@
+﻿seccion,elemento,campo,valor
+evento,,tipo,otro
+evento,,tema,nueva-york
+evento,,festejada,Nombre
+evento,,festejada_corto,Nombre
+evento,,subtitulo,una noche en Nueva York
+evento,,titulo,Una noche en Nueva York
+evento,,inicia,2027-06-12 20:00
+evento,,zona_horaria,America/Mexico_City
+evento,,salon,Nombre del salón
+evento,,salon_ciudad,"Ciudad, Estado"
+evento,,rsvp_modo,token
+evento,,musica_fuente,archivo
+evento,,mensaje_whatsapp,"¡Hola{, familia}! Te compartimos la invitación ({pases}): {enlace}"
+evento,,tarjeta_frase,Una noche en Nueva York
+colores,,fondo,#0B0B0C
+colores,,texto,#F3F3F1
+colores,,primario,#C4C8CE
+colores,,primario_fuerte,#E2E5E9
+colores,,primario_claro,#F4F5F7
+colores,,acento,#8A9099
+colores,,acento_suave,#1E2023
+colores,,acento_fuerte,#5E636B
+colores,,superficie,#141517
+colores,,marco,#2E3034
+pagina,,difuminar,SI
+portada,,visible,SI
+portada,,boton,Toca para abrir

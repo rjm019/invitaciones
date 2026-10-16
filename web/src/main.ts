@@ -1,6 +1,9 @@
 import './assets/main.css'
 import './themes/tokens.css'
 import './effects/effects.css'
+import './effects/options.css'
+import './effects/buttons.css'
+import './components/sections/variants/skins.css'
 
 import { createApp } from 'vue'
 import App from './App.vue'

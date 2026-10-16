@@ -4,6 +4,7 @@ import ButterflyFlight from '@/components/ui/ButterflyFlight.vue'
 import CelebrationBurst from '@/components/ui/CelebrationBurst.vue'
 import DemoRibbon from '@/components/ui/DemoRibbon.vue'
 import FloatingDecor from '@/components/ui/FloatingDecor.vue'
+import FoilConfetti from '@/components/ui/FoilConfetti.vue'
 import MiniPlayer from '@/components/ui/MiniPlayer.vue'
 import PageLoader from '@/components/ui/PageLoader.vue'
 import SectionShell from '@/components/ui/SectionShell.vue'
@@ -14,11 +15,18 @@ import { provideEvent } from '@/composables/useEvent'
 import { provideMusic } from '@/composables/useMusic'
 import { providePreview, type PreviewOptions } from '@/composables/usePreview'
 import { useReducedMotion } from '@/composables/useReducedMotion'
+import { useSectionComponents } from '@/composables/useSectionComponents'
 import { useSteadyScroll } from '@/composables/useSteadyScroll'
 import { createAssetResolver } from '@/services/assetService'
 import { backgroundVars } from '@/services/backgroundService'
 import { criticalImages, fontFamilies } from '@/services/preloadService'
-import { placeOnDesktop, resolveSections, withContent, withPanels } from '@/services/sectionService'
+import {
+  placeOnDesktop,
+  resolveSections,
+  withContent,
+  withEdges,
+  withPanels,
+} from '@/services/sectionService'
 import { spotifyEmbed } from '@/services/spotifyService'
 import {
   applyTheme,
@@ -85,16 +93,21 @@ const isDev = import.meta.env.DEV
 // Solo se acomodan las secciones que se pintan (en producción se saltan las que aún no
 // existen) y que tienen algo que mostrar (playlist con enlace, clima antes del evento).
 // Los fondos de los paneles se turnan sobre esa lista final: nunca dos iguales seguidos.
+// Las franjas de las secciones difuminadas toman su orilla (sección → página → tema).
 const sections = computed(() =>
   theme.value
     ? placeOnDesktop(
-        withPanels(
-          withContent(
-            resolveSections(props.event, theme.value, resolveAsset.value),
-            props.event,
-            Date.now(),
-          ).filter((s) => sectionRegistry[s.type] || isDev),
-          theme.value.panels,
+        withEdges(
+          withPanels(
+            withContent(
+              resolveSections(props.event, theme.value, resolveAsset.value),
+              props.event,
+              Date.now(),
+            ).filter((s) => sectionRegistry[s.type] || isDev),
+            theme.value.panels,
+          ),
+          props.event.page?.edge,
+          theme.value.edges,
         ),
       )
     : [],
@@ -106,14 +119,35 @@ const page = computed<SectionBackground | undefined>(() =>
     : theme.value?.page,
 )
 const pageStyle = computed(() => backgroundVars(page.value, resolveAsset.value, '--page'))
-// Las mariposas que flotan y cruzan: del tema, salvo que la invitación las apague.
+// Las mariposas que flotan y cruzan (o el confeti): del tema, salvo que la invitación las apague.
 const decorOn = computed(() => props.event.page?.decor !== false)
+// El confeti: el del tema, o el que la invitación enciende o apaga en su página.
+const confettiOn = computed(() => props.event.page?.confetti ?? !!theme.value?.confetti)
+/**
+ * Detalles de diseño de toda la invitación (lo que elige la página o, si no, lo del tema),
+ * como data-* en .invitation: el estilo de los botones (effects/buttons.css), los títulos
+ * con brillo de metal y las esquinas de los paneles (effects/options.css).
+ */
+const designAttrs = computed(() => {
+  const p = props.event.page
+  const buttons = p?.buttons ?? theme.value?.buttons
+  const corners = p?.corners ?? theme.value?.corners
+  return {
+    'data-buttons': buttons || undefined,
+    'data-metal': (p?.metal ?? theme.value?.metallic) ? '' : undefined,
+    'data-corners': corners && corners !== 'none' ? corners : undefined,
+  }
+})
 const fonts = computed(() =>
   theme.value ? resolveFonts(theme.value.fonts, props.event.fonts) : null,
 )
 
-// Lista cuando cargaron el papel, la portada y las fuentes (o pasó el tiempo máximo).
-const ready = useAssetsReady(() =>
+// El diseño de cada sección: el de siempre o el alterno que pide (se descarga aparte).
+const { ready: designsReady, componentFor } = useSectionComponents(() => sections.value)
+
+// Lista cuando cargaron el papel, la portada, las fuentes y los diseños de las secciones
+// (o pasó el tiempo máximo).
+const assetsReady = useAssetsReady(() =>
   theme.value && fonts.value
     ? {
         images: criticalImages(sections.value[0], [
@@ -124,6 +158,7 @@ const ready = useAssetsReady(() =>
       }
     : null,
 )
+const ready = computed(() => assetsReady.value && designsReady.value)
 // Ya visible la portada, en el siguiente cuadro se monta todo lo demás.
 const complete = shallowRef(false)
 watch(ready, (isReady) => {
@@ -166,7 +201,7 @@ onBeforeUnmount(() => revert?.())
     <Transition name="invitation-loader">
       <PageLoader v-if="!ready" class="invitation__loader" />
     </Transition>
-    <div class="invitation" :class="{ 'is-ready': ready }" :style="pageStyle">
+    <div class="invitation" :class="{ 'is-ready': ready }" :style="pageStyle" v-bind="designAttrs">
       <div class="invitation__paper" aria-hidden="true" />
       <FloatingDecor
         v-if="complete && decorOn && theme?.floating?.length"
@@ -176,6 +211,11 @@ onBeforeUnmount(() => revert?.())
         v-if="complete && decorOn && theme?.flights?.length"
         :items="theme.flights"
       />
+      <FoilConfetti
+        v-if="complete && decorOn && confettiOn"
+        :count="theme?.confetti?.count"
+        :seed="event.slug"
+      />
       <main class="invitation__grid">
         <SectionShell
           v-for="section in shown"
@@ -183,11 +223,7 @@ onBeforeUnmount(() => revert?.())
           :section="section"
           :class="`invitation__slot--${section.slot}`"
         >
-          <component
-            :is="sectionRegistry[section.type]"
-            v-if="sectionRegistry[section.type]"
-            :section="section"
-          />
+          <component :is="componentFor(section)" v-if="componentFor(section)" :section="section" />
           <p v-else class="invitation__pending">Sección «{{ section.type }}» en construcción</p>
         </SectionShell>
       </main>

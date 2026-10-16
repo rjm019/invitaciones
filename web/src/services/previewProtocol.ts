@@ -115,10 +115,16 @@ function isEventTexts(v: unknown): boolean {
   )
 }
 
+/** PHP manda un mapa vacío como lista vacía (una invitación en blanco no trae colores ni letras). */
+const isMap = (v: unknown) => isRecord(v) || (Array.isArray(v) && v.length === 0)
+const asMap = (v: unknown) => (isStringRecord(v) ? v : {})
+
 function isConfig(v: unknown): v is EventConfig {
-  return (
-    isRecord(v) && typeof v.theme === 'string' && Array.isArray(v.sections) && isRecord(v.palette)
-  )
+  return isRecord(v) && typeof v.theme === 'string' && Array.isArray(v.sections) && isMap(v.palette)
+}
+
+function normalizeConfig(config: EventConfig): EventConfig {
+  return { ...config, palette: asMap(config.palette), fonts: asMap(config.fonts) }
 }
 
 /** Lo que recibe la vista previa: solo mensajes del editor con una forma conocida. */
@@ -127,7 +133,7 @@ export function readToPreview(data: unknown): ToPreview | null {
   switch (data.type) {
     case 'config':
       return isConfig(data.config) && isDisplay(data.display)
-        ? { type: 'config', config: data.config, display: data.display }
+        ? { type: 'config', config: normalizeConfig(data.config), display: data.display }
         : null
     case 'display':
       return isDisplay(data.display) ? { type: 'display', display: data.display } : null

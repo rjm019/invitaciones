@@ -134,9 +134,14 @@ final class InvitationConfigBuilder
             'itinerary' => $this->itinerary($design->first('itinerario')),
             'locations' => $this->locations($design->first('ubicacion'), $media),
             'hotels' => $this->hotels($design->first('hospedaje'), $media),
+            'gifts' => $this->gifts($design->first('mesa_regalos')),
             'assets' => (object) $media,
         ];
 
+        // Sin mesa de regalos, la llave no va (como en el formato anterior).
+        if ($config['gifts'] === null) {
+            unset($config['gifts']);
+        }
         $page = $this->page($design->page, $media);
         if ($page !== []) {
             $config['page'] = $page;
@@ -299,6 +304,8 @@ final class InvitationConfigBuilder
             $overlay = '';
         }
 
+        $edge = $this->choice($f['orilla'] ?? '', Catalog::EDGES, $id, 'orilla');
+
         $desktop = Normalizer::key($f['escritorio'] ?? '');
         if ($desktop !== '' && ! isset(self::DESKTOP[$desktop])) {
             $this->error($id, null, 'escritorio', "'{$desktop}' no existe (usa completo o mitad)");
@@ -328,6 +335,7 @@ final class InvitationConfigBuilder
             'effects' => $effects,
             'visible' => true,
             'desktop' => self::DESKTOP[$desktop] ?? null,
+            'edge' => $edge,
         ], fn ($v) => $v !== null);
 
         $entry['key'] = $id;
@@ -514,7 +522,7 @@ final class InvitationConfigBuilder
     /**
      * @param  array<string, string>  $page
      * @param  array<string, string>  $media
-     * @return array{image?: string, decor?: bool}
+     * @return array<string, string|bool>
      */
     private function page(array $page, array $media): array
     {
@@ -526,8 +534,22 @@ final class InvitationConfigBuilder
         if (trim($page['decoracion'] ?? '') !== '') {
             $out['decor'] = Normalizer::yes($page['decoracion']);
         }
+        if (Normalizer::yes($page['difuminar'] ?? '')) {
+            $out['blend'] = true;
+        }
+        // Detalles de diseño de toda la invitación; vacíos, los pone el tema.
+        $choices = [
+            'edge' => $this->choice($page['orilla'] ?? '', Catalog::EDGES, 'pagina', 'orilla'),
+            'buttons' => $this->choice($page['botones'] ?? '', Catalog::BUTTONS, 'pagina', 'botones'),
+            'corners' => $this->choice($page['esquinas'] ?? '', Catalog::CORNERS, 'pagina', 'esquinas'),
+        ];
+        foreach (['confetti' => 'confeti', 'metal' => 'metalico'] as $key => $field) {
+            if (trim($page[$field] ?? '') !== '') {
+                $out[$key] = Normalizer::yes($page[$field]);
+            }
+        }
 
-        return $out;
+        return [...$out, ...array_filter($choices, fn ($v) => $v !== null)];
     }
 
     /**
@@ -618,6 +640,89 @@ final class InvitationConfigBuilder
         }
 
         return $out;
+    }
+
+    /**
+     * Una opción de diseño (orilla, botones, esquinas): el nombre del CSV → su valor en el
+     * contrato. Vacío: null (lo pone el tema). Uno que no existe se avisa y se ignora.
+     *
+     * @param  array<string, array{value: string, label: string}>  $options
+     */
+    private function choice(string $value, array $options, string $block, string $field): ?string
+    {
+        $key = Normalizer::key($value);
+        if ($key === '') {
+            return null;
+        }
+        if (! isset($options[$key])) {
+            $this->warning($block, null, $field, "'{$key}' no existe (usa ".implode(', ', array_keys($options)).'); se ignoró');
+
+            return null;
+        }
+
+        return $options[$key]['value'];
+    }
+
+    /** Tiendas conocidas de la mesa de regalos: clave → nombre que se ve. */
+    private const GIFT_STORES = [
+        'liverpool' => 'Liverpool',
+        'amazon' => 'Amazon',
+        'palacio' => 'El Palacio de Hierro',
+        'sears' => 'Sears',
+        'costco' => 'Costco',
+        'otra' => '',
+    ];
+
+    /**
+     * Mesa de regalos: las tiendas (con su enlace y su número de evento) y la lluvia de
+     * sobres. Los datos bancarios van completos; EventController (el enlace general) los
+     * quita cuando la sección pide "solo con enlace" (es lo normal), ver GiftPrivacy.
+     *
+     * @return array{stores: list<array<string, string>>, envelope: ?array<string, mixed>}|null
+     */
+    private function gifts(?DesignSection $section): ?array
+    {
+        if ($section === null) {
+            return null;
+        }
+        $stores = [];
+        foreach ($section->items as $i => $item) {
+            $key = Normalizer::key($item['tienda'] ?? '');
+            if ($key !== '' && ! isset(self::GIFT_STORES[$key])) {
+                $this->warning($section->id, $i + 1, 'tienda', "'{$key}' no es una tienda de la lista; se tomó como otra");
+                $key = 'otra';
+            }
+            $name = trim($item['nombre'] ?? '') ?: (self::GIFT_STORES[$key] ?? '');
+            $url = $this->webUrl($item['enlace'] ?? '', $section->id, $i + 1, 'enlace');
+            $number = trim($item['numero_evento'] ?? '');
+            if ($name === '' && $url === '' && $number === '') {
+                continue;
+            }
+            $stores[] = [
+                'store' => $key === '' ? 'other' : ($key === 'otra' ? 'other' : $key),
+                'name' => $name,
+                'note' => trim($item['nota'] ?? ''),
+                'url' => $url,
+                'event_number' => $number,
+            ];
+        }
+
+        $f = $section->fields;
+        $account = preg_replace('/\s+/', '', trim($f['cuenta'] ?? '')) ?? '';
+        $envelope = [
+            'title' => trim($f['sobres_titulo'] ?? ''),
+            'text' => trim($f['sobres_texto'] ?? ''),
+            'bank' => trim($f['banco'] ?? ''),
+            'account' => $account,
+            'holder' => trim($f['titular'] ?? ''),
+            'box' => Normalizer::yes($f['sobre_fisico'] ?? ''),
+            'hidden' => false,
+            // Lo normal: los datos bancarios solo en las invitaciones personales.
+            'private' => trim($f['solo_con_enlace'] ?? '') === '' || Normalizer::yes($f['solo_con_enlace']),
+        ];
+        $hasEnvelope = $envelope['text'] !== '' || $envelope['account'] !== '' || $envelope['box'];
+
+        return ['stores' => $stores, 'envelope' => $hasEnvelope ? $envelope : null];
     }
 
     /** Un enlace va en un botón: solo http(s). Cualquier otra cosa se reporta y se quita. */

@@ -16,6 +16,24 @@ export type EffectName =
   | 'cascade'
   | 'ken-burns'
   | 'color-shift'
+  | 'skyline'
+  | 'searchlights'
+  | 'city-lights'
+  | 'glitter'
+  | 'sheen'
+  | 'pan'
+  | 'blend'
+  | 'disco-ball'
+  | 'disco-lights'
+
+/** Forma de las orillas de una franja (sección difuminada con fondo). */
+export type EdgeStyle = 'fade' | 'torn' | 'city' | 'wave' | 'scallop' | 'straight'
+
+/** Estilo de todos los botones de la invitación (bloque "pagina"). */
+export type ButtonStyle = 'gradient' | 'solid' | 'outline' | 'deco' | 'ticket' | 'neon' | 'link'
+
+/** Esquinas de los paneles. */
+export type CornerStyle = 'deco' | 'none'
 
 export interface SectionBackground {
   /** Nombre de archivo (media del evento o assets del tema) o URL. */
@@ -66,6 +84,8 @@ export interface SectionConfig {
   text_styles?: Record<string, TextStyle>
   /** Imagen propia de la sección (la foto de "foto"). */
   image?: string | null
+  /** Forma de sus orillas, si es franja (si no, la de la página o la del tema). */
+  edge?: EdgeStyle
 }
 
 export interface ItineraryItem {
@@ -81,6 +101,43 @@ export interface EventLocation {
   address: string
   maps_url: string
   photo: string | null
+}
+
+/** Una tienda de la mesa de regalos. */
+export interface GiftStore {
+  /** liverpool, amazon, palacio, sears, costco u other: pone la inicial y el nombre por defecto. */
+  store: string
+  name: string
+  /** "Ver lista de deseos", "Mesa a nombre de…". */
+  note: string
+  url: string
+  /** Número de evento (el de Liverpool), con botón para copiar. */
+  event_number: string
+}
+
+/** Lluvia de sobres. */
+export interface GiftEnvelope {
+  title: string
+  text: string
+  bank: string
+  /** CLABE o tarjeta, tal cual (la invitación la agrupa de 4 en 4). */
+  account: string
+  holder: string
+  /** También habrá caja para sobres en el salón. */
+  box: boolean
+  /**
+   * Los datos bancarios solo van en las invitaciones personales: por el enlace general el
+   * servidor los quita y avisa con esto.
+   */
+  hidden: boolean
+  /** "Solo con enlace": así lo pidió la invitación (lo normal). */
+  private: boolean
+}
+
+/** Mesa de regalos (sección "mesa_regalos"). */
+export interface EventGifts {
+  stores: GiftStore[]
+  envelope: GiftEnvelope | null
 }
 
 /** Hotel recomendado (pestaña "hoteles" del layout). */
@@ -140,10 +197,27 @@ export interface EventConfig {
   itinerary: ItineraryItem[]
   locations: EventLocation[]
   hotels: EventHotel[]
+  /** Mesa de regalos (solo si la invitación la tiene). */
+  gifts?: EventGifts | null
   /** Archivos de eventos/<slug>/media → URL. */
   assets: Record<string, string>
-  /** Papel de la página y adornos que flotan (si la invitación cambia los del tema). */
-  page?: { image?: string; decor?: boolean }
+  /**
+   * Papel de la página y adornos que flotan (si la invitación cambia los del tema), y los
+   * detalles de diseño que se eligen para toda la invitación (vacío: lo que diga el tema):
+   * blend (secciones difuminadas), edge (la orilla de las franjas), buttons (el estilo de
+   * los botones), confetti (el confeti que cae), metal (títulos con brillo de metal) y
+   * corners (las esquinas de los paneles).
+   */
+  page?: {
+    image?: string
+    decor?: boolean
+    blend?: boolean
+    edge?: EdgeStyle
+    buttons?: ButtonStyle
+    confetti?: boolean
+    metal?: boolean
+    corners?: CornerStyle
+  }
   /** Fuentes que usan los estilos de texto de las secciones (se cargan de Google Fonts). */
   extra_fonts?: string[]
 }

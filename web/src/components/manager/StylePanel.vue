@@ -100,6 +100,17 @@ const PLURAL: Record<string, string> = {
 }
 const pageImage = computed(() => theme.value?.page?.image ?? null)
 const decorDef = computed(() => catalog.value.page.find((f) => f.key === 'decoracion')!)
+// Los demás detalles de toda la invitación (secciones difuminadas, división entre secciones,
+// botones, confeti, títulos metálicos, esquinas): vacíos, los pone el tema.
+const designDefs = computed(() =>
+  catalog.value.page.filter((f) => f.key !== 'fondo' && f.key !== 'decoracion'),
+)
+function pageValue(key: string, input: string): string {
+  return design.value.page[key] ?? (input === 'toggle' ? 'NO' : '')
+}
+function setPage(key: string, input: string, value: string): void {
+  setBlock('page', key, input === 'toggle' && value === 'NO' ? '' : value)
+}
 const themeDef = computed(() => catalog.value.event_groups[0].fields.find((f) => f.key === 'tema')!)
 </script>
 
@@ -312,6 +323,13 @@ const themeDef = computed(() => catalog.value.event_groups[0].fields.find((f) =>
           :def="decorDef"
           :model-value="design.page.decoracion ?? 'SI'"
           @update:model-value="(v) => setBlock('page', 'decoracion', v === 'SI' ? '' : v)"
+        />
+        <FieldInput
+          v-for="def in designDefs"
+          :key="def.key"
+          :def="def"
+          :model-value="pageValue(def.key, def.input)"
+          @update:model-value="(v) => setPage(def.key, def.input, v)"
         />
       </section>
     </div>

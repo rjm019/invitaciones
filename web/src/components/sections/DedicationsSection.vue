@@ -110,7 +110,12 @@ async function send() {
       />
       <p v-if="errors.message" class="dedication__error">{{ errors.message }}</p>
 
-      <button type="submit" class="dedication__submit" data-text="button" :disabled="sending">
+      <button
+        type="submit"
+        class="dedication__submit inv-btn"
+        data-text="button"
+        :disabled="sending"
+      >
         {{ sending ? 'Enviando…' : button }}
       </button>
       <p class="dedication__note">Puedes enviar una dedicatoria por invitación.</p>
@@ -190,16 +195,19 @@ async function send() {
 .dedication__submit {
   min-height: 3.2rem;
   margin-top: 0.3rem;
-  border: 0;
-  border-radius: 6px;
-  background: var(--button-gradient);
-  color: var(--t-button-color, var(--color-surface));
+  border: var(--btn-border, 0);
+  border-radius: var(--btn-radius, 6px);
+  background: var(--btn-bg, var(--button-gradient));
+  color: var(--t-button-color, var(--btn-color, var(--color-surface)));
   font-family: var(--t-button-font, var(--font-display));
   font-weight: 700;
   font-size: calc(1.15rem * var(--t-button-size, 1));
-  letter-spacing: 0.04em;
-  box-shadow: var(--shadow-button, none);
+  letter-spacing: var(--btn-tracking, 0.04em);
+  box-shadow: var(--btn-shadow, var(--shadow-button, none));
   cursor: pointer;
+  text-transform: var(--btn-case, none);
+  clip-path: var(--btn-clip, none);
+  text-shadow: var(--btn-glow, none);
 }
 .dedication__submit:disabled {
   opacity: 0.6;
