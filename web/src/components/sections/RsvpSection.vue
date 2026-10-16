@@ -54,7 +54,7 @@ const showHint = ref(false)
             <p v-if="!isOpen" class="rsvp__closed">Confirmaciones cerradas</p>
             <a
               v-else-if="whatsappUrl"
-              class="rsvp__button"
+              class="rsvp__button inv-btn"
               data-text="button"
               :href="whatsappUrl"
               target="_blank"
@@ -65,7 +65,7 @@ const showHint = ref(false)
             <button
               v-else
               type="button"
-              class="rsvp__button"
+              class="rsvp__button inv-btn"
               data-text="button"
               @click="showHint = true"
             >
@@ -155,17 +155,24 @@ const showHint = ref(false)
   display: inline-block;
   margin-top: 0.8rem;
   padding: 0.25rem 0.8rem;
-  border: 0;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-primary-soft) 45%, var(--color-surface));
-  color: var(--t-button-color, var(--color-primary));
+  border: var(--btn-border, 0);
+  border-radius: var(--btn-radius, 999px);
+  background: var(
+    --btn-bg,
+    color-mix(in srgb, var(--color-primary-soft) 45%, var(--color-surface))
+  );
+  color: var(--t-button-color, var(--btn-color, var(--color-primary)));
   font-family: var(--t-button-font, var(--font-display));
   font-weight: 700;
   font-size: calc(clamp(1rem, 4.8cqi, 1.2rem) * var(--t-button-size, 1));
-  text-decoration: underline;
+  text-decoration: var(--btn-decoration, underline);
   text-underline-offset: 0.15em;
   cursor: pointer;
-  box-shadow: var(--shadow-button, none);
+  box-shadow: var(--btn-shadow, var(--shadow-button, none));
+  text-transform: var(--btn-case, none);
+  letter-spacing: var(--btn-tracking, normal);
+  clip-path: var(--btn-clip, none);
+  text-shadow: var(--btn-glow, none);
 }
 .rsvp__button:focus-visible {
   outline: 2px solid var(--color-primary);

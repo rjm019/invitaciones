@@ -34,6 +34,16 @@ import dropletSvg from '@fortawesome/fontawesome-free/svgs/solid/droplet.svg?raw
 import spotifySvg from '@fortawesome/fontawesome-free/svgs/brands/spotify.svg?raw'
 import bedSvg from '@fortawesome/fontawesome-free/svgs/solid/bed.svg?raw'
 import phoneSvg from '@fortawesome/fontawesome-free/svgs/solid/phone.svg?raw'
+import taxiSvg from '@fortawesome/fontawesome-free/svgs/solid/taxi.svg?raw'
+import envelopeSvg from '@fortawesome/fontawesome-free/svgs/regular/envelope.svg?raw'
+import copySvg from '@fortawesome/fontawesome-free/svgs/regular/copy.svg?raw'
+import bagSvg from '@fortawesome/fontawesome-free/svgs/solid/bag-shopping.svg?raw'
+import martiniSvg from '@fortawesome/fontawesome-free/svgs/solid/martini-glass-citrus.svg?raw'
+import citySvg from '@fortawesome/fontawesome-free/svgs/solid/city.svg?raw'
+import statueSvg from '@/assets/icons/statue-of-liberty.svg?raw'
+import bridgeSvg from '@/assets/icons/brooklyn-bridge.svg?raw'
+import empireSvg from '@/assets/icons/empire-state.svg?raw'
+import discoBallSvg from '@/assets/icons/disco-ball.svg?raw'
 import { useEvent } from '@/composables/useEvent'
 
 /**
@@ -78,6 +88,17 @@ const ICONS: Record<string, string> = {
   spotify: spotifySvg,
   bed: bedSvg,
   phone: phoneSvg,
+  taxi: taxiSvg,
+  envelope: envelopeSvg,
+  copy: copySvg,
+  'bag-shopping': bagSvg,
+  'martini-glass-citrus': martiniSvg,
+  city: citySvg,
+  // Propios (src/assets/icons): Nueva York y la fiesta.
+  'statue-of-liberty': statueSvg,
+  'brooklyn-bridge': bridgeSvg,
+  'empire-state': empireSvg,
+  'disco-ball': discoBallSvg,
 }
 
 const { resolveAsset } = useEvent()
@@ -95,7 +116,7 @@ const svg = computed(() => (props.name ? (ICONS[props.name] ?? '') : ''))
     class="app-icon app-icon--image"
     loading="lazy"
   />
-  <!-- SVG de Font Awesome Free (CC BY 4.0), estático y empaquetado: seguro para v-html -->
+  <!-- SVG de Font Awesome Free (CC BY 4.0) o propios, estáticos y empaquetados: seguros para v-html -->
   <span
     v-else-if="svg"
     class="app-icon app-icon--svg"

@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="60" viewBox="0 0 120 60">
+  <!-- Orilla de abajo en festón: lo opaco es la franja (máscara: solo importa la forma) -->
+  <path d="M0 0V30A30 30 0 0 0 60 30A30 30 0 0 0 120 30V0Z"/>
+</svg>

@@ -41,6 +41,7 @@ function fakeContext({ spacing = true } = {}) {
   const texts: { text: string; font: string; x: number }[] = []
   const images: unknown[] = []
   const dots: string[] = []
+  const fills: unknown[] = []
   let strokes = 0
   const ctx: Record<string, unknown> = {
     font: '',
@@ -64,7 +65,9 @@ function fakeContext({ spacing = true } = {}) {
       dots.push(this.fillStyle as string)
     },
     closePath() {},
-    fill() {},
+    fill() {
+      fills.push(this.fillStyle)
+    },
     stroke() {
       strokes++
     },
@@ -82,7 +85,14 @@ function fakeContext({ spacing = true } = {}) {
     },
   }
   if (spacing) ctx.letterSpacing = '0px'
-  return { ctx: ctx as unknown as CardContext, texts, images, dots, strokes: () => strokes }
+  return {
+    ctx: ctx as unknown as CardContext,
+    texts,
+    images,
+    dots,
+    fills,
+    strokes: () => strokes,
+  }
 }
 
 const style: CardStyle = {
@@ -169,6 +179,13 @@ describe('shareCardService', () => {
     expect(texts.find((t) => t.text === 'Familia Pérez')?.font).toContain('"Pinyon Script"')
   })
 
+  it('un nombre con acento en mayúscula va un poco más chico (la tilde no toca la frase)', () => {
+    const { ctx, texts } = fakeContext()
+    const sofia = { ...brand, celebrant: { full_name: 'Sofía', short_name: 'Sofía' } }
+    drawShareCard(ctx, { qr }, shareCardText(sofia, invitation), style)
+    expect(texts.find((t) => t.text === 'SOFÍA')?.font).toContain('215px')
+  })
+
   it('sin nombre en la invitación, el sobre dice "Tu invitación"', () => {
     const { ctx, texts } = fakeContext()
     drawShareCard(ctx, { qr }, shareCardText(brand, { ...invitation, label: null }), style)
@@ -203,6 +220,22 @@ describe('shareCardService', () => {
     expect(dots).toHaveLength(21 * 21 - 3 * 49)
     expect(new Set(dots)).toEqual(new Set(['#4a7194']))
     expect(strokes()).toBe(3) // el marco de cada esquina
+  })
+
+  it('en una invitación oscura el QR va en una placa clara, con puntos del color del fondo', () => {
+    const dark = cardStyle({ bg: '#0b0b0c', text: '#f3f3f1', 'primary-soft': '#f4f5f7' }, {})
+    expect(dark.dark).toBe(true)
+    expect(cardStyle({ bg: '#f3f1ec' }, {}).dark).toBe(false)
+
+    const { ctx, dots, fills } = fakeContext()
+    drawQr(ctx, qr, 0, 0, 210, '#0b0b0c', '#f4f5f7')
+    expect(fills[0]).toBe('#f4f5f7') // la placa, antes que los puntos
+    expect(new Set(dots)).toEqual(new Set(['#0b0b0c']))
+
+    const card = fakeContext()
+    drawShareCard(card.ctx, { qr }, shareCardText(brand, invitation), dark)
+    expect(card.fills).toContain('#f4f5f7')
+    expect(new Set(card.dots)).toEqual(new Set(['#0b0b0c']))
   })
 
   it('un nombre largo va en dos renglones parejos; uno corto, en uno', () => {

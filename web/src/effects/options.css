@@ -1,0 +1,105 @@
+/*
+ * Detalles de diseño que se encienden por invitación (bloque "pagina") o los pone el tema
+ * por defecto (manifest): InvitationRenderer los marca en .invitation con data-*.
+ * - data-corners="deco": esquinas escalonadas art déco en los paneles, y marco déco en el
+ *   clima y la playlist.
+ * - data-metal: títulos, nombre, fecha y números con brillo de metal.
+ */
+
+/* Esquinas escalonadas, por dentro del filo del panel (como el marco de una puerta déco). */
+.invitation[data-corners='deco'] .section--panel::before {
+  content: '';
+  position: absolute;
+  inset: 0.4rem;
+  z-index: 1;
+  background: color-mix(in srgb, var(--color-primary) 85%, transparent);
+  -webkit-mask:
+    var(--deco-corner-tl) top left / 2.4rem no-repeat,
+    var(--deco-corner-tr) top right / 2.4rem no-repeat,
+    var(--deco-corner-bl) bottom left / 2.4rem no-repeat,
+    var(--deco-corner-br) bottom right / 2.4rem no-repeat;
+  mask:
+    var(--deco-corner-tl) top left / 2.4rem no-repeat,
+    var(--deco-corner-tr) top right / 2.4rem no-repeat,
+    var(--deco-corner-bl) bottom left / 2.4rem no-repeat,
+    var(--deco-corner-br) bottom right / 2.4rem no-repeat;
+  pointer-events: none;
+}
+
+/*
+ * Con esquinas déco, el clima y la playlist también: marco de doble filo con las esquinas
+ * escalonadas; el clima, como el boletín de una estación de radio de los años 30 (la
+ * temperatura grande y las horas en fila, separadas por filetes).
+ */
+.invitation[data-corners='deco']
+  :is(.section--weather .weather__card, .section--spotify .playlist__player) {
+  position: relative;
+  border-radius: 0;
+}
+.invitation[data-corners='deco'] .section--weather .weather__card {
+  border: 1px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--color-primary) 25%, transparent);
+  outline-offset: 4px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-primary) 10%, var(--color-surface)),
+    var(--color-surface)
+  );
+}
+.invitation[data-corners='deco'] .section--weather .weather__card::before {
+  content: '';
+  position: absolute;
+  inset: 0.35rem;
+  background: color-mix(in srgb, var(--color-primary) 80%, transparent);
+  -webkit-mask:
+    var(--deco-corner-tl) top left / 1.8rem no-repeat,
+    var(--deco-corner-tr) top right / 1.8rem no-repeat,
+    var(--deco-corner-bl) bottom left / 1.8rem no-repeat,
+    var(--deco-corner-br) bottom right / 1.8rem no-repeat;
+  mask:
+    var(--deco-corner-tl) top left / 1.8rem no-repeat,
+    var(--deco-corner-tr) top right / 1.8rem no-repeat,
+    var(--deco-corner-bl) bottom left / 1.8rem no-repeat,
+    var(--deco-corner-br) bottom right / 1.8rem no-repeat;
+  pointer-events: none;
+}
+.invitation[data-corners='deco'] .section--weather .weather__temps {
+  font-family: var(--t-data-font, var(--font-display));
+}
+.invitation[data-corners='deco'] .section--weather .weather__hours {
+  border-top: 1px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
+}
+.invitation[data-corners='deco'] .section--weather .weather__hour + .weather__hour {
+  border-left: 1px solid color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+.invitation[data-corners='deco'] .section--spotify .playlist__player {
+  border-radius: 0.2rem;
+  outline: 1px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
+  outline-offset: 6px;
+}
+
+/*
+ * Títulos, el nombre, la fecha y los números con brillo de metal: un degradado (claro,
+ * su color, una franja oscura y otra vez claro) hecho desde el color de cada texto, así
+ * respeta el que se elija en el gestor. Solo en textos sin elementos adentro (el efecto
+ * "escribir" anima cada letra por separado).
+ */
+.invitation[data-metal]
+  :is([data-text='title'], [data-text='name'], [data-text='date'], [data-text='digits']):not(
+    :has(*)
+  ) {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, currentColor 40%, #fff) 0%,
+    currentColor 40%,
+    color-mix(in srgb, currentColor 72%, #000) 58%,
+    color-mix(in srgb, currentColor 78%, #fff) 82%,
+    currentColor 100%
+  );
+  background-size: 100% 1.15em;
+  background-repeat: repeat-y;
+  background-position: center;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

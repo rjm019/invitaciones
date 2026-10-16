@@ -52,9 +52,15 @@ const name = computed(
 )
 // En un enlace personal, el sobre lleva el nombre que el dueño le puso a la invitación.
 const family = computed(() => invitation?.invitation.value?.label ?? null)
-const cardStyle = computed(() =>
-  decor.value.card ? { backgroundImage: `url("${decor.value.card}")` } : {},
+// La palabra más larga del nombre fija un tope a la letra: "Valentina" se achica para
+// caber en la tarjeta en vez de partirse; "Nat" no cambia.
+const longestWord = computed(() =>
+  Math.max(1, ...name.value.split(/\s+/).map((w) => Array.from(w).length)),
 )
+const cardStyle = computed(() => ({
+  ...(decor.value.card ? { backgroundImage: `url("${decor.value.card}")` } : {}),
+  '--hero-name-chars': String(longestWord.value),
+}))
 
 let timer: ReturnType<typeof setTimeout> | undefined
 function open() {
@@ -250,10 +256,14 @@ onBeforeUnmount(() => clearTimeout(timer))
   margin: 0;
   font-family: var(--t-name-font, var(--font-script));
   font-weight: 400;
-  font-size: calc(clamp(2.5rem, 40cqi, 10rem) * var(--t-name-size, 1));
+  /* Nombres largos: la palabra más larga cabe en la tarjeta (unas 0.45 em por letra). */
+  font-size: min(
+    calc(clamp(2.5rem, 40cqi, 10rem) * var(--t-name-size, 1)),
+    calc(190cqi / var(--hero-name-chars, 1))
+  );
   line-height: 1;
   color: var(--t-name-color, var(--color-primary));
-  /* Nombres largos (12 letras): se achican en vez de cortarse */
+  /* Y si aun así no cabe (una letra muy ancha), se parte antes que salirse */
   max-width: 100%;
   overflow-wrap: anywhere;
 }

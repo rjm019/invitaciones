@@ -21,7 +21,7 @@
 
 Devuelve el evento y la invitación (para cuántas personas es y quiénes ya están). Registra la apertura en `aperturas.csv`.
 
-`event` es el mismo objeto que `GET /public/events/{slug}` (el config completo, plano: ver `web/src/types/event.ts`).
+`event` es el mismo objeto que `GET /public/events/{slug}` (el config completo, plano: ver `web/src/types/event.ts`), con una diferencia: aquí la mesa de regalos lleva los datos bancarios de la lluvia de sobres (`gifts.envelope.bank`, `account`, `holder`). El enlace general los recibe vacíos y con `hidden: true` si la sección pide `solo_con_enlace` (lo normal; `GiftPrivacy`).
 
 ```json
 {
@@ -77,7 +77,7 @@ Devuelve el evento y la invitación (para cuántas personas es y quiénes ya est
 
 ### `GET /public/events/{slug}` (modo abierto, sin pases)
 
-Devuelve solo `event`. Si `config.rsvp.mode = "open"`, también existe `POST /public/events/{slug}/rsvp` con `{ family_name, guests[], song, message }`, protegido con throttle y honeypot.
+Devuelve solo `event` (sin los datos bancarios "solo con enlace" de `gifts.envelope`; la página `/e/{slug}` ya precargada, igual). Si `config.rsvp.mode = "open"`, también existe `POST /public/events/{slug}/rsvp` con `{ family_name, guests[], song, message }`, protegido con throttle y honeypot.
 
 ### `GET /public/events/{slug}/weather`
 

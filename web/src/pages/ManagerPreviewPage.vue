@@ -32,6 +32,7 @@ const PALETTE = [
   'panel',
   'panel-alt',
   'panel-warm',
+  'paper',
 ]
 const FONTS = ['script', 'script-mono', 'serif', 'caps', 'display', 'button', 'engraved']
 
@@ -289,6 +290,10 @@ onBeforeUnmount(() => {
 .is-picking body,
 .is-picking body * {
   cursor: pointer !important;
+}
+/* Un toque en Spotify (otro sitio, no lo escuchamos) también elige su sección. */
+.is-picking iframe {
+  pointer-events: none;
 }
 .preview-waiting {
   margin: 30vh auto 0;

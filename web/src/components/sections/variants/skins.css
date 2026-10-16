@@ -1,0 +1,202 @@
+/*
+ * Diseños alternos que son solo piel (CSS) sobre el componente de siempre, para cualquier
+ * tema: la confirmación "pase" (pase VIP) y la dedicatoria "postal" (correo aéreo).
+ * SectionShell pone section--<tipo>--<variante>; el ".section" de adelante les da más peso
+ * que al estilo del componente.
+ */
+/*
+ * Confirmación "pase": un pase VIP colgado de su cinta, con la ranura arriba. Adentro, la
+ * paleta de la página aunque la sección cambie la suya (en una franja de papel, por
+ * ejemplo): ver .page-palette en tokens.css.
+ */
+/* El espacio de la cinta es relleno del contenedor (un margen de la tarjeta se saldría de él). */
+.section.section--rsvp--pase .rsvp__oval {
+  padding-top: 3.2rem;
+}
+.section.section--rsvp--pase .rsvp__card {
+  /* El pase siempre es oscuro: la letra va en el color "de noche" (también en temas claros). */
+  --color-text: var(--color-on-night);
+  color: var(--color-text);
+  max-width: 19rem;
+  margin: 0 auto;
+  padding-top: 1.6rem;
+  border-radius: 1rem;
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--root-primary) 18%, #000) 0%,
+    #000 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px var(--root-primary),
+    inset 0 0 0 0.45rem #000,
+    inset 0 0 0 calc(0.45rem + 1px) color-mix(in srgb, var(--root-primary) 35%, transparent),
+    0 1.3rem 2.4rem rgb(0 0 0 / 0.5);
+}
+/* La ranura del pase y la cinta que lo cuelga (rayas plata y negro). */
+.section.section--rsvp--pase .rsvp__card::before,
+.section.section--rsvp--pase .rsvp__oval::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+}
+.section.section--rsvp--pase .rsvp__card::before {
+  top: 0.95rem;
+  width: 3.2rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: #000;
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / 0.8),
+    0 0 0 1px var(--root-primary);
+}
+/* La cinta va en el contenedor: se pinta antes que el pase y queda detrás de él. */
+.section.section--rsvp--pase .rsvp__oval::before {
+  top: 0;
+  width: 2rem;
+  height: 4.4rem;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--root-primary-strong) 0 0.25rem,
+    #111 0.25rem 0.5rem
+  );
+  clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 100%);
+}
+.section.section--rsvp--pase .rsvp__body {
+  padding: 1.6rem 1.4rem 1.6rem;
+}
+.section.section--rsvp--pase .rsvp__subtitle {
+  font-family: var(--t-subtitle-font, var(--font-caps));
+  letter-spacing: 0.18em;
+  color: var(--t-subtitle-color, var(--color-on-night));
+}
+.section.section--rsvp--pase .rsvp__deadline {
+  margin-top: 0.9rem;
+  padding: 0.35rem 0.8rem;
+  border-top: 1px solid color-mix(in srgb, var(--root-primary) 45%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--root-primary) 45%, transparent);
+  font-family: var(--t-deadline-font, var(--font-caps));
+  font-weight: 500;
+  color: var(--t-deadline-color, var(--root-primary-soft));
+}
+.section.section--rsvp--pase .rsvp__button {
+  margin-top: 1.1rem;
+  padding: 0.65rem 1.5rem;
+  background: var(--btn-bg, var(--button-gradient));
+  color: var(--t-button-color, var(--btn-color, var(--color-on-button)));
+  font-family: var(--t-button-font, var(--font-button));
+  font-size: calc(0.9rem * var(--t-button-size, 1));
+  letter-spacing: var(--btn-tracking, 0.16em);
+  text-decoration: var(--btn-decoration, none);
+  text-transform: var(--btn-case, uppercase);
+  border: var(--btn-border, 0);
+  border-radius: var(--btn-radius, 0);
+  box-shadow: var(--btn-shadow, none);
+  clip-path: var(--btn-clip, none);
+  text-shadow: var(--btn-glow, none);
+}
+
+/*
+ * Dedicatoria "postal": una postal de correo aéreo (orilla de rayas), con su timbre de la
+ * Estatua de la Libertad y renglones para escribir. En papel claro (el color "papel") y
+ * tinta, aunque la sección sea de noche.
+ */
+.section.section--dedications--postal .dedication {
+  --color-text: #17181b;
+  --color-primary: #33363c;
+  --color-primary-strong: #16171a;
+  --color-primary-soft: #8d929a;
+  --color-surface: transparent;
+  --button-gradient: linear-gradient(180deg, #5b5f66 0%, #2b2d32 55%, #16171a 100%);
+  position: relative;
+  max-width: 25rem;
+  padding: 1.7rem 1.5rem 1.5rem;
+  border: 0.6rem solid transparent;
+  border-image: repeating-linear-gradient(
+      135deg,
+      #16171a 0 0.8rem,
+      var(--color-paper) 0.8rem 1.25rem,
+      var(--root-primary) 1.25rem 2.05rem,
+      var(--color-paper) 2.05rem 2.5rem
+    )
+    12;
+  background:
+    url('../../../themes/_shared/assets/grano.svg') 0 0 / 240px,
+    var(--color-paper);
+  color: var(--color-text);
+  text-align: start;
+  justify-items: start;
+  box-shadow: 0 1.2rem 2.4rem rgb(0 0 0 / 0.45);
+}
+/* El timbre: orilla dentada y la estatua; encima, el matasellos. */
+.section.section--dedications--postal .dedication::before,
+.section.section--dedications--postal .dedication::after {
+  content: '';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 3.3rem;
+  height: 4.1rem;
+}
+.section.section--dedications--postal .dedication::before {
+  background: #16171a;
+  -webkit-mask:
+    radial-gradient(circle, transparent 0.16rem, #000 0.18rem) -0.27rem -0.27rem / 0.55rem 0.55rem
+      round,
+    linear-gradient(#000 0 0) center / calc(100% - 0.55rem) calc(100% - 0.55rem) no-repeat;
+  mask:
+    radial-gradient(circle, transparent 0.16rem, #000 0.18rem) -0.27rem -0.27rem / 0.55rem 0.55rem
+      round,
+    linear-gradient(#000 0 0) center / calc(100% - 0.55rem) calc(100% - 0.55rem) no-repeat;
+}
+.section.section--dedications--postal .dedication::after {
+  background: var(--root-primary);
+  -webkit-mask: url('../../../themes/_shared/assets/estatua.svg') center 70% / auto 78% no-repeat;
+  mask: url('../../../themes/_shared/assets/estatua.svg') center 70% / auto 78% no-repeat;
+}
+.section.section--dedications--postal .dedication__divider {
+  display: none;
+}
+.section.section--dedications--postal .dedication__title {
+  padding-right: 4rem;
+  font-family: var(--t-title-font, var(--font-script));
+  font-size: calc(clamp(2.1rem, 10cqi, 2.8rem) * var(--t-title-size, 1));
+  letter-spacing: 0;
+  text-transform: none;
+}
+.section.section--dedications--postal .dedication__text {
+  padding-right: 4rem;
+  color: var(--t-text-color, var(--color-primary));
+}
+.section.section--dedications--postal .dedication__field {
+  min-height: 2.6rem;
+  padding: 0.3rem 0.1rem;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
+  border-radius: 0;
+  background: transparent;
+}
+/* El mensaje en renglones, como se escribe en una postal. */
+.section.section--dedications--postal .dedication__field--message {
+  min-height: 8rem;
+  border-bottom: 0;
+  line-height: 2rem;
+  background: repeating-linear-gradient(
+    transparent 0 calc(2rem - 1px),
+    color-mix(in srgb, var(--color-primary) 40%, transparent) calc(2rem - 1px) 2rem
+  );
+  background-attachment: local;
+}
+.section.section--dedications--postal .dedication__submit {
+  justify-self: stretch;
+  border-radius: var(--btn-radius, 999px);
+  color: var(--t-button-color, var(--btn-color, #f6f5f2));
+  font-family: var(--t-button-font, var(--font-button));
+  font-size: calc(0.95rem * var(--t-button-size, 1));
+  letter-spacing: var(--btn-tracking, 0.18em);
+  text-transform: var(--btn-case, uppercase);
+  border: var(--btn-border, 0);
+  box-shadow: var(--btn-shadow, none);
+  clip-path: var(--btn-clip, none);
+  text-shadow: var(--btn-glow, none);
+}

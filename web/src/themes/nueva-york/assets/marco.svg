@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="1395" viewBox="0 0 920 1395">
+  <!-- Marco en arco art déco (920×1395, como el del tema base): fondo negro con un sol de
+       rayos que sale de abajo, doble filo plateado y remate escalonado. -->
+  <defs>
+    <linearGradient id="plata" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8a9099"/>
+      <stop offset="0.35" stop-color="#eef0f2"/>
+      <stop offset="0.55" stop-color="#a7adb5"/>
+      <stop offset="0.8" stop-color="#e2e5e9"/>
+      <stop offset="1" stop-color="#9aa0a8"/>
+    </linearGradient>
+    <linearGradient id="noche" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d1e22"/>
+      <stop offset="1" stop-color="#0b0b0c"/>
+    </linearGradient>
+    <clipPath id="dentro"><path d="M94 1395V500A366 366 0 0 1 826 500V1395Z"/></clipPath>
+  </defs>
+  <path d="M60 1395V500A400 400 0 0 1 860 500V1395Z" fill="url(#noche)"/>
+  <g clip-path="url(#dentro)">
+    <path d="M460 1395L-837 1306.3M460 1395L-812.8 1130.5M460 1395L-764.9 959.7M460 1395L-694.3 796.9M460 1395L-602.1 645.3M460 1395L-490.1 507.7M460 1395L-360.4 386.6M460 1395L-215.5 284.3M460 1395L-57.9 202.6M460 1395L109.3 143.2M460 1395L283 107.1M460 1395L460 95M460 1395L637 107.1M460 1395L810.7 143.2M460 1395L977.9 202.6M460 1395L1135.5 284.3M460 1395L1280.4 386.6M460 1395L1410.1 507.7M460 1395L1522.1 645.3M460 1395L1614.3 796.9M460 1395L1684.9 959.7M460 1395L1732.8 1130.5M460 1395L1757 1306.3" stroke="#c4c8ce" stroke-width="2.4" stroke-opacity="0.22"/>
+  </g>
+  <path d="M60 1395V500A400 400 0 0 1 860 500V1395" fill="none" stroke="url(#plata)" stroke-width="12"/>
+  <path d="M84 1395V500A376 376 0 0 1 836 500V1395" fill="none" stroke="#c4c8ce" stroke-width="3"/>
+  <path d="M410 108V84H430V68H446V52H474V68H490V84H510V108" fill="url(#plata)"/>
+  <path d="M46 1395V540H62 M874 1395V540H858" fill="none" stroke="url(#plata)" stroke-width="6"/>
+</svg>

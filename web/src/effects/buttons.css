@@ -1,0 +1,116 @@
+/*
+ * Estilos de botón de toda la invitación (bloque "pagina" → botones, o el que pone el
+ * tema): InvitationRenderer marca .invitation con data-buttons. Cada estilo solo declara
+ * variables --btn-* en los botones (.inv-btn: así toman los colores de su sección, por
+ * ejemplo la tinta de una franja de papel); las reglas de cada botón las leen y, si no hay
+ * estilo elegido, usan su aspecto de siempre (una invitación que no elige nada no cambia).
+ * El color que se elija en el gestor para el texto del botón (--t-button-color) gana.
+ *
+ * Variables: --btn-bg, --btn-color, --btn-border, --btn-radius, --btn-shadow, --btn-case
+ * (text-transform), --btn-tracking (letter-spacing), --btn-decoration, --btn-clip
+ * (clip-path, para formas como el boleto) y --btn-glow (text-shadow).
+ */
+
+/* Degradado metálico: el del tema (dorado, plateado…), en píldora. */
+.invitation[data-buttons='gradient'] .inv-btn {
+  --btn-bg: var(--button-gradient);
+  --btn-color: var(--color-on-button, var(--color-surface));
+  --btn-border: 0;
+  --btn-radius: 999px;
+  --btn-shadow: var(--shadow-button);
+  --btn-decoration: none;
+  --btn-clip: none;
+  --btn-glow: none;
+}
+
+/* Sólido: un solo color, sin brillo. */
+.invitation[data-buttons='solid'] .inv-btn {
+  --btn-bg: var(--color-primary);
+  --btn-color: var(--color-on-button, var(--color-bg));
+  --btn-border: 0;
+  --btn-radius: 999px;
+  --btn-shadow: none;
+  --btn-decoration: none;
+  --btn-clip: none;
+  --btn-glow: none;
+}
+
+/* Contorno: solo el filo y la letra del color principal. */
+.invitation[data-buttons='outline'] .inv-btn {
+  --btn-bg: transparent;
+  --btn-color: var(--color-primary);
+  --btn-border: 1.5px solid var(--color-primary);
+  --btn-radius: 999px;
+  --btn-shadow: none;
+  --btn-decoration: none;
+  --btn-clip: none;
+  --btn-glow: none;
+}
+
+/* Art déco: rectángulo de doble filo, mayúsculas muy espaciadas. */
+.invitation[data-buttons='deco'] .inv-btn {
+  --btn-bg: transparent;
+  --btn-color: var(--color-primary);
+  --btn-border: 1px solid var(--color-primary);
+  --btn-radius: 0;
+  --btn-shadow:
+    inset 0 0 0 3px var(--color-bg),
+    inset 0 0 0 4px color-mix(in srgb, var(--color-primary) 55%, transparent);
+  --btn-case: uppercase;
+  --btn-tracking: 0.24em;
+  --btn-decoration: none;
+  --btn-clip: none;
+  --btn-glow: none;
+}
+
+/* Boleto: el degradado del tema con muescas a los lados, como un boleto de teatro. */
+.invitation[data-buttons='ticket'] .inv-btn {
+  --btn-bg: var(--button-gradient);
+  --btn-color: var(--color-on-button, var(--color-surface));
+  --btn-border: 0;
+  --btn-radius: 0.2rem;
+  --btn-shadow: none;
+  --btn-case: uppercase;
+  --btn-tracking: 0.18em;
+  --btn-decoration: none;
+  --btn-clip: polygon(
+    0 0,
+    100% 0,
+    100% 32%,
+    calc(100% - 0.5rem) 50%,
+    100% 68%,
+    100% 100%,
+    0 100%,
+    0 68%,
+    0.5rem 50%,
+    0 32%
+  );
+  --btn-glow: none;
+}
+
+/* Neón: filo y letra que brillan, como un letrero de Times Square. */
+.invitation[data-buttons='neon'] .inv-btn {
+  --btn-bg: transparent;
+  --btn-color: color-mix(in srgb, var(--color-primary-soft) 40%, #fff);
+  --btn-border: 1.5px solid color-mix(in srgb, var(--color-primary-soft) 85%, #fff);
+  --btn-radius: 999px;
+  --btn-shadow:
+    0 0 0.45rem color-mix(in srgb, var(--color-primary-soft) 75%, transparent),
+    0 0 1.3rem color-mix(in srgb, var(--color-primary-soft) 40%, transparent),
+    inset 0 0 0.6rem color-mix(in srgb, var(--color-primary-soft) 35%, transparent);
+  --btn-decoration: none;
+  --btn-clip: none;
+  --btn-glow: 0 0 0.5em color-mix(in srgb, var(--color-primary-soft) 80%, transparent);
+}
+
+/* Texto: un enlace subrayado, sin caja. */
+.invitation[data-buttons='link'] .inv-btn {
+  --btn-bg: transparent;
+  --btn-color: var(--color-primary);
+  --btn-border: 0;
+  --btn-radius: 0;
+  --btn-shadow: none;
+  --btn-decoration: underline;
+  --btn-clip: none;
+  --btn-glow: none;
+}

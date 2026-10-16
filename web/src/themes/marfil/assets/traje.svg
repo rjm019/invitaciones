@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 220">
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="220" viewBox="0 0 120 220">
   <!-- Traje con corbata en un gancho, línea fina. -->
   <g fill="none" stroke="#a88f68" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
     <path d="M60 10 C60 4 66 4 66 9 C66 13 60 14 60 18"/>

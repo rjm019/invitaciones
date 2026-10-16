@@ -1,6 +1,6 @@
 # Avance y cambios contra el plan
 
-**Actualizado:** 15-oct-2026. **Ramas:** `main` (el motor, en `origin/main` desde `d2915da`) y `feature/gestor-plantillas` (el gestor y el formato nuevo, sin push ni merge: espera tu revisión).
+**Actualizado:** 16-oct-2026. **Ramas:** `main` (el motor, en `origin/main` desde `d2915da`) y `feature/gestor-plantillas` (el gestor y el formato nuevo, sin push ni merge: espera tu revisión).
 
 Este archivo dice **qué se hizo, qué cambió contra el plan original y qué falta**. Las fases de `04-fases/` tienen sus casillas marcadas con la misma información. Las dudas abiertas están en `08-decisiones-pendientes.md`.
 
@@ -13,6 +13,10 @@ El cambio más grande contra el plan: **no hay base de datos**. Todo vive en arc
 **Nuevo (14-oct, rama `feature/gestor-plantillas`):** el **gestor** (`/gestor`), un editor visual para armar invitaciones y plantillas con la invitación a la vista, con una cuenta por persona, y el formato `invitacion.csv`, que reemplaza a `layout.xlsx`. NAT local ya está migrado; producción sigue igual hasta que corras el runbook. Detalle en `04-fases/fase-8-gestor-de-plantillas.md`. El 15-oct, el gestor pasó a darle al servidor dos tercios menos de trabajo (−66 %) con la mitad de las peticiones, y los textos se ven al instante en la vista previa.
 
 **Nuevo (15-oct, rama `feature/landing-y-secciones`):** plan de las fases 9 (secciones nuevas) y 10 (landing con cotización y 3 demos). Hecho el paso 1 de la fase 10: la landing en `/` (inicio, boda, XV años, graduación y aviso de privacidad; SEO/AEO con JSON-LD, `sitemap.xml` y `llms.txt`) y las cotizaciones (formulario → `eventos/_gestor/cotizaciones.csv`, aviso por correo y la ventana "Cotizaciones" del gestor). Paso 2 también hecho: el tema neutro `marfil` (dibujos de línea, sin fotos), el tipo graduación y las 3 muestras (`deploy/demos/`, con `demo=SI`: no guardan nada). Sin publicar: la landing anuncia secciones de la fase 9 que todavía no existen.
+
+**Nuevo (15-oct, noche, misma rama):** el tema **`nueva-york`** (negro, blanco perla y plata, art déco y brillo), seis efectos nuevos (horizonte de Manhattan, reflectores, luces de ciudad, escarcha, reflejo plateado y panorámica) y su plantilla `deploy/plantillas/nueva-york/` (solo diseño; las secciones se agregan en el gestor). El panel del dueño y la imagen para WhatsApp ya tienen versión oscura.
+
+**Nuevo (16-oct, madrugada, misma rama):** Nueva York ya no se parece a NAT: cada sección tiene **su propio diseño** (elevador art déco, tocadiscos, boleto de Broadway, letrero del metro, neón, letreros de calle, tablero de Grand Central, pase VIP, postal…). **Secciones difuminadas**: sin cortes entre secciones, con franjas de papel que asoman por una hoja rasgada y franjas grises cortadas por la ciudad. Efectos nuevos **bola disco** y **reflejos de bola disco**, confeti plateado, la sección **mesa de regalos** (fase 9) y la invitación de **Ximena** (local). Tres arreglos del gestor: la vista previa de una invitación en blanco, el menú ⋯ de las tarjetas y la vista previa que se quedaba en blanco.
 
 ## Qué está hecho
 
@@ -331,6 +335,44 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
 
   El detalle y cómo se midió está en `04-fases/fase-8-gestor-de-plantillas.md` → H.
 
+### Tema Nueva York y efectos nuevos (15-oct, noche, rama `feature/landing-y-secciones`)
+
+- **Tema `web/src/themes/nueva-york/`:** una noche en Manhattan, elegante y moderna. Paleta negro, blanco perla y plata (también como paleta de un clic en el gestor); letras Great Vibes (títulos), Bodoni Moda (frases, fecha y números) y Jost (textos y etiquetas).
+  - Dibujos propios en SVG, sin fotos: sobre perla con un sol art déco en la solapa, tarjeta negra con marco de esquinas escalonadas, la corona del Chrysler (con sus ventanas en triángulo), sello plateado con el Empire State, divisor art déco, marco en arco para la foto, vestido de noche y esmoquin, moño de satín, estrellas y el papel de noche (estrellas y un sol tenue).
+  - Paneles de satín negro con esquinas escalonadas plateadas; el itinerario en satén plateado. Títulos, nombre, fecha y números con brillo de metal (hecho desde el color de cada texto: respeta el que se elija en el gestor). Controles del navegador en su versión oscura.
+- **Seis efectos nuevos** (en el catálogo del gestor, para cualquier tema, con los colores de la paleta):
+  - `horizonte`: el horizonte de Manhattan (Woolworth, 432 Park, Empire State, Chrysler, One World Trade Center, 30 Rockefeller, MetLife, la torre de la calle 57, tinacos en las azoteas y el puente de Brooklyn) en tres capas que avanzan a distinta velocidad, con ventanas que se encienden a destiempo. Cada edificio sale una vez por vuelta y el ciclo no tiene costura.
+  - `reflectores`, `luces`, `escarcha`, `reflejo` (una luz que cruza y solo aviva lo plateado) y `panoramica` (la foto de fondo se desliza: para fotos de la ciudad que suba el cliente).
+  - Solo animan transform y opacity, pasan por `--motion-scale` y con "reducir movimiento" se quedan quietos (sin escarcha ni reflejo).
+- **Plantilla** `deploy/plantillas/nueva-york/invitacion.csv` (versionada, sin datos de personas): tema, paleta y portada. Las secciones que se agreguen toman solas el diseño del tema. En local: `deploy/plantillas/instalar.sh nueva-york` (ya instalada en `eventos/plantilla-nueva-york/`).
+- **Invitaciones oscuras en todo el sistema:**
+  - Panel del dueño: con fondo oscuro (`isDarkPalette`, o `dark: true` del tema) usa tarjetas grafito con letra clara y botones del color principal con letra oscura.
+  - Imagen para WhatsApp: el sobre apenas se aclara y el QR va en una placa clara con puntos oscuros, para que se lea.
+  - Botones "Ver en Maps" de ubicación y hospedaje: letra con el token `--color-on-button` (antes salía blanca sobre plata).
+- **Arreglos que salieron al probar:**
+  - Portada: un nombre largo ("Valentina") se partía a media palabra; ahora la letra se achica para que quepa la palabra más larga (los cortos, como "Nat", no cambian).
+  - Imagen para WhatsApp: un nombre con mayúscula acentuada (SOFÍA) va un poco más chico para que la tilde no toque la frase de arriba; los SVG de los temas llevan su tamaño (sin él, el sello no salía en la imagen; también pasaba con `marfil`).
+- Probado en el navegador (celular y computadora) con un evento local de prueba, `eventos/prueba-ny` (todas las secciones, datos ficticios), el panel en oscuro y la imagen para WhatsApp. Pruebas: 305 del front y 194 de la API.
+
+### Nueva York con diseño propio, secciones difuminadas, bola disco y mesa de regalos (16-oct, rama `feature/landing-y-secciones`)
+
+- **Todo es parametrizable y reutilizable en cualquier diseño** (no se queda en una plantilla):
+  - **Diseños de sección** (variantes) para cualquier tema: `components/sectionVariants.ts` (tipo → variante → componente en `components/sections/variants/`, o solo piel CSS en `variants/skins.css`). Cada uno se descarga solo si alguna sección lo pide y la invitación espera a tenerlo (`useSectionComponents`). En el gestor, *Diseño → Diseño* los ofrece todos (más "Clásica"); el tema solo pone los suyos por defecto.
+  - **Adornos compartidos** (`themes/_shared/assets/`: la puerta del elevador, la Estatua, el puente, las estrellitas, el grano del papel): cualquier tema los encuentra por nombre y cada diseño los usa si su tema no trae los propios (`decorOr`).
+  - **Opciones de la página** (Estilo → Página; vacías = lo del tema, que las declara en su manifest): *División entre secciones* (`orilla`: degradado, hoja rasgada, ciudad, ola, festón o recta; cada sección puede cambiar la suya), *Estilo de los botones* (`botones`: degradado, sólido, contorno, art déco, boleto, neón o texto subrayado; variables `--btn-*` en `effects/buttons.css`, sin estilo los botones se ven como siempre), *Confeti*, *Títulos con brillo de metal* y *Esquinas de los paneles* (art déco o sin adorno; `effects/options.css`).
+  - La paleta de la página se guarda en la raíz (`--root-*`) y `.page-palette` la recupera en piezas oscuras sobre papel; las esquinas déco son tokens (`--deco-corner-*`).
+  - Comprobado: NAT y las muestras de Marfil se ven igual que antes (capturas comparadas) y una copia de Marfil con boleto, metro, tablero, avenida, pase, olas, botones déco y confeti se ve bien con sus colores.
+- **Nueva York, sección por sección** (`web/src/themes/nueva-york/sections/`; mismo contenido que siempre, diseño absolutamente distinto al de NAT):
+  - Portada `elevador`: puertas art déco con su medallón, indicador de piso y botón de llamada; al tocar, la aguja recorre los pisos, se abren las puertas y aparece la tarjeta (con la música, como el sobre).
+  - Música `vinilo` (tocadiscos que gira mientras suena), bendición `programa` (programa de mano de Broadway: el "reparto" con línea de puntos), fecha `boleto` (boleto plateado con talón y la semana del evento con su día encendido), foto `ventana` (la punta escalonada de un rascacielos con la ciudad detrás), ubicación `metro` (letrero de estación y la foto en marco de mosaico), frase `neon` (parpadea y se enciende), itinerario `avenida` (línea del metro en un poste con farol: estaciones con íconos y letreros de calle; al pie, la Estatua de la Libertad y el puente de Brooklyn), vestimenta `vitrinas` (escaparates de la Quinta Avenida), sin niños `cordon` (cordón de terciopelo), cuenta regresiva `tablero` (paletas de Grand Central que caen al cambiar), hospedaje `colgantes` (colgantes de puerta de hotel), mesa de regalos `bolsas`, confirmación `pase` (pase VIP con su cinta), dedicatoria `postal` (correo aéreo con timbre de la Estatua) y cierre `marquesina` (focos que corren). El clima y la playlist, con marco déco.
+  - Íconos propios para el itinerario: Estatua de la Libertad, puente de Brooklyn, Empire State y bola disco (más taxi, coctel y ciudad de Font Awesome).
+- **Efecto `difuminar` y "Secciones difuminadas"** (opción de *Página*): ninguna sección se ve como tarjeta; llegan a las orillas y se tocan. Con color de fondo son franjas: en Nueva York, la ciudad corta las grises arriba y abajo, y el **papel** (color nuevo de la paleta) asoma por una hoja rasgada, con la fibra del papel negro y su sombra; adentro todo va en tinta. En otros temas, la orilla es un degradado. La plantilla de Nueva York ya viene difuminada.
+- **Bola disco** (`bola_disco`): bolas de espejos en 3D que giran de verdad (un solo transform), con rayos, destellos y sus reflejos recorriendo la sección; **reflejos** (`luces_disco`): solo los puntos de luz. **Confeti plateado** del tema (como las mariposas de NAT; se apaga con *Adornos que flotan y vuelan*). Los destellos de "Save the date": finos y cada uno titila solo.
+- **Mesa de regalos** (`mesa_regalos`, fase 9 §2): tiendas (Liverpool, Amazon, Palacio de Hierro, Sears, Costco u otra) con número de evento para copiar y botón a la mesa; lluvia de sobres con banco, CLABE de 4 en 4 (para copiar), titular y la caja en el salón. Con *Solo con enlace* (lo normal) el servidor quita los datos bancarios del enlace general y de la página `/e/` (`GiftPrivacy`); la vista previa del gestor en *Enlace general* lo imita.
+- **Gestor:** una invitación en blanco se quedaba en "Cargando la vista previa…" (PHP manda la paleta vacía como `[]` y la vista previa la rechazaba); el menú ⋯ de las tarjetas no salía (quedaba dentro de la tarjeta que se levanta al pasar el puntero: ahora se pinta aparte); en modo *Elegir*, un toque sobre Spotify elige la sección; el fondo de la página toma el color del tema (antes blanco donde el navegador no alcanzaba a pintar) y las secciones lejos de la pantalla pausan sus efectos.
+- **Ximena** (`eventos/ximena`, local, fuera del repo): XV, Nueva York difuminado, 21-nov-2026, salón Centala y los hoteles de NAT (con sus fotos), bolas disco en la portada y el cierre, y la mesa de regalos con datos de ejemplo. Era la muestra `prueba-ny`.
+- Pruebas: 330 del front y 202 de la API.
+
 ### Invitación personal y confirmación
 
 - Cada enlace (`/i/<token>`) muestra la misma invitación. Lo que cambia es el formulario: **un campo de nombre por invitado**, con "Asistiré / Lo siento, no asistiré".
@@ -409,6 +451,12 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
 1. **Publicado (15-oct):** merge a `main` (local; falta el push a GitHub) y `fly deploy` con tu `GESTOR_CLAVE` (release v6). La clave nueva del panel de NAT se subió con su Excel.
 2. **Resto del runbook** (`06-despliegue/despliegue.md` → "Gestor: primera publicación"): crear tu cuenta en `/gestor`, respaldo, y pasar NAT al formato nuevo (al publicarla desde el gestor, por ejemplo con la playlist "Xv Nat").
 3. **Etapa F, después del 28-nov:** quitar el camino del Excel y `layout:xlsx`; pasar las fixtures al formato nuevo.
+
+### Tema Nueva York
+
+- Subir la plantilla a producción cuando se publique esta rama: en el gestor, *Nueva* → en blanco, como plantilla → *Importar* `deploy/plantillas/nueva-york/invitacion.csv`.
+- Probar en un iPhone y un Android reales que los efectos van fluidos (portada con elevador, bolas disco, reflectores y escarcha; confeti; tablero que cae) y que la vista previa del gestor ya no se queda en blanco al elegir una sección.
+- **Ximena:** sus datos reales (nombres de papás y padrinos, hora, foto, canción, playlist y mesa de regalos: la que tiene es de ejemplo) y subirla a producción.
 
 ### Después del evento real o cuando se decida
 

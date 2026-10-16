@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220">
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220">
   <!-- Rama de hojas en línea fina. La portada la gira 180°: cuelga desde la esquina. -->
   <defs>
     <path id="hoja" d="M0 0 C7 -9 21 -9 30 0 C21 9 7 9 0 0 Z"/>

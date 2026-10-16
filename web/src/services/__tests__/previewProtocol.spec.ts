@@ -44,6 +44,16 @@ describe('previewProtocol', () => {
       }),
     ).toMatchObject({ type: 'patch' })
 
+    // Una invitación en blanco: PHP manda la paleta y las letras vacías como lista ([]).
+    expect(
+      readToPreview({
+        channel: PREVIEW_CHANNEL,
+        type: 'config',
+        config: { ...config, palette: [], fonts: [] },
+        display,
+      }),
+    ).toMatchObject({ type: 'config', config: { palette: {}, fonts: {} } })
+
     // Otro canal, otra forma o datos raros: se ignoran.
     expect(readToPreview({ type: 'replay' })).toBeNull()
     expect(readToPreview({ channel: 'otro', type: 'replay' })).toBeNull()
@@ -52,6 +62,14 @@ describe('previewProtocol', () => {
     ).toBeNull()
     expect(
       readToPreview({ channel: PREVIEW_CHANNEL, type: 'config', config: { theme: 1 }, display }),
+    ).toBeNull()
+    expect(
+      readToPreview({
+        channel: PREVIEW_CHANNEL,
+        type: 'config',
+        config: { ...config, palette: ['#000000'] },
+        display,
+      }),
     ).toBeNull()
     expect(
       readToPreview({

@@ -11,8 +11,23 @@ class CatalogTest extends TestCase
     private const WEB_TYPES = [
         'hero-envelope', 'music-player', 'blessing', 'save-the-date', 'photo-arch', 'location',
         'quote', 'itinerary', 'dress-code', 'no-kids', 'countdown', 'weather', 'hotels', 'spotify',
-        'rsvp', 'dedications', 'closing',
+        'rsvp', 'dedications', 'closing', 'gifts',
     ];
+
+    /** Los efectos que pinta la web (EffectName en web/src/types/event.ts). */
+    private const WEB_EFFECTS = [
+        'reveal', 'parallax', 'float', 'shine', 'timeline-fill', 'typewriter', 'sparkle', 'cascade',
+        'ken-burns', 'color-shift', 'skyline', 'searchlights', 'city-lights', 'glitter', 'sheen', 'pan',
+        'blend', 'disco-ball', 'disco-lights',
+    ];
+
+    public function test_every_effect_maps_to_an_effect_the_web_paints(): void
+    {
+        $this->assertEqualsCanonicalizing(self::WEB_EFFECTS, array_column(Catalog::EFFECTS, 'effect'));
+        foreach (Catalog::EFFECT_ALIASES as $alias => $key) {
+            $this->assertArrayHasKey($key, Catalog::EFFECTS, "alias {$alias}");
+        }
+    }
 
     public function test_every_section_maps_to_a_section_the_web_paints(): void
     {
@@ -41,7 +56,7 @@ class CatalogTest extends TestCase
     {
         $catalog = Catalog::toArray();
 
-        $this->assertCount(17, $catalog['sections']);
+        $this->assertCount(18, $catalog['sections']);
         $itinerary = collect($catalog['sections'])->firstWhere('id', 'itinerario');
         $this->assertSame('itinerary', $itinerary['type']);
         $this->assertSame(['hora', 'actividad', 'icono'], array_column($itinerary['list']['fields'], 'key'));

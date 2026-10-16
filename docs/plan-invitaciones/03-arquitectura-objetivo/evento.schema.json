@@ -117,6 +117,51 @@
       "type": "array",
       "items": { "type": "object", "properties": { "name": { "type": "string" }, "url": { "type": "string" }, "photo": { "type": "string" } } }
     },
+    "gifts": {
+      "description": "Mesa de regalos (solo si la invitación la tiene). Por el enlace general, bank/account/holder llegan vacíos y hidden = true cuando private = true.",
+      "type": "object",
+      "properties": {
+        "stores": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "store": { "type": "string", "enum": ["liverpool", "amazon", "palacio", "sears", "costco", "other"] },
+              "name": { "type": "string" },
+              "note": { "type": "string" },
+              "url": { "type": "string" },
+              "event_number": { "type": "string" }
+            }
+          }
+        },
+        "envelope": {
+          "type": ["object", "null"],
+          "properties": {
+            "title": { "type": "string" },
+            "text": { "type": "string" },
+            "bank": { "type": "string" },
+            "account": { "type": "string" },
+            "holder": { "type": "string" },
+            "box": { "type": "boolean" },
+            "hidden": { "type": "boolean" },
+            "private": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "page": {
+      "type": "object",
+      "properties": {
+        "image": { "type": "string" },
+        "decor": { "type": "boolean" },
+        "blend": { "type": "boolean", "description": "Secciones difuminadas: todas llevan el efecto blend." },
+        "edge": { "type": "string", "enum": ["fade", "torn", "city", "wave", "scallop", "straight"], "description": "La orilla de las franjas (cada sección puede traer la suya en edge)." },
+        "buttons": { "type": "string", "enum": ["gradient", "solid", "outline", "deco", "ticket", "neon", "link"] },
+        "confetti": { "type": "boolean" },
+        "metal": { "type": "boolean", "description": "Títulos con brillo de metal." },
+        "corners": { "type": "string", "enum": ["deco", "none"] }
+      }
+    },
     "rsvp": {
       "type": "object",
       "properties": {
@@ -131,7 +176,7 @@
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["hero-envelope", "music-player", "blessing", "save-the-date", "photo-arch", "location", "quote", "itinerary", "dress-code", "no-kids", "countdown", "hotels", "weather", "spotify", "rsvp", "dedications", "closing"]
+        "enum": ["hero-envelope", "music-player", "blessing", "save-the-date", "photo-arch", "location", "quote", "itinerary", "dress-code", "no-kids", "countdown", "hotels", "weather", "spotify", "rsvp", "dedications", "closing", "gifts"]
       }
     }
   }

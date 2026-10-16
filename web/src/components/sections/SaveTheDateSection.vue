@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import MonthCalendar from '@/components/ui/MonthCalendar.vue'
+import SpriteDecor from '@/components/ui/SpriteDecor.vue'
 import { useEvent } from '@/composables/useEvent'
 import { useInView } from '@/composables/useInView'
 import { googleCalendarUrl, monthGrid } from '@/services/calendarService'
@@ -47,8 +48,16 @@ const shown = useInView(root)
 <template>
   <div ref="root" class="save-date">
     <div class="save-date__heading">
+      <!-- Con sus figuras descritas en el tema, cada estrellita titila sola (sin deformarse). -->
+      <SpriteDecor
+        v-if="section.decor.glitter && section.sprites?.glitter"
+        :src="section.decor.glitter"
+        :sprite="section.sprites.glitter"
+        motion="twinkle"
+        class="save-date__glitter save-date__glitter--sprite"
+      />
       <img
-        v-if="section.decor.glitter"
+        v-else-if="section.decor.glitter"
         :src="section.decor.glitter"
         alt=""
         class="save-date__glitter"
@@ -72,7 +81,13 @@ const shown = useInView(root)
       class="save-date__calendar"
     />
 
-    <a v-if="calendarUrl" :href="calendarUrl" class="save-date__add" target="_blank" rel="noopener">
+    <a
+      v-if="calendarUrl"
+      :href="calendarUrl"
+      class="save-date__add inv-btn"
+      target="_blank"
+      rel="noopener"
+    >
       <AppIcon name="calendar-plus" />
       Agregar a mi calendario
     </a>
@@ -100,6 +115,12 @@ const shown = useInView(root)
   transform: scale(1.3, 0.62) rotate(45deg);
   opacity: 0.9;
   pointer-events: none;
+}
+.save-date__glitter--sprite {
+  width: 100%;
+  max-width: 24rem;
+  transform: none;
+  opacity: 1;
 }
 .save-date__title {
   position: relative;
@@ -138,12 +159,17 @@ const shown = useInView(root)
   gap: 0.45rem;
   margin-top: var(--space-1);
   padding: 0.45rem 1.1rem;
-  border: 1px solid var(--color-primary);
-  border-radius: 999px;
+  border: var(--btn-border, 1px solid var(--color-primary));
+  border-radius: var(--btn-radius, 999px);
   font-family: var(--font-serif);
   font-size: 1.05rem;
-  color: var(--color-primary);
-  text-decoration: none;
+  color: var(--btn-color, var(--color-primary));
+  text-decoration: var(--btn-decoration, none);
+  box-shadow: var(--btn-shadow, none);
+  text-transform: var(--btn-case, none);
+  letter-spacing: var(--btn-tracking, normal);
+  clip-path: var(--btn-clip, none);
+  text-shadow: var(--btn-glow, none);
 }
 .save-date__add:focus-visible {
   outline: 2px solid var(--color-primary);

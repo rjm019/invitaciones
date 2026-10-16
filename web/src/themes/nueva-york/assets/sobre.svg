@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="561" height="668" viewBox="0 0 561 668">
+  <!-- Sobre perla (561×668, como el del tema base) con filos plateados y un sol art déco en
+       la solapa. La portada recorta la bolsa por las líneas en V (43 % · 69.2 % · 44.2 %). -->
+  <defs>
+    <linearGradient id="plata" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8a9099"/>
+      <stop offset="0.35" stop-color="#eef0f2"/>
+      <stop offset="0.55" stop-color="#a7adb5"/>
+      <stop offset="0.8" stop-color="#e2e5e9"/>
+      <stop offset="1" stop-color="#9aa0a8"/>
+    </linearGradient>
+    <linearGradient id="solapa" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8e9eb"/>
+    </linearGradient>
+    <linearGradient id="dentro" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d6d8dc"/>
+      <stop offset="1" stop-color="#c3c6cb"/>
+    </linearGradient>
+    <linearGradient id="frente" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fcfcfb"/>
+      <stop offset="0.55" stop-color="#f1f2f3"/>
+      <stop offset="1" stop-color="#e1e3e6"/>
+    </linearGradient>
+  </defs>
+  <path d="M8 287 L280.5 48 L553 287 Z" fill="url(#solapa)" stroke="url(#plata)" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M42 280 L280.5 72 L519 280" fill="none" stroke="#c4c8ce" stroke-width="1.1" stroke-linejoin="round"/>
+  <path d="M280.5 262L77.4 252M280.5 262L102.8 232M280.5 262L128.2 212M280.5 262L153.6 192M280.5 262L178.9 172M280.5 262L204.3 152M280.5 262L229.7 132M280.5 262L255.1 112M280.5 262L280.5 92M280.5 262L305.9 112M280.5 262L331.3 132M280.5 262L356.7 152M280.5 262L382.1 172M280.5 262L407.4 192M280.5 262L432.8 212M280.5 262L458.2 232M280.5 262L483.6 252" fill="none" stroke="#c4c8ce" stroke-width="0.9" stroke-opacity="0.8"/>
+  <path d="M244 262 A36.5 36.5 0 0 1 317 262 Z" fill="url(#plata)"/>
+  <path d="M232 274 H329" stroke="url(#plata)" stroke-width="1.6"/>
+  <rect x="0" y="287" width="561" height="381" rx="10" fill="url(#dentro)"/>
+  <path d="M0 287 L185 462 L375 462 L561 295 L561 658 Q561 668 551 668 L10 668 Q0 668 0 658 Z" fill="url(#frente)"/>
+  <path d="M0 287 L185 462 L375 462 L561 295" fill="none" stroke="url(#plata)" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M12 314 L190 482 L370 482 L549 322" fill="none" stroke="#c4c8ce" stroke-width="1" stroke-linejoin="round"/>
+  <path d="M6 662 L262 520 M555 662 L299 520" fill="none" stroke="#d5d8dc" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M10 330 V656 H551 V338" fill="none" stroke="#c4c8ce" stroke-width="1"/>
+  <path d="M30 640 H52 M30 640 V618 M531 640 H509 M531 640 V618" stroke="url(#plata)" stroke-width="1.6" stroke-linecap="square"/>
+  <rect x="0.8" y="287.8" width="559.4" height="379.4" rx="10" fill="none" stroke="url(#plata)" stroke-width="2"/>
+</svg>

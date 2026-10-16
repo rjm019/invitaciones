@@ -60,6 +60,35 @@ export function monthGrid(iso: string, timeZone: string, weekStartsOn: 0 | 1 = 0
   }
 }
 
+export interface WeekDay {
+  /** Inicial del día de la semana (D, L, M…). */
+  weekday: string
+  day: number
+  /** El día del evento. */
+  event: boolean
+  /** Del mes anterior o del siguiente (la semana cruza de mes). */
+  outside: boolean
+}
+
+/**
+ * La semana del evento, de domingo a sábado (o de lunes a domingo), con sus fechas de
+ * verdad aunque cruce de mes: la tira de días que pinta el boleto de Nueva York.
+ */
+export function eventWeek(iso: string, timeZone: string, weekStartsOn: 0 | 1 = 0): WeekDay[] {
+  const { year, month, day } = localDate(iso, timeZone)
+  const event = Date.UTC(year, month - 1, day)
+  const offset = (new Date(event).getUTCDay() - weekStartsOn + 7) % 7
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(event + (i - offset) * 86_400_000)
+    return {
+      weekday: WEEKDAYS_ES[date.getUTCDay()]!,
+      day: date.getUTCDate(),
+      event: i === offset,
+      outside: date.getUTCMonth() !== month - 1,
+    }
+  })
+}
+
 /** Enlace "Agregar a Google Calendar" con el evento ya escrito. */
 export function googleCalendarUrl(event: {
   title: string

@@ -29,6 +29,8 @@ final class Catalog
         'spotify' => 'playlist',
         'solo_adultos' => 'sin_ninos',
         'dedicatorias' => 'dedicatoria',
+        'regalos' => 'mesa_regalos',
+        'mesa_de_regalos' => 'mesa_regalos',
     ];
 
     /** Paleta: nombre en el CSV → token CSS (--color-<token>). Los demás nombres pasan tal cual. */
@@ -43,6 +45,7 @@ final class Catalog
         'acento_fuerte' => ['token' => 'accent-strong', 'label' => 'Acento fuerte', 'help' => 'Botones del panel y el QR de la tarjeta.'],
         'superficie' => ['token' => 'surface', 'label' => 'Tarjetas', 'help' => 'Fondo de tarjetas y formularios.'],
         'marco' => ['token' => 'frame', 'label' => 'Marco', 'help' => 'Marcos y fondos de color (el del Dress Code).'],
+        'papel' => ['token' => 'paper', 'label' => 'Papel', 'help' => 'El de las franjas claras: con secciones difuminadas, una sección con este fondo se ve como una hoja que asoma por una rasgadura.'],
     ];
 
     /** Fuentes: rol en el CSV → rol CSS (--font-<rol>). */
@@ -68,10 +71,29 @@ final class Catalog
         'cascada' => ['effect' => 'cascade', 'label' => 'Cascada', 'help' => 'Los elementos entran uno tras otro.'],
         'acercamiento' => ['effect' => 'ken-burns', 'label' => 'Acercamiento', 'help' => 'La foto se acerca muy despacio.'],
         'cambio_de_color' => ['effect' => 'color-shift', 'label' => 'Cambio de color', 'help' => 'El fondo pasa despacio por los tonos del tema.'],
+        'horizonte' => ['effect' => 'skyline', 'label' => 'Horizonte de Nueva York', 'help' => 'Los edificios de Manhattan pasan despacio al pie de la sección y sus ventanas se encienden.'],
+        'reflectores' => ['effect' => 'searchlights', 'label' => 'Reflectores', 'help' => 'Haces de luz que barren el cielo, como en un estreno.'],
+        'luces' => ['effect' => 'city-lights', 'label' => 'Luces de ciudad', 'help' => 'Luces suaves y desenfocadas que flotan detrás.'],
+        'escarcha' => ['effect' => 'glitter', 'label' => 'Escarcha', 'help' => 'Brillitos que caen despacio.'],
+        'reflejo' => ['effect' => 'sheen', 'label' => 'Reflejo plateado', 'help' => 'De vez en cuando una luz cruza los títulos y los filos claros.'],
+        'panoramica' => ['effect' => 'pan', 'label' => 'Panorámica', 'help' => 'La imagen de fondo se desliza despacio de lado a lado.'],
+        'difuminar' => ['effect' => 'blend', 'label' => 'Difuminar (sin cortes)', 'help' => 'La sección deja de verse como tarjeta: llega a las orillas y se funde con las de arriba y abajo. Con color de fondo es una franja.'],
+        'bola_disco' => ['effect' => 'disco-ball', 'label' => 'Bola disco', 'help' => 'Bolas de espejos que giran colgadas arriba, con destellos y sus reflejos de luz por toda la sección.'],
+        'luces_disco' => ['effect' => 'disco-lights', 'label' => 'Reflejos de bola disco', 'help' => 'Puntos de luz que recorren la sección, como los reflejos de una bola disco.'],
     ];
 
     /** Otros nombres de efectos que ya aceptaba el Excel. */
-    public const EFFECT_ALIASES = ['cambio_color' => 'cambio_de_color', 'colores' => 'cambio_de_color'];
+    public const EFFECT_ALIASES = [
+        'cambio_color' => 'cambio_de_color',
+        'colores' => 'cambio_de_color',
+        'ciudad' => 'horizonte',
+        'brillitos' => 'escarcha',
+        'paneo' => 'panoramica',
+        'integrar' => 'difuminar',
+        'sin_cortes' => 'difuminar',
+        'disco' => 'bola_disco',
+        'reflejos_disco' => 'luces_disco',
+    ];
 
     /** Palabras que apagan los efectos que el tema trae por defecto. */
     public const NO_EFFECTS = ['ninguno', 'none'];
@@ -114,6 +136,36 @@ final class Catalog
         'estrellas' => ['slot' => 'stars', 'label' => 'Estrellas'],
         'mujer' => ['slot' => 'woman', 'label' => 'Figura de mujer'],
         'hombre' => ['slot' => 'man', 'label' => 'Figura de hombre'],
+        'estatua' => ['slot' => 'statue', 'label' => 'Estatua'],
+        'puente' => ['slot' => 'bridge', 'label' => 'Puente'],
+        'puerta' => ['slot' => 'door', 'label' => 'Puerta del elevador'],
+    ];
+
+    /** División entre secciones (la orilla de las franjas): nombre en el CSV → código. */
+    public const EDGES = [
+        'degradado' => ['value' => 'fade', 'label' => 'Degradado suave'],
+        'hoja' => ['value' => 'torn', 'label' => 'Hoja rasgada'],
+        'ciudad' => ['value' => 'city', 'label' => 'La ciudad (edificios)'],
+        'ola' => ['value' => 'wave', 'label' => 'Ola'],
+        'feston' => ['value' => 'scallop', 'label' => 'Festón (medias lunas)'],
+        'recta' => ['value' => 'straight', 'label' => 'Recta'],
+    ];
+
+    /** Estilos de botón de toda la invitación. */
+    public const BUTTONS = [
+        'degradado' => ['value' => 'gradient', 'label' => 'Degradado metálico'],
+        'solido' => ['value' => 'solid', 'label' => 'Sólido'],
+        'contorno' => ['value' => 'outline', 'label' => 'Contorno'],
+        'deco' => ['value' => 'deco', 'label' => 'Art déco (doble filo)'],
+        'boleto' => ['value' => 'ticket', 'label' => 'Boleto (con muescas)'],
+        'neon' => ['value' => 'neon', 'label' => 'Neón'],
+        'texto' => ['value' => 'link', 'label' => 'Texto subrayado'],
+    ];
+
+    /** Esquinas de los paneles. */
+    public const CORNERS = [
+        'deco' => ['value' => 'deco', 'label' => 'Escalonadas art déco'],
+        'ninguna' => ['value' => 'none', 'label' => 'Sin adorno'],
     ];
 
     /** Valor de imagen_<adorno> que quita ese adorno. */
@@ -136,6 +188,14 @@ final class Catalog
         ['key' => 'overlay', 'label' => 'Oscurecer la imagen', 'input' => 'range', 'min' => 0, 'max' => 1, 'step' => 0.05],
         ['key' => 'fijo', 'label' => 'Fondo quieto al bajar', 'input' => 'toggle'],
         ['key' => 'efectos', 'label' => 'Animaciones', 'input' => 'chips'],
+        ['key' => 'orilla', 'label' => 'División con las vecinas', 'input' => 'select', 'help' => 'La forma de sus orillas cuando es franja (secciones difuminadas, con color de fondo).', 'options' => [
+            ['value' => 'degradado', 'label' => 'Degradado suave'],
+            ['value' => 'hoja', 'label' => 'Hoja rasgada'],
+            ['value' => 'ciudad', 'label' => 'La ciudad (edificios)'],
+            ['value' => 'ola', 'label' => 'Ola'],
+            ['value' => 'feston', 'label' => 'Festón (medias lunas)'],
+            ['value' => 'recta', 'label' => 'Recta'],
+        ]],
         ['key' => 'escritorio', 'label' => 'En computadora', 'input' => 'select', 'options' => [
             ['value' => 'completo', 'label' => 'Toda la fila'],
             ['value' => 'mitad', 'label' => 'Media fila (junto a otra)'],
@@ -204,6 +264,36 @@ final class Catalog
     private const PAGE = [
         ['key' => 'fondo', 'label' => 'Papel de la página', 'input' => 'image'],
         ['key' => 'decoracion', 'label' => 'Adornos que flotan y vuelan', 'input' => 'toggle'],
+        ['key' => 'difuminar', 'label' => 'Secciones difuminadas (sin cortes)', 'input' => 'toggle', 'help' => 'Ninguna sección se ve como tarjeta: todas se funden entre sí. Las que tienen color de fondo son franjas.'],
+        ['key' => 'orilla', 'label' => 'División entre secciones', 'input' => 'select', 'help' => 'La orilla de las franjas (con secciones difuminadas). Cada sección puede cambiar la suya.', 'options' => [
+            ['value' => 'degradado', 'label' => 'Degradado suave'],
+            ['value' => 'hoja', 'label' => 'Hoja rasgada'],
+            ['value' => 'ciudad', 'label' => 'La ciudad (edificios)'],
+            ['value' => 'ola', 'label' => 'Ola'],
+            ['value' => 'feston', 'label' => 'Festón (medias lunas)'],
+            ['value' => 'recta', 'label' => 'Recta'],
+        ]],
+        ['key' => 'botones', 'label' => 'Estilo de los botones', 'input' => 'select', 'options' => [
+            ['value' => 'degradado', 'label' => 'Degradado metálico'],
+            ['value' => 'solido', 'label' => 'Sólido'],
+            ['value' => 'contorno', 'label' => 'Contorno'],
+            ['value' => 'deco', 'label' => 'Art déco (doble filo)'],
+            ['value' => 'boleto', 'label' => 'Boleto (con muescas)'],
+            ['value' => 'neon', 'label' => 'Neón'],
+            ['value' => 'texto', 'label' => 'Texto subrayado'],
+        ]],
+        ['key' => 'confeti', 'label' => 'Confeti que cae', 'input' => 'select', 'help' => 'Pedacitos de papel metálico con los colores de la paleta.', 'options' => [
+            ['value' => 'SI', 'label' => 'Sí'],
+            ['value' => 'NO', 'label' => 'No'],
+        ]],
+        ['key' => 'metalico', 'label' => 'Títulos con brillo de metal', 'input' => 'select', 'options' => [
+            ['value' => 'SI', 'label' => 'Sí'],
+            ['value' => 'NO', 'label' => 'No'],
+        ]],
+        ['key' => 'esquinas', 'label' => 'Esquinas de los paneles', 'input' => 'select', 'options' => [
+            ['value' => 'deco', 'label' => 'Escalonadas art déco'],
+            ['value' => 'ninguna', 'label' => 'Sin adorno'],
+        ]],
     ];
 
     /**
@@ -216,15 +306,21 @@ final class Catalog
         'portada' => [
             'type' => 'hero-envelope', 'label' => 'Portada', 'icon' => 'envelope',
             'description' => 'El sobre que se abre con el nombre y el salón.',
-            'fields' => [['key' => 'boton', 'label' => 'Texto para abrir', 'input' => 'text', 'placeholder' => 'Toca para abrir', 'max_length' => 60]],
+            'fields' => [
+                ['key' => 'boton', 'label' => 'Texto para abrir', 'input' => 'text', 'placeholder' => 'Toca para abrir', 'max_length' => 60],
+                ['key' => 'variante', 'label' => 'Cómo abre', 'input' => 'select', 'options' => [
+                    ['value' => 'sobre', 'label' => 'Sobre'],
+                    ['value' => 'elevador', 'label' => 'Elevador art déco'],
+                ]],
+            ],
             'linked' => ['festejada_corto', 'festejada', 'subtitulo'],
-            'slots' => ['sobre', 'tarjeta', 'flores', 'corona', 'mariposas', 'lacre'],
+            'slots' => ['sobre', 'tarjeta', 'flores', 'corona', 'mariposas', 'lacre', 'puerta'],
             'texts' => ['subtitulo' => 'Frase (mis xv años)', 'nombre' => ['block' => 'name', 'label' => 'Nombre grande'], 'lugar' => ['block' => 'place', 'label' => 'Salón y ciudad'], 'para' => ['block' => 'to', 'label' => 'Nombre en el sobre'], 'boton' => 'Texto para abrir'],
         ],
         'musica' => [
             'type' => 'music-player', 'label' => 'Música', 'icon' => 'music',
             'description' => 'El reproductor con la canción que suena al abrir el sobre.',
-            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Dale play', 'max_length' => 60]],
+            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Dale play', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'controles-oro', 'label' => 'Controles dorados'], ['value' => 'vinilo', 'label' => 'Tocadiscos']]]],
             'linked' => ['musica_fuente', 'musica_audio', 'spotify'],
             'texts' => ['titulo' => 'Título'],
         ],
@@ -234,6 +330,7 @@ final class Catalog
             'fields' => [
                 ['key' => 'texto', 'label' => 'Mensaje', 'input' => 'textarea', 'placeholder' => 'Con la bendición de Dios…', 'max_length' => 600],
                 ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'help' => 'Vacío: la frase de la portada.', 'max_length' => 80],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'programa', 'label' => 'Programa de teatro']]],
             ],
             'list' => ['key' => 'familia', 'label' => 'Familia', 'item_label' => 'Grupo', 'max' => 12, 'fields' => [
                 ['key' => 'rol', 'label' => 'Quiénes son', 'input' => 'text', 'placeholder' => 'Mis papás', 'required' => true, 'max_length' => 60],
@@ -245,7 +342,7 @@ final class Catalog
         'fecha' => [
             'type' => 'save-the-date', 'label' => 'Fecha', 'icon' => 'calendar-days',
             'description' => 'La fecha grande, el calendario del mes y "Agregar a mi calendario".',
-            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Save the date', 'max_length' => 60]],
+            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Save the date', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'boleto', 'label' => 'Boleto de Broadway']]]],
             'linked' => ['inicia', 'zona_horaria'],
             'slots' => ['destellos'],
             'texts' => ['titulo' => 'Título', 'fecha' => ['block' => 'date', 'label' => 'Fecha grande'], 'calendario' => ['block' => 'calendar', 'label' => 'Calendario']],
@@ -256,6 +353,7 @@ final class Catalog
             'fields' => [
                 ['key' => 'imagen', 'label' => 'Foto (de preferencia sin fondo)', 'input' => 'image'],
                 ['key' => 'titulo', 'label' => 'Iniciales o apodo', 'input' => 'text', 'help' => 'Va en la esquina de la foto.', 'max_length' => 20],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'ventana', 'label' => 'Ventana de rascacielos']]],
             ],
             'slots' => ['marco', 'estrellas', 'mariposas'],
             'texts' => ['titulo' => 'Iniciales'],
@@ -266,6 +364,7 @@ final class Catalog
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Ubicación', 'max_length' => 60],
                 ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Ver en Maps', 'max_length' => 40],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'metro', 'label' => 'Letrero del metro']]],
             ],
             'linked' => ['salon', 'salon_nombre_visible', 'salon_ciudad', 'salon_direccion', 'salon_maps', 'salon_foto'],
             'list' => ['key' => 'lugares', 'label' => 'Más lugares (opcional)', 'item_label' => 'Lugar', 'max' => 6, 'help' => 'Para misa y recepción por separado. Sin lugares, se muestra el salón.', 'fields' => [
@@ -281,7 +380,7 @@ final class Catalog
         'frase' => [
             'type' => 'quote', 'label' => 'Frase', 'icon' => 'quote-left', 'repeatable' => true,
             'description' => 'Una frase corta con el divisor del tema.',
-            'fields' => [['key' => 'texto', 'label' => 'Frase', 'input' => 'textarea', 'placeholder' => 'Hoy comienza el capítulo más bonito de mi historia', 'max_length' => 400]],
+            'fields' => [['key' => 'texto', 'label' => 'Frase', 'input' => 'textarea', 'placeholder' => 'Hoy comienza el capítulo más bonito de mi historia', 'max_length' => 400], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'neon', 'label' => 'Letrero de neón']]]],
             'slots' => ['divisor'],
             'texts' => ['texto' => 'Frase'],
         ],
@@ -293,6 +392,7 @@ final class Catalog
                 ['key' => 'variante', 'label' => 'Acomodo', 'input' => 'select', 'options' => [
                     ['value' => 'zigzag', 'label' => 'Zigzag'],
                     ['value' => 'lista', 'label' => 'Lista'],
+                    ['value' => 'avenida', 'label' => 'Letreros de calle'],
                 ]],
             ],
             'list' => ['key' => 'momentos', 'label' => 'Momentos', 'item_label' => 'Momento', 'max' => 12, 'fields' => [
@@ -300,7 +400,7 @@ final class Catalog
                 ['key' => 'actividad', 'label' => 'Qué pasa', 'input' => 'text', 'placeholder' => 'Recepción', 'required' => true, 'max_length' => 60],
                 ['key' => 'icono', 'label' => 'Ícono', 'input' => 'icon'],
             ]],
-            'slots' => ['marco'],
+            'slots' => ['marco', 'estatua', 'puente'],
             'texts' => ['titulo' => 'Título', 'hora' => ['block' => 'time', 'label' => 'Horas'], 'actividad' => ['block' => 'activity', 'label' => 'Actividades']],
         ],
         'vestimenta' => [
@@ -311,6 +411,7 @@ final class Catalog
                 ['key' => 'subtitulo', 'label' => 'Tipo de vestimenta', 'input' => 'text', 'placeholder' => 'Formal', 'max_length' => 80],
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'max_length' => 600],
                 ['key' => 'colores', 'label' => 'Colores sugeridos', 'input' => 'colors', 'help' => 'De 1 a 4.'],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'vitrinas', 'label' => 'Escaparates de la Quinta Avenida']]],
             ],
             'slots' => ['lacre', 'tarjeta', 'mujer', 'hombre'],
             'texts' => ['titulo' => 'Título', 'subtitulo' => 'Tipo de vestimenta', 'texto' => 'Texto'],
@@ -322,6 +423,7 @@ final class Catalog
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Sin niños', 'max_length' => 60],
                 ['key' => 'subtitulo', 'label' => 'Etiqueta', 'input' => 'text', 'placeholder' => 'Solo adultos', 'max_length' => 40],
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'max_length' => 600],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'cordon', 'label' => 'Cordón de terciopelo']]],
             ],
             'slots' => ['lazo'],
             'texts' => ['titulo' => 'Título', 'subtitulo' => 'Etiqueta', 'texto' => 'Texto'],
@@ -345,6 +447,7 @@ final class Catalog
                 ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'max_length' => 120],
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'max_length' => 600],
                 ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Ver en Maps', 'max_length' => 40],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'colgantes', 'label' => 'Colgantes de hotel']]],
             ],
             'list' => ['key' => 'hoteles', 'label' => 'Hoteles', 'item_label' => 'Hotel', 'max' => 8, 'fields' => [
                 ['key' => 'nombre', 'label' => 'Nombre', 'input' => 'text', 'required' => true, 'max_length' => 120],
@@ -357,6 +460,42 @@ final class Catalog
             'slots' => ['tarjeta', 'divisor'],
             'texts' => ['titulo' => 'Título', 'subtitulo' => 'Subtítulo', 'texto' => 'Texto', 'nombre' => ['block' => 'name', 'label' => 'Nombre del hotel'], 'nota' => ['block' => 'note', 'label' => 'Nota'], 'direccion' => ['block' => 'address', 'label' => 'Dirección'], 'boton' => 'Botón'],
             'hidden_without' => 'Agrega al menos un hotel.',
+        ],
+        'mesa_regalos' => [
+            'type' => 'gifts', 'label' => 'Mesa de regalos', 'icon' => 'gift',
+            'description' => 'Las tiendas con su mesa de regalos y la lluvia de sobres.',
+            'fields' => [
+                ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Mesa de regalos', 'max_length' => 60],
+                ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'placeholder' => 'Tu presencia es mi mejor regalo; si quieres consentirme, aquí van algunas ideas.', 'max_length' => 600],
+                ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Ver mesa', 'max_length' => 40],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [
+                    ['value' => 'tarjetas', 'label' => 'Tarjetas'],
+                    ['value' => 'bolsas', 'label' => 'Bolsas de la Quinta Avenida'],
+                ]],
+                ['key' => 'sobres_titulo', 'label' => 'Título de la lluvia de sobres', 'input' => 'text', 'placeholder' => 'Lluvia de sobres', 'max_length' => 60],
+                ['key' => 'sobres_texto', 'label' => 'Texto de la lluvia de sobres', 'input' => 'textarea', 'max_length' => 400],
+                ['key' => 'banco', 'label' => 'Banco', 'input' => 'text', 'placeholder' => 'BBVA', 'max_length' => 60],
+                ['key' => 'cuenta', 'label' => 'CLABE o tarjeta', 'input' => 'text', 'max_length' => 30, 'help' => 'Se ve de 4 en 4 dígitos, con botón para copiar.'],
+                ['key' => 'titular', 'label' => 'A nombre de', 'input' => 'text', 'max_length' => 120],
+                ['key' => 'sobre_fisico', 'label' => 'También habrá caja para sobres en el salón', 'input' => 'toggle'],
+                ['key' => 'solo_con_enlace', 'label' => 'Datos bancarios solo en las invitaciones personales', 'input' => 'toggle', 'help' => 'Así nadie los ve con el enlace general. Viene encendido.'],
+            ],
+            'list' => ['key' => 'tiendas', 'label' => 'Tiendas', 'item_label' => 'Tienda', 'max' => 8, 'fields' => [
+                ['key' => 'tienda', 'label' => 'Tienda', 'input' => 'select', 'options' => [
+                    ['value' => 'liverpool', 'label' => 'Liverpool'],
+                    ['value' => 'amazon', 'label' => 'Amazon'],
+                    ['value' => 'palacio', 'label' => 'El Palacio de Hierro'],
+                    ['value' => 'sears', 'label' => 'Sears'],
+                    ['value' => 'costco', 'label' => 'Costco'],
+                    ['value' => 'otra', 'label' => 'Otra'],
+                ]],
+                ['key' => 'nombre', 'label' => 'Nombre (si es otra)', 'input' => 'text', 'max_length' => 80],
+                ['key' => 'nota', 'label' => 'Nota', 'input' => 'text', 'placeholder' => 'Ver lista de deseos', 'max_length' => 120],
+                ['key' => 'enlace', 'label' => 'Enlace de la mesa', 'input' => 'url'],
+                ['key' => 'numero_evento', 'label' => 'Número de evento', 'input' => 'text', 'max_length' => 30, 'help' => 'El de Liverpool, con botón para copiar.'],
+            ]],
+            'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'tienda' => ['block' => 'store', 'label' => 'Tiendas'], 'sobres' => ['block' => 'envelope', 'label' => 'Lluvia de sobres'], 'cuenta' => ['block' => 'account', 'label' => 'Datos bancarios'], 'boton' => 'Botón'],
+            'hidden_without' => 'Agrega una tienda o los datos de la lluvia de sobres.',
         ],
         'playlist' => [
             'type' => 'spotify', 'label' => 'Playlist', 'icon' => 'headphones',
@@ -382,6 +521,7 @@ final class Catalog
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Inicia la cuenta regresiva', 'max_length' => 60],
                 ['key' => 'texto', 'label' => 'Frase', 'input' => 'textarea', 'max_length' => 400],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'tablero', 'label' => 'Tablero de Grand Central']]],
             ],
             'linked' => ['inicia'],
             'slots' => ['corona', 'mariposa'],
@@ -394,6 +534,7 @@ final class Catalog
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Confirmación', 'max_length' => 60],
                 ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'max_length' => 160],
                 ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => '¡Confirma aquí!', 'max_length' => 40],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'pase', 'label' => 'Pase VIP']]],
             ],
             'linked' => ['rsvp_modo', 'rsvp_limite', 'rsvp_whatsapp'],
             'slots' => ['tarjeta', 'flores'],
@@ -406,6 +547,7 @@ final class Catalog
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Dedicatoria', 'max_length' => 60],
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'placeholder' => 'Escribe unos buenos deseos…', 'max_length' => 400],
                 ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Enviar', 'max_length' => 40],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'postal', 'label' => 'Postal de correo aéreo']]],
             ],
             'slots' => ['divisor'],
             'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'mensaje' => ['block' => 'message', 'label' => 'Mensaje enviado'], 'autor' => ['block' => 'author', 'label' => 'Quién lo envía'], 'boton' => 'Botón'],
@@ -416,6 +558,7 @@ final class Catalog
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => '¡Te esperamos!', 'max_length' => 80],
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'max_length' => 400],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'marquesina', 'label' => 'Marquesina de Broadway']]],
             ],
             'slots' => ['flores', 'corona'],
             'texts' => ['titulo' => 'Título', 'texto' => 'Texto'],

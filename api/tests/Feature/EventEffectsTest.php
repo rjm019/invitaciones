@@ -34,4 +34,70 @@ class EventEffectsTest extends TestCase
             ->assertJsonPath('event.sections.5.type', 'dedications')
             ->assertJsonPath('event.sections.5.effects', ['color-shift']);
     }
+
+    public function test_the_new_york_effects_have_spanish_names(): void
+    {
+        $this->copyEventFixtures();
+        $this->appendLine('nueva', 'invitacion.csv', 'cierre,,visible,SI');
+        $this->appendLine('nueva', 'invitacion.csv', 'cierre,,efectos,"horizonte, reflectores, luces, escarcha, reflejo, panorámica"');
+        $this->appendLine('nueva', 'invitacion.csv', 'frase,,visible,SI');
+        $this->appendLine('nueva', 'invitacion.csv', 'frase,,efectos,ciudad brillitos paneo');
+
+        $sections = collect($this->getJson('/api/public/events/nueva')->assertOk()->json('event.sections'));
+
+        $this->assertSame(
+            ['skyline', 'searchlights', 'city-lights', 'glitter', 'sheen', 'pan'],
+            $sections->firstWhere('type', 'closing')['effects'],
+        );
+        $this->assertSame(['skyline', 'glitter', 'pan'], $sections->firstWhere('type', 'quote')['effects']);
+    }
+
+    public function test_the_page_chooses_edges_buttons_confetti_metal_and_corners(): void
+    {
+        $this->copyEventFixtures();
+        foreach ([
+            'pagina,,orilla,Festón',
+            'pagina,,botones,boleto',
+            'pagina,,confeti,NO',
+            'pagina,,metalico,SI',
+            'pagina,,esquinas,deco',
+            'frase,,visible,SI',
+            'frase,,orilla,hoja',
+            'cierre,,visible,SI',
+            'cierre,,orilla,espiral',
+        ] as $line) {
+            $this->appendLine('nueva', 'invitacion.csv', $line);
+        }
+
+        $event = $this->getJson('/api/public/events/nueva')->assertOk()->json('event');
+
+        $chosen = ['edge' => 'scallop', 'buttons' => 'ticket', 'confetti' => false, 'metal' => true, 'corners' => 'deco'];
+        $page = array_intersect_key($event['page'], $chosen);
+        ksort($chosen);
+        ksort($page);
+        $this->assertSame($chosen, $page);
+        $sections = collect($event['sections']);
+        $this->assertSame('torn', $sections->firstWhere('type', 'quote')['edge']);
+        // Una que no existe se ignora (con aviso): la sección toma la de la página.
+        $this->assertArrayNotHasKey('edge', $sections->firstWhere('type', 'closing'));
+    }
+
+    public function test_blend_and_disco_effects_and_a_blended_page(): void
+    {
+        $this->copyEventFixtures();
+        $this->appendLine('nueva', 'invitacion.csv', 'cierre,,visible,SI');
+        $this->appendLine('nueva', 'invitacion.csv', 'cierre,,efectos,"difuminar, bola_disco, luces_disco"');
+        $this->appendLine('nueva', 'invitacion.csv', 'frase,,visible,SI');
+        $this->appendLine('nueva', 'invitacion.csv', 'frase,,efectos,sin_cortes disco reflejos_disco');
+
+        $event = $this->getJson('/api/public/events/nueva')->assertOk()->json('event');
+        $sections = collect($event['sections']);
+        $this->assertSame(['blend', 'disco-ball', 'disco-lights'], $sections->firstWhere('type', 'closing')['effects']);
+        $this->assertSame(['blend', 'disco-ball', 'disco-lights'], $sections->firstWhere('type', 'quote')['effects']);
+        $this->assertArrayNotHasKey('blend', $event['page'] ?? []);
+
+        // "Secciones difuminadas" en la página: todas se funden (la web les pone el efecto).
+        $this->appendLine('nueva', 'invitacion.csv', 'pagina,,difuminar,SI');
+        $this->assertTrue($this->getJson('/api/public/events/nueva')->assertOk()->json('event.page.blend'));
+    }
 }

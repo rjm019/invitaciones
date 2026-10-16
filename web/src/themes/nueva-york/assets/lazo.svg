@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="90" viewBox="0 0 140 90">
+  <!-- Moño de satín plateado. -->
+  <defs>
+    <linearGradient id="satin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eef0f2"/>
+      <stop offset="0.5" stop-color="#a7adb5"/>
+      <stop offset="1" stop-color="#d9dce0"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#satin)" stroke="#eef0f2" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M70 40 C52 18 22 14 18 30 C14 46 42 52 70 42 Z"/>
+    <path d="M70 40 C88 18 118 14 122 30 C126 46 98 52 70 42 Z"/>
+    <path d="M66 44 C58 58 50 70 40 82 L50 80 L54 88 C62 74 68 60 70 46"/>
+    <path d="M74 44 C82 58 90 70 100 82 L90 80 L86 88 C78 74 72 60 70 46"/>
+    <ellipse cx="70" cy="41" rx="7" ry="6"/>
+  </g>
+</svg>

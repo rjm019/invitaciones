@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Design\GiftPrivacy;
 use App\Services\Invitations\InvitationService;
 use App\Services\Layout\EventRepository;
 use App\Services\Layout\LayoutException;
@@ -61,7 +62,7 @@ class SpaController extends Controller
                 $event = $events->find($m[1]);
 
                 return $event !== null && $event['published']
-                    ? ['kind' => 'event', 'key' => $m[1], 'data' => ['event' => $event]]
+                    ? ['kind' => 'event', 'key' => $m[1], 'data' => ['event' => GiftPrivacy::forGeneralLink($event)]]
                     : null;
             }
             if (preg_match('#^i/([A-Za-z0-9]+)$#', $path, $m)) {

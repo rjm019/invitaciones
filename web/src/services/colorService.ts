@@ -123,6 +123,16 @@ export function contrast(a: string, b: string): number {
   return (x + 0.05) / (y + 0.05)
 }
 
+/**
+ * ¿La invitación es oscura (fondo negro o casi)? Con su paleta ya calculada (token → hex,
+ * p. ej. { bg: '#0B0B0C' }); si no trae fondo, lo que diga su tema. El panel del dueño y la
+ * tarjeta para compartir cambian a su versión oscura.
+ */
+export function isDarkPalette(palette: Record<string, string>, themeDark = false): boolean {
+  const bg = normalizeHex(palette.bg ?? '')
+  return bg ? luminance(bg) < 0.2 : themeDark
+}
+
 /** Texto que se lee bien encima de un color (para la muestra del selector). */
 export function readableOn(hex: string): string {
   return contrast(hex, '#FFFFFF') >= contrast(hex, '#1E293B') ? '#FFFFFF' : '#1E293B'
@@ -173,6 +183,8 @@ export interface PalettePreset {
   id: string
   label: string
   colors: Record<string, string>
+  /** Hecha para un tema: no trae colores de panel (se quedan los del tema). */
+  theme?: string
 }
 
 const preset = (id: string, label: string, colors: Record<string, string>): PalettePreset => ({
@@ -279,4 +291,22 @@ export const PALETTE_PRESETS: PalettePreset[] = [
     superficie: '#1C1C1C',
     marco: '#3A3226',
   }),
+  // Sin colores de panel: así quedan los de satín negro del tema Nueva York (degradados).
+  {
+    id: 'nueva-york',
+    label: 'Nueva York',
+    theme: 'nueva-york',
+    colors: {
+      fondo: '#0B0B0C',
+      texto: '#F3F3F1',
+      primario: '#C4C8CE',
+      primario_fuerte: '#E2E5E9',
+      primario_claro: '#F4F5F7',
+      acento: '#8A9099',
+      acento_suave: '#1E2023',
+      acento_fuerte: '#5E636B',
+      superficie: '#141517',
+      marco: '#2E3034',
+    },
+  },
 ]

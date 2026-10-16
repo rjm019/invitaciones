@@ -192,6 +192,462 @@
   }
 }
 
+/*
+ * Efectos de ambiente (los pinta SectionAmbience, detrás del contenido). Sus clases
+ * internas no se llaman como la de la sección (fx-<efecto>) para no chocar con ella.
+ */
+
+/*
+ * reflectores (searchlights): haces que barren el cielo desde abajo, como en un estreno.
+ * El haz es una cuña con luz al centro que se apaga hacia sus orillas y hacia arriba: no
+ * deja bordes duros.
+ */
+.fx-beam {
+  position: absolute;
+  bottom: 0;
+  width: clamp(5rem, 40cqi, 14rem);
+  height: 160%;
+  translate: -50% 0;
+  transform-origin: 50% 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 8%,
+    color-mix(in srgb, var(--color-primary-soft) 42%, transparent) 50%,
+    transparent 92%
+  );
+  -webkit-mask-image: linear-gradient(to top, #000, rgb(0 0 0 / 0.45) 45%, transparent 92%);
+  mask-image: linear-gradient(to top, #000, rgb(0 0 0 / 0.45) 45%, transparent 92%);
+  clip-path: polygon(46% 100%, 54% 100%, 100% 0, 0 0);
+  opacity: 0.7;
+  animation: fx-beam calc(10s * var(--motion-scale)) ease-in-out infinite alternate;
+}
+@keyframes fx-beam {
+  from {
+    transform: rotate(var(--fx-beam-from, -20deg));
+  }
+  to {
+    transform: rotate(var(--fx-beam-to, 20deg));
+  }
+}
+
+/* luces de ciudad (city-lights): luces desenfocadas que suben, bajan y laten */
+.fx-bokeh {
+  position: absolute;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-primary-soft) 70%, transparent) 0%,
+    color-mix(in srgb, var(--color-primary-soft) 22%, transparent) 45%,
+    transparent 70%
+  );
+  opacity: 0;
+  animation: fx-bokeh calc(9s * var(--motion-scale)) ease-in-out infinite;
+}
+@keyframes fx-bokeh {
+  0%,
+  100% {
+    opacity: 0.12;
+    transform: translateY(0) scale(0.9);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateY(var(--fx-drift, -16px)) scale(1.06);
+  }
+}
+
+/*
+ * horizonte (skyline): tres capas de Manhattan (máscaras de 2400×300 que se repiten de
+ * lado; cada edificio famoso sale una vez por vuelta) que avanzan a distinta velocidad
+ * sobre un resplandor; las ventanas se encienden a destiempo. Cada capa mide su ancho más una repetición y recorre exactamente una: el
+ * ciclo no tiene costura. Los colores salen de la paleta (o de --fx-skyline-* del tema).
+ */
+.fx-skyline-scene {
+  --fx-skyline-h: clamp(5.5rem, 30cqi, 10rem);
+  --fx-tile: calc(var(--fx-skyline-h) * 8);
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--fx-skyline-h);
+  background: linear-gradient(
+    to top,
+    var(--fx-skyline-glow, color-mix(in srgb, var(--color-primary) 26%, transparent)),
+    transparent 85%
+  );
+}
+.fx-skyline-layer {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(100% + var(--fx-tile));
+  animation: fx-skyline calc(100s * var(--motion-scale)) linear infinite;
+}
+.fx-skyline-layer--far {
+  animation-delay: calc(-70s * var(--motion-scale));
+}
+.fx-skyline-layer--mid {
+  animation-delay: calc(-38s * var(--motion-scale));
+}
+.fx-skyline-shape,
+.fx-skyline-windows {
+  position: absolute;
+  inset: 0;
+  -webkit-mask: var(--fx-mask) 0 100% / var(--fx-tile) 100% repeat-x;
+  mask: var(--fx-mask) 0 100% / var(--fx-tile) 100% repeat-x;
+}
+.fx-skyline-layer--far .fx-skyline-shape {
+  background: var(--fx-skyline-far, color-mix(in srgb, var(--color-primary) 22%, var(--color-bg)));
+}
+.fx-skyline-layer--mid .fx-skyline-shape {
+  background: var(--fx-skyline-mid, color-mix(in srgb, var(--color-primary) 10%, var(--color-bg)));
+}
+.fx-skyline-layer--near .fx-skyline-shape {
+  background: var(--fx-skyline-near, color-mix(in srgb, var(--color-text) 3%, var(--color-bg)));
+}
+.fx-skyline-windows {
+  background: var(--fx-skyline-window, var(--color-primary-soft));
+  animation: fx-windows calc(7s * var(--motion-scale)) ease-in-out infinite;
+}
+.fx-skyline-windows--b {
+  animation-delay: calc(-3.5s * var(--motion-scale));
+}
+.fx-skyline-layer--near .fx-skyline-windows {
+  animation-duration: calc(11s * var(--motion-scale));
+}
+@keyframes fx-skyline {
+  to {
+    transform: translateX(calc(-1 * var(--fx-tile)));
+  }
+}
+@keyframes fx-windows {
+  0%,
+  100% {
+    opacity: 0.95;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* escarcha (glitter): brillitos plateados que caen despacio, se mecen y se apagan */
+.fx-speck {
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 30%, var(--color-primary-soft) 55%, transparent 72%);
+  opacity: 0;
+  animation: fx-speck calc(8s * var(--motion-scale)) linear infinite;
+}
+.fx-speck--star {
+  border-radius: 0;
+  background: radial-gradient(
+    circle,
+    #fff 0 22%,
+    var(--color-primary-soft) 55%,
+    var(--color-primary) 100%
+  );
+  clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
+}
+@keyframes fx-speck {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0deg);
+  }
+  12% {
+    opacity: 0.95;
+  }
+  45% {
+    opacity: 0.4;
+  }
+  62% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--fx-sway, 0), var(--fx-fall, 120px)) rotate(120deg);
+  }
+}
+
+/*
+ * bola disco (disco-ball): cada espejo es una cara en 3D sobre la esfera (rotateY a su
+ * longitud, rotateX a su latitud, translateZ al radio) y gira la bola entera con un solo
+ * transform. Encima, una sombra redonda (la luz llega de arriba a la izquierda) y un
+ * brillo; debajo, un núcleo oscuro que se ve entre espejo y espejo. Los colores salen de la
+ * paleta: cada espejo mezcla el claro del tema con negro según cuánto refleja (--l).
+ */
+.fx-disco {
+  position: absolute;
+  width: var(--fx-disco-size);
+  aspect-ratio: 1;
+  translate: -50% 0;
+}
+.fx-disco__chain {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  width: 1px;
+  height: 60vh;
+  translate: -50% 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--color-primary) 70%, transparent),
+    color-mix(in srgb, var(--color-primary) 25%, transparent)
+  );
+}
+.fx-disco__ball {
+  position: absolute;
+  inset: 0;
+}
+.fx-disco__core,
+.fx-disco__shade {
+  position: absolute;
+  inset: 2%;
+  border-radius: 50%;
+}
+.fx-disco__core {
+  background: #0d0d0f;
+}
+.fx-disco__tilt,
+.fx-disco__globe {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+/* Se ve un poco desde abajo, como una bola colgada del techo. */
+.fx-disco__tilt {
+  transform: rotateX(-14deg);
+}
+.fx-disco__globe {
+  animation: fx-disco-spin calc(15s * var(--motion-scale)) linear infinite;
+}
+.fx-disco__globe.is-reverse {
+  animation-direction: reverse;
+}
+@keyframes fx-disco-spin {
+  to {
+    transform: rotateY(360deg);
+  }
+}
+.fx-disco__tile {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--fx-disco-size) * var(--w));
+  height: calc(var(--fx-disco-size) * var(--h));
+  margin: calc(var(--fx-disco-size) * var(--h) / -2) 0 0 calc(var(--fx-disco-size) * var(--w) / -2);
+  transform: rotateY(var(--lon)) rotateX(var(--lat)) translateZ(calc(var(--fx-disco-size) / 2));
+  backface-visibility: hidden;
+  background: color-mix(in srgb, var(--color-primary-soft) calc(var(--l) * 100%), #141416);
+}
+.fx-disco__shade {
+  background:
+    radial-gradient(circle at 34% 28%, rgb(255 255 255 / 0.55) 0 6%, transparent 26%),
+    radial-gradient(circle at 50% 46%, transparent 48%, rgb(0 0 0 / 0.62) 100%);
+  box-shadow: 0 0 calc(var(--fx-disco-size) * 0.35)
+    color-mix(in srgb, var(--color-primary-soft) 22%, transparent);
+}
+/* Destellos que nacen sobre un espejo, giran y se apagan. */
+.fx-disco__glint {
+  position: absolute;
+  width: 46%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: radial-gradient(circle, #fff 0 12%, rgb(255 255 255 / 0.65) 30%, transparent 62%);
+  clip-path: polygon(50% 0, 56% 44%, 100% 50%, 56% 56%, 50% 100%, 44% 56%, 0 50%, 44% 44%);
+  opacity: 0;
+  animation: fx-disco-glint calc(3.6s * var(--motion-scale)) ease-in-out infinite;
+}
+@keyframes fx-disco-glint {
+  0%,
+  62%,
+  100% {
+    opacity: 0;
+    transform: scale(0.2) rotate(0deg);
+  }
+  74% {
+    opacity: 1;
+    transform: scale(1) rotate(45deg);
+  }
+  86% {
+    opacity: 0;
+    transform: scale(0.5) rotate(90deg);
+  }
+}
+/* Rayos finos desde el centro de la bola: giran despacio y laten. */
+.fx-disco__rays {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  animation: fx-disco-rays calc(90s * var(--motion-scale)) linear infinite;
+}
+@keyframes fx-disco-rays {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.fx-disco__ray {
+  position: absolute;
+  bottom: 0;
+  left: -1px;
+  width: 2px;
+  transform-origin: 50% 100%;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--color-primary-soft) 55%, transparent),
+    transparent 92%
+  );
+  opacity: 0.1;
+  animation: fx-disco-ray calc(4s * var(--motion-scale)) ease-in-out infinite;
+}
+@keyframes fx-disco-ray {
+  0%,
+  100% {
+    opacity: 0.06;
+  }
+  50% {
+    opacity: 0.32;
+  }
+}
+
+/*
+ * reflejos de bola disco (disco-lights, y los de la bola): puntos de luz que cruzan la
+ * sección de lado a lado, todos al mismo ritmo (24 s, como SPOT_TRAVEL en SectionAmbience);
+ * algunos titilan y uno de cada cinco es una estrellita.
+ */
+.fx-disco-spot {
+  position: absolute;
+  left: 0;
+  aspect-ratio: 1.3;
+  border-radius: 40%;
+  background: radial-gradient(
+    closest-side,
+    #fff,
+    color-mix(in srgb, var(--color-primary-soft) 70%, transparent) 45%,
+    transparent
+  );
+  opacity: 0.75;
+  animation: fx-disco-spot calc(24s * var(--motion-scale)) linear infinite;
+}
+.fx-disco-spot--twinkle {
+  animation:
+    fx-disco-spot calc(24s * var(--motion-scale)) linear infinite,
+    fx-disco-twinkle var(--fx-twinkle, 2s) ease-in-out infinite;
+}
+.fx-disco-spot--star {
+  aspect-ratio: 1;
+  border-radius: 0;
+  background: radial-gradient(circle, #fff 0 18%, var(--color-primary-soft) 45%, transparent 70%);
+  clip-path: polygon(50% 0, 57% 43%, 100% 50%, 57% 57%, 50% 100%, 43% 57%, 0 50%, 43% 43%);
+}
+@keyframes fx-disco-spot {
+  from {
+    transform: translateX(-6cqi);
+  }
+  to {
+    transform: translateX(106cqi);
+  }
+}
+@keyframes fx-disco-twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+/*
+ * reflejo plateado (sheen): de vez en cuando una franja de luz cruza la sección. Con
+ * "color-dodge" y una franja gris (no blanca: el blanco aclara todo) cada color se aviva
+ * en proporción a lo claro que ya es: las letras y los filos plateados destellan y el
+ * fondo oscuro casi no cambia. Sin panel (la portada) llega hasta la orilla de la pantalla
+ * (difuminada ya llega sola).
+ */
+.section__sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: color-dodge;
+}
+.section--bare:not(.section--blend) > .section__sheen {
+  inset: calc(-1 * var(--section-gap, 1rem));
+}
+.section__sheen::before {
+  content: '';
+  position: absolute;
+  top: -25%;
+  bottom: -25%;
+  left: 0;
+  width: 42%;
+  background: linear-gradient(100deg, transparent 15%, rgb(105 105 105) 50%, transparent 85%);
+  transform: translateX(-130%) skewX(-14deg);
+  animation: fx-sheen calc(9s * var(--motion-scale)) ease-in-out infinite;
+}
+@keyframes fx-sheen {
+  0%,
+  58% {
+    transform: translateX(-130%) skewX(-14deg);
+  }
+  88%,
+  100% {
+    transform: translateX(360%) skewX(-14deg);
+  }
+}
+
+/*
+ * Difuminada: las luces, la escarcha y los destellos se desvanecen en sus orillas (no se
+ * cortan en línea recta donde empieza la sección vecina). La ciudad no: va al pie.
+ */
+.section--blend > :is(.ambience:not(.ambience--skyline), .section__sparkles) {
+  -webkit-mask: linear-gradient(
+    transparent,
+    #000 var(--blend-edge, 3rem),
+    #000 calc(100% - var(--blend-edge, 3rem)),
+    transparent
+  );
+  mask: linear-gradient(
+    transparent,
+    #000 var(--blend-edge, 3rem),
+    #000 calc(100% - var(--blend-edge, 3rem)),
+    transparent
+  );
+}
+
+/*
+ * Sección lejos de la pantalla (SectionShell le pone .is-idle): todo lo que se mueve en
+ * ella se pausa, y su ambiente (luces, ciudad, escarcha, reflejo…) ni se pinta. Al volver
+ * sigue donde se quedó. Así una invitación con muchos efectos no satura el celular.
+ */
+.section.is-idle,
+.section.is-idle *,
+.section.is-idle *::before,
+.section.is-idle *::after {
+  animation-play-state: paused;
+}
+.section.is-idle
+  > :is(.ambience, .section__sparkles, .section__sheen, .section__tint, .section__disco) {
+  visibility: hidden;
+}
+
+/* panorámica (pan): la imagen de fondo se desliza despacio de lado a lado */
+.fx-pan .section__bg {
+  left: -12%;
+  right: -12%;
+  animation: fx-pan calc(40s * var(--motion-scale)) ease-in-out infinite alternate;
+}
+@keyframes fx-pan {
+  from {
+    transform: translateX(-8%);
+  }
+  to {
+    transform: translateX(8%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fx-cascade .fx-reveal-target :is(li, article, [data-cascade]) {
     opacity: 1;
@@ -214,5 +670,37 @@
   .fx-shine .btn-shine::after,
   .decor-twinkle {
     animation: none;
+  }
+  /* Quietos: los haces a medio camino, las luces y la ciudad fijas, sin escarcha ni reflejo. */
+  .fx-beam {
+    animation: none;
+    transform: rotate(calc((var(--fx-beam-from, -20deg) + var(--fx-beam-to, 20deg)) / 2));
+  }
+  .fx-bokeh {
+    animation: none;
+    opacity: 0.4;
+  }
+  .fx-skyline-layer,
+  .fx-skyline-windows,
+  .fx-pan .section__bg {
+    animation: none;
+  }
+  .fx-speck,
+  .section__sheen {
+    display: none;
+  }
+  /* La bola quieta (con su brillo), sin destellos; los reflejos, quietos donde están. */
+  .fx-disco__globe,
+  .fx-disco__rays,
+  .fx-disco__ray {
+    animation: none;
+  }
+  .fx-disco__glint {
+    display: none;
+  }
+  .fx-disco-spot {
+    animation: none;
+    transform: translateX(calc(var(--fx-spot-x, 50) * 1cqi));
+    opacity: 0.5;
   }
 }

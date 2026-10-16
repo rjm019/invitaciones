@@ -7,7 +7,7 @@
 
 ## Avance
 
-- [ ] 1. Ubicación (ceremonia, recepción o ambas) · Itinerario en vivo · Mesa de regalos y lluvia de sobres
+- [ ] 1. Ubicación (ceremonia, recepción o ambas) · Itinerario en vivo · ~~Mesa de regalos y lluvia de sobres~~ (hecha el 16-oct, ver §2)
 - [ ] 2. Galería (con miniaturas)
 - [ ] 3. Video · Publicación de redes
 - [ ] 4. Trivia
@@ -61,6 +61,8 @@ El usuario además eligió dos ideas nuevas: **Trivia de la festejada** e **Itin
 - Sin `tipo`, se ve igual que hoy (NAT no cambia).
 
 ## 2. Mesa de regalos y lluvia de sobres (`mesa_regalos`, tipo `gifts`)
+
+> **Hecho (16-oct):** como se describe abajo. Los campos de la lluvia de sobres son `sobres_titulo`, `sobres_texto`, `banco`, `cuenta`, `titular`, `sobre_fisico` y `solo_con_enlace` (encendido si no se escribe). El filtro está en `GiftPrivacy` (lo usan `EventController` y la página precargada `/e/`); la vista previa del gestor lo imita en *Enlace general*. La tienda no lleva logotipo: un monograma con su inicial. En Nueva York, la variante `bolsas` (bolsas de la Quinta Avenida y un sobre déco). Pruebas: `EventGiftsTest`, `giftService.spec.ts`.
 
 - **Tiendas** (lista, máx. 8):
   - `tienda` (select con ícono: Amazon, Liverpool, Palacio de Hierro, Sears, Costco, Otra);

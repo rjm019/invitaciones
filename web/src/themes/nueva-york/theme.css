@@ -1,0 +1,105 @@
+/*
+ * Nueva York: una noche en Manhattan. Negro, blanco perla y plata; paneles de satín negro
+ * con filo plateado y esquinas escalonadas art déco; títulos con brillo de metal. La
+ * paleta se puede cambiar por invitación (bloque "colores"): los filos, los brillos, el
+ * horizonte y los haces la siguen.
+ */
+:root[data-theme='nueva-york'] {
+  /* Controles del navegador (casillas, fechas, barras) en su versión oscura. */
+  color-scheme: dark;
+  --color-bg: #0b0b0c;
+  --color-text: #f3f3f1;
+  --color-primary: #c4c8ce;
+  --color-primary-strong: #e2e5e9;
+  --color-primary-soft: #f4f5f7;
+  --color-accent: #8a9099;
+  --color-accent-soft: #1e2023;
+  /* Botones del panel del dueño (letra blanca encima) */
+  --color-accent-strong: #5e636b;
+  --color-surface: #141517;
+  --color-frame: #2e3034;
+  --color-lino: #17181b;
+  --color-night: #000000;
+  --color-on-night: #ffffff;
+  /* Letra de los botones plateados */
+  --color-on-button: #0b0b0c;
+  /* Papel: las franjas blancas de las secciones difuminadas (blanco perla, no blanco puro). */
+  --color-paper: #f3f2ee;
+  /* Los destellos de las estrellas, en blanco frío (plata, no oro). */
+  --glint-tint: #eef1f5;
+  /* Satín negro: cada panel con su propio caer de luz */
+  --color-panel: linear-gradient(180deg, #151618 0%, #0e0e10 100%);
+  --color-panel-alt: linear-gradient(160deg, #191a1d 0%, #0f1012 60%, #16171a 100%);
+  --color-panel-warm: radial-gradient(120% 80% at 50% 0%, #1e1f23 0%, #0f1012 70%);
+  /* Satén plateado (el itinerario): reflejos que corren en diagonal */
+  --color-panel-pearl: linear-gradient(
+    155deg,
+    #1b1c20 0%,
+    #2b2d32 34%,
+    #15161a 58%,
+    #26282d 80%,
+    #111215 100%
+  );
+
+  --shadow-card: 0 14px 36px rgb(0 0 0 / 0.55);
+  --shadow-button: 0 2px 12px rgb(0 0 0 / 0.5);
+  --panel-radius: 6px;
+  --panel-shadow: 0 12px 32px rgb(0 0 0 / 0.55);
+  --panel-border: 1px solid rgb(196 200 206 / 0.3);
+  /* El sobre es perla: quién la recibe va en tinta oscura (el gestor lo puede cambiar). */
+  --t-to-color: #2b2d32;
+}
+
+/* Filos y sombras desde la paleta: si la invitación cambia sus colores, los siguen. */
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+  :root[data-theme='nueva-york'],
+  :root[data-theme='nueva-york'] .section--recolored {
+    --panel-border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+  }
+}
+
+/*
+ * Bodoni es más ancha que una letra de pluma: en la tarjeta de la portada, la frase va en
+ * mayúsculas espaciadas y el salón más chico; la frase suelta, un poco más chica. (Lo que
+ * se elija en el gestor para esos textos gana: va en la sección misma.)
+ */
+:root[data-theme='nueva-york'] .section--hero-envelope {
+  --t-subtitle-size: 0.5;
+  --t-place-size: 0.56;
+}
+:root[data-theme='nueva-york'] .section--hero-envelope [data-text='subtitle'] {
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+}
+:root[data-theme='nueva-york'] .section--quote {
+  --t-text-size: 0.8;
+}
+
+/*
+ * Franja de papel (fondo "papel"): blanca en una invitación de noche. Adentro todo va en
+ * tinta: los tokens se vuelven a declarar para la sección, así cada componente (títulos
+ * con brillo de metal, botones, marcos) se ve oscuro sobre blanco. Con la orilla de hoja
+ * rasgada, la fibra del papel negro es gris y su sombra cae sobre el blanco.
+ */
+:root[data-theme='nueva-york'] .section--bg-paper {
+  --color-text: #17181b;
+  --color-primary: #33363c;
+  --color-primary-strong: #16171a;
+  --color-primary-soft: #8d929a;
+  --color-accent: #6b7079;
+  --color-accent-soft: #e4e3df;
+  --color-accent-strong: #2b2d32;
+  --color-surface: #fbfaf8;
+  --color-frame: #c9cbcf;
+  --color-lino: #ebe9e4;
+  --color-bg: var(--color-paper);
+  --color-on-button: #f6f5f2;
+  --t-to-color: #2b2d32;
+  --panel-border: 1px solid rgb(51 54 60 / 0.22);
+  --button-gradient: linear-gradient(180deg, #5b5f66 0%, #2b2d32 55%, #16171a 100%);
+  --shadow-card: 0 10px 26px rgb(23 24 27 / 0.14);
+  --shadow-button: 0 2px 10px rgb(23 24 27 / 0.25);
+  --blend-rim: #3b3c40;
+  --blend-shade: rgb(0 0 0 / 0.5);
+  color-scheme: light;
+}

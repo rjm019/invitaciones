@@ -129,7 +129,13 @@ const stars = computed(() =>
   position: absolute;
   aspect-ratio: 1;
   translate: -50% -50%;
-  background: radial-gradient(circle, #fff 0 16%, #fff4c8 34%, var(--color-primary-soft) 60%);
+  /* El tono del destello: cálido por defecto (el de NAT); un tema lo cambia con --glint-tint. */
+  background: radial-gradient(
+    circle,
+    #fff 0 16%,
+    var(--glint-tint, #fff4c8) 34%,
+    var(--color-primary-soft) 60%
+  );
   clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
   opacity: 0;
   animation: sprite-glint calc(2.4s * var(--motion-scale)) ease-in-out infinite;

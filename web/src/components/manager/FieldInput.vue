@@ -46,7 +46,11 @@ const TIMEZONES = [
   { value: 'America/Bogota', label: 'Bogotá' },
   { value: 'Europe/Madrid', label: 'Madrid' },
 ]
-const THEME_LABELS: Record<string, string> = { 'jardin-azul': 'Jardín azul' }
+const THEME_LABELS: Record<string, string> = {
+  'jardin-azul': 'Jardín azul',
+  marfil: 'Marfil',
+  'nueva-york': 'Nueva York',
+}
 const themes = computed(() => listThemes().map((t) => ({ value: t, label: THEME_LABELS[t] ?? t })))
 
 const dateTime = computed(() => {

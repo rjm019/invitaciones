@@ -145,7 +145,7 @@ async function send() {
       </fieldset>
       <p v-if="errors.attending" class="guest-form__error">{{ errors.attending }}</p>
 
-      <button type="submit" class="guest-form__submit" :disabled="sending">
+      <button type="submit" class="guest-form__submit inv-btn" :disabled="sending">
         {{ sending ? 'Enviando…' : 'Enviar' }}
       </button>
       <p class="guest-form__hint">
@@ -279,16 +279,19 @@ async function send() {
 .guest-form__submit {
   min-height: 3.2rem;
   margin-top: 0.4rem;
-  border: 0;
-  border-radius: 6px;
-  background: var(--button-gradient);
-  color: var(--color-surface);
+  border: var(--btn-border, 0);
+  border-radius: var(--btn-radius, 6px);
+  background: var(--btn-bg, var(--button-gradient));
+  color: var(--btn-color, var(--color-surface));
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.15rem;
-  letter-spacing: 0.04em;
-  box-shadow: var(--shadow-button, none);
+  letter-spacing: var(--btn-tracking, 0.04em);
+  box-shadow: var(--btn-shadow, var(--shadow-button, none));
   cursor: pointer;
+  text-transform: var(--btn-case, none);
+  clip-path: var(--btn-clip, none);
+  text-shadow: var(--btn-glow, none);
 }
 .guest-form__submit:disabled {
   opacity: 0.6;

@@ -1,4 +1,11 @@
-import type { DecorSprite, DesktopWidth, SectionBackground } from '@/types/event'
+import type {
+  ButtonStyle,
+  CornerStyle,
+  DecorSprite,
+  DesktopWidth,
+  EdgeStyle,
+  SectionBackground,
+} from '@/types/event'
 
 export interface ThemeFont {
   family: string
@@ -56,6 +63,8 @@ export interface ThemeManifest {
   id: string
   /** Nombre para el editor del gestor ("Jardín azul"). */
   label?: string
+  /** Tema de fondo oscuro: el panel del dueño y la tarjeta para compartir van en su versión oscura. */
+  dark?: boolean
   /** Rol tipográfico → fuente por defecto (el layout puede sobrescribirla en la pestaña tipografia). */
   fonts: Record<string, ThemeFont>
   /** Fondo de toda la página (debajo de las secciones). */
@@ -64,6 +73,21 @@ export interface ThemeManifest {
   floating?: FloatingDecorItem[]
   /** Decoraciones que cruzan la pantalla (también en el celular). */
   flights?: FlightItem[]
+  /**
+   * Confeti de papel metálico que cae despacio por toda la pantalla (con los colores de la
+   * paleta). count: cuántos pedacitos a la vez. La invitación lo puede apagar o encender.
+   */
+  confetti?: { count?: number }
+  /**
+   * Lo que el tema pone por defecto en los detalles que la invitación también puede elegir
+   * (bloque "pagina"): la orilla de las franjas (`default`, o por color de fondo: `paper`,
+   * `frame`…), el estilo de los botones, los títulos con brillo de metal y las esquinas de
+   * los paneles.
+   */
+  edges?: { default?: EdgeStyle } & Record<string, EdgeStyle | undefined>
+  buttons?: ButtonStyle
+  metallic?: boolean
+  corners?: CornerStyle
   /**
    * Fondos que se turnan los paneles sin fondo propio (en el layout o en el tema), para
    * que dos secciones seguidas no se vean iguales.

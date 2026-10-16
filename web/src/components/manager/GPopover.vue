@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 /**
  * Un panel flotante junto a su ancla (el selector de color, el de letras, un menú). Se
  * acomoda para no salirse de la pantalla y se cierra tocando afuera o con Esc.
+ *
+ * Se pinta al final del gestor (.mgr), no dentro de su ancla: una tarjeta que se levanta
+ * al pasar el puntero (transform) o que recorta lo que sobra (overflow) lo dejaba
+ * encerrado y fuera de la vista.
  */
 const props = withDefaults(
   defineProps<{
@@ -17,6 +21,9 @@ const props = withDefaults(
 const emit = defineEmits<{ close: [] }>()
 const panel = ref<HTMLElement | null>(null)
 const style = ref<Record<string, string>>({})
+// Dentro de .mgr, para que siga con los colores y la letra del gestor (o de su ventana, si
+// está en una: lo de afuera queda detrás y sin responder).
+const host = computed(() => props.anchor?.closest<HTMLElement>('dialog, .mgr') ?? 'body')
 
 function place(): void {
   if (!props.anchor || !panel.value) return
@@ -74,9 +81,11 @@ onBeforeUnmount(() => listen(false))
 </script>
 
 <template>
-  <div v-if="open" ref="panel" class="g-popover" role="dialog" :style="style">
-    <slot />
-  </div>
+  <Teleport :to="host">
+    <div v-if="open" ref="panel" class="g-popover" role="dialog" :style="style">
+      <slot />
+    </div>
+  </Teleport>
 </template>
 
 <style scoped>
