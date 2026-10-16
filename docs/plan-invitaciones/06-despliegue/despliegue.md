@@ -110,7 +110,7 @@ deploy/plantillas/subir.sh nueva-york
 
 - Crea `/data/eventos/plantilla-nueva-york/` con su `invitacion.csv` y `ajustes.csv` (`plantilla=SI`, `publicado=NO`), como `instalar.sh` en local. Después aparece en `/gestor` → Plantillas.
 - **16-oct:** ya se subió, pero era la versión de solo la portada. La completa (las 18 secciones) se sube con `deploy/plantillas/subir.sh nueva-york --forzar`.
-- Para quitar una plantilla: en el gestor, ⋯ → "Eliminar plantilla". Pasa a `/data/eventos/_gestor/papelera/`, y se recupera con `fly ssh console -C "mv /data/eventos/_gestor/papelera/<carpeta> /data/eventos/<slug>"`.
+- Para quitar una plantilla o una invitación: en el gestor, ⋯ → "Eliminar…" (una invitación ya compartida pide escribir su dirección). Pasa completa a `/data/eventos/_gestor/papelera/`, y se recupera con `fly ssh console -C "mv /data/eventos/_gestor/papelera/<carpeta> /data/eventos/<slug>"`.
 - Si allá ya existe, no la toca: puede tener cambios hechos en el gestor. `--forzar` reemplaza su `invitacion.csv` (guarda antes la del servidor en `respaldos/invitacion-subida-<fecha>.csv`) y deja sus ajustes; si hay un borrador, lo avisa.
 - No hace falta `fly deploy`: el código del tema ya va en la imagen (release v10).
 - Sin consola: en el gestor, *Nueva* → en blanco, como plantilla → *Importar* `deploy/plantillas/nueva-york/invitacion.csv` → *Guardar plantilla*.
@@ -125,6 +125,19 @@ deploy/plantillas/subir.sh nueva-york
 3. Revisar en la vista previa (celular y computadora; *Enlace general* y *Invitación personal* para la mesa de regalos) y tocar *Publicar*.
 4. En *Datos generales*: *Visible* y la clave del cliente (el panel queda en `/panel/xv-ximena`).
 5. Borrar `eventos/ximena.zip` de tu Mac.
+
+**Por terminal** (así se subió Ximena el 16-oct; el respaldo de lo que había allá quedó en `eventos/xv-ximena-servidor-20261016-1006/`). Queda en el borrador y nunca publica:
+
+```bash
+deploy/bajar-evento.sh xv-ximena                                   # respaldo de lo que hay allá
+docker compose exec api php artisan invitacion:exportar ximena --formato=zip --salida=/var/www/eventos/ximena.zip
+fly ssh console -C "sh -c 'cat > /tmp/ximena.zip'" < eventos/ximena.zip
+fly ssh console -C "sh -c 'cd /var/www/api && php artisan invitacion:importar xv-ximena /tmp/ximena.zip; chown -R www-data:www-data /data/eventos/xv-ximena; rm -f /tmp/ximena.zip'"
+fly ssh console -C "sh -c 'cd /var/www/api && php artisan invitacion:validar xv-ximena'"   # "el borrador está listo"
+rm eventos/ximena.zip
+```
+
+Después, en el gestor de producción: revisar, *Publicar*, *Visible* y la clave del cliente (pasos 3 y 4 de arriba).
 
 Otra forma, sin el gestor: `deploy/subir-evento.sh <slug> --forzar` sube la media y reemplaza `invitacion.csv`. Necesita una carpeta local con ese mismo nombre y nunca sube `ajustes.csv`.
 

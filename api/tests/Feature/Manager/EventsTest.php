@@ -103,6 +103,7 @@ class EventsTest extends TestCase
     {
         $this->asManager()->postJson('/api/manager/events', ['slug' => 'plantilla-azul', 'source' => 'event', 'from' => 'nueva', 'template' => true])->assertCreated();
 
+        // Una plantilla no tiene invitados: no pide escribir su dirección.
         $this->deleteJson('/api/manager/events/plantilla-azul')->assertOk()->assertJsonPath('deleted', 'plantilla-azul');
 
         // Ya no está en la lista ni abre en el editor…
@@ -114,23 +115,75 @@ class EventsTest extends TestCase
         $this->assertCount(1, $moved);
         $this->assertFileExists("{$moved[0]}/invitacion.csv");
         $this->assertFileExists("{$moved[0]}/media/salon.webp");
-        $log = array_map('str_getcsv', array_slice(file("{$this->eventos}/_gestor/papelera/papelera.csv", FILE_IGNORE_NEW_LINES), 1));
-        $this->assertSame(['plantilla-azul', '_gestor/papelera/'.basename($moved[0]), 'ana', 'Ana Prueba'], array_slice($log[0], 1));
+        $this->assertSame(
+            ['plantilla-azul', 'plantilla', '_gestor/papelera/'.basename($moved[0]), '0', '0', 'ana', 'Ana Prueba'],
+            array_slice($this->trashLog()[0], 1),
+        );
         // La papelera nunca aparece como evento.
         $this->assertNotContains('_gestor', collect($this->getJson('/api/manager/events')->json('events'))->pluck('slug'));
         $this->deleteJson('/api/manager/events/plantilla-azul')->assertNotFound();
     }
 
-    public function test_only_templates_are_deleted_and_only_by_who_administers(): void
+    public function test_an_invitation_already_shared_asks_for_its_address(): void
     {
-        // Una invitación guarda sus enlaces y confirmaciones: no se elimina desde aquí.
-        $this->asManager()->deleteJson('/api/manager/events/nueva')->assertStatus(422);
+        // "nueva" está visible y tiene enlaces: hay que escribir su dirección.
+        $this->asManager()->deleteJson('/api/manager/events/nueva')->assertStatus(422)->assertJsonValidationErrors('confirm');
+        $this->deleteJson('/api/manager/events/nueva', ['confirm' => 'otra'])->assertStatus(422);
         $this->assertDirectoryExists("{$this->eventos}/nueva");
-        $this->postJson('/api/manager/events', ['slug' => 'plantilla-azul', 'source' => 'event', 'from' => 'nueva', 'template' => true])->assertCreated();
+        $this->getJson('/api/public/invitations/NuevaToken01')->assertOk();
 
-        // Quien edita ve las plantillas, pero no las elimina.
-        $this->asManager('beto', 'editor')->deleteJson('/api/manager/events/plantilla-azul')->assertForbidden();
+        $this->deleteJson('/api/manager/events/nueva', ['confirm' => 'nueva'])->assertOk()->assertJsonPath('deleted', 'nueva');
+
+        // Sus enlaces y su invitación general dejan de abrir…
+        $this->getJson('/api/public/invitations/NuevaToken01')->assertNotFound();
+        $this->getJson('/api/public/events/nueva')->assertNotFound();
+        // …y todo lo suyo queda en la papelera, con cuántos enlaces tenía.
+        $moved = glob("{$this->eventos}/_gestor/papelera/nueva-*", GLOB_ONLYDIR);
+        $this->assertCount(1, $moved);
+        $this->assertFileExists("{$moved[0]}/invitaciones.csv");
+        $this->assertFileExists("{$moved[0]}/ajustes.csv");
+        $log = $this->trashLog()[0];
+        $this->assertSame(['nueva', 'invitacion'], [$log[1], $log[2]]);
+        $this->assertGreaterThan(0, (int) $log[4]);
+    }
+
+    public function test_the_first_trash_log_is_upgraded_without_losing_rows(): void
+    {
+        // Así anotaba la papelera de la release v11 (solo plantillas).
+        mkdir("{$this->eventos}/_gestor/papelera", 0775, true);
+        file_put_contents(
+            "{$this->eventos}/_gestor/papelera/papelera.csv",
+            "\u{FEFF}fecha,plantilla,carpeta,usuario,nombre\r\n\"2026-10-16 16:09:15\",plantilla-vieja,_gestor/papelera/plantilla-vieja-20261016-160915,ana,Ana Prueba\r\n",
+        );
+        $this->asManager()->postJson('/api/manager/events', ['slug' => 'xv-prueba', 'source' => 'blank'])->assertCreated();
+
+        $this->deleteJson('/api/manager/events/xv-prueba')->assertOk();
+
+        $lines = file("{$this->eventos}/_gestor/papelera/papelera.csv", FILE_IGNORE_NEW_LINES);
+        $this->assertSame("\u{FEFF}fecha,evento,tipo,carpeta,enlaces,confirmados,usuario,nombre", $lines[0]);
+        $log = $this->trashLog();
+        $this->assertSame(['plantilla-vieja', 'plantilla', '_gestor/papelera/plantilla-vieja-20261016-160915'], array_slice($log[0], 1, 3));
+        $this->assertSame(['xv-prueba', 'invitacion'], array_slice($log[1], 1, 2));
+    }
+
+    public function test_a_new_hidden_invitation_goes_without_typing(): void
+    {
+        $this->asManager()->postJson('/api/manager/events', ['slug' => 'xv-prueba', 'source' => 'blank'])->assertCreated();
+
+        $this->deleteJson('/api/manager/events/xv-prueba')->assertOk();
+        $this->assertDirectoryDoesNotExist("{$this->eventos}/xv-prueba");
+    }
+
+    public function test_only_who_administers_deletes(): void
+    {
+        $this->asManager()->postJson('/api/manager/events', ['slug' => 'plantilla-azul', 'source' => 'event', 'from' => 'nueva', 'template' => true])->assertCreated();
+        // Quien edita ve las plantillas y las invitaciones que creó, pero no las elimina.
+        $this->asManager('beto', 'editor')->postJson('/api/manager/events', ['slug' => 'xv-beto', 'source' => 'blank'])->assertCreated();
+
+        $this->deleteJson('/api/manager/events/plantilla-azul')->assertForbidden();
+        $this->deleteJson('/api/manager/events/xv-beto')->assertForbidden();
         $this->assertDirectoryExists("{$this->eventos}/plantilla-azul");
+        $this->assertDirectoryExists("{$this->eventos}/xv-beto");
     }
 
     public function test_the_landing_samples_are_marked_for_their_own_tab(): void
@@ -171,5 +224,11 @@ class EventsTest extends TestCase
         $this->getJson('/api/public/events/nueva')->assertOk();
 
         $this->putJson('/api/manager/events/nueva/settings', ['panel_password' => 'corta'])->assertStatus(422);
+    }
+
+    /** @return list<list<string>> los renglones de papelera.csv, sin el encabezado */
+    private function trashLog(): array
+    {
+        return array_map('str_getcsv', array_slice(file("{$this->eventos}/_gestor/papelera/papelera.csv", FILE_IGNORE_NEW_LINES), 1));
     }
 }

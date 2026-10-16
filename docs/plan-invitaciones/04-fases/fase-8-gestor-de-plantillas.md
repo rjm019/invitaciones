@@ -170,13 +170,14 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
   - La sección `mesa_regalos` se agrega desde *Agregar*.
 - [x] **Plantillas en producción:** `deploy/plantillas/subir.sh <nombre>`, que se corre desde tu Mac y no va en la imagen (probado con un `fly` simulado).
 
-**Después de ver el gestor publicado (16-oct, tarde; falta `fly deploy`):**
+**Después de ver el gestor publicado (16-oct, tarde; en la release v11, salvo eliminar invitaciones):**
 
 - [x] **La plantilla de Nueva York, completa:** traía solo la portada; ahora trae las 18 secciones con su diseño y textos de ejemplo, sin datos de personas ni fotos (`deploy/plantillas/nueva-york/`). Validada, y revisada en capturas a 390 px. En Fly se actualiza con `deploy/plantillas/subir.sh nueva-york --forzar` (allá no tenía borrador).
-- [x] **Eliminar plantillas:** ⋯ → "Eliminar plantilla", con confirmación. Solo quien administra y solo plantillas.
-  - La carpeta no se borra: pasa a `_gestor/papelera/<slug>-<fecha>/`, con `papelera.csv` (quién y cuándo).
-  - `DELETE /api/manager/events/{slug}` (`TemplateTrash`). Una invitación responde `422`: guarda enlaces y confirmaciones.
-  - Pruebas: `EventsTest`. Probado en el navegador: el aviso, la tarjeta que se quita y la carpeta en la papelera.
+- [x] **Eliminar plantillas** (en la v11) y, después, **invitaciones y muestras** (falta `fly deploy`): ⋯ → "Eliminar invitación", "Eliminar plantilla" o "Eliminar muestra", con confirmación. Solo quien administra.
+  - La carpeta no se borra: pasa completa a `_gestor/papelera/<slug>-<fecha>/`. `papelera.csv` anota quién, cuándo, el tipo y cuántos enlaces y confirmados tenía.
+  - Una invitación visible, con enlaces o con respuestas pide escribir su dirección (`confirm`), y el servidor lo revisa. Después, sus enlaces, su panel y su media dan `404`.
+  - `DELETE /api/manager/events/{slug}` (`EventTrash`, que reemplaza a `TemplateTrash`). La bitácora de la v11 se pasa sola al formato nuevo.
+  - Pruebas: `EventsTest` (plantilla, invitación compartida con y sin dirección, nueva y oculta, quién puede, bitácora vieja) y `managerHomeService`. Probado en el navegador: la dirección que enciende el botón, el aviso, la tarjeta que se quita y la papelera.
 - [x] **Pestaña "Muestras":** las muestras de la landing (`demo=SI`) ya no llenan "Invitaciones". La pestaña solo sale si hay muestras y avisa que los cambios publicados ahí los ven los clientes.
   - La lista trae `demo`; la lógica de las pestañas y la búsqueda, ahora también sin acentos, está en `managerHomeService` (con su prueba).
 - [x] La tarjeta de una graduación dice "Graduación" (antes "Evento").
@@ -184,8 +185,8 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
 ## Cómo se prueba
 
 ```bash
-docker compose exec api php artisan test                  # 205 pruebas
-docker compose exec web npm run test                      # 333 pruebas
+docker compose exec api php artisan test                  # 208 pruebas
+docker compose exec web npm run test                      # 334 pruebas
 docker compose exec web npm run lint && docker compose exec web npx vue-tsc --build --force
 docker compose exec web npm run build
 ```

@@ -120,9 +120,12 @@ export async function listEvents(
   return data
 }
 
-/** Elimina una plantilla (solo quien administra): en el servidor pasa a la papelera del gestor. */
-export async function deleteTemplate(token: string, slug: string): Promise<void> {
-  await http.delete(event(slug), auth(token))
+/**
+ * Elimina una invitación, plantilla o muestra (solo quien administra): en el servidor pasa
+ * completa a la papelera del gestor. Una invitación ya compartida pide `confirm` = su dirección.
+ */
+export async function deleteEvent(token: string, slug: string, confirm?: string): Promise<void> {
+  await http.delete(event(slug), { ...auth(token), data: confirm ? { confirm } : undefined })
 }
 
 export interface NewEvent {

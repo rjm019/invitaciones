@@ -35,8 +35,9 @@ eventos/_gestor/
 │                  clave (solo el hash bcrypt), cambiar_clave (SI = tiene clave temporal),
 │                  creado, ultimo_acceso
 ├── cotizaciones.csv  lo que llega de la landing
-├── papelera/      plantillas eliminadas desde el gestor: <slug>-AAAAMMDD-HHMMSS/ (la carpeta
-│                  completa) y papelera.csv (fecha, plantilla, carpeta, usuario, nombre)
+├── papelera/      lo eliminado desde el gestor: <slug>-AAAAMMDD-HHMMSS/ (la carpeta completa)
+│                  y papelera.csv (fecha, evento, tipo, carpeta, enlaces, confirmados,
+│                  usuario, nombre)
 └── respaldos/     copia del día de usuarios.csv antes de cambiarlo
 ```
 
@@ -125,7 +126,7 @@ erDiagram
 | La clave del panel nunca va en el diseño: no se exporta, no se copia al duplicar ni al hacer plantilla, y el historial de ajustes dice "(cambiada)" | `EventSettings` + `DesignFactory` + `DesignTransfer` |
 | Nueva invitación o copia: solo el diseño y `media/` (sin `originales/`); nunca enlaces, respuestas, `respaldos/` ni `borrador/`; nace con `publicado=NO` y clave nueva | `DesignFactory` |
 | Plantilla (`plantilla=SI`): `404` en todo lo público y sin panel | `EventRepository` |
-| Eliminar desde el gestor: solo plantillas y solo quien administra. La carpeta no se borra: pasa entera a `_gestor/papelera/` (con fecha en el nombre) y queda anotado quién. Una invitación no se elimina (`422`): guarda enlaces, confirmaciones y dedicatorias | `TemplateTrash` + `Manager\EventController::destroy` |
+| Eliminar desde el gestor: solo quien administra. La carpeta no se borra: pasa entera a `_gestor/papelera/` (con fecha en el nombre) y queda anotado quién y qué tenía. Una invitación (o muestra) visible, con enlaces o con respuestas solo se elimina escribiendo su dirección (`confirm`); después, sus enlaces, su panel y su media dan `404` | `EventTrash` + `Manager\EventController::destroy` |
 | Eliminar una invitación (panel): se marca `eliminada` en `invitaciones.csv` (el número nunca se reutiliza, así sus aperturas e historial no pasan a otra) y el enlace da `404`; sus personas y su dedicatoria pasan a `*-eliminadas.csv`. Un envío que llega justo después ya no escribe nada (`404`): `ResponseStore::add` y `DedicationStore::add` revisan dentro de su candado que la invitación siga activa | `PanelService::deleteInvitation` + `InvitationStore::delete` |
 | Media: jpg, png, webp o gif (≤ 15 MB, revisado con `finfo`; nunca SVG ni HTML) → WebP; mp3 o m4a (≤ 20 MB); no se borra lo que la invitación usa (publicada o borrador) | `MediaLibrary` + `ImageOptimizer` |
 

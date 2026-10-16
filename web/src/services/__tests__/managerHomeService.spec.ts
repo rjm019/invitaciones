@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canDelete, groupByTab, searchEvents, tabOf } from '../managerHomeService'
+import { groupByTab, kindOf, needsConfirmation, searchEvents, tabOf } from '../managerHomeService'
 import type { ManagerEvent } from '@/types/design'
 
 function ev(over: Partial<ManagerEvent>): ManagerEvent {
@@ -53,10 +53,23 @@ describe('managerHomeService', () => {
     expect(searchEvents(list, '')).toBe(list)
   })
 
-  it('solo quien administra elimina, y solo plantillas', () => {
-    expect(canDelete(ev({ template: true }), true)).toBe(true)
-    expect(canDelete(ev({ template: true }), false)).toBe(false)
-    expect(canDelete(ev({}), true)).toBe(false)
-    expect(canDelete(ev({ demo: true }), true)).toBe(false)
+  it('pide escribir la dirección para eliminar una invitación ya compartida', () => {
+    const counts = (invitations: number, guests: number) => ({ invitations, guests, attending: 0 })
+    // Visible, con enlaces o con confirmaciones: hay invitados que la tienen.
+    expect(needsConfirmation(ev({ published: true }))).toBe(true)
+    expect(needsConfirmation(ev({ published: false, counts: counts(2, 0) }))).toBe(true)
+    expect(needsConfirmation(ev({ published: false, counts: counts(0, 3) }))).toBe(true)
+    expect(needsConfirmation(ev({ demo: true }))).toBe(true)
+    // Recién hecha y oculta, o una plantilla: basta con confirmar.
+    expect(needsConfirmation(ev({ published: false }))).toBe(false)
+    expect(needsConfirmation(ev({ template: true, published: false }))).toBe(false)
+    // Si no se pudo leer, mejor pedirla.
+    expect(needsConfirmation(ev({ published: false, error: 'No se pudo leer' }))).toBe(true)
+  })
+
+  it('dice qué se elimina', () => {
+    expect(kindOf(ev({}))).toBe('invitación')
+    expect(kindOf(ev({ template: true }))).toBe('plantilla')
+    expect(kindOf(ev({ demo: true }))).toBe('muestra')
   })
 })

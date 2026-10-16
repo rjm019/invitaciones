@@ -43,7 +43,8 @@ class ValidateInvitation extends Command
             return self::FAILURE;
         }
 
-        $this->info("{$slug}: {$label} está lista (".count($result->config['sections']).' secciones visibles).');
+        $ready = $current['source'] === 'live' ? 'lista' : 'listo';
+        $this->info("{$slug}: {$label} está {$ready} (".count($result->config['sections']).' secciones visibles).');
 
         return self::SUCCESS;
     }

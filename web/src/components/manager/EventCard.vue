@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { kindOf } from '@/services/managerHomeService'
 import type { ManagerEvent } from '@/types/design'
 import GPopover from './GPopover.vue'
 import ManagerIcon from './ManagerIcon.vue'
@@ -188,7 +189,7 @@ function act(action: 'duplicate' | 'template' | 'download' | 'delete'): void {
           class="menu__item menu__item--danger"
           @click="act('delete')"
         >
-          <ManagerIcon name="trash-can" /> Eliminar plantilla
+          <ManagerIcon name="trash-can" /> Eliminar {{ kindOf(event) }}
         </button>
       </nav>
     </GPopover>

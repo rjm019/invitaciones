@@ -93,7 +93,7 @@ media/          ─┘         (Catalog: qué secciones y campos existen)       
 └── _gestor/
     ├── usuarios.csv              cuentas del gestor (solo el hash de la clave)
     ├── cotizaciones.csv          lo que llega de la landing
-    └── papelera/                 plantillas eliminadas desde el gestor (completas, con quién)
+    └── papelera/                 invitaciones y plantillas eliminadas desde el gestor (completas, con quién)
 ```
 
 Toda escritura pasa por **`CsvFile`**:
