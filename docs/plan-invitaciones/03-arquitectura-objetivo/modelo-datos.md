@@ -1,6 +1,6 @@
 # Modelo de datos (sin base de datos)
 
-**Actualizado:** 14-oct-2026. Reemplaza el modelo original con MySQL (tablas `events`, `invitations` y `guests`, con migraciones). Por decisión del usuario, **todo vive en archivos por evento**: así se pueden abrir en Excel y se respaldan copiando una carpeta, igual que el buscador de recepción.
+**Actualizado:** 16-oct-2026. Reemplaza el modelo original con MySQL (tablas `events`, `invitations` y `guests`, con migraciones). Por decisión del usuario, **todo vive en archivos por evento**: así se pueden abrir en Excel y se respaldan copiando una carpeta, igual que el buscador de recepción.
 
 El formato de `invitacion.csv` y de cada campo, para quien arma invitaciones, está en `eventos/README.md`. Este archivo explica cómo se relacionan los archivos y qué reglas cumple el servidor.
 
@@ -34,6 +34,9 @@ eventos/_gestor/
 ├── usuarios.csv   las personas del gestor: usuario, nombre, rol (admin|editor), activo (SI|NO),
 │                  clave (solo el hash bcrypt), cambiar_clave (SI = tiene clave temporal),
 │                  creado, ultimo_acceso
+├── cotizaciones.csv  lo que llega de la landing
+├── papelera/      plantillas eliminadas desde el gestor: <slug>-AAAAMMDD-HHMMSS/ (la carpeta
+│                  completa) y papelera.csv (fecha, plantilla, carpeta, usuario, nombre)
 └── respaldos/     copia del día de usuarios.csv antes de cambiarlo
 ```
 
@@ -117,9 +120,12 @@ erDiagram
 | Publicar: en modo estricto (con errores → `422 { issues }`); respalda lo publicado, escribe atómico, borra el borrador y anota la bitácora | `DesignPublisher` |
 | Fecha límite al publicar: si el cliente ya la movió, la suya gana, salvo que el gestor elija reemplazarla (se borra solo su fecha; los cambios usados y el historial quedan) | `DesignPublisher` |
 | Diseño: máximo 60 secciones, 120 campos por sección, 100 elementos y 4000 caracteres por valor; los enlaces deben empezar con `https://` | `Catalog::LIMITS` + `InvitationConfigBuilder` |
+| Opciones de diseño (`orilla` de la página o de una sección, `botones`, `esquinas`): solo valores del catálogo; uno que no existe se avisa en `issues` y se ignora (queda lo del tema). El `variante` de una sección pasa tal cual: si la web no tiene ese diseño, pinta el de siempre | `Catalog::EDGES`, `BUTTONS`, `CORNERS` + `InvitationConfigBuilder::choice` |
+| Mesa de regalos: con `solo_con_enlace` (SI si no se escribe), `banco`, `cuenta` y `titular` solo viajan a `/i/<token>`; `/e/<slug>` (la API y la página precargada) los recibe vacíos con `hidden: true`. Las tiendas y su número de evento se ven en las dos. Sin tiendas ni lluvia de sobres, la sección no sale (en la web: `hasGifts`) | `GiftPrivacy` + `EventController` + `SpaController` |
 | La clave del panel nunca va en el diseño: no se exporta, no se copia al duplicar ni al hacer plantilla, y el historial de ajustes dice "(cambiada)" | `EventSettings` + `DesignFactory` + `DesignTransfer` |
 | Nueva invitación o copia: solo el diseño y `media/` (sin `originales/`); nunca enlaces, respuestas, `respaldos/` ni `borrador/`; nace con `publicado=NO` y clave nueva | `DesignFactory` |
 | Plantilla (`plantilla=SI`): `404` en todo lo público y sin panel | `EventRepository` |
+| Eliminar desde el gestor: solo plantillas y solo quien administra. La carpeta no se borra: pasa entera a `_gestor/papelera/` (con fecha en el nombre) y queda anotado quién. Una invitación no se elimina (`422`): guarda enlaces, confirmaciones y dedicatorias | `TemplateTrash` + `Manager\EventController::destroy` |
 | Eliminar una invitación (panel): se marca `eliminada` en `invitaciones.csv` (el número nunca se reutiliza, así sus aperturas e historial no pasan a otra) y el enlace da `404`; sus personas y su dedicatoria pasan a `*-eliminadas.csv`. Un envío que llega justo después ya no escribe nada (`404`): `ResponseStore::add` y `DedicationStore::add` revisan dentro de su candado que la invitación siga activa | `PanelService::deleteInvitation` + `InvitationStore::delete` |
 | Media: jpg, png, webp o gif (≤ 15 MB, revisado con `finfo`; nunca SVG ni HTML) → WebP; mp3 o m4a (≤ 20 MB); no se borra lo que la invitación usa (publicada o borrador) | `MediaLibrary` + `ImageOptimizer` |
 

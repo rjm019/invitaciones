@@ -52,7 +52,25 @@
 |---|---|---|---|---|---|---|
 | 01 | | | | | | |
 
-## 8. Assets (resumen; detalle en `assets-manifest.csv`)
+## 8. Diseño propio por sección
+
+Cada sección con una idea del tema, aunque su contenido sea el de siempre. Usa un diseño existente (`01-analisis-codigo/efectos-reutilizables.md` → "Diseños de sección") o marca "nuevo".
+
+| Sección | Idea del tema | Diseño (`variante`) | ¿Nuevo? | Adornos | Efectos |
+|---|---|---|---|---|---|
+| portada | | | | | |
+
+## 9. Opciones de toda la invitación
+
+| Opción | Valor | Nota |
+|---|---|---|
+| Secciones difuminadas (`difuminar`) | SI / NO | |
+| División entre secciones (`orilla`, por color de fondo) | degradado / hoja / ciudad / ola / feston / recta / nueva | |
+| Botones (`botones`) | degradado / solido / contorno / deco / boleto / neon / texto / nuevo | |
+| Confeti · títulos metálicos · esquinas | | |
+| Lo que cruza la pantalla (mariposas, confeti) | | |
+
+## 10. Assets (resumen; detalle en `assets-manifest.csv`)
 
 | # | Archivo | Uso | ¿Exportar del editor? | ¿Recrear en CSS/SVG? | Licencia OK |
 |---|---|---|---|---|---|

@@ -2,10 +2,10 @@
 
 **Objetivo:** que cualquiera arme una invitación sin tocar Excel: secciones, orden, colores con selector, letras, imágenes, ubicaciones, textos y música, con la invitación a la vista mientras se edita. Y que todo siga en un archivo que se abre en Excel y se puede desarmar y volver a armar.
 **Duración real:** 14-oct-2026 (y la etapa H, 15-oct).
-**Rama:** `feature/gestor-plantillas` (sin push, merge ni deploy hasta que la revises).
+**Rama:** `feature/gestor-plantillas`; unida a `main` y publicada en Fly el 15-oct (release v6), en GitHub desde el 16-oct.
 **Referencias:** `eventos/README.md` (formato y uso), `../03-arquitectura-objetivo/api-contrato.md` (API del gestor), `../03-arquitectura-objetivo/frontend.md` (cómo está armado), `../06-despliegue/despliegue.md` (runbook de producción).
 
-> **Estado (15-oct-2026): etapas A–E, G (una cuenta por persona) y H (menos trabajo para el servidor) hechas en la rama; falta tu revisión.** NAT local ya está en el formato nuevo (la migración salió "idéntica"). Producción no cambió: el runbook corre solo cuando lo pidas. La etapa F (limpieza) es después del 28-nov.
+> **Estado (16-oct-2026): etapas A–E, G (una cuenta por persona), H (menos trabajo para el servidor) e I (arreglos y opciones de diseño) hechas, y en producción.** NAT está en el formato nuevo en local y en Fly (allá desde el 15-oct). La etapa F (limpieza) es después del 28-nov.
 > Casillas: `[x]` hecho · `[x] ~~…~~ Cambió:` resuelto de otra forma · `[ ]` pendiente.
 
 ## Decisiones (14-oct)
@@ -72,8 +72,9 @@
 - [x] `deploy/subir-evento.sh`: siempre media/ y el layout anterior si lo hay; `invitacion.csv` solo con `--forzar`, respaldando antes la del servidor; avisa si hay un borrador allá.
 - [x] `deploy/bajar-evento.sh` (nuevo): trae un evento del servidor a una carpeta nueva, sin pisar la local.
 - [x] Probados los dos scripts con un `fly` simulado (el servidor en una carpeta temporal): no tocan respuestas, ajustes ni el borrador; con `--forzar` respaldan; bajar no sobrescribe.
-- [x] **Runbook de producción, pasos 1 y 2** (15-oct): `GESTOR_CLAVE` y `fly deploy` (release v6). Producción ya tiene el gestor; NAT sigue con su Excel hasta que se publique desde el gestor.
-- [ ] Pasos 3 a 8: tu cuenta, el respaldo, el ensayo y pasar NAT al formato nuevo (al publicarla desde el gestor, por ejemplo con la playlist).
+- [x] **Runbook de producción, pasos 1 y 2** (15-oct): `GESTOR_CLAVE` y `fly deploy` (release v6). Producción ya tiene el gestor; ese día NAT seguía con su Excel (ya está migrada: abajo).
+- [x] Pasos 3 y 7, revisados en el disco de Fly el 16-oct: tu cuenta existe (`_gestor/usuarios.csv`) y NAT ya está en el formato nuevo (`respaldos/publicaciones.csv`: "formato anterior", 15-oct a las 19:19 UTC). Allá NAT tiene un borrador sin publicar.
+- [ ] Pasos 4–6 y 8 (respaldo, ensayo, revisión): no hay forma de comprobarlos desde aquí; si no los hiciste, el 8 sigue sirviendo (abrir `/e/nat`, una `/i/…` y `/panel/nat`).
 
 ### F. Limpieza (después del 28-nov-2026)
 
@@ -156,11 +157,35 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
   - API 178: `DesignStateTest`; guardar responde lo mismo que abrir; lista con `user`; publicar con el editor; páginas sin cookies.
   - Web 280: `previewPatchService`, `previewService`, `previewProtocol`, los dos ritmos en `useDesignEditor`, `useManagerPeople` y `setUser`.
 
+### I. Arreglos y opciones de diseño (16-oct; en la release v10)
+
+- [x] **Invitación en blanco sin vista previa:** se quedaba en "Cargando la vista previa…" porque PHP manda la paleta vacía como `[]`. `previewProtocol` la acepta y la normaliza (`normalizeConfig`; prueba en `previewProtocol.spec.ts`). Ver `bugs-y-riesgos.md` #27.
+- [x] **Menú ⋯ de las tarjetas:** se pinta fuera de la tarjeta (`GPopover` con `Teleport`), porque la tarjeta que se levanta lo recortaba (#28).
+- [ ] **Vista previa en blanco al elegir una sección:** no se reprodujo. Quedan tres medidas: en *Elegir* el iframe de Spotify no recibe el toque, el fondo es el del tema y las secciones lejos pausan sus efectos (#29, pregunta 46).
+- [x] **Estilo → Página:** las opciones de toda la invitación salen solas de `Catalog::PAGE` (secciones difuminadas, división, botones, confeti, títulos metálicos, esquinas). Vacías, las pone el tema.
+- [x] **Diseño de cada sección:** *Diseño* ofrece "Clásica" y los diseños alternos; *División con las vecinas* cambia la orilla de esa sección.
+- [x] **Resto del editor:**
+  - Íconos de Nueva York en el selector del itinerario, y el color `papel` en la paleta.
+  - La vista previa en *Enlace general* esconde los datos bancarios de la mesa de regalos, como el servidor (`forGeneralLink`).
+  - La sección `mesa_regalos` se agrega desde *Agregar*.
+- [x] **Plantillas en producción:** `deploy/plantillas/subir.sh <nombre>`, que se corre desde tu Mac y no va en la imagen (probado con un `fly` simulado).
+
+**Después de ver el gestor publicado (16-oct, tarde; falta `fly deploy`):**
+
+- [x] **La plantilla de Nueva York, completa:** traía solo la portada; ahora trae las 18 secciones con su diseño y textos de ejemplo, sin datos de personas ni fotos (`deploy/plantillas/nueva-york/`). Validada, y revisada en capturas a 390 px. En Fly se actualiza con `deploy/plantillas/subir.sh nueva-york --forzar` (allá no tenía borrador).
+- [x] **Eliminar plantillas:** ⋯ → "Eliminar plantilla", con confirmación. Solo quien administra y solo plantillas.
+  - La carpeta no se borra: pasa a `_gestor/papelera/<slug>-<fecha>/`, con `papelera.csv` (quién y cuándo).
+  - `DELETE /api/manager/events/{slug}` (`TemplateTrash`). Una invitación responde `422`: guarda enlaces y confirmaciones.
+  - Pruebas: `EventsTest`. Probado en el navegador: el aviso, la tarjeta que se quita y la carpeta en la papelera.
+- [x] **Pestaña "Muestras":** las muestras de la landing (`demo=SI`) ya no llenan "Invitaciones". La pestaña solo sale si hay muestras y avisa que los cambios publicados ahí los ven los clientes.
+  - La lista trae `demo`; la lógica de las pestañas y la búsqueda, ahora también sin acentos, está en `managerHomeService` (con su prueba).
+- [x] La tarjeta de una graduación dice "Graduación" (antes "Evento").
+
 ## Cómo se prueba
 
 ```bash
-docker compose exec api php artisan test                  # 178 pruebas
-docker compose exec web npm run test                      # 280 pruebas
+docker compose exec api php artisan test                  # 205 pruebas
+docker compose exec web npm run test                      # 333 pruebas
 docker compose exec web npm run lint && docker compose exec web npx vue-tsc --build --force
 docker compose exec web npm run build
 ```

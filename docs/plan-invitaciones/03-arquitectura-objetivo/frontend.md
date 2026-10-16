@@ -1,6 +1,6 @@
 # Frontend — componentes, composables y temas
 
-> **Actualizado el 14-oct-2026.** Las rutas y los composables de abajo son los que existen hoy. La sección 4 (manifiesto) y `evento.schema.json` todavía describen la forma original del `config`: la forma real está en `web/src/types/event.ts` y la arma `api/app/Services/Design/InvitationConfigBuilder.php` desde `invitacion.csv` (o, en el formato anterior, `EventConfigBuilder` desde el Excel). El gestor está en la sección 6.
+> **Actualizado el 16-oct-2026.** Las rutas y los composables de abajo son los que existen hoy. El ejemplo de manifiesto de la sección 4 y `evento.schema.json` todavía describen la forma original del `config`. La forma real está en `web/src/types/event.ts` (y la del manifiesto, en `web/src/themes/types.ts`). La arma `api/app/Services/Design/InvitationConfigBuilder.php` desde `invitacion.csv` o, en el formato anterior, `EventConfigBuilder` desde el Excel. El gestor y las guías para agregar secciones, diseños, orillas, botones y opciones de página están en la sección 6. El catálogo de lo que ya existe: `../01-analisis-codigo/efectos-reutilizables.md` → "Piezas de diseño reutilizables".
 
 ## 1. Rutas
 
@@ -37,6 +37,7 @@ La lógica vive en `services/` (TS puro, sin Vue ni DOM global, con pruebas en V
 | `spotifyService` · `weatherService` | Enlace de Spotify → reproductor (tema oscuro, español); clima del evento (textos, íconos, consejos, cuándo renovar) |
 | `managerService` | Llamadas del gestor (`/api/manager`): sesión, primera cuenta, mi clave, personas, catálogo, eventos, diseño, borrador, publicar, historial, ajustes, media, descargar e importar |
 | `managerAccountService` | Cuentas del gestor sin servidor: el usuario que se propone para una persona nueva, el mensaje con su acceso, sus iniciales y "Ana la publicó" |
+| `managerHomeService` | El inicio del gestor: en qué pestaña va cada tarjeta (invitaciones, plantillas o muestras de la landing), la búsqueda (sin importar mayúsculas ni acentos) y quién puede eliminar (quien administra, solo plantillas) |
 | `designService` · `designHistoryService` | Operaciones inmutables sobre el diseño (campos, elementos, secciones: agregar, duplicar, mover, ocultar, quitar) y deshacer/rehacer (50 pasos; lo escrito seguido en un campo cuenta como uno) |
 | `previewPatchService` | Diseño → lo que la vista previa muestra al instante (paleta, fuentes, colores y estilos de texto por sección, y los textos que pasan tal cual: títulos, subtítulos, textos y botones de cada sección; título, nombres y salón del evento), con el mismo mapeo que el servidor; y `needsServer`: si lo que falta guardar necesita al servidor para verse |
 | `previewProtocol` · `previewService` | Mensajes entre el editor y su iframe (con su validación) y lo que la vista previa simula: aplicar el parche, invitación de ejemplo de 4 lugares, respuesta del RSVP y clima de ejemplo |
@@ -91,13 +92,15 @@ Cada componente en `components/sections/`:
 - **Tiene `id`** para anclas (`#rsvp`, `#ubicacion`…).
 - **Respeta `prefers-reduced-motion`.**
 
-`InvitationPage` recorre `config.sections` y por cada clave hace:
+`InvitationRenderer` arma las secciones (`resolveSections` → `withContent` → `withPanels` → `withEdges` → `placeOnDesktop`) y por cada una hace:
 
 ```vue
-<component :is="sectionRegistry[key]" v-bind="propsFor(key)" :variant="theme.variants[key]">
-  <template #decor-top><ThemeDecor :section="key" position="top" /></template>
-</component>
+<SectionShell :section="section">
+  <component :is="componentFor(section)" :section="section" />
+</SectionShell>
 ```
+
+`componentFor` (de `useSectionComponents`) da el diseño alterno de `sectionVariants[type][variant]` si existe y ya se descargó; si no, el de siempre (`sectionRegistry[type]`). Cada sección recibe toda su `ResolvedSection` (textos, `variant`, `decor`, `effects`, `background`, `edge`) y saca los datos del evento con `useEvent`.
 
 ## 4. Temas
 
@@ -105,27 +108,39 @@ Cada tema vive en `src/themes/<id>/`:
 
 ```
 theme.css        # :root[data-theme="<id>"] { …tokens… } + overrides por sección
-manifest.ts      # fuentes, variantes, decoraciones por sección, iconos personalizados
+manifest.ts      # fuentes, paletas, y por sección: variante, adornos, efectos, fondo y panel
 assets/          # WebP/PNG/SVG optimizados (solo decorativos; nunca fotos de personas)
 ```
 
+Hoy hay tres: `jardin-azul` (NAT), `marfil` (dibujos de línea, el de las muestras) y `nueva-york` (oscuro, con diseño propio en cada sección). `src/themes/_shared/` guarda los adornos que cualquier tema encuentra por nombre (`assets/`: puerta, estatua, puente, destellos, grano) y los destellos de título (`sprites.ts`).
+
+**El manifiesto, además de fuentes y secciones** (forma completa en `themes/types.ts`):
+- **Fondos:** `panels` (los fondos que se turnan) y `panelColor`.
+- **Lo que cruza la página:** `floating` y `flights` (mariposas), y `confetti: { count }` (confeti metálico).
+- **`dark: true`:** el panel del dueño y la imagen para WhatsApp en su versión oscura.
+- **Opciones de toda la invitación:** `edges` (`{ default, <color>: <orilla> }`), `buttons`, `metallic` y `corners`.
+- **El diseño de cada sección:** `sections[tipo].variant`.
+
+La invitación puede cambiar todo eso desde `pagina` o en cada sección.
+
 ### Tokens obligatorios
 
-| Token | jardin-azul (NAT) | new-york-noir (NY) | boda-salvia (repo actual) |
+| Token | jardin-azul (NAT) | nueva-york (hecho el 15-oct) | boda-salvia (repo actual, pendiente) |
 |---|---|---|---|
-| `--color-bg` | `#F3F1EC` + textura papel | `#000000` | `#E3ECDE` |
-| `--color-text` | `#523C0B` | `#E6E6E6` | `#476D68` |
-| `--color-primary` | `#96792C` (oro) | `#C0C0C0` (plata) | `#B19292` (rosa viejo) |
-| `--color-primary-strong` | `#C0902C` | `#FFFFFF` | `#3B5958` |
-| `--color-accent` | `#8CC0E8` (azul) | `#808080` (gris) | `#B76E79` |
-| `--color-surface` | `#F6F6F6` | `#111111` | `#FFFFFF` |
-| `--color-frame` | `#ABC1D9` | `#2A2A2A` | `#B19292` |
-| `--font-script` | Pinyon Script | Playfair Display Italic | Dancing Script |
-| `--font-script-mono` | Sacramento | Playfair Display | Dancing Script |
-| `--font-serif` | EB Garamond | Playfair Display | Times New Roman → EB Garamond |
-| `--font-display` | Marcellus | Archivo Black (o similar a "Heading Now") | Playfair Display |
-| `--texture-bg` | `url(./assets/papel.webp)` | `none` | `none` |
-| Filtro de imágenes | — | `grayscale(1)` | — |
+| `--color-bg` | `#F3F1EC` + textura papel | `#0B0B0C` + papel de noche (`noche.svg`) | `#E3ECDE` |
+| `--color-text` | `#523C0B` | `#F3F3F1` | `#476D68` |
+| `--color-primary` | `#96792C` (oro) | `#C4C8CE` (plata) | `#B19292` (rosa viejo) |
+| `--color-primary-strong` | `#C0902C` | `#E2E5E9` | `#3B5958` |
+| `--color-accent` | `#8CC0E8` (azul) | `#8A9099` (gris) | `#B76E79` |
+| `--color-surface` | `#F6F6F6` | `#141517` | `#FFFFFF` |
+| `--color-frame` | `#ABC1D9` | `#2E3034` | `#B19292` |
+| `--color-paper` (franjas claras de las secciones difuminadas) | `#FFFFFF` (el de `tokens.css`) | `#F3F2EE` | — |
+| `--font-script` | Pinyon Script | Great Vibes | Dancing Script |
+| `--font-script-mono` | Sacramento | Bodoni Moda | Dancing Script |
+| `--font-serif` | EB Garamond | Jost | Times New Roman → EB Garamond |
+| `--font-display` | Marcellus | Bodoni Moda | Playfair Display |
+| `--texture-bg` | `url(./assets/papel.webp)` | — | `none` |
+| Filtro de imágenes | — | — | — |
 
 ### Manifiesto (ejemplo, `jardin-azul`)
 
@@ -183,12 +198,50 @@ Va en su propio pedazo del build (rutas perezosas): la invitación pública no c
 
 **Componentes** (`components/manager/`): `EditorTopBar`, `SectionList`, `PreviewFrame`, `SectionInspector` (con `FieldInput`, `ItemListEditor`, `SectionDesign` y `TextStyleControl`), `StylePanel` (con `ColorField`/`ColorPicker` y `FontPicker`), `GeneralPanel` (con `SharePreview`), y los diálogos `AddSectionDialog`, `MediaLibraryDialog`, `PublishDialog`, `HistoryDialog`, `TransferDialog`, `ConflictDialog`, `NewEventDialog`. Base: `GDialog`, `GPopover`, `ToastHost`, `ManagerIcon`.
 
+**Inicio** (`ManagerPage`): pestañas Invitaciones, Plantillas y Muestras (las de la landing, `demo`; solo si hay), con búsqueda. El ⋯ de cada tarjeta (`EventCard`, menú en `GPopover`) duplica, guarda como plantilla y descarga; en una plantilla, quien administra la elimina con confirmación (`GDialog`; en el servidor pasa a `_gestor/papelera/`).
+
 **Pantallas:** tres columnas en escritorio (secciones · vista previa · inspector); de 768 a 1199 px las secciones van en un cajón; en celular, pestañas abajo (Secciones · Editar · Ver).
 
 ### Cómo agregar un tipo de sección
 
 1. **Catálogo (API):** una entrada en `Catalog::SECTIONS` (`api/app/Services/Design/Catalog.php`): nombre en el CSV, `type` del contrato, etiqueta, ícono, descripción, campos propios, lista (si tiene elementos), `linked` (campos de `evento` que se editan ahí), adornos (`slots`), bloques de texto propios (`texts`), si se repite y `hidden_without` (la pista cuando no se ve). Los campos comunes (textos, fondo, efectos, colores, estilos de texto) vienen solos. El gestor arma su inspector y su lugar en "Agregar" con esto.
 2. **Datos (API):** solo si la sección tiene lista o datos propios, agrégalos en `InvitationConfigBuilder` (como `family`, `itinerary` u `hotels`), con su validación y sus `issues`.
-3. **Componente (web):** `components/sections/<Nombre>Section.vue`, con sus datos por props y solo tokens del tema. Cada texto lleva `data-text="<bloque>"` y sus reglas usan `var(--t-<bloque>-font, …)`, `var(--t-<bloque>-color, …)` y `calc(… * var(--t-<bloque>-size, 1))`, con el valor del tema como respaldo. Una línea en `sectionRegistry.ts`.
-4. **Tema:** lo que trae por defecto en el manifiesto (`sections['<type>']`: variante, adornos, efectos, panel) y su CSS.
+3. **Componente (web):** `components/sections/<Nombre>Section.vue`, con sus datos por props y solo tokens del tema.
+   - Cada texto lleva `data-text="<bloque>"` y sus reglas usan `var(--t-<bloque>-font, …)`, `var(--t-<bloque>-color, …)` y `calc(… * var(--t-<bloque>-size, 1))`, con el valor del tema como respaldo.
+   - Cada botón lleva la clase `inv-btn` y sus reglas leen `var(--btn-*, <su aspecto de siempre>)`, para que siga al estilo de botones de la página.
+   - Una línea en `sectionRegistry.ts`.
+4. **Tema:** lo que trae por defecto en el manifiesto (`sections['<type>']`: variante, adornos, efectos, panel) y su CSS. Si el tema tiene diseño propio (hoy `nueva-york`), la sección nueva también lleva el suyo (ver abajo).
 5. **Pruebas:** `CatalogTest` (cada adorno y bloque existe), el builder y la sección en el gestor (agregarla, tocar sus textos, ocultarla).
+
+### Cómo agregar un diseño de sección (variante)
+
+Un diseño alterno sirve en **cualquier tema**: no lleva colores, letras ni dibujos fijos.
+
+1. **Componente:** `components/sections/variants/<Nombre>.vue`. Mismas reglas que una sección: `data-text`, `--t-<bloque>-…`, `inv-btn`, duraciones con `--motion-scale` y `prefers-reduced-motion`.
+   - Sus dibujos salen de `section.decor` con respaldo compartido: `decorOr(section.decor, '<ranura>', resolveAsset('<archivo>.svg'))`. El archivo va en `themes/_shared/assets/`, y si se puede cambiar desde el gestor, su ranura en `Catalog::SLOTS`.
+   - Una pieza oscura dentro de una franja de papel lleva `.page-palette`, para usar la paleta de la página.
+   - Si solo cambia la piel, sin otro HTML: reglas en `variants/skins.css` sobre `.section.section--<tipo>--<variante>`, y nada en `sectionVariants.ts`.
+2. **Registro:** una línea en `components/sectionVariants.ts` (`'<type>': { '<variante>': () => import('./sections/variants/<Nombre>.vue') }`). Se descarga solo si alguna sección lo pide.
+3. **Catálogo:** la opción en el `variante` de esa sección (`Catalog.php`, con "Clásica" primero). Así aparece en *Diseño → Diseño*.
+4. **Tema:** si es su diseño por defecto, `sections['<type>'].variant` en su manifiesto.
+5. **Documentar:** la tabla de "Diseños de sección" de `eventos/README.md` y la de `efectos-reutilizables.md`.
+6. **Probar:** con capturas a 390 y 1440 px, en su tema y en otro claro (por ejemplo `marfil`). NAT no debe cambiar.
+
+### Cómo agregar una opción de toda la página (como `botones` o `esquinas`)
+
+1. **Catálogo:** el campo en `Catalog::PAGE` (con sus opciones; si es una lista cerrada, su constante como `EDGES` o `BUTTONS`). *Estilo → Página* lo muestra solo.
+2. **Builder:** `InvitationConfigBuilder::page()` lo pasa al contrato. Con `choice()`, un valor que no existe se avisa en `issues` y se ignora.
+3. **Tipos:** `page` en `types/event.ts` y el valor del tema en `themes/types.ts` (`ThemeManifest`).
+4. **Página:** `InvitationRenderer` lo vuelve un `data-*` en `.invitation` (`designAttrs`). Lo que viene vacío lo pone el manifiesto.
+5. **CSS:** reglas sobre `.invitation[data-…]` en `effects/options.css` (o `buttons.css`). Solo tokens, y animar solo `transform` y `opacity`.
+6. **Probar:** `EventEffectsTest` (lo que llega en `page`) y capturas con y sin la opción. Sin elegirla, nada cambia.
+
+### Cómo agregar una orilla o un estilo de botón
+
+- **Orilla:**
+  1. Las máscaras `effects/assets/<nombre>-arriba.svg` y `-abajo.svg`: lo relleno se ve y lo transparente no. Se repiten a lo ancho, así que la orilla derecha de cada una debe empatar con la izquierda (sin costura).
+  2. La clase `.section--edge-<código>` en `SectionShell.vue`, con `--blend-top`, `--blend-bottom`, sus tamaños y `--blend-edge`.
+  3. El código en `EdgeStyle` (`types/event.ts`) y en `Catalog::EDGES`, y la opción en los dos `orilla` (página y sección).
+- **Estilo de botón:**
+  1. Un bloque `.invitation[data-buttons='<código>'] .inv-btn` en `effects/buttons.css` que declare todas las variables `--btn-*` (fondo, color, borde, radio, sombra, mayúsculas, espaciado, subrayado, `clip-path` y brillo).
+  2. El código en `ButtonStyle` y en `Catalog::BUTTONS`, y la opción en `botones`.

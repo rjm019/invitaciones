@@ -7,13 +7,18 @@
 
 ## Avance
 
-- [x] 1. Landing (inicio, 3 páginas por evento, aviso de privacidad) + cotización (API, CSV, correo) + "Cotizaciones" en el gestor (15-oct, rama `feature/landing-y-secciones`, sin publicar)
+> **16-oct: la landing y las 3 muestras ya están en producción.** Salieron con el deploy del 15-oct (release v9, después de sus commits) y siguen en la v10. Revisado el 16-oct: `/`, las páginas por evento y `/i/Demo…` responden. Se publicó antes del paso 4, así que hoy:
+> - anuncia secciones de la fase 9 que todavía no existen (pregunta 47);
+> - el aviso de privacidad no tiene correo para los derechos ARCO y el pie no tiene WhatsApp (`site.json`, preguntas 41 y 43);
+> - sin los secretos `MAIL_*` y `COTIZACIONES_CORREO` en Fly, las cotizaciones solo llegan al gestor (pregunta 42).
+
+- [x] 1. Landing (inicio, 3 páginas por evento, aviso de privacidad) + cotización (API, CSV, correo) + "Cotizaciones" en el gestor (15-oct; ya en producción)
   - Páginas en `web/landing/*.html` con piezas compartidas en `web/landing/partials/` (`<!-- @include … -->`, ver `web/landing/build/`); los datos del negocio (marca, responsable, correo, WhatsApp) en `web/landing/site.json`; lo vacío no se muestra. El JSON-LD de las preguntas se arma solo desde las preguntas de cada página.
   - Sin fotos todavía: el celular y sus pantallas están dibujados en HTML y CSS (carga al instante). Las fotos de bancos libres llegan con los demos (paso 2).
   - Pesa 2 KB de JS y 5 KB de CSS (gzip), más las fuentes auto-hospedadas.
   - **Cambió:** el correo va por SMTP de Resend con el mailer de Laravel (sin paquete extra): secretos `MAIL_*` + `COTIZACIONES_CORREO` (ver `06-despliegue/despliegue.md`).
   - `robots.txt`, `sitemap.xml` y `llms.txt` en `web/public/` (con la dirección de fly.dev: cambiarla al tener dominio).
-  - **No publicar todavía:** la landing anuncia secciones de la fase 9 (mesa de regalos, álbum, trivia…) y enlaza a los demos (`/e/demo-…`), que aún no existen.
+  - ~~**No publicar todavía:** la landing anuncia secciones de la fase 9 (mesa de regalos, álbum, trivia…) y enlaza a los demos (`/e/demo-…`), que aún no existen.~~ **Cambió (16-oct):** ya está publicada (ver arriba). Las muestras sí están, en `/i/Demo…`; de lo que anuncia, ya existe la mesa de regalos.
 - [x] 2. Tema `marfil` + tipo graduación + 3 demos con las secciones actuales (15-oct)
   - **Cambió:** sin fotos (ni de bancos libres): dibujos de línea fina y bloques de la paleta, como el álbum dibujado de la landing (pedido del usuario).
   - Tema `web/src/themes/marfil/` con sus adornos en SVG (sobre, tarjeta, sello, ramas, divisor, destellos, tiara, moño, vestido y traje).
@@ -21,6 +26,8 @@
   - `demo=SI` en `ajustes.csv`: se puede confirmar y dejar dedicatoria, pero no se guarda nada ni se anotan las visitas; muestra el listón "Es una muestra · Cotizar".
   - Landing: "o cualquier evento" en cada lista, "invitación" en vez de "enlace", la mesa de regalos al final, una tarjeta "Cualquier evento" y la sección de integraciones (Spotify, redes, YouTube, mapas, calendario, WhatsApp, clima). El celular fijo ya no se encima en ventanas bajas.
 - [ ] 3. Las secciones de la fase 9, actualizando los demos con cada una
+  - La mesa de regalos ya existe (16-oct): falta agregarla a las muestras (`deploy/demos/armar.py`) y volver a subirlas (`deploy/demos/subir.sh`).
+  - Otra opción para mostrar: el tema `nueva-york`, con su plantilla (`deploy/plantillas/`), enseña los diseños propios de cada sección y las secciones difuminadas.
 - [ ] 4. Video del hero, imágenes Open Graph, Lighthouse y publicar
 
 

@@ -36,7 +36,7 @@
 
 ## Efectos
 
-- [x] Revisar que **todas** las animaciones usen `transform` y `opacity`. *La única excepción es un cambio de color en el ícono activo del itinerario.*
+- [x] Revisar que **todas** las animaciones usen `transform` y `opacity`. *Las excepciones son el cambio de color del ícono activo del itinerario, también en la estación encendida del diseño `avenida` (revisado de nuevo el 16-oct en todos los diseños y efectos).*
 - [x] `prefers-reduced-motion` desactiva FloatingDecor, parallax, shine y la animación del sobre (se muestra abierto).
 - [ ] Probar FPS con Chrome DevTools → Performance, en el perfil "Mid-tier mobile" (CPU 4× más lenta).
 - [ ] Desactivar el parallax en iOS si hay jank. *Depende de la prueba en un iPhone.*
@@ -44,6 +44,12 @@
 - [x] **Agregado (13-oct):** mariposas doradas que aletean una por una y estrellas con destellos en la foto en arco (`SpriteDecor`).
 - [x] **Agregado (13-oct, noche):** secciones como paneles con su propio fondo y el mismo espacio entre todas (`--section-gap`); la portada se ajusta al abrir el sobre. Efecto `cambio_de_color` (o `colores`), con capas de color que solo cambian de opacidad; lo trae el Dress Code, cuya tarjeta además va y viene a negro con los textos en blanco.
 - [x] **Agregado (13-oct):** efectos `destellos`, `cascada` y `acercamiento` por sección. El tema suma mariposas en vuelo, pétalos y confeti (al abrir el sobre y al confirmar), el corazón y el ecualizador del reproductor, ondas en el mini-reproductor y el segundero que late. Todo con transform y opacity, y apagado con `prefers-reduced-motion`.
+- [x] **Agregado (15 y 16-oct, tema Nueva York, para cualquier tema):**
+  - Efectos: `horizonte`, `reflectores`, `luces`, `escarcha`, `reflejo`, `panoramica`, `bola_disco` (bolas de espejos en 3D que giran con un solo transform) y `luces_disco`.
+  - Confeti plateado de la página y `difuminar` (secciones sin cortes).
+  - Las secciones lejos de la pantalla pausan sus animaciones (`.is-idle`).
+  - Con "reducir movimiento" todo se queda quieto. Catálogo completo en `../01-analisis-codigo/efectos-reutilizables.md`.
+- [ ] Medir los efectos de Nueva York en celulares reales (elevador, bolas disco, reflectores, escarcha, confeti, tablero). Va con la medición de FPS de arriba.
 
 ## Criterios de aceptación
 

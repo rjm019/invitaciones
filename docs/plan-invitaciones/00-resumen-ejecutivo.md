@@ -1,6 +1,6 @@
 # Resumen ejecutivo
 
-> **Estado (13-oct-2026):** el plan se ejecutó con cambios importantes: Laravel 13 **sin base de datos** (Excel y CSV por evento), panel por evento con clave y enlaces por número de invitados. Lo hecho, lo que cambió y lo que falta está en `09-avance.md`.
+> **Estado (16-oct-2026):** el plan se ejecutó con cambios importantes: Laravel 13 **sin base de datos** (CSV por evento), panel por evento con clave y enlaces por número de invitados. Después se sumaron el **gestor** para armar invitaciones sin tocar archivos, la **landing** con cotización y tres muestras, y tres temas: `jardin-azul` (NAT), `marfil` y `nueva-york`. Cada tema puede tener su propio diseño de cada sección, y esos diseños, la división entre secciones, los botones y los demás detalles sirven en cualquier tema. Todo está publicado en Fly.io. Lo hecho, lo que cambió y lo que falta está en `09-avance.md`.
 
 ## Qué vamos a construir
 

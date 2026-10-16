@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Manager;
 
+use App\Services\Invitations\EventSettings;
+use Carbon\CarbonImmutable;
 use Tests\Concerns\ActsAsManager;
 use Tests\Concerns\CopiesEventFixtures;
 use Tests\TestCase;
@@ -95,6 +97,50 @@ class EventsTest extends TestCase
         $card = collect($this->getJson('/api/manager/events')->json('events'))->firstWhere('slug', 'plantilla-azul');
         $this->assertTrue($card['template']);
         $this->assertSame(['invitations' => 0, 'guests' => 0, 'attending' => 0], $card['counts']);
+    }
+
+    public function test_deleting_a_template_moves_it_to_the_trash_with_who_did_it(): void
+    {
+        $this->asManager()->postJson('/api/manager/events', ['slug' => 'plantilla-azul', 'source' => 'event', 'from' => 'nueva', 'template' => true])->assertCreated();
+
+        $this->deleteJson('/api/manager/events/plantilla-azul')->assertOk()->assertJsonPath('deleted', 'plantilla-azul');
+
+        // Ya no está en la lista ni abre en el editor…
+        $this->assertDirectoryDoesNotExist("{$this->eventos}/plantilla-azul");
+        $this->assertNotContains('plantilla-azul', collect($this->getJson('/api/manager/events')->json('events'))->pluck('slug'));
+        $this->getJson('/api/manager/events/plantilla-azul/design')->assertNotFound();
+        // …pero no se borró: está completa en la papelera del gestor, con quién la quitó.
+        $moved = glob("{$this->eventos}/_gestor/papelera/plantilla-azul-*", GLOB_ONLYDIR);
+        $this->assertCount(1, $moved);
+        $this->assertFileExists("{$moved[0]}/invitacion.csv");
+        $this->assertFileExists("{$moved[0]}/media/salon.webp");
+        $log = array_map('str_getcsv', array_slice(file("{$this->eventos}/_gestor/papelera/papelera.csv", FILE_IGNORE_NEW_LINES), 1));
+        $this->assertSame(['plantilla-azul', '_gestor/papelera/'.basename($moved[0]), 'ana', 'Ana Prueba'], array_slice($log[0], 1));
+        // La papelera nunca aparece como evento.
+        $this->assertNotContains('_gestor', collect($this->getJson('/api/manager/events')->json('events'))->pluck('slug'));
+        $this->deleteJson('/api/manager/events/plantilla-azul')->assertNotFound();
+    }
+
+    public function test_only_templates_are_deleted_and_only_by_who_administers(): void
+    {
+        // Una invitación guarda sus enlaces y confirmaciones: no se elimina desde aquí.
+        $this->asManager()->deleteJson('/api/manager/events/nueva')->assertStatus(422);
+        $this->assertDirectoryExists("{$this->eventos}/nueva");
+        $this->postJson('/api/manager/events', ['slug' => 'plantilla-azul', 'source' => 'event', 'from' => 'nueva', 'template' => true])->assertCreated();
+
+        // Quien edita ve las plantillas, pero no las elimina.
+        $this->asManager('beto', 'editor')->deleteJson('/api/manager/events/plantilla-azul')->assertForbidden();
+        $this->assertDirectoryExists("{$this->eventos}/plantilla-azul");
+    }
+
+    public function test_the_landing_samples_are_marked_for_their_own_tab(): void
+    {
+        app(EventSettings::class)->put("{$this->eventos}/nueva", ['demo' => 'SI'], CarbonImmutable::now());
+
+        $events = collect($this->asManager()->getJson('/api/manager/events')->json('events'))->keyBy('slug');
+        $this->assertTrue($events['nueva']['demo']);
+        $this->assertFalse($events['nueva']['template']);
+        $this->assertFalse($events['prueba']['demo']);
     }
 
     public function test_the_address_is_checked(): void

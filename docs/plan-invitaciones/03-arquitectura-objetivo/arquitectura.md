@@ -1,6 +1,6 @@
 # Arquitectura del sistema
 
-**Actualizado:** 15-oct-2026. Describe lo que está construido hoy (no un plan). Lo que cambió contra el plan original y por qué está en `../09-avance.md`; el despliegue paso a paso, en `../06-despliegue/despliegue.md`.
+**Actualizado:** 16-oct-2026. Describe lo que está construido hoy (no un plan). Lo que cambió contra el plan original y por qué está en `../09-avance.md`; el despliegue paso a paso, en `../06-despliegue/despliegue.md`.
 
 ## En una frase
 
@@ -64,14 +64,14 @@ Las tres apps (API, web y recepción) no dependen entre sí en tiempo de ejecuci
 ```
 invitacion.csv  ─┐
 ajustes.csv     ─┼─>  InvitationConfigBuilder (servidor)  ─>  config JSON  ─>  InvitationRenderer (Vue)
-media/          ─┘         (Catalog: qué secciones y campos existen)               tema + sectionRegistry
+media/          ─┘         (Catalog: qué secciones y campos existen)               tema + sectionRegistry + sectionVariants
 ```
 
 - **`invitacion.csv`** tiene todo el diseño en cuatro columnas (`seccion, elemento, campo, valor`): datos del evento, paleta, letras y cada sección en orden. Lo escribe el gestor al publicar; también se puede editar a mano o importar de Excel.
 - **`ajustes.csv`** guarda lo que cambia al instante sin publicar: la clave del panel, si se ve, si es plantilla o muestra (`demo`), y la fecha límite que mueve el dueño.
 - **`InvitationConfigBuilder`** (solo en el servidor; no hay otro en TypeScript) valida todo y responde los errores en español, con sección, elemento y campo.
-- **El tema** (`web/src/themes/<id>/`) solo cambia la presentación: tokens de color y letra, adornos por sección (`manifest.ts`) y `theme.css`. Hay tres: `jardin-azul` (NAT), `marfil` (neutro, con dibujos de línea; el de las muestras) y `nueva-york` (oscuro: negro, perla y plata, con su horizonte animado). Agregar un tema = agregar una carpeta; un tema oscuro lleva `dark: true` en su manifiesto (el panel del dueño y la imagen para WhatsApp cambian a su versión oscura).
-- **Las secciones** (`web/src/components/sections/`) solo leen tokens (`var(--color-…)`); fondos, efectos y paneles los pinta `SectionShell`. Agregar un tipo de sección = entrada en `Catalog` + componente + línea en `sectionRegistry`.
+- **El tema** (`web/src/themes/<id>/`) solo cambia la presentación: tokens de color y letra, adornos por sección (`manifest.ts`) y `theme.css`. Hay tres: `jardin-azul` (NAT), `marfil` (neutro, con dibujos de línea; el de las muestras) y `nueva-york` (oscuro: negro, perla y plata, con su horizonte animado). Agregar un tema = agregar una carpeta; un tema oscuro lleva `dark: true` en su manifiesto (el panel del dueño y la imagen para WhatsApp cambian a su versión oscura). El tema también elige **el diseño de cada sección** (variantes que cualquier tema puede usar) y las **opciones de toda la invitación** (división entre secciones, botones, confeti, títulos metálicos, esquinas); la invitación puede cambiarlas.
+- **Las secciones** (`web/src/components/sections/`) solo leen tokens (`var(--color-…)`); fondos, efectos y paneles (o franjas, con secciones difuminadas) los pinta `SectionShell`. Agregar un tipo de sección = entrada en `Catalog` + componente + línea en `sectionRegistry`. Un diseño alterno de una sección = componente en `sections/variants/` + línea en `sectionVariants.ts` + opción de `variante` en `Catalog` (cada uno se descarga solo si se usa). Guías en `frontend.md` §6.
 - **El gestor** edita un **borrador** (`borrador/invitacion.csv`) con autoguardado; la vista previa es la invitación real dentro de un iframe (`/gestor/vista-previa`). Los colores y textos se ven al instante (`previewPatchService`); lo demás, con el `config` que arma el servidor (~0.5 s). **Publicar** respalda la versión anterior (las últimas 50) y escribe `invitacion.csv` de forma atómica.
 
 ## Datos: todo son archivos
@@ -92,7 +92,8 @@ media/          ─┘         (Catalog: qué secciones y campos existen)       
 │   └── respaldos/                copia del día de cada CSV + versiones publicadas + bitácora
 └── _gestor/
     ├── usuarios.csv              cuentas del gestor (solo el hash de la clave)
-    └── cotizaciones.csv          lo que llega de la landing
+    ├── cotizaciones.csv          lo que llega de la landing
+    └── papelera/                 plantillas eliminadas desde el gestor (completas, con quién)
 ```
 
 Toda escritura pasa por **`CsvFile`**:
@@ -112,6 +113,7 @@ Toda escritura pasa por **`CsvFile`**:
 | Dueño (panel) | Su `clave_panel` → un token **cifrado con `APP_KEY`** que vence a las 12 h (`Authorization: Bearer`). Si cambia la clave, las sesiones abiertas dejan de servir |
 | Equipo (gestor) | Una cuenta por persona (`usuarios.csv`, hash bcrypt), roles *administra* / *edita*; cada quien ve solo sus invitaciones. `GESTOR_CLAVE` enciende el gestor y crea la primera cuenta. Sesión cifrada de 12 h |
 | Reglas de negocio | Siempre en el servidor: cupo de lugares, fecha límite, una dedicatoria por invitación, nombres fijos una vez enviados |
+| Datos bancarios (mesa de regalos) | Con `solo_con_enlace` (lo normal), el servidor los quita de `/e/<slug>` y de su página precargada: solo los recibe una invitación personal (`GiftPrivacy`) |
 | Abuso | Límites por IP: confirmar 10/min, dedicatoria 5/min, entrar al panel o al gestor 5/min, cotizar 5/hora (más un campo trampa y un tiempo mínimo, sin captcha) |
 | Archivos | La media solo sale de `media/` (primer nivel, extensiones de imagen y audio, `nosniff`); las subidas se revisan por contenido (`finfo`) y se re-codifican (las fotos quedan sin EXIF) |
 | Gestor | `X-Robots-Tag: noindex` y `frame-ancestors 'self'` (solo él puede meter su vista previa en un iframe) |
