@@ -1,8 +1,9 @@
 import type { ManagerEvent } from '@/types/design'
 
 /**
- * El inicio del gestor sin Vue: en qué pestaña va cada tarjeta, la búsqueda y quién puede
- * eliminar. Las muestras de la landing (demo=SI) van aparte para no llenar las invitaciones.
+ * El inicio del gestor sin Vue: en qué pestaña va cada tarjeta, la búsqueda y cuándo hay que
+ * escribir la dirección para eliminar. Las muestras de la landing (demo=SI) van aparte para
+ * no llenar las invitaciones. Eliminar es solo de quien administra (el servidor lo revisa).
  */
 
 export type HomeTab = 'events' | 'templates' | 'demos'
@@ -25,9 +26,20 @@ export function searchEvents(events: ManagerEvent[], query: string): ManagerEven
   return events.filter((e) => fold(`${e.title} ${e.slug} ${e.celebrant ?? ''}`).includes(q))
 }
 
-/** Solo quien administra elimina, y solo plantillas (una invitación guarda sus confirmaciones). */
-export function canDelete(event: ManagerEvent, isAdmin: boolean): boolean {
-  return isAdmin && event.template
+/**
+ * ¿Hay que escribir su dirección para eliminarla? Sí en una invitación (o muestra) visible,
+ * con enlaces o con confirmaciones; también si no se pudo leer. El servidor revisa lo mismo.
+ */
+export function needsConfirmation(event: ManagerEvent): boolean {
+  if (event.error) return true
+  if (event.template) return false
+  return event.published || (event.counts?.invitations ?? 0) > 0 || (event.counts?.guests ?? 0) > 0
+}
+
+/** Cómo se llama lo que se elimina, para el menú y la confirmación. */
+export function kindOf(event: ManagerEvent): 'plantilla' | 'muestra' | 'invitación' {
+  if (event.template) return 'plantilla'
+  return event.demo ? 'muestra' : 'invitación'
 }
 
 function fold(text: string): string {

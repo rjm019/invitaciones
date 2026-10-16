@@ -123,8 +123,16 @@ Salieron durante la implementación y se juntaron para el final. Al responder un
 
 **Nueva York y Ximena (16-oct)**
 
-44. **Datos reales de Ximena** (`eventos/ximena`): hora del evento (dejé 8:00 pm; en producción, `xv-ximena` dice 7:00 pm), nombres de papás y padrinos (son de ejemplo), su foto (la ventana del rascacielos está vacía), la canción (MP3), la playlist (la de ahora es una pública de Spotify) y la mesa de regalos (Liverpool, Amazon y Palacio de Hierro con número y cuenta **de ejemplo**). Fecha límite para confirmar: dejé el 7-nov.
-45. **Publicar:** *Hecho (16-oct), por ti:* commit `976db50` ("Nuevo tema NY"), merge a `main`, push a GitHub y `fly deploy` (release v10). La plantilla ya se subió (16-oct), pero era la de solo la portada: la completa se sube con `deploy/plantillas/subir.sh nueva-york --forzar`, y lo nuevo del gestor (eliminar plantillas, pestaña "Muestras") con `fly deploy`. Falta también pasar el diseño de Ximena a `xv-ximena` en producción, que hoy está en `jardin-azul` y tiene un borrador (ver `06-despliegue/despliegue.md` → "Una invitación armada en local").
+44. **Datos reales de Ximena.** `xv-ximena` ya está **publicada y visible** en producción (16-oct, 10:12) con estos datos de ejemplo; cámbialos antes de mandar enlaces:
+    - **Hora:** el diseño dice 8:00 pm; al crearla escribiste 7:00 pm.
+    - **Papás y padrinos:** los nombres son de ejemplo.
+    - **Foto:** la ventana del rascacielos está vacía.
+    - **Música:** falta la canción (MP3), y la playlist de ahora es una pública de Spotify.
+    - **Mesa de regalos:** Liverpool, Amazon y Palacio de Hierro de ejemplo, con el número y la cuenta en ceros.
+    - **Fecha límite para confirmar:** dejé el 7-nov.
+
+    Todo se cambia en el gestor y se vuelve a publicar.
+45. **Publicar:** *Hecho (16-oct), por ti:* commit `976db50` ("Nuevo tema NY"), merge a `main`, push a GitHub y `fly deploy` (release v10). La plantilla ya se subió (16-oct), pero era la de solo la portada; la eliminaste, y la completa se sube con `deploy/plantillas/subir.sh nueva-york`. Commit `de4a8dc` y release v11 (eliminar plantillas, pestaña "Muestras"); eliminar invitaciones falta publicarlo. *Hecho (16-oct):* el diseño de Ximena se subió a `xv-ximena` y tú la publicaste y la hiciste visible (con los datos de ejemplo: pregunta 44).
 46. **Vista previa en blanco al elegir una sección:** no la pude reproducir aquí (el navegador de pruebas no usa la tarjeta de video); dejé tres medidas (un toque sobre Spotify ya no le llega a Spotify en modo *Elegir*, el fondo de la página toma el del tema y las secciones lejos de la pantalla pausan sus efectos). ¿En qué navegador te pasó, y te sigue pasando?
 47. **Landing publicada antes de tiempo:** los deploys del 15-oct (release v9) y del 16-oct (v10) la incluyeron: `/`, las páginas por evento y las tres muestras ya están en producción. La fase 10 decía esperar, porque la landing anuncia secciones que todavía no existen (galería, video, álbum, trivia, itinerario en vivo…). ¿La dejamos así mientras se terminan, quito esas menciones por ahora, o la escondo (que `/` vuelva a no mostrar nada) hasta el paso 4 de la fase 10?
 48. **Borradores sin publicar en producción:** NAT y `xv-ximena` tienen cambios sin publicar en el gestor de Fly. Los invitados no los ven hasta que alguien toque *Publicar*. ¿Son tuyos y siguen en curso?

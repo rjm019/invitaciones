@@ -14,7 +14,13 @@ import { useFontSamples } from '@/composables/useFontSamples'
 import { useManagerSession } from '@/composables/useManagerSession'
 import { usePolling } from '@/composables/usePolling'
 import { useToasts } from '@/composables/useToasts'
-import { canDelete, groupByTab, searchEvents, type HomeTab } from '@/services/managerHomeService'
+import {
+  groupByTab,
+  kindOf,
+  needsConfirmation,
+  searchEvents,
+  type HomeTab,
+} from '@/services/managerHomeService'
 import * as managerService from '@/services/managerService'
 import type { ManagerEvent } from '@/types/design'
 
@@ -22,7 +28,8 @@ import type { ManagerEvent } from '@/types/design'
  * /gestor — inicio del gestor: las invitaciones, las plantillas y las muestras de la landing
  * (cada una en su pestaña), crear una nueva, duplicar, guardar como plantilla y descargar su
  * paquete. Quien administra ve además las cotizaciones que llegan de la landing, con un
- * contador de las nuevas, y puede eliminar plantillas (van a la papelera del servidor).
+ * contador de las nuevas, y puede eliminar invitaciones, plantillas y muestras (van a la
+ * papelera del servidor; una invitación ya compartida pide escribir su dirección).
  */
 const router = useRouter()
 const { authenticated, isAdmin, setUser, withSession } = useManagerSession()
@@ -51,18 +58,30 @@ watch(
 
 const toDelete = ref<ManagerEvent | null>(null)
 const deleting = ref(false)
+const typed = ref('')
+const deleteKind = computed(() => (toDelete.value ? kindOf(toDelete.value) : 'invitación'))
+const mustType = computed(() => !!toDelete.value && needsConfirmation(toDelete.value))
+const canConfirm = computed(() => !mustType.value || typed.value.trim() === toDelete.value?.slug)
 
-async function deleteTemplate(): Promise<void> {
+function askDelete(event: ManagerEvent): void {
+  typed.value = ''
+  toDelete.value = event
+}
+
+async function deleteEvent(): Promise<void> {
   const target = toDelete.value
-  if (!target) return
+  if (!target || !canConfirm.value) return
+  const kind = kindOf(target)
   deleting.value = true
   try {
-    await withSession((t) => managerService.deleteTemplate(t, target.slug))
+    await withSession((t) =>
+      managerService.deleteEvent(t, target.slug, mustType.value ? typed.value.trim() : undefined),
+    )
     events.value = events.value.filter((e) => e.slug !== target.slug)
-    toast(`Se eliminó la plantilla «${target.title}».`)
+    toast(`Se eliminó la ${kind} «${target.title}».`)
     toDelete.value = null
   } catch (e) {
-    toast(e instanceof Error ? e.message : 'No se pudo eliminar la plantilla.', 'error')
+    toast(e instanceof Error ? e.message : `No se pudo eliminar la ${kind}.`, 'error')
   } finally {
     deleting.value = false
   }
@@ -222,13 +241,13 @@ watch(authenticated, (on) => {
             v-for="e in shown"
             :key="e.slug"
             :event="e"
-            :can-delete="canDelete(e, isAdmin)"
+            :can-delete="isAdmin"
             @edit="router.push(`/gestor/${e.slug}`)"
             @use="openNew(e.slug)"
             @duplicate="openNew(e.slug, e.template)"
             @template="openNew(e.slug, true)"
             @download="download(e)"
-            @delete="toDelete = e"
+            @delete="askDelete(e)"
           />
         </div>
 
@@ -276,16 +295,52 @@ watch(authenticated, (on) => {
     />
     <GDialog
       :open="!!toDelete"
-      title="¿Eliminar esta plantilla?"
+      :title="`¿Eliminar esta ${deleteKind}?`"
       size="sm"
       :dismissable="!deleting"
       @close="toDelete = null"
     >
-      <p>
-        «{{ toDelete?.title }}» deja de aparecer en el gestor. Las invitaciones que ya se hicieron
-        con ella no cambian, y en el servidor queda una copia en la papelera por si hace falta
-        recuperarla.
-      </p>
+      <template v-if="toDelete">
+        <p v-if="toDelete.template">
+          «{{ toDelete.title }}» deja de aparecer en el gestor. Las invitaciones que ya se hicieron
+          con ella no cambian.
+        </p>
+        <template v-else>
+          <p>
+            «{{ toDelete.title }}» deja de aparecer en el gestor y
+            <strong>sus enlaces dejan de abrir</strong>: la invitación general, las personales y el
+            panel del cliente.
+          </p>
+          <ul v-if="mustType" class="home__loses">
+            <li v-if="toDelete.published">Está visible: hoy la pueden abrir los invitados.</li>
+            <li v-if="toDelete.counts?.invitations">
+              {{ toDelete.counts.invitations }}
+              {{ toDelete.counts.invitations === 1 ? 'enlace generado' : 'enlaces generados' }}
+            </li>
+            <li v-if="toDelete.counts?.guests">
+              {{ toDelete.counts.guests }}
+              {{ toDelete.counts.guests === 1 ? 'persona respondió' : 'personas respondieron' }}
+              ({{ toDelete.counts.attending }} confirmadas)
+            </li>
+          </ul>
+        </template>
+        <p class="home__trash-note">
+          En el servidor queda una copia completa en la papelera, por si hace falta recuperarla.
+        </p>
+        <label v-if="mustType" class="home__type-confirm">
+          Para confirmar, escribe su dirección: <code>{{ toDelete.slug }}</code>
+          <input
+            v-model="typed"
+            type="text"
+            class="g-input"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            :aria-label="`Escribe ${toDelete.slug} para confirmar`"
+            @keydown.enter.prevent="deleteEvent"
+          />
+        </label>
+      </template>
       <template #footer>
         <button type="button" class="g-btn" :disabled="deleting" @click="toDelete = null">
           Cancelar
@@ -293,8 +348,8 @@ watch(authenticated, (on) => {
         <button
           type="button"
           class="g-btn g-btn--danger"
-          :disabled="deleting"
-          @click="deleteTemplate"
+          :disabled="deleting || !canConfirm"
+          @click="deleteEvent"
         >
           <ManagerIcon name="trash-can" /> {{ deleting ? 'Eliminando…' : 'Eliminar' }}
         </button>
@@ -369,6 +424,26 @@ watch(authenticated, (on) => {
   margin-top: -6px;
   color: var(--g-muted);
   font-size: 13px;
+}
+.home__loses {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--g-danger);
+  font-size: 13.5px;
+}
+.home__trash-note {
+  margin-top: 10px;
+  color: var(--g-muted);
+  font-size: 13px;
+}
+.home__type-confirm {
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 13.5px;
+}
+.home__type-confirm code {
+  font-weight: 700;
 }
 .home__search {
   display: flex;

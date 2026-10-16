@@ -25,7 +25,11 @@ El cambio más grande contra el plan: **no hay base de datos**. Todo vive en arc
 - **Eliminar plantillas** (van a una papelera del servidor, no se borran).
 - **Las tres muestras en su propia pestaña** ("Muestras").
 
-Falta `fly deploy` y `deploy/plantillas/subir.sh nueva-york --forzar`.
+Tú hiciste el commit (`de4a8dc`) y el deploy (release v11). Después vino un pedido más: eliminar también invitaciones (y muestras), con la dirección escrita para las que ya se compartieron. Eso falta publicarlo.
+
+**Revisado en producción (16-oct, 13:00):**
+- **Plantillas:** con lo de la v11 eliminaste `plantilla-nueva-york` (la de solo la portada) y armaste `plantilla-nat` y `plantilla-xv-ximena`.
+- **Ximena** (`xv-ximena`): **publicada y visible** desde las 10:12, con el diseño que subí, es decir, con los datos de ejemplo (pregunta 44).
 
 ## Qué está hecho
 
@@ -390,11 +394,17 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
   - Las 18 secciones con el diseño de la invitación de Ximena, con textos de ejemplo ("Nombre", "Nombre Apellido", "Nombre del salón", cuentas en ceros) y sin fotos ni datos de personas.
   - Antes solo traía la portada, y por eso en producción no se veía el diseño.
   - Validada y revisada en capturas a 390 px, con una copia visible temporal que después se borró.
-- **Eliminar plantillas** desde ⋯ (solo quien administra):
-  - La carpeta pasa a `_gestor/papelera/` con quién y cuándo (`papelera.csv`); se recupera regresándola a `eventos/`.
-  - Las invitaciones no se eliminan: guardan sus enlaces y sus confirmaciones.
+- **Eliminar** desde ⋯ (solo quien administra). En la release v11 solo plantillas; después, también invitaciones y muestras:
+  - Nada se borra: la carpeta completa pasa a `_gestor/papelera/`. `papelera.csv` anota quién, cuándo, qué era y cuántos enlaces y confirmados tenía. Se recupera regresándola a `eventos/`.
+  - Una invitación visible, con enlaces o con respuestas pide **escribir su dirección**, y el servidor lo revisa (`confirm`). Una plantilla o una invitación nueva y oculta solo pide confirmar.
+  - Después, sus enlaces (`/e/`, `/i/`), su panel y su media dejan de abrir.
+  - La bitácora de la v11 (columna `plantilla`) se pasa sola al formato nuevo, sin perder renglones.
 - **Pestaña "Muestras"** en el inicio del gestor, para las muestras de la landing (`demo=SI`). La tarjeta de una graduación ya dice "Graduación".
-- Pruebas: 333 del front y 205 de la API; lint, type-check y build en verde. Probado en el navegador (escritorio y celular): las pestañas, el menú, la confirmación y la papelera.
+- Pruebas: 334 del front y 208 de la API; lint, type-check y build en verde. Probado en el navegador (escritorio y celular): las pestañas, el menú, la confirmación (con la dirección escrita en una visible; sin ella en una oculta) y la papelera.
+- **Ximena en producción:** el diseño de Nueva York ya está en el **borrador** de `xv-ximena`, con su media (la foto del salón y las de los hoteles). Sigue oculta y sin publicar. Se subió por terminal (`06-despliegue/despliegue.md` → "Una invitación armada en local").
+  - Antes se respaldó lo que había allá (una invitación en blanco: solo "Ximena", "mis xv años" y el 21-nov a las 19:00) en `eventos/xv-ximena-servidor-20261016-1006/`.
+  - El número de evento de Liverpool y la CLABE de ejemplo quedaron en ceros, para que nadie deposite a una cuenta inventada.
+  - Validado en el servidor: "el borrador está listo (18 secciones visibles)".
 
 ### Invitación personal y confirmación
 
@@ -481,10 +491,16 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
 
 ### Tema Nueva York
 
-- **Plantilla en producción:** ya está en Fly, pero es la versión de solo la portada. Para la completa: `deploy/plantillas/subir.sh nueva-york --forzar` (no hace falta deploy; allá no tiene borrador).
-- **`fly deploy --ha=false`** para "Eliminar plantilla", la pestaña "Muestras" y la etiqueta "Graduación".
+- **Plantilla en producción:** la de solo la portada ya la eliminaste. Para tener la completa: `deploy/plantillas/subir.sh nueva-york` (ya no existe allá, así que no hace falta `--forzar`).
+- **`fly deploy --ha=false`** para eliminar invitaciones y muestras (eliminar plantillas, la pestaña "Muestras" y "Graduación" ya salieron en la v11).
 - Probar en un iPhone y un Android reales que los efectos van fluidos (portada con elevador, bolas disco, reflectores y escarcha; confeti; tablero que cae) y que la vista previa del gestor ya no se queda en blanco al elegir una sección (pregunta 46).
-- **Ximena:** sus datos reales (nombres de papás y padrinos, hora, foto, canción, playlist y mesa de regalos: la que tiene es de ejemplo) y pasar el diseño local a producción (`06-despliegue/despliegue.md` → "Una invitación armada en local"). En producción ya existe `xv-ximena` (creada el 15-oct, oculta): está en `jardin-azul`, con el salón de ejemplo, el 21-nov a las **19:00** y un borrador. La local (`eventos/ximena`, Nueva York) dice 20:00.
+- **Ximena:** **ya está publicada y visible** (16-oct, 10:12) con el diseño de Nueva York, pero con los datos de ejemplo. Antes de mandar enlaces, cambia:
+  - los nombres de papás y padrinos;
+  - la hora (al crearla escribiste las **19:00**; el diseño dice 20:00, y el itinerario empieza a las 20:00);
+  - la foto, la canción y la playlist;
+  - la mesa de regalos (tiendas, número y cuenta en ceros).
+
+  En su borrador hay un cambio sin publicar (la bendición termina en "amén.").
 
 ### Landing (ya en producción)
 

@@ -6,19 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Services\Design\DesignFactory;
 use App\Services\Invitations\EventSettings;
 use App\Services\Layout\EventRepository;
+use App\Services\Manager\ConfirmationRequired;
 use App\Services\Manager\DesignPayload;
+use App\Services\Manager\EventTrash;
 use App\Services\Manager\ManagerAccess;
 use App\Services\Manager\ManagerAuth;
 use App\Services\Manager\ManagerEvents;
 use App\Services\Manager\ManagerUsers;
-use App\Services\Manager\TemplateTrash;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use RuntimeException;
 
-/** Eventos y plantillas: la lista, crear (en blanco o copiando), los ajustes al instante y eliminar plantillas. */
+/** Eventos y plantillas: la lista, crear (en blanco o copiando), los ajustes al instante y eliminar. */
 class EventController extends Controller
 {
     /**
@@ -142,17 +143,21 @@ class EventController extends Controller
     }
 
     /**
-     * DELETE /api/manager/events/{slug} — solo plantillas y solo quien administra. La carpeta
-     * pasa a la papelera del gestor (_gestor/papelera/), no se borra.
-     * 200 { deleted } · 404 no existe · 422 es una invitación.
+     * DELETE /api/manager/events/{slug} — { confirm? } — solo quien administra. La carpeta
+     * pasa completa a la papelera del gestor (_gestor/papelera/), no se borra. Una invitación
+     * visible, con enlaces o con confirmaciones pide `confirm` = su dirección.
+     * 200 { deleted } · 404 no existe · 422 falta confirmar (errors.confirm) o no se pudo.
      */
-    public function destroy(Request $request, string $slug, EventRepository $events, TemplateTrash $trash): JsonResponse
+    public function destroy(Request $request, string $slug, EventRepository $events, EventTrash $trash): JsonResponse
     {
         if ($events->path($slug) === null) {
-            return response()->json(['message' => 'Esa plantilla ya no existe.'], 404);
+            return response()->json(['message' => 'Esa invitación ya no existe.'], 404);
         }
+        $data = $request->validate(['confirm' => ['sometimes', 'nullable', 'string', 'max:80']]);
         try {
-            $trash->discard($slug, ManagerAuth::actor($request), CarbonImmutable::now());
+            $trash->discard($slug, ManagerAuth::actor($request), CarbonImmutable::now(), $data['confirm'] ?? null);
+        } catch (ConfirmationRequired $e) {
+            return response()->json(['message' => $e->getMessage(), 'errors' => ['confirm' => [$e->getMessage()]]], 422);
         } catch (RuntimeException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }

@@ -45,7 +45,7 @@ La invitación se diseña para celular primero; en una computadora o tablet acos
    - **Personas** (menú de tu cuenta, si administras): agregar a alguien le da una clave temporal, con un mensaje listo para mandárselo; al entrar elige la suya. Ahí también se cambia su rol (*Administra* o *Edita*), se le da otra clave temporal o se le quita el acceso (su nombre se queda en el historial).
    - **Cambiar mi clave**, en el mismo menú. Si alguien se queda fuera: `php artisan gestor:usuario <usuario> --clave-nueva`.
    - **Quién ve qué:** quien *edita* ve solo las invitaciones que creó o que le asignaron, y todas las plantillas. Quien *administra* ve todas y las asigna en "Datos generales" → "Quién la edita" (queda en `ajustes.csv` → `personas_gestor`).
-2. **Invitaciones, plantillas y muestras:** cada una en su pestaña (las muestras de la landing, con `demo=SI`, van en "Muestras" para no llenar la lista; la pestaña solo sale si hay). Cada tarjeta trae sus colores, su letra, si se ve, si tiene cambios sin publicar y cuántos confirmaron. En su menú ⋯: duplicar, guardar como plantilla y descargar; en una plantilla, quien administra también puede **eliminarla** (ver "Plantillas").
+2. **Invitaciones, plantillas y muestras:** cada una en su pestaña (las muestras de la landing, con `demo=SI`, van en "Muestras" para no llenar la lista; la pestaña solo sale si hay). Cada tarjeta trae sus colores, su letra, si se ve, si tiene cambios sin publicar y cuántos confirmaron. En su menú ⋯: duplicar, guardar como plantilla y descargar; quien administra también puede **eliminar** invitaciones, plantillas y muestras (ver "Eliminar").
 3. **Nueva invitación:** en blanco (todas las secciones con textos de ejemplo), desde una plantilla o como copia de otra. Se copian el diseño y `media/`. **Nunca** se copian los enlaces, las respuestas ni la clave del panel: se genera una clave nueva. Nace oculta.
 4. **El editor** (`/gestor/<slug>`):
    - **Izquierda:**
@@ -285,7 +285,14 @@ El diseño nunca lleva la clave: descargar, copiar o hacer plantilla una invitac
 
 Una plantilla es un evento con `plantilla=SI`: el mismo formato y la misma carpeta, en su propia pestaña del gestor. Se crean con "Guardar como plantilla" desde la tarjeta de una invitación (copia su diseño y su media) y se usan desde "Nueva invitación". En el gestor, "Publicar" en una plantilla dice "Guardar plantilla": lo publicado es lo que copian las invitaciones nuevas.
 
-**Eliminar una plantilla** (⋯ → "Eliminar plantilla"; solo quien administra): deja de aparecer en el gestor y las invitaciones que ya se hicieron con ella no cambian. Su carpeta no se borra: pasa a `_gestor/papelera/<plantilla>-<fecha>/`, y `_gestor/papelera/papelera.csv` anota quién la quitó y cuándo. Para recuperarla, regresa esa carpeta a `eventos/` con su nombre de antes. Las invitaciones no se eliminan desde el gestor: guardan sus enlaces y sus confirmaciones.
+### Eliminar
+
+En el gestor, ⋯ → "Eliminar invitación", "Eliminar plantilla" o "Eliminar muestra". Solo quien administra.
+
+- **Qué pasa:** deja de aparecer en el gestor. Una invitación, además, deja de abrir: su enlace general, los personales y el panel del cliente. Las invitaciones que se hicieron con una plantilla no cambian.
+- **Confirmación:** una invitación visible, con enlaces generados o con personas que ya respondieron pide **escribir su dirección** (por ejemplo `nat`). Una recién hecha y oculta, o una plantilla, solo pide confirmar. El servidor revisa lo mismo.
+- **Nada se borra:** la carpeta completa (enlaces, respuestas, dedicatorias, media y respaldos) pasa a `_gestor/papelera/<slug>-<fecha>/`. `_gestor/papelera/papelera.csv` anota quién la quitó, cuándo, qué era y cuántos enlaces y confirmados tenía.
+- **Recuperar:** regresa esa carpeta a `eventos/` con su nombre de antes. En Fly: `fly ssh console -C "mv /data/eventos/_gestor/papelera/<carpeta> /data/eventos/<slug>"`.
 
 Las del repositorio (`deploy/plantillas/`) se instalan con `deploy/plantillas/instalar.sh <nombre>` en local y `deploy/plantillas/subir.sh <nombre>` en Fly (`--forzar` la reemplaza allá por la versión del repositorio).
 
