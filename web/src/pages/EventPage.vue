@@ -4,6 +4,7 @@ import InvitationRenderer from '@/components/InvitationRenderer.vue'
 import PageLoader from '@/components/ui/PageLoader.vue'
 import { getEvent } from '@/services/eventService'
 import { ApiError } from '@/services/http'
+import { trackVisit } from '@/services/visitService'
 import type { EventConfig } from '@/types/event'
 import NotFoundPage from './NotFoundPage.vue'
 
@@ -22,6 +23,7 @@ watch(
       event.value = await getEvent(slug)
       document.title = event.value.title || 'Invitación'
       status.value = 'ready'
+      trackVisit(window, { event: slug, demo: event.value.demo }, import.meta.env.VITE_API_URL)
     } catch (e) {
       status.value = e instanceof ApiError && e.status === 404 ? 'not-found' : 'error'
       message.value = e instanceof Error ? e.message : 'Algo salió mal.'

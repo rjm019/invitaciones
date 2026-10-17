@@ -11,6 +11,8 @@ import type {
   Quote,
   QuoteStatus,
   SettingsChange,
+  VisitScope,
+  VisitStats,
 } from '@/types/design'
 import { http } from './http'
 
@@ -323,6 +325,35 @@ export async function deleteQuote(token: string, id: string): Promise<void> {
 export async function exportQuotes(token: string): Promise<Blob> {
   const { data } = await http.get<Blob>('/manager/quotes/export', {
     ...auth(token),
+    responseType: 'blob',
+  })
+  return data
+}
+
+/** Las visitas de los últimos `days` días (solo quien administra). */
+export async function getVisitStats(
+  token: string,
+  days: number,
+  scope: VisitScope,
+): Promise<VisitStats> {
+  const { data } = await http.get<VisitStats>('/manager/visits', {
+    ...auth(token),
+    params: { dias: days, alcance: scope },
+  })
+  return data
+}
+
+/** Visitas a la landing hoy (barato: para el contador). */
+export async function countVisits(token: string): Promise<number> {
+  const { data } = await http.get<{ today: number }>('/manager/visits/count', auth(token))
+  return data.today
+}
+
+/** Las visitas de esos días en CSV (con la IP), para abrir en Excel. */
+export async function exportVisits(token: string, days: number): Promise<Blob> {
+  const { data } = await http.get<Blob>('/manager/visits/export', {
+    ...auth(token),
+    params: { dias: days },
     responseType: 'blob',
   })
   return data

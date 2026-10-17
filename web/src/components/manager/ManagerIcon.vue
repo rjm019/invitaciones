@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import arrowLeftSvg from '@fortawesome/fontawesome-free/svgs/solid/arrow-left.svg?raw'
 import plusSvg from '@fortawesome/fontawesome-free/svgs/solid/plus.svg?raw'
+import chartColumnSvg from '@fortawesome/fontawesome-free/svgs/solid/chart-column.svg?raw'
 import eyeSvg from '@fortawesome/fontawesome-free/svgs/solid/eye.svg?raw'
 import eyeSlashSvg from '@fortawesome/fontawesome-free/svgs/solid/eye-slash.svg?raw'
 import gripVerticalSvg from '@fortawesome/fontawesome-free/svgs/solid/grip-vertical.svg?raw'
@@ -101,6 +102,7 @@ const props = defineProps<{ name: string; label?: string; spin?: boolean }>()
 const ICONS: Record<string, string> = {
   'arrow-left': arrowLeftSvg,
   plus: plusSvg,
+  'chart-column': chartColumnSvg,
   inbox: inboxSvg,
   whatsapp: whatsappSvg,
   eye: eyeSvg,

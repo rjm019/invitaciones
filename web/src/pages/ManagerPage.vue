@@ -9,6 +9,7 @@ import ManagerIcon from '@/components/manager/ManagerIcon.vue'
 import ManagerLogin from '@/components/manager/ManagerLogin.vue'
 import NewEventDialog from '@/components/manager/NewEventDialog.vue'
 import QuotesDialog from '@/components/manager/QuotesDialog.vue'
+import StatsDialog from '@/components/manager/StatsDialog.vue'
 import ToastHost from '@/components/manager/ToastHost.vue'
 import { useFontSamples } from '@/composables/useFontSamples'
 import { useManagerSession } from '@/composables/useManagerSession'
@@ -28,7 +29,7 @@ import type { ManagerEvent } from '@/types/design'
  * /gestor — inicio del gestor: las invitaciones, las plantillas y las muestras de la landing
  * (cada una en su pestaña), crear una nueva, duplicar, guardar como plantilla y descargar su
  * paquete. Quien administra ve además las cotizaciones que llegan de la landing, con un
- * contador de las nuevas, y puede eliminar invitaciones, plantillas y muestras (van a la
+ * contador de las nuevas, las estadísticas del sitio (con las visitas de hoy) y puede eliminar invitaciones, plantillas y muestras (van a la
  * papelera del servidor; una invitación ya compartida pide escribir su dirección).
  */
 const router = useRouter()
@@ -108,6 +109,20 @@ async function countQuotes(): Promise<void> {
 // Cada minuto, mientras la pestaña está a la vista.
 usePolling(countQuotes, 60_000, () => authenticated.value && isAdmin.value)
 
+const statsOpen = ref(false)
+const visitsToday = ref<number | null>(null)
+
+/** Visitas a la página principal hoy (solo quien administra; si falla, se deja como estaba). */
+async function countVisits(): Promise<void> {
+  if (!isAdmin.value) return
+  try {
+    visitsToday.value = await withSession((t) => managerService.countVisits(t))
+  } catch {
+    // El contador no es crítico.
+  }
+}
+usePolling(countVisits, 60_000, () => authenticated.value && isAdmin.value)
+
 async function load(): Promise<void> {
   loading.value = true
   try {
@@ -116,6 +131,7 @@ async function load(): Promise<void> {
     // Otra persona pudo cambiar mi nombre o mi rol mientras no estaba: llega con la lista.
     setUser(list.user)
     void countQuotes()
+    void countVisits()
     error.value = ''
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'No se pudo cargar la lista.'
@@ -170,10 +186,23 @@ watch(authenticated, (on) => {
             :aria-label="`Cotizaciones${newQuotes ? `: ${newQuotes} nuevas` : ''}`"
             @click="quotesOpen = true"
           >
-            <ManagerIcon name="inbox" /> Cotizaciones
+            <ManagerIcon name="inbox" /> <span class="home__label">Cotizaciones</span>
             <span v-if="newQuotes" class="g-badge g-badge--accent" aria-hidden="true">{{
               newQuotes
             }}</span>
+          </button>
+          <button
+            v-if="isAdmin"
+            type="button"
+            class="g-btn g-btn--ghost"
+            :aria-label="`Estadísticas${visitsToday !== null ? `: ${visitsToday} visitas hoy` : ''}`"
+            title="Visitas a la página principal hoy"
+            @click="statsOpen = true"
+          >
+            <ManagerIcon name="chart-column" /> <span class="home__label">Estadísticas</span>
+            <span v-if="visitsToday !== null" class="g-badge" aria-hidden="true"
+              >{{ visitsToday }} hoy</span
+            >
           </button>
           <button type="button" class="g-btn g-btn--primary" @click="openNew()">
             <ManagerIcon name="plus" /> Nueva invitación
@@ -228,8 +257,8 @@ watch(authenticated, (on) => {
         </p>
 
         <p v-if="tab === 'demos' && shown.length" class="home__hint">
-          Las muestras que enlaza la landing (<code>/i/Demo…</code>). No guardan confirmaciones ni
-          visitas; los cambios que publiques aquí los ven los clientes.
+          Las muestras que enlaza la landing (<code>/i/Demo…</code>). No guardan confirmaciones; sus
+          visitas se ven en Estadísticas. Los cambios que publiques aquí los ven los clientes.
         </p>
 
         <div v-if="loading && !events.length" class="home__grid" aria-busy="true">
@@ -292,6 +321,12 @@ watch(authenticated, (on) => {
       :open="quotesOpen"
       @close="quotesOpen = false"
       @changed="newQuotes = $event"
+    />
+    <StatsDialog
+      v-if="isAdmin"
+      :open="statsOpen"
+      @close="statsOpen = false"
+      @changed="visitsToday = $event"
     />
     <GDialog
       :open="!!toDelete"
@@ -397,6 +432,8 @@ watch(authenticated, (on) => {
 }
 .home__actions {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
 }
 .home__main {
@@ -487,6 +524,10 @@ watch(authenticated, (on) => {
     flex-wrap: wrap;
   }
   .home__brand p {
+    display: none;
+  }
+  /* En el celular, cotizaciones y estadísticas solo con su ícono (y su contador). */
+  .home__label {
     display: none;
   }
 }

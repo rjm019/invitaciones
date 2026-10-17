@@ -1,9 +1,11 @@
 /**
  * Lo poco que la landing hace con JavaScript (el contenido ya viene en el HTML):
- * la barra al bajar, aparecer al llegar, las pantallas del celular y el formulario.
- * Sin JS todo se ve y el formulario funciona (POST normal).
+ * la barra al bajar, aparecer al llegar, las pantallas del celular, el formulario y el
+ * aviso de la visita (estadísticas del gestor). Sin JS todo se ve y el formulario funciona
+ * (POST normal).
  */
 import { sendQuote, type QuoteErrors, type QuoteForm } from '@/services/quoteService'
+import { trackVisit } from '@/services/visitService'
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const openedAt = Date.now()
@@ -165,3 +167,4 @@ reveal()
 heroPhone()
 story()
 quoteForm()
+trackVisit(window)

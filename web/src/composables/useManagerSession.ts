@@ -2,6 +2,7 @@ import { computed, ref } from 'vue'
 import { ApiError } from '@/services/http'
 import * as managerService from '@/services/managerService'
 import type { FirstAccount, ManagerSession } from '@/services/managerService'
+import { MANAGER_SESSION_KEY } from '@/services/visitService'
 import type { ManagerUser } from '@/types/design'
 
 /**
@@ -12,7 +13,8 @@ import type { ManagerUser } from '@/types/design'
  *
  * Quien entra con una clave temporal todavía no está "adentro": primero elige la suya.
  */
-const STORAGE_KEY = 'gestor:sesion'
+// Con ella, las visitas de este navegador no cuentan en las estadísticas (visitService).
+const STORAGE_KEY = MANAGER_SESSION_KEY
 
 function read(): ManagerSession | null {
   try {

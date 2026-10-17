@@ -159,6 +159,62 @@ export interface Quote {
   updated_at: string | null
 }
 
+/** Qué parte del sitio: la landing, las invitaciones (y muestras) o todo. */
+export type VisitScope = 'sitio' | 'invitaciones' | 'todo'
+
+export type VisitKind = 'landing' | 'invitacion' | 'personal' | 'muestra'
+
+/** Un renglón de "lo más visto": páginas, orígenes, dispositivos… */
+export interface VisitCount {
+  label: string
+  visits: number
+  visitors: number
+}
+
+/** GET /api/manager/visits: las visitas de los últimos días (sin las del equipo). */
+export interface VisitStats {
+  from: string
+  to: string
+  scope: VisitScope
+  totals: {
+    visits: number
+    /** Personas distintas (misma IP y navegador = la misma persona). */
+    visitors: number
+    /** Visitas del equipo (con sesión del gestor), que no cuentan. */
+    team: number
+    /** Cotizaciones que llegaron en esos días. */
+    quotes: number
+    /** Cotizaciones por cada 100 personas (null en "invitaciones"). */
+    conversion: number | null
+  }
+  days: { date: string; visits: number; visitors: number }[]
+  pages: VisitCount[]
+  origins: VisitCount[]
+  campaigns: VisitCount[]
+  devices: VisitCount[]
+  systems: VisitCount[]
+  browsers: VisitCount[]
+  events: {
+    slug: string
+    demo: boolean
+    visits: number
+    visitors: number
+    general: number
+    personal: number
+  }[]
+  recent: {
+    at: string
+    page: string
+    kind: VisitKind
+    origin: string
+    campaign: string | null
+    device: string
+    system: string
+    browser: string
+    ip: string | null
+  }[]
+}
+
 /** Quién publicó (o creó, o migró) una versión, según la bitácora del evento. */
 export interface PublishRecord {
   published_at: string
