@@ -108,7 +108,7 @@ onMounted(() => {
       </button>
       <button
         type="button"
-        class="ny-vinyl__control"
+        class="ny-vinyl__control ny-vinyl__control--repeat"
         :class="{ 'is-off': !state?.loop }"
         :disabled="!available || !state?.canLoop"
         :aria-pressed="!!state?.loop"
@@ -297,10 +297,19 @@ onMounted(() => {
   border-radius: 50%;
   background: var(--color-primary-strong);
 }
+/* Atrás, reproducir y adelante, centrados bajo el disco; repetir, en la orilla derecha. */
 .ny-vinyl__controls {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr repeat(3, auto) 1fr;
   align-items: center;
   gap: clamp(0.8rem, 6cqi, 1.6rem);
+  width: 100%;
+}
+.ny-vinyl__controls > :first-child {
+  grid-column: 2;
+}
+.ny-vinyl__control--repeat {
+  justify-self: end;
 }
 .ny-vinyl__control,
 .ny-vinyl__play {
