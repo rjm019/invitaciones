@@ -17,18 +17,25 @@
   - Sin fotos todavía: el celular y sus pantallas están dibujados en HTML y CSS (carga al instante). Las fotos de bancos libres llegan con los demos (paso 2).
   - Pesa 2 KB de JS y 5 KB de CSS (gzip), más las fuentes auto-hospedadas.
   - **Cambió:** el correo va por SMTP de Resend con el mailer de Laravel (sin paquete extra): secretos `MAIL_*` + `COTIZACIONES_CORREO` (ver `06-despliegue/despliegue.md`).
-  - `robots.txt`, `sitemap.xml` y `llms.txt` en `web/public/` (con la dirección de fly.dev: cambiarla al tener dominio).
+  - ~~`robots.txt`, `sitemap.xml` y `llms.txt` en `web/public/` (con la dirección de fly.dev: cambiarla al tener dominio).~~ **Cambió (17-oct):** se arman al compilar con `SITE_URL` (plantillas en `web/landing/`, el sitemap desde `LANDING_ROUTES`): al cambiar de dominio basta con compilar con el nuevo.
   - ~~**No publicar todavía:** la landing anuncia secciones de la fase 9 (mesa de regalos, álbum, trivia…) y enlaza a los demos (`/e/demo-…`), que aún no existen.~~ **Cambió (16-oct):** ya está publicada (ver arriba). Las muestras sí están, en `/i/Demo…`; de lo que anuncia, ya existe la mesa de regalos.
 - [x] 2. Tema `marfil` + tipo graduación + 3 demos con las secciones actuales (15-oct)
   - **Cambió:** sin fotos (ni de bancos libres): dibujos de línea fina y bloques de la paleta, como el álbum dibujado de la landing (pedido del usuario).
   - Tema `web/src/themes/marfil/` con sus adornos en SVG (sobre, tarjeta, sello, ramas, divisor, destellos, tiara, moño, vestido y traje).
   - Las muestras viven en `deploy/demos/` (`armar.py` las escribe; `instalar.sh` las copia a `eventos/`; `subir.sh` las sube a Fly) y abren en `/i/DemoBoda2026`, `/i/DemoXVAnos26` y `/i/DemoGradua26`. Entre las tres usan las 17 secciones.
-  - `demo=SI` en `ajustes.csv`: se puede confirmar y dejar dedicatoria, pero no se guarda nada ni se anotan las visitas; muestra el listón "Es una muestra · Cotizar".
+  - `demo=SI` en `ajustes.csv`: se puede confirmar y dejar dedicatoria, pero no se guarda nada ni se anotan las aperturas del panel; muestra el listón "Es una muestra · Cotizar". Desde el 17-oct sus visitas sí cuentan en las estadísticas del sitio (como `muestra`).
   - Landing: "o cualquier evento" en cada lista, "invitación" en vez de "enlace", la mesa de regalos al final, una tarjeta "Cualquier evento" y la sección de integraciones (Spotify, redes, YouTube, mapas, calendario, WhatsApp, clima). El celular fijo ya no se encima en ventanas bajas.
 - [ ] 3. Las secciones de la fase 9, actualizando los demos con cada una
   - La mesa de regalos ya existe (16-oct): falta agregarla a las muestras (`deploy/demos/armar.py`) y volver a subirlas (`deploy/demos/subir.sh`).
   - Otra opción para mostrar: el tema `nueva-york`, con su plantilla (`deploy/plantillas/`), enseña los diseños propios de cada sección y las secciones difuminadas.
 - [ ] 4. Video del hero, imágenes Open Graph, Lighthouse y publicar
+  - [x] Imágenes Open Graph (17-oct): `web/public/og/{inicio,boda,xv,graduacion}.png`, 1200×630, sin fotos (la paleta y los dibujos de línea). Hasta ese día no existían: las vistas previas de WhatsApp y Facebook recibían una página HTML. Se rearman con `web/landing/og/capturar.mjs` (instrucciones en el archivo).
+  - [ ] Video del hero, Lighthouse y publicar.
+- [x] 5. **Estadísticas del sitio y SEO técnico** (17-oct; en `main`, sin `fly deploy`)
+  - Cada página vista (la landing, `/e/…`, `/i/…` y las muestras) manda un aviso (`POST /api/public/visits`, con `sendBeacon`) → `eventos/_gestor/visitas/AAAA-MM-DD.csv`: página, de dónde llegó (utm, página de antes o la app), dispositivo, sistema, navegador e **IP**. Sin cookies. Sin robots ni vistas previas. Con "no rastrear" (DNT/GPC) se anota sin IP. La IP se borra a los 365 días. El token de `/i/` nunca se guarda (queda `/i` + el evento).
+  - Gestor → **"Estadísticas"** (solo quien administra), con el contador de visitas de hoy en el botón: visitas, personas, cotizaciones y cuántas por cada 100 personas; visitas por día (por semana en un año); páginas, de dónde llegan, enlaces con etiqueta, dispositivos, sistemas y navegadores; las invitaciones con sus visitas; las últimas 60 visitas con su IP; descarga en CSV; y un armador de **enlaces con etiqueta** (`?utm_source=instagram&utm_campaign=…`) para saber qué publicación o volante trae a cada persona. Las visitas de quien tiene sesión del gestor en ese navegador no cuentan.
+  - SEO: `404` de verdad para las direcciones que no existen (antes, `200`), `X-Robots-Tag: noindex` en toda la SPA, `meta robots` con `max-image-preview:large`, medidas y texto alternativo de la imagen para compartir, verificación de Google Search Console y Bing desde `site.json` (`google_verification`, `bing_verification`), `Organization` con descripción, contacto (si hay WhatsApp) y redes (`site.json` → `redes`).
+  - El aviso de privacidad ya dice qué se guarda de cada visita, para qué y cuánto tiempo.
 
 
 ## Contexto
@@ -124,7 +131,8 @@ La referencia es teinvitamos.mx, que hace lo contrario de lo que queremos: preci
 - `title` y `meta description` únicos por página; `canonical`; Open Graph y Twitter con una imagen 1200×630 por página.
 - **JSON-LD:** `Organization` + `WebSite` en el inicio; `Service` (`serviceType`, `areaServed: MX`) en cada página de evento; `FAQPage` donde haya preguntas; `BreadcrumbList` en las páginas internas.
 - `robots.txt`: permite la landing; bloquea `/i/`, `/panel/`, `/gestor`, `/api/` y `/e/`. Las invitaciones ya llevan `noindex`; los demos también, pero la landing los enlaza.
-- `sitemap.xml` con las 5 páginas; `llms.txt` con qué hacemos, para quién y cómo cotizar (para motores de respuestas).
+- `sitemap.xml` con las 5 páginas; `llms.txt` con qué hacemos, para quién y cómo cotizar (para motores de respuestas). Los tres se arman al compilar con `SITE_URL` (17-oct).
+- (17-oct) Las direcciones que no existen responden `404` (la SPA las respondía con `200`); toda la SPA lleva `X-Robots-Tag: noindex, nofollow`; las páginas indexables, `meta robots` con `max-image-preview:large`; `og:image` con sus medidas y `og:image:alt`; los códigos de Search Console y Bing se ponen en `site.json`.
 - **Rendimiento** (meta en 4G, en celular):
   - LCP < 2 s, CLS < 0.05, INP < 100 ms;
   - JS de la landing < 15 KB gz;

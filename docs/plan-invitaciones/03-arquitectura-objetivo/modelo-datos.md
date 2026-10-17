@@ -35,6 +35,12 @@ eventos/_gestor/
 │                  clave (solo el hash bcrypt), cambiar_clave (SI = tiene clave temporal),
 │                  creado, ultimo_acceso
 ├── cotizaciones.csv  lo que llega de la landing
+├── visitas/       una página vista por renglón, un archivo por día (AAAA-MM-DD.csv): fecha,
+│                  pagina, tipo (landing|invitacion|personal|muestra), evento, origen,
+│                  referencia, campana, dispositivo, sistema, navegador, ip, visitante
+│                  (código de IP + navegador, sin guardar el navegador), equipo (SI = alguien
+│                  del gestor). La IP se borra a los 365 días (ip-borradas-hasta.txt dice
+│                  hasta qué día); el renglón se queda
 ├── papelera/      lo eliminado desde el gestor: <slug>-AAAAMMDD-HHMMSS/ (la carpeta completa)
 │                  y papelera.csv (fecha, evento, tipo, carpeta, enlaces, confirmados,
 │                  usuario, nombre)

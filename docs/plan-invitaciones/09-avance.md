@@ -1,6 +1,6 @@
 # Avance y cambios contra el plan
 
-**Actualizado:** 16-oct-2026. **Rama:** todo está en `main` y en GitHub (`origin/main` = `976db50`, "Nuevo tema NY"): el motor, el gestor (unido el 15-oct), la landing, los temas `marfil` y `nueva-york` y la mesa de regalos. `feature/gestor-plantillas` y `feature/landing-y-secciones` ya quedaron dentro de `main`. **En Fly:** release v10 (16-oct), con todo lo anterior.
+**Actualizado:** 17-oct-2026. **Rama:** todo está en `main`: el motor, el gestor (unido el 15-oct), la landing, los temas `marfil` y `nueva-york` y la mesa de regalos. `feature/gestor-plantillas` y `feature/landing-y-secciones` ya quedaron dentro de `main`. En GitHub, hasta `c382f65` (eliminar invitaciones); los commits del 17-oct (ajustes de Nueva York, estadísticas y SEO) están en `main` sin push. La migración a Google Cloud vive aparte, en `feature/migracion-gcp`. **En Fly:** release v11 (16-oct).
 
 Este archivo dice **qué se hizo, qué cambió contra el plan original y qué falta**. Las fases de `04-fases/` tienen sus casillas marcadas con la misma información. Las dudas abiertas están en `08-decisiones-pendientes.md`.
 
@@ -26,6 +26,12 @@ El cambio más grande contra el plan: **no hay base de datos**. Todo vive en arc
 - **Las tres muestras en su propia pestaña** ("Muestras").
 
 Tú hiciste el commit (`de4a8dc`) y el deploy (release v11). Después vino un pedido más: eliminar también invitaciones (y muestras), con la dirección escrita para las que ya se compartieron. Eso falta publicarlo.
+
+**Nuevo (17-oct, en `main`, sin push ni `fly deploy`):**
+- **Ajustes de Nueva York para Ximena** (los del 16-oct en la noche, que estaban sin commit en la rama de Google Cloud): pasaron a `main` en dos commits.
+- **Estadísticas del sitio:** cada visita a la landing, a una invitación o a una muestra queda anotada, con su IP, de dónde llegó y el dispositivo. Se ven en el gestor → "Estadísticas", con el contador de hoy en el botón.
+- **SEO:** imágenes para compartir (no existían), `404` de verdad, `noindex` en la SPA, verificación de Search Console y Bing, y `robots.txt`, `sitemap.xml` y `llms.txt` armados con la dirección del sitio. El aviso de privacidad ya habla de las visitas.
+- Detalle abajo, en "Estadísticas del sitio y SEO". Preguntas 54–61.
 
 **Revisado en producción (16-oct, 13:00):**
 - **Plantillas:** con lo de la v11 eliminaste `plantilla-nueva-york` (la de solo la portada) y armaste `plantilla-nat` y `plantilla-xv-ximena`.
@@ -411,6 +417,33 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
 - Ubicación `metro`: la foto del salón va en un **marco de plata** (metal con reflejos en diagonal y filo pulido), sin los cuadritos negros ni la línea negra de adentro. El marco sigue a la paleta (en una franja de papel se ve en tinta, como los demás marcos).
 - Cambia en todas las invitaciones con esos diseños (Ximena y la plantilla `nueva-york`); NAT y las muestras de Marfil no los usan. Revisado en capturas a 390 px; lint, 334 pruebas del front y build en verde.
 
+### Estadísticas del sitio y SEO (17-oct; en `main`, sin `fly deploy`)
+
+Pedido: "un contador de visualizaciones en la página y, si no es invasivo, que se capture la IP de quien entró; más prácticas de SEO para la página principal; necesitamos empezar a tener estadísticas del tráfico".
+
+- **Cómo se cuenta:** cada página vista manda un aviso al servidor (`POST /api/public/visits`, con `navigator.sendBeacon`): la landing al cargar, y la invitación (`/e/…`, `/i/…` y las muestras) al abrirse. No frena la página, no usa cookies y nunca muestra un error.
+  - El servidor pone la **IP**, el dispositivo, el sistema y el navegador, y de dónde llegó: las etiquetas del enlace (`utm_source`), la página de antes (Google, Instagram, ChatGPT…) o la app en la que se abrió. Sin nada de eso es "Directo" (escribieron la dirección, un QR o WhatsApp, que no dice de dónde viene).
+  - No se cuentan los robots ni las vistas previas de WhatsApp o Facebook, ni las visitas del equipo (navegadores con sesión del gestor: se anotan aparte).
+  - Con "no rastrear" (DNT o GPC) la visita se cuenta sin IP. La IP se borra a los 365 días; la visita se queda.
+  - El token de `/i/` nunca se guarda: queda `/i` con el evento.
+  - Dónde: `eventos/_gestor/visitas/AAAA-MM-DD.csv`, un archivo por día, que se abre en Excel.
+- **En el gestor → "Estadísticas"** (solo quien administra; el botón dice cuántas visitas lleva hoy la landing):
+  - Página principal, Invitaciones o Todo; hoy, 7, 30 o 90 días, o un año.
+  - Visitas, personas distintas, cotizaciones y cuántas por cada 100 personas.
+  - Gráfica por día (por semana en un año), con tabla.
+  - Páginas, de dónde llegan, enlaces con etiqueta, dispositivos, sistemas y navegadores; cada invitación con sus visitas generales y personales.
+  - Las últimas 60 visitas con su IP, y la descarga en CSV.
+  - Un armador de **enlaces con etiqueta** (`?utm_source=instagram&utm_campaign=expo-bodas`): un enlace distinto para la biografía de Instagram, un volante con QR o una historia, y aquí se ve cuál trae más gente.
+- **SEO de la landing:**
+  - **Imágenes para compartir:** `/og/inicio.png`, `boda.png`, `xv.png` y `graduacion.png` no existían; WhatsApp y Facebook recibían una página HTML en su lugar. Ya están, a 1200×630 y sin fotos (la paleta y los dibujos de línea), con sus medidas y su texto alternativo.
+  - **404 de verdad:** cualquier dirección inventada respondía `200` con la página de la invitación (un "404 suave" para Google). Ahora responde `404`. Toda la SPA (invitaciones, panel, gestor) lleva `X-Robots-Tag: noindex`.
+  - `meta robots` con vista previa grande de imagen; la página de "solicitud enviada" sigue con `noindex`.
+  - Verificación de Google Search Console y Bing desde `site.json`; `Organization` con descripción, contacto (cuando haya WhatsApp) y redes (pregunta 56).
+  - `robots.txt`, `sitemap.xml` (con la fecha de cada página) y `llms.txt` se arman al compilar con `SITE_URL`: el día del dominio propio, basta con compilar con el nuevo.
+  - Aviso de privacidad: qué se guarda de cada visita, para qué y cuánto tiempo.
+- **Probado:** 221 pruebas de la API y 349 del front (con las nuevas: visitas, clasificador, estadísticas, enlaces con etiqueta, sitemap y cabeceras); lint, tipos y build en verde. En local con Chromium: la landing con etiqueta de Instagram, la página de bodas y `/e/nat` quedaron anotadas; una dirección que no existe, no. La ventana, revisada en capturas de escritorio y de celular.
+- **Cambió contra el plan:** la fase 10 no traía estadísticas; se hicieron propias (sin Google Analytics, sin cookies ni avisos de cookies) y con los mismos CSV de siempre.
+
 ### Invitación personal y confirmación
 
 - Cada enlace (`/i/<token>`) muestra la misma invitación. Lo que cambia es el formulario: **un campo de nombre por invitado**, con "Asistiré / Lo siento, no asistiré".
@@ -513,6 +546,8 @@ Pedido: "que sea un 40 % más eficiente, más que nada por la demanda en el serv
 - El aviso de privacidad sin correo para los derechos ARCO y el pie sin WhatsApp (`web/landing/site.json`: `email` y `whatsapp` vacíos; preguntas 41 y 43).
 - En Fly no están los secretos del correo (`MAIL_*`, `COTIZACIONES_CORREO`): las cotizaciones solo se ven en el gestor (pregunta 42).
 - Agregar la mesa de regalos a las muestras (`deploy/demos/armar.py`) y volver a subirlas (`deploy/demos/subir.sh`).
+- Publicar las estadísticas y el SEO (17-oct): push y `fly deploy`, cuando tú lo decidas (pregunta 60). Después: dar de alta el sitio en Search Console y Bing (pregunta 55).
+- Al unir `feature/migracion-gcp`: pasar las visitas al disco virtual y revisar la IP detrás de Firebase Hosting (pregunta 61).
 
 ### Después del evento real o cuando se decida
 

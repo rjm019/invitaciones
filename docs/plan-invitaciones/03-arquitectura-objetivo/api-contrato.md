@@ -13,7 +13,7 @@
 
 ## Página de la invitación (no es API)
 
-`GET /e/{slug}` y `GET /i/{token}` responden la invitación compilada (`app.html`) con los mismos datos que darían `GET /public/events/{slug}` o `GET /public/invitations/{token}` dentro de `<script>window.__BOOT__={kind, key, data}</script>`. `GET /panel/{slug}` trae `{ brand }`, lo mismo que `GET /admin/events/{slug}/brand`. El JSON va escapado contra `</script>`. En `/i/` se registra la apertura, igual que en la API. Con `Cache-Control: no-cache, private`. Cualquier otra ruta que no sea `/api` ni `/media` da la página sin datos.
+`GET /e/{slug}` y `GET /i/{token}` responden la invitación compilada (`app.html`) con los mismos datos que darían `GET /public/events/{slug}` o `GET /public/invitations/{token}` dentro de `<script>window.__BOOT__={kind, key, data}</script>`. `GET /panel/{slug}` trae `{ brand }`, lo mismo que `GET /admin/events/{slug}/brand`. El JSON va escapado contra `</script>`. En `/i/` se registra la apertura, igual que en la API. Con `Cache-Control: no-cache, private` y `X-Robots-Tag: noindex, nofollow` (nada de la SPA se indexa; lo que se busca es la landing). Las rutas del router de Vue (`/`, `/i/…`, `/e/…`, `/panel/…`, `/gestor…`) responden `200`; cualquier otra que no sea `/api` ni `/media` da la misma página ("no encontramos esta página") con **`404`** (17-oct; antes era `200`, un "404 suave" para los buscadores).
 
 ## Público
 
@@ -121,6 +121,12 @@ PDF con el nombre de la familia, los asistentes y un QR (que contiene el token).
 |---|---|---|
 | POST | `/public/quotes` | `{ telefono, nombre?, tipo: boda\|xv\|graduacion\|otro, fecha_evento?: AAAA-MM-DD, idea? (600), pagina?, privacidad: aceptado, empresa (trampa), t (ms en que se abrió la página) }` → `201 { ok }`. El teléfono se guarda en E.164 (`+52` + 10 dígitos; otro país con `+`). `422` con mensajes en español · `429` después de 5 por hora por IP. Si el campo trampa trae algo o pasan menos de 3 s desde `t`, responde `201` pero no guarda (contra robots, sin captcha). Sin JS (POST de formulario): redirige a `/cotizacion-enviada`, o a `/#cotizar` si algo está mal. Se guarda en `eventos/_gestor/cotizaciones.csv` y, después de responder, se avisa por correo a `COTIZACIONES_CORREO` (si está) |
 
+### Visitas (estadísticas)
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| POST | `/public/visits` | Cada página vista: la landing (`landing.ts`), `/e/{slug}` y `/i/{token}` (al cargar la invitación) lo mandan con `navigator.sendBeacon`. Cuerpo JSON enviado como `text/plain` (sin OPTIONS): `{ pagina, ref?, utm_source?, utm_medium?, utm_campaign?, evento?, muestra?, equipo? }` → siempre `204` (la página nunca ve un error) · `429` después de 60/min por IP. El servidor pone la IP (`$request->ip()`; vacía con `DNT: 1` o `Sec-GPC: 1`), el dispositivo, el sistema y el navegador (User-Agent) y de dónde llegó (utm_source, luego el dominio de `ref`, luego la app: Instagram, Facebook, TikTok; si no, "Directo"). No anota robots ni vistas previas (Googlebot, WhatsApp, facebookexternalhit…), páginas raras ni eventos que no existen. `/i/{token}` se anota como `/i` con su evento: **el token nunca se guarda**. `equipo: true` (hay sesión del gestor en ese navegador) se anota pero no cuenta. Se guarda en `eventos/_gestor/visitas/AAAA-MM-DD.csv` |
+
 ## Panel del dueño (sin base de datos)
 
 Se entra con `clave_panel` (mínimo 8 caracteres): en `ajustes.csv`, donde la pone el gestor, o en el layout (`evento → clave_panel`) en el formato anterior. La sesión es un token cifrado con `APP_KEY` (12 h; deja de servir si la clave cambia) que se manda como `Authorization: Bearer`.
@@ -158,6 +164,9 @@ Lo que viaja es el **diseño**: `{ event, colors, fonts, texts, page, sections: 
 | PUT | `/manager/quotes/{id}` | Solo *admin*: `{ status?: nueva\|contactada\|cotizada\|cerrada\|descartada, note? }` → `{ quote }` (anota quién la atendió) · `404` · `422` |
 | DELETE | `/manager/quotes/{id}` | Solo *admin*: la borra del archivo (derechos ARCO) → `204` · `404` |
 | GET | `/manager/quotes/export` | Solo *admin*: `cotizaciones.csv` (UTF-8 con BOM, para Excel) |
+| GET | `/manager/visits?dias=1\|7\|30\|90\|365&alcance=sitio\|invitaciones\|todo` | Solo *admin*: `{ from, to, scope, totals: { visits, visitors, team, quotes, conversion }, days: [{ date, visits, visitors }], pages, origins, campaigns, devices, systems, browsers: [{ label, visits, visitors }], events: [{ slug, demo, visits, visitors, general, personal }], recent: [{ at, page, kind, origin, campaign, device, system, browser, ip }] }`. `sitio` = la landing; `invitaciones` = invitaciones, enlaces personales y muestras. Sin las visitas del equipo (`team` las cuenta). `visitors` = personas distintas (misma IP y navegador). `quotes` = cotizaciones que llegaron esos días; `conversion` = cotizaciones por cada 100 personas (`null` en `invitaciones`). `recent`: las últimas 60. `422` con otro periodo |
+| GET | `/manager/visits/count` | Solo *admin*: `{ today }`: visitas a la landing hoy (el contador del botón "Estadísticas", cada minuto) |
+| GET | `/manager/visits/export?dias=…` | Solo *admin*: `visitas-<desde>-a-<hasta>.csv` con todo lo anotado esos días (con la IP y las del equipo; UTF-8 con BOM) |
 | PUT | `/manager/users/{username}` | Solo *admin*: `{ name?, role?, active?, reset_password? }` → `{ user, password? }` · `404` · `422` si te quitas el acceso o el rol a ti, pides tu propia clave temporal o no quedaría nadie activo que administre |
 | GET | `/manager/catalog` | `{ catalog }`: tipos de sección (campos, lista, adornos, bloques de texto, `hidden_without`), grupos de `evento`, colores, fuentes, efectos, límites |
 | GET | `/manager/events` | Solo las que ve esa persona: `{ events: [{ slug, title, type, celebrant, starts_at, published, template, demo, format: design\|legacy, has_draft, pending, updated_at, last_publish: null\|{ published_at, origin, by: null\|{ username, name } }, people: [usernames], cover: { theme, colors, font }, counts: { invitations, guests, attending } }], user }`. `user` son los datos al día de quien pide (lo mismo que `/me`): el inicio no los pide aparte. Las plantillas traen sus conteos en 0 (no tienen invitados). `demo` = una muestra de la landing (`demo=SI` en `ajustes.csv`): el inicio la pone en su pestaña "Muestras" |

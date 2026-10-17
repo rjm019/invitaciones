@@ -27,7 +27,7 @@ eventos/<slug>/
     └── formato-anterior-<fecha>/        ← el layout.xlsx de antes, al migrar
 ```
 
-Aparte de los eventos, `eventos/_gestor/usuarios.csv` guarda las cuentas del gestor (usuario, nombre, rol, si tiene acceso y el hash de su clave; nunca la clave). `_gestor` nunca es un evento.
+Aparte de los eventos, `eventos/_gestor/usuarios.csv` guarda las cuentas del gestor (usuario, nombre, rol, si tiene acceso y el hash de su clave; nunca la clave). `_gestor` nunca es un evento. Ahí también viven las cotizaciones (`cotizaciones.csv`) y las visitas del sitio (`visitas/AAAA-MM-DD.csv`, una por página vista, con la IP, de dónde llegó y el dispositivo; la IP se borra al año). Las visitas se ven en el gestor → "Estadísticas" y se descargan desde ahí.
 
 Los archivos que escribe el sistema se pueden **abrir** en Excel para consultarlos, pero **no se editan ni se guardan desde Excel**: los escribe la API. `invitacion.csv` sí se puede editar (ver "Editar sin el gestor").
 
