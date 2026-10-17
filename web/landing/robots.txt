@@ -10,4 +10,4 @@ Disallow: /media/
 Disallow: /landing/
 Disallow: /cotizacion-enviada
 
-Sitemap: https://invitaciones-jiro.fly.dev/sitemap.xml
+Sitemap: %SITE_URL%/sitemap.xml

@@ -1,0 +1,53 @@
+<!doctype html>
+<!--
+  Imágenes para compartir (og:image, 1200x630): web/public/og/<inicio|boda|xv|graduacion>.png.
+  Las arma capturar.mjs con Chromium; ver las instrucciones ahí. Sin fotos: la paleta y los
+  dibujos de línea de la landing.
+-->
+<html lang="es-MX"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:'Cormorant Garamond';font-weight:400;src:url(fuentes/cormorant-garamond-latin-400-normal.woff2)}
+@font-face{font-family:'Cormorant Garamond';font-weight:500;src:url(fuentes/cormorant-garamond-latin-500-normal.woff2)}
+@font-face{font-family:'Cormorant Garamond';font-style:italic;src:url(fuentes/cormorant-garamond-latin-400-italic.woff2)}
+@font-face{font-family:'Pinyon Script';src:url(fuentes/pinyon-script-latin-400-normal.woff2)}
+*{box-sizing:border-box}
+html,body{margin:0;width:1200px;height:630px;overflow:hidden}
+body{background:#faf8f5;color:#1d1d1f;font-family:'Noto Sans',sans-serif;position:relative}
+.frame{position:absolute;inset:28px;border:1px solid #b39a74;border-radius:22px}
+.frame::after{content:"";position:absolute;inset:8px;border:1px solid rgb(179 154 116 / .35);border-radius:16px}
+.wash{position:absolute;right:-120px;top:-80px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,#efe9e1 0,#efe9e1 55%,rgb(239 233 225 / 0) 72%)}
+.copy{position:absolute;left:96px;top:92px;width:640px}
+.eyebrow{font:500 18px/1 'Noto Sans',sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#8a8178}
+h1{margin:30px 0 0;font:500 76px/1.02 'Cormorant Garamond',serif;letter-spacing:-.01em}
+.script{display:block;margin-top:6px;font:400 84px/1.1 'Pinyon Script',cursive;color:#8f7650}
+.lead{margin:26px 0 0;font:400 26px/1.4 'Cormorant Garamond',serif;font-style:italic;color:#45413d}
+.brand{position:absolute;left:96px;bottom:78px;display:flex;align-items:center;gap:14px;font:500 22px/1 'Noto Sans',sans-serif;letter-spacing:.06em;color:#1d1d1f}
+.brand i{width:34px;height:1px;background:#b39a74}
+.art{position:absolute;right:150px;top:150px;width:300px;height:300px;color:#8f7650}
+.art svg{width:100%;height:100%}
+.art svg *{stroke-width:.6}
+.ring{position:absolute;right:120px;top:120px;width:360px;height:360px;border-radius:50%;border:1px solid rgb(179 154 116 / .45)}
+.dot{position:absolute;width:7px;height:7px;border-radius:50%;background:#b39a74}
+</style></head><body>
+<!-- @iconos: el contenido de partials/icons.html -->
+<div class="wash"></div><div class="frame"></div><div class="ring"></div>
+<span class="dot" style="right:296px;top:116px"></span><span class="dot" style="right:116px;top:296px"></span>
+<div class="copy">
+  <div class="eyebrow" id="eyebrow"></div>
+  <h1><span id="title"></span><span class="script" id="script"></span></h1>
+  <p class="lead" id="lead"></p>
+</div>
+<div class="art" id="art"></div>
+<div class="brand"><i></i>Jiro Solutions</div>
+<script>
+const V={
+ inicio:{eyebrow:'Invitaciones digitales',title:'Hechas a la medida',script:'de tu historia',lead:'Bodas, XV años, graduaciones o cualquier evento.',icon:'i-open'},
+ boda:{eyebrow:'Invitaciones de boda',title:'Su historia,',script:'a la medida',lead:'Ceremonia, recepción, su música y cada confirmación en vivo.',icon:'i-rings'},
+ xv:{eyebrow:'Invitaciones de XV años',title:'Una entrada',script:'de película',lead:'Tu canción, tus padrinos y la cuenta regresiva.',icon:'i-tiara'},
+ graduacion:{eyebrow:'Invitaciones de graduación',title:'Celebra',script:'tu generación',lead:'La ceremonia, la fiesta y el itinerario en vivo.',icon:'i-cap'},
+};
+const v=V[new URLSearchParams(location.search).get('v')||'inicio'];
+for(const k of ['eyebrow','title','script','lead']) document.getElementById(k).textContent=v[k];
+const sym=document.getElementById(v.icon);
+document.getElementById('art').innerHTML=`<svg viewBox="${sym.getAttribute('viewBox')}" fill="none" stroke="currentColor" stroke-width=".7" stroke-linecap="round" stroke-linejoin="round">${sym.innerHTML}</svg>`;
+</script></body></html>

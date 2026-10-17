@@ -12,7 +12,16 @@ export interface SiteInfo {
   email: string
   /** WhatsApp del negocio, solo dígitos con lada (5215512345678); vacío = todavía no hay. */
   whatsapp: string
+  /** Código de verificación de Google Search Console (meta google-site-verification). */
+  google_verification?: string
+  /** Código de verificación de Bing Webmaster Tools (meta msvalidate.01). */
+  bing_verification?: string
+  /** Perfiles del negocio en redes (Instagram, Facebook, TikTok…): van al JSON-LD (sameAs). */
+  redes?: string[]
 }
+
+/** Lo que solo aparece si hay dato: `<!-- @if whatsapp --> … <!-- @endif -->`. */
+const OPTIONAL = ['email', 'whatsapp', 'google_verification', 'bing_verification'] as const
 
 const INCLUDE = /<!--\s*@include\s+([\w.-]+)((?:\s+[\w-]+="[^"]*")*)\s*-->/g
 const PARAM = /([\w-]+)="([^"]*)"/g
@@ -39,12 +48,19 @@ export function expandIncludes(html: string, read: (name: string) => string, dep
   })
 }
 
-/** `%SITE_URL%`, `%BRAND%`, `%RESPONSIBLE%`, `%YEAR%`… Lo que dependa de un dato vacío se quita. */
+/**
+ * `%SITE_URL%`, `%BRAND%`, `%RESPONSIBLE%`, `%YEAR%`… Lo que dependa de un dato vacío se
+ * quita. `%SAME_AS%` es la lista de redes en JSON (para el JSON-LD).
+ */
 export function fillTokens(html: string, site: SiteInfo, now = new Date()): string {
-  // Bloques que solo aparecen si hay dato: <!-- @if whatsapp --> … <!-- @endif -->
   const withBlocks = html.replace(
-    /<!--\s*@if\s+(email|whatsapp)\s*-->([\s\S]*?)<!--\s*@endif\s*-->/g,
-    (_m, key: 'email' | 'whatsapp', body: string) => (site[key] ? body : ''),
+    /<!--\s*@if\s+([\w-]+)\s*-->([\s\S]*?)<!--\s*@endif\s*-->/g,
+    (all, key: string, body: string) =>
+      (OPTIONAL as readonly string[]).includes(key)
+        ? site[key as (typeof OPTIONAL)[number]]
+          ? body
+          : ''
+        : all,
   )
   const tokens: Record<string, string> = {
     SITE_URL: site.url,
@@ -52,9 +68,26 @@ export function fillTokens(html: string, site: SiteInfo, now = new Date()): stri
     RESPONSIBLE: site.responsible,
     EMAIL: site.email,
     WHATSAPP: site.whatsapp,
+    GOOGLE_VERIFICATION: site.google_verification ?? '',
+    BING_VERIFICATION: site.bing_verification ?? '',
+    SAME_AS: JSON.stringify((site.redes ?? []).filter((u) => /^https:\/\//.test(u))),
     YEAR: String(now.getFullYear()),
   }
   return withBlocks.replace(/%([A-Z_]+)%/g, (all, key: string) => tokens[key] ?? all)
+}
+
+/** Una página del sitemap: su dirección pública y cuándo cambió (AAAA-MM-DD). */
+export interface SitemapPage {
+  path: string
+  modified: string
+}
+
+/** sitemap.xml con la dirección del sitio (SITE_URL), para que sirva en cualquier dominio. */
+export function sitemapXml(site: Pick<SiteInfo, 'url'>, pages: SitemapPage[]): string {
+  const urls = pages
+    .map((p) => `  <url><loc>${site.url}${p.path}</loc><lastmod>${p.modified}</lastmod></url>`)
+    .join('\n')
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
 }
 
 function plain(fragment: string): string {

@@ -10,8 +10,8 @@
 
 ## Páginas
 
-- [Inicio](https://invitaciones-jiro.fly.dev/): qué hacemos, cómo trabajamos, preguntas frecuentes y cotización.
-- [Invitaciones de boda](https://invitaciones-jiro.fly.dev/invitaciones-digitales-boda)
-- [Invitaciones de XV años](https://invitaciones-jiro.fly.dev/invitaciones-digitales-xv-anos)
-- [Invitaciones de graduación](https://invitaciones-jiro.fly.dev/invitaciones-digitales-graduacion)
-- [Aviso de privacidad](https://invitaciones-jiro.fly.dev/aviso-de-privacidad)
+- [Inicio](%SITE_URL%/): qué hacemos, cómo trabajamos, preguntas frecuentes y cotización.
+- [Invitaciones de boda](%SITE_URL%/invitaciones-digitales-boda)
+- [Invitaciones de XV años](%SITE_URL%/invitaciones-digitales-xv-anos)
+- [Invitaciones de graduación](%SITE_URL%/invitaciones-digitales-graduacion)
+- [Aviso de privacidad](%SITE_URL%/aviso-de-privacidad)
