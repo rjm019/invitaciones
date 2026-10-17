@@ -38,6 +38,17 @@ class SpaTest extends TestCase
             $this->get($path)
                 ->assertOk()
                 ->assertHeader('Cache-Control', 'no-cache, private')
+                ->assertHeader('X-Robots-Tag', 'noindex, nofollow')
+                ->assertSee('<div id="app"></div>', false);
+        }
+    }
+
+    public function test_an_address_outside_the_site_is_a_real_404(): void
+    {
+        foreach (['/no-existe', '/og/inicio.png', '/e/prueba/otra', '/i/', '/wp-login.php'] as $path) {
+            $this->get($path)
+                ->assertNotFound()
+                ->assertHeader('X-Robots-Tag', 'noindex, nofollow')
                 ->assertSee('<div id="app"></div>', false);
         }
     }

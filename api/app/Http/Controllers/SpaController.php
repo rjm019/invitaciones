@@ -33,15 +33,27 @@ class SpaController extends Controller
             $html = str_replace('</head>', '<script>window.__BOOT__='.json_encode($boot, self::JSON).'</script></head>', $html);
         }
 
-        // private: en /i/{token} la página lleva los nombres de esa invitación.
-        $headers = ['Content-Type' => 'text/html; charset=UTF-8', 'Cache-Control' => 'no-cache, private'];
-        // El gestor nunca se indexa y solo se deja poner dentro de sí mismo (la vista previa es un iframe).
+        // private: en /i/{token} la página lleva los nombres de esa invitación. Nada de la SPA
+        // se indexa (invitaciones, paneles, gestor): lo que se busca en Google es la landing.
+        $headers = [
+            'Content-Type' => 'text/html; charset=UTF-8',
+            'Cache-Control' => 'no-cache, private',
+            'X-Robots-Tag' => 'noindex, nofollow',
+        ];
+        // El gestor solo se deja poner dentro de sí mismo (la vista previa es un iframe).
         if ($request->is('gestor', 'gestor/*')) {
-            $headers['X-Robots-Tag'] = 'noindex, nofollow';
             $headers['Content-Security-Policy'] = "frame-ancestors 'self'";
         }
 
-        return response($html, 200, $headers);
+        // Una dirección que no es de la SPA se ve igual ("no encontramos esta página"), pero
+        // responde 404: para los buscadores no es una página más del sitio.
+        return response($html, $this->isSpaRoute($request->path()) ? 200 : 404, $headers);
+    }
+
+    /** Las rutas del router de Vue (web/src/router): la invitación, el panel y el gestor. */
+    private function isSpaRoute(string $path): bool
+    {
+        return (bool) preg_match('#^(/|i/[A-Za-z0-9]+|e/[a-z0-9-]+|panel/[a-z0-9-]+|gestor(/[a-z0-9-]+)?|legacy/boda)/?$#', $path);
     }
 
     /**
