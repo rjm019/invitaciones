@@ -92,7 +92,7 @@ Nacieron para Nueva York, pero cualquier tema los usa con sus colores y letras. 
 | bendición | `programa` | Programa de mano de Broadway, con el "reparto" |
 | fecha | `boleto` | Boleto plateado con talón y la semana del evento |
 | foto | `ventana` | La punta escalonada de un rascacielos, con la ciudad detrás |
-| ubicación | `metro` | Letrero de estación; la foto en marco de mosaico |
+| ubicación | `metro` | Letrero de estación; la foto en marco de plata |
 | frase | `neon` | Letrero de neón que parpadea y se enciende |
 | itinerario | `avenida` | Línea del metro en un poste con farol y letreros de calle; al pie, la Estatua y el puente |
 | vestimenta | `vitrinas` | Escaparates de la Quinta Avenida |

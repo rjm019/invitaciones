@@ -9,8 +9,8 @@ import type { ResolvedSection } from '@/types/event'
 /**
  * Ubicación de Nueva York ("metro"): cada lugar es un letrero de estación del metro (la
  * franja con su línea blanca arriba, el nombre en mayúsculas y las "líneas" en círculos:
- * la hora y la flecha a Maps). Abajo, la foto del lugar en un marco de mosaico, como los
- * de las estaciones. El botón abre Maps.
+ * la hora y la flecha a Maps). Abajo, la foto del lugar en un marco de plata. El botón
+ * abre Maps.
  */
 const props = defineProps<{ section: ResolvedSection }>()
 const { event } = useEvent()
@@ -82,7 +82,7 @@ const bullet = (time: string) => time.replace(':00', '').toUpperCase()
         <span aria-hidden="true">↗</span> {{ button }}
       </a>
 
-      <div v-if="place.photo" class="ny-metro__mosaic">
+      <div v-if="place.photo" class="ny-metro__mount">
         <div class="ny-metro__frame fx-photo">
           <img
             :src="place.photo"
@@ -221,20 +221,27 @@ const bullet = (time: string) => time.replace(':00', '').toUpperCase()
   outline: 2px solid var(--color-primary);
   outline-offset: 3px;
 }
-/* La foto en un marco de mosaico (cuadritos de dos tonos), como los letreros de las estaciones. */
-.ny-metro__mosaic {
+/* La foto en un marco de plata: el metal con sus reflejos en diagonal y un filo pulido. */
+.ny-metro__mount {
   width: 100%;
   padding: 0.55rem;
-  background: repeating-conic-gradient(
-      var(--color-primary) 0 25%,
-      color-mix(in srgb, var(--color-primary) 35%, var(--color-night)) 0 50%
-    )
-    0 0 / 0.55rem 0.55rem;
-  box-shadow: var(--shadow-card);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-strong) 0%,
+    var(--color-primary) 24%,
+    var(--color-primary-soft) 46%,
+    var(--color-primary) 64%,
+    var(--color-primary-strong) 82%,
+    var(--color-primary) 100%
+  );
+  box-shadow:
+    var(--shadow-card),
+    inset 0 1px 0 rgb(255 255 255 / 0.55),
+    inset 0 -1px 0 rgb(0 0 0 / 0.18);
 }
 .ny-metro__frame {
   overflow: hidden;
-  border: 3px solid var(--color-night);
+  border: 2px solid var(--color-primary-soft);
 }
 .ny-metro__photo {
   display: block;

@@ -86,7 +86,7 @@ const theme: ThemeManifest = {
       decor: { frame: 'marco.svg', stars: 'destellos-titulo.svg' },
       sprites: { stars: TITLE_SPARKLES },
     },
-    // Un letrero de estación del metro; la foto, en un marco de mosaico.
+    // Un letrero de estación del metro; la foto, en un marco de plata.
     location: {
       desktop: 'half',
       // Franja gris: con secciones difuminadas, la ciudad la corta arriba y abajo.
