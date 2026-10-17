@@ -10,11 +10,13 @@ use App\Http\Controllers\Manager\QuoteController as ManagerQuoteController;
 use App\Http\Controllers\Manager\SessionController as ManagerSessionController;
 use App\Http\Controllers\Manager\TransferController;
 use App\Http\Controllers\Manager\UserController;
+use App\Http\Controllers\Manager\VisitController as ManagerVisitController;
 use App\Http\Controllers\Public\DedicationController;
 use App\Http\Controllers\Public\EventController;
 use App\Http\Controllers\Public\InvitationController;
 use App\Http\Controllers\Public\QuoteController;
 use App\Http\Controllers\Public\RsvpController;
+use App\Http\Controllers\Public\VisitController;
 use App\Http\Controllers\Public\WeatherController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +34,9 @@ Route::prefix('public')->group(function () {
 
     // Cotizaciones de la landing.
     Route::post('/quotes', [QuoteController::class, 'store'])->middleware('throttle:quote');
+
+    // Cada página vista (la landing, las invitaciones y las muestras): para las estadísticas.
+    Route::post('/visits', [VisitController::class, 'store'])->middleware('throttle:visit');
 });
 
 // Panel del dueño del evento: se entra con la clave del layout (clave_panel).
@@ -72,6 +77,10 @@ Route::prefix('manager')->group(function () {
             Route::get('/quotes/export', [ManagerQuoteController::class, 'export']);
             Route::put('/quotes/{id}', [ManagerQuoteController::class, 'update'])->where('id', '[0-9]+');
             Route::delete('/quotes/{id}', [ManagerQuoteController::class, 'destroy'])->where('id', '[0-9]+');
+
+            Route::get('/visits', [ManagerVisitController::class, 'index']);
+            Route::get('/visits/count', [ManagerVisitController::class, 'count']);
+            Route::get('/visits/export', [ManagerVisitController::class, 'export']);
         });
 
         Route::get('/catalog', CatalogController::class);

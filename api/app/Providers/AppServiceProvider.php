@@ -28,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
         // Cotizaciones de la landing: 5 por hora por IP (una persona cotiza una o dos veces).
         RateLimiter::for('quote', fn (Request $request) => Limit::perHour(5)->by('quote|'.$request->ip()));
 
+        // Visitas: 60 páginas por minuto por IP sobran para una persona (o una familia con la misma red).
+        RateLimiter::for('visit', fn (Request $request) => Limit::perMinute(60)->by('visit|'.$request->ip()));
+
         // Entrar al panel: 5 intentos por minuto por IP y evento (contra adivinar la clave).
         RateLimiter::for('panel-login', fn (Request $request) => Limit::perMinute(5)
             ->by($request->ip().'|'.$request->route('slug')));
