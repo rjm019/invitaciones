@@ -300,8 +300,22 @@ async function changeSettings(changes: SettingsChange): Promise<void> {
     if ('published' in changes)
       toast(changes.published ? 'La invitación ya se ve.' : 'La invitación quedó oculta.')
     else if (changes.panel_password)
-      toast('Clave nueva guardada. Si el cliente tenía su panel abierto, entra con esta.', 'info')
-    else if (changes.people) {
+      toast(
+        'Clave del panel guardada. Si el cliente tenía su panel abierto, tendrá que entrar con la nueva.',
+        'info',
+      )
+    else if ('panel_password' in changes)
+      toast('Clave quitada: el panel del cliente quedó apagado.', 'info')
+    else if ('owner_deadline' in changes)
+      toast('Quitaste la fecha del cliente: vale la de la invitación.')
+    else if ('deadline_changes' in changes) {
+      const left = 3 - (changes.deadline_changes ?? 0)
+      toast(
+        left === 1
+          ? 'Al cliente le queda 1 cambio de fecha.'
+          : `Al cliente le quedan ${left} cambios de fecha.`,
+      )
+    } else if (changes.people) {
       const names = (editor.settings.value?.people ?? [])
         .filter((p) => p.role !== 'admin')
         .map((p) => p.name)

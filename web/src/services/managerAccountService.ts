@@ -36,14 +36,23 @@ export function suggestUsername(name: string, taken: string[] = []): string {
   }
 }
 
-/** Lo que se le manda a la persona (por WhatsApp o como sea) para que entre. */
-export function accessMessage(url: string, username: string, password: string): string {
+/**
+ * Lo que se le manda a la persona (por WhatsApp o como sea) para que entre. Con una clave
+ * temporal, le avisa que al entrar elige la suya.
+ */
+export function accessMessage(
+  url: string,
+  username: string,
+  password: string,
+  temporary = true,
+): string {
   return [
     'Ya tienes cuenta en el gestor de invitaciones:',
     url,
     `Usuario: ${username}`,
-    `Clave temporal: ${password}`,
-    'Al entrar te pide elegir tu propia clave.',
+    ...(temporary
+      ? [`Clave temporal: ${password}`, 'Al entrar te pide elegir tu propia clave.']
+      : [`Clave: ${password}`]),
   ].join('\n')
 }
 

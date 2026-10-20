@@ -1,21 +1,24 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useClipboard } from '@/composables/useClipboard'
 import { useEditor } from '@/composables/useEditorContext'
 import { useManagerPeople } from '@/composables/useManagerPeople'
 import { useManagerSession } from '@/composables/useManagerSession'
 import { useToasts } from '@/composables/useToasts'
 import { initials } from '@/services/managerAccountService'
+import { PANEL_PASSWORD_MAX, panelPasswordProblem } from '@/services/passwordService'
 import type { ManagerSettings, SettingsChange } from '@/types/design'
 import FieldInput from './FieldInput.vue'
+import KeyInput from './KeyInput.vue'
 import ManagerIcon from './ManagerIcon.vue'
 import SharePreview from './SharePreview.vue'
 
 /**
  * "Datos generales": lo del evento (nombres, fecha, salón, confirmaciones, música, el
- * mensaje de WhatsApp y la tarjeta), el acceso del cliente a su panel, si la invitación
- * se ve y quién la edita en el gestor. Eso último, la clave y "visible" se guardan al
- * instante (no esperan a "Publicar").
+ * mensaje de WhatsApp y la tarjeta), el acceso del cliente a su panel (crear, cambiar o
+ * quitar su clave), si la invitación se ve y quién la edita en el gestor. Eso último, la
+ * clave, "visible" y, para quien administra, lo que el cliente movió en su panel (su fecha
+ * límite y sus cambios) se guardan al instante (no esperan a "Publicar").
  */
 const props = defineProps<{ settings: ManagerSettings | null }>()
 const emit = defineEmits<{ settings: [changes: SettingsChange] }>()
@@ -38,8 +41,16 @@ const error = (key: string) =>
     .join(': ') ?? null
 
 const showPassword = ref(false)
-/** Cambiar una clave que ya existe saca al cliente de su panel: se pregunta antes. */
-const confirmNew = ref(false)
+/** Editar la clave: se escribe otra (o se genera) y se guarda con el botón. */
+const editingPassword = ref(false)
+const draftPassword = ref('')
+const passwordError = ref('')
+const keyInput = ref<InstanceType<typeof KeyInput> | null>(null)
+/** Como EventSettings::MAX_DEADLINE_CHANGES: las veces que el cliente mueve su fecha límite. */
+const DEADLINE_CHANGES_MAX = 3
+const CHANGE_OPTIONS = Array.from({ length: DEADLINE_CHANGES_MAX + 1 }, (_, n) => n)
+/** Quitar la clave apaga el panel del cliente: se pregunta antes. */
+const confirmRemove = ref(false)
 const publicUrl = computed(() => `${location.origin}/e/${slug}`)
 const panelUrl = computed(() => `${location.origin}/panel/${slug}`)
 
@@ -65,17 +76,43 @@ const sampleMessage = computed(() =>
     .replace(/\{enlace\}/g, `${location.origin}/i/…`),
 )
 
-function newPassword(): void {
-  const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789'
-  const random = new Uint32Array(12)
-  crypto.getRandomValues(random)
-  const chars = [...random].map((n) => alphabet[n % alphabet.length])
-  emit('settings', {
-    panel_password: `${chars.slice(0, 4).join('')}-${chars.slice(4, 8).join('')}-${chars.slice(8).join('')}`,
-  })
-  confirmNew.value = false
-  showPassword.value = true
+function editPassword(): void {
+  draftPassword.value = props.settings?.panel_password ?? ''
+  passwordError.value = ''
+  confirmRemove.value = false
+  editingPassword.value = true
+  showPassword.value = false
 }
+function removePassword(): void {
+  confirmRemove.value = false
+  showPassword.value = false
+  emit('settings', { panel_password: null })
+}
+function savePassword(): void {
+  const problem = panelPasswordProblem(draftPassword.value)
+  passwordError.value = problem ?? ''
+  if (problem !== null) return
+  // Sin cambios: no hay nada que guardar (ni que anotar en el historial).
+  if (draftPassword.value === (props.settings?.panel_password ?? '')) {
+    cancelPassword()
+    return
+  }
+  emit('settings', { panel_password: draftPassword.value })
+}
+function cancelPassword(): void {
+  editingPassword.value = false
+  draftPassword.value = ''
+  passwordError.value = ''
+  showPassword.value = false
+}
+// Cuando el servidor confirma la clave nueva, se deja de editar. Si falla, sigue abierto
+// con lo escrito para poder corregir.
+watch(
+  () => props.settings?.panel_password,
+  (value) => {
+    if (editingPassword.value && value === draftPassword.value) cancelPassword()
+  },
+)
 async function copyText(text: string, what: string): Promise<void> {
   if (await copy(text)) toast(`${what} copiado`)
 }
@@ -168,65 +205,134 @@ function assign(username: string, on: boolean): void {
             Con esta clave el cliente entra a su panel: genera los enlaces de sus invitados y ve
             quién confirmó.
           </p>
-          <div class="general__password">
-            <input
-              class="g-input"
-              :type="showPassword ? 'text' : 'password'"
-              :value="settings.panel_password ?? ''"
-              readonly
-              aria-label="Clave del panel del cliente"
+          <template v-if="!editingPassword">
+            <div class="general__password">
+              <input
+                class="g-input"
+                :type="showPassword ? 'text' : 'password'"
+                :value="settings.panel_password ?? ''"
+                :placeholder="settings.panel_password ? '' : 'Sin clave: el panel está apagado'"
+                readonly
+                aria-label="Clave del panel del cliente"
+              />
+              <button
+                v-if="settings.panel_password"
+                type="button"
+                class="g-icon-btn"
+                :aria-label="showPassword ? 'Ocultar la clave' : 'Ver la clave'"
+                @click="showPassword = !showPassword"
+              >
+                <ManagerIcon :name="showPassword ? 'eye-slash' : 'eye'" />
+              </button>
+              <button
+                v-if="settings.panel_password"
+                type="button"
+                class="g-icon-btn"
+                aria-label="Copiar la clave"
+                @click="copyText(settings.panel_password, 'Clave')"
+              >
+                <ManagerIcon name="copy" />
+              </button>
+            </div>
+            <p v-if="!settings.panel_password" class="g-note general__note">
+              <ManagerIcon name="circle-info" />
+              <span
+                >Sin clave nadie puede entrar al panel: créala para que el cliente vea sus invitados
+                y confirmaciones.</span
+              >
+            </p>
+            <template v-if="confirmRemove">
+              <p class="g-note g-note--warn general__note">
+                <ManagerIcon name="triangle-exclamation" />
+                <span
+                  >Sin clave nadie entra al panel; si el cliente lo tiene abierto, se le cierra. Los
+                  enlaces de sus invitados siguen sirviendo.</span
+                >
+              </p>
+              <div class="g-row general__actions">
+                <button
+                  type="button"
+                  class="g-btn g-btn--small g-btn--danger"
+                  @click="removePassword"
+                >
+                  <ManagerIcon name="xmark" /> Sí, quitar la clave
+                </button>
+                <button
+                  type="button"
+                  class="g-btn g-btn--small g-btn--ghost"
+                  @click="confirmRemove = false"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </template>
+            <div v-else class="g-row general__actions">
+              <button type="button" class="g-btn g-btn--small" @click="editPassword">
+                <ManagerIcon name="key" />
+                {{ settings.panel_password ? 'Cambiar clave' : 'Crear clave' }}
+              </button>
+              <button
+                v-if="settings.panel_password"
+                type="button"
+                class="g-btn g-btn--small g-btn--ghost"
+                @click="confirmRemove = true"
+              >
+                <ManagerIcon name="xmark" /> Quitar clave
+              </button>
+              <a
+                v-if="settings.panel_password"
+                class="g-btn g-btn--small g-btn--ghost"
+                :href="panelUrl"
+                target="_blank"
+                rel="noopener"
+                ><ManagerIcon name="user" /> Abrir su panel</a
+              >
+            </div>
+          </template>
+          <template v-else>
+            <KeyInput
+              ref="keyInput"
+              id="panel-password"
+              v-model="draftPassword"
+              class="general__key"
+              label="Nueva clave del panel del cliente"
+              :maxlength="PANEL_PASSWORD_MAX"
+              :invalid="!!passwordError"
+              :describedby="passwordError ? 'panel-password-error' : undefined"
+              @update:model-value="passwordError = ''"
+              @enter="savePassword"
             />
-            <button
-              type="button"
-              class="g-icon-btn"
-              :aria-label="showPassword ? 'Ocultar la clave' : 'Ver la clave'"
-              @click="showPassword = !showPassword"
+            <p
+              v-if="passwordError"
+              id="panel-password-error"
+              class="g-error general__error"
+              role="alert"
             >
-              <ManagerIcon :name="showPassword ? 'eye-slash' : 'eye'" />
-            </button>
-            <button
-              v-if="settings.panel_password"
-              type="button"
-              class="g-icon-btn"
-              aria-label="Copiar la clave"
-              @click="copyText(settings.panel_password, 'Clave')"
-            >
-              <ManagerIcon name="copy" />
-            </button>
-          </div>
-          <p v-if="confirmNew" class="g-note g-note--warn general__note">
-            <ManagerIcon name="triangle-exclamation" />
-            <span>Si el cliente tiene su panel abierto, tendrá que entrar con la clave nueva.</span>
-          </p>
-          <div v-if="confirmNew" class="g-row general__actions">
-            <button type="button" class="g-btn g-btn--small g-btn--primary" @click="newPassword">
-              Sí, generar otra
-            </button>
-            <button
-              type="button"
-              class="g-btn g-btn--small g-btn--ghost"
-              @click="confirmNew = false"
-            >
-              Cancelar
-            </button>
-          </div>
-          <div v-else class="g-row general__actions">
-            <button
-              type="button"
-              class="g-btn g-btn--small"
-              @click="settings.panel_password ? (confirmNew = true) : newPassword()"
-            >
-              <ManagerIcon name="key" />
-              {{ settings.panel_password ? 'Generar clave nueva' : 'Generar clave' }}
-            </button>
-            <a
-              class="g-btn g-btn--small g-btn--ghost"
-              :href="panelUrl"
-              target="_blank"
-              rel="noopener"
-              ><ManagerIcon name="user" /> Abrir su panel</a
-            >
-          </div>
+              {{ passwordError }}
+            </p>
+            <p v-if="settings.panel_password" class="g-note g-note--warn general__note">
+              <ManagerIcon name="triangle-exclamation" />
+              <span
+                >Si el cliente tiene su panel abierto, tendrá que entrar con la clave nueva.</span
+              >
+            </p>
+            <div class="g-row general__actions">
+              <button
+                type="button"
+                class="g-btn g-btn--small g-btn--primary"
+                :disabled="!draftPassword"
+                @click="savePassword"
+              >
+                <ManagerIcon name="check" /> Guardar clave
+              </button>
+              <button type="button" class="g-btn g-btn--small" @click="keyInput?.generate()">
+                <ManagerIcon name="wand-magic-sparkles" /> Generar aleatoria
+              </button>
+              <button type="button" class="g-btn g-btn--small g-btn--ghost" @click="cancelPassword">
+                Cancelar
+              </button>
+            </div>
+          </template>
         </template>
       </section>
 
@@ -268,19 +374,51 @@ function assign(username: string, on: boolean): void {
 
       <section v-for="g in groups" :key="g.label" class="g-group">
         <h3 class="g-group__title">{{ g.label }}</h3>
-        <p
-          v-if="g.label === 'Confirmaciones' && settings?.owner_deadline"
-          class="g-note g-note--warn general__note"
-        >
-          <ManagerIcon name="circle-info" />
-          <span
-            >El cliente movió la fecha límite al
-            <strong>{{ settings.owner_deadline }}</strong> desde su panel ({{
-              settings.deadline_changes
-            }}
-            de 3 cambios): esa es la que vale. Si publicas otra, te preguntaremos cuál dejar.</span
-          >
-        </p>
+        <template v-if="g.label === 'Confirmaciones' && settings && !settings.template">
+          <p v-if="settings.owner_deadline" class="g-note g-note--warn general__note">
+            <ManagerIcon name="circle-info" />
+            <span
+              >El cliente movió la fecha límite al
+              <strong>{{ settings.owner_deadline }}</strong> desde su panel ({{
+                settings.deadline_changes
+              }}
+              de {{ DEADLINE_CHANGES_MAX }} cambios): esa es la que vale. Si publicas otra, te
+              preguntaremos cuál dejar.</span
+            >
+          </p>
+          <div v-if="isAdmin" class="general__client">
+            <label class="general__changes" for="deadline-changes">
+              <span>
+                Cambios de fecha que ya usó el cliente
+                <small class="general__sub"
+                  >Puede moverla desde su panel hasta {{ DEADLINE_CHANGES_MAX }} veces.</small
+                >
+              </span>
+              <select
+                id="deadline-changes"
+                class="g-select"
+                :value="settings.deadline_changes"
+                @change="
+                  emit('settings', {
+                    deadline_changes: Number(($event.target as HTMLSelectElement).value),
+                  })
+                "
+              >
+                <option v-for="n in CHANGE_OPTIONS" :key="n" :value="n">
+                  {{ n }} de {{ DEADLINE_CHANGES_MAX }}
+                </option>
+              </select>
+            </label>
+            <button
+              v-if="settings.owner_deadline"
+              type="button"
+              class="g-btn g-btn--small"
+              @click="emit('settings', { owner_deadline: null })"
+            >
+              <ManagerIcon name="rotate-left" /> Quitar su fecha y dejar la de la invitación
+            </button>
+          </div>
+        </template>
         <template v-for="f in g.fields" :key="f.key">
           <FieldInput
             :def="f"
@@ -376,6 +514,28 @@ function assign(username: string, on: boolean): void {
 }
 .general__password input {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.general__key {
+  margin-top: 8px;
+}
+.general__error {
+  margin-top: 6px;
+}
+.general__client {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  margin-bottom: 12px;
+}
+.general__changes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+.general__changes .g-select {
+  width: auto;
 }
 .general__actions {
   flex-wrap: wrap;

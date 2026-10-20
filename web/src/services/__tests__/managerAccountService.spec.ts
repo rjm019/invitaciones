@@ -27,6 +27,12 @@ describe('managerAccountService', () => {
     expect(message).toContain('https://ejemplo.mx/gestor')
     expect(message).toContain('Usuario: ana')
     expect(message).toContain('Clave temporal: k7m2-p9qa-x4tb')
+
+    // La que quien administra deja fija no se cambia al entrar.
+    const fixed = accessMessage('https://ejemplo.mx/gestor', 'ana', 'la-de-ana-2026', false)
+    expect(fixed).toContain('Clave: la-de-ana-2026')
+    expect(fixed).not.toContain('temporal')
+    expect(fixed).not.toContain('elegir tu propia clave')
   })
 
   it('saca las iniciales y dice qué hizo quien dejó cada versión', () => {

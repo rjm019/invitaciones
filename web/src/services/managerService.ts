@@ -96,6 +96,10 @@ export async function updateUser(
     role: ManagerUser['role']
     active: boolean
     reset_password: true
+    /** La clave que escribió (o generó) quien administra. */
+    password: string
+    /** Con password: que la cambie al entrar (por omisión, sí). */
+    temporary: boolean
   }>,
 ): Promise<{ user: ManagerUser; password?: string }> {
   const { data } = await http.put<{ user: ManagerUser; password?: string }>(

@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useManagerSession } from '@/composables/useManagerSession'
 import { MIN_PASSWORD, suggestUsername } from '@/services/managerAccountService'
 import * as managerService from '@/services/managerService'
+import KeyInput from './KeyInput.vue'
 import ManagerIcon from './ManagerIcon.vue'
 
 /**
@@ -184,25 +185,13 @@ const invalid = (name: string) => (field.value === name ? 'true' : undefined)
         </div>
         <div class="g-field">
           <label class="g-label" for="setup-password">Tu clave</label>
-          <div class="login__password">
-            <input
-              id="setup-password"
-              v-model="password"
-              class="g-input"
-              :type="show ? 'text' : 'password'"
-              autocomplete="new-password"
-              :aria-invalid="invalid('password')"
-            />
-            <button
-              type="button"
-              class="g-icon-btn"
-              :aria-label="show ? 'Ocultar clave' : 'Ver clave'"
-              @click="show = !show"
-            >
-              <ManagerIcon :name="show ? 'eye-slash' : 'eye'" />
-            </button>
-          </div>
-          <p class="g-help">Al menos {{ MIN_PASSWORD }} caracteres.</p>
+          <KeyInput
+            id="setup-password"
+            v-model="password"
+            label="Tu clave"
+            :invalid="!!invalid('password')"
+          />
+          <p class="g-help">Al menos {{ MIN_PASSWORD }} caracteres, sin espacios.</p>
         </div>
         <p v-if="error" class="g-error" role="alert">{{ error }}</p>
         <button
@@ -234,26 +223,14 @@ const invalid = (name: string) => (field.value === name ? 'true' : undefined)
         </div>
         <div class="g-field">
           <label class="g-label" for="choose-password">Tu clave nueva</label>
-          <div class="login__password">
-            <input
-              id="choose-password"
-              v-model="fresh"
-              class="g-input"
-              :type="show ? 'text' : 'password'"
-              autocomplete="new-password"
-              :aria-invalid="invalid('password')"
-              autofocus
-            />
-            <button
-              type="button"
-              class="g-icon-btn"
-              :aria-label="show ? 'Ocultar clave' : 'Ver clave'"
-              @click="show = !show"
-            >
-              <ManagerIcon :name="show ? 'eye-slash' : 'eye'" />
-            </button>
-          </div>
-          <p class="g-help">Al menos {{ MIN_PASSWORD }} caracteres.</p>
+          <KeyInput
+            id="choose-password"
+            v-model="fresh"
+            label="Tu clave nueva"
+            :invalid="!!invalid('password')"
+            autofocus
+          />
+          <p class="g-help">Al menos {{ MIN_PASSWORD }} caracteres, sin espacios.</p>
         </div>
         <p v-if="error" class="g-error" role="alert">{{ error }}</p>
         <button

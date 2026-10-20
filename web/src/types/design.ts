@@ -263,10 +263,15 @@ export interface ManagerSettings {
 
 /** Lo que cambia al instante desde "Datos generales" (no espera a "Publicar"). */
 export interface SettingsChange {
+  /** null quita la clave: el panel del cliente se apaga. */
   panel_password?: string | null
   published?: boolean
   /** Solo quien administra: los usuarios que la ven en el gestor. */
   people?: string[]
+  /** Solo quien administra: quita la fecha límite que el cliente movió (vuelve la de la invitación). */
+  owner_deadline?: null
+  /** Solo quien administra: cuántos de sus cambios de fecha ya usó el cliente (0 a 3). */
+  deadline_changes?: number
 }
 
 export interface DesignChange {

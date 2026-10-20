@@ -4,6 +4,7 @@ import { useManagerSession } from '@/composables/useManagerSession'
 import { useToasts } from '@/composables/useToasts'
 import { MIN_PASSWORD } from '@/services/managerAccountService'
 import GDialog from './GDialog.vue'
+import KeyInput from './KeyInput.vue'
 import ManagerIcon from './ManagerIcon.vue'
 
 /** Cambiar mi clave. Las otras sesiones (otra computadora) se cierran; las pestañas de aquí siguen. */
@@ -14,7 +15,6 @@ const { toast } = useToasts()
 
 const current = ref('')
 const fresh = ref('')
-const show = ref(false)
 const error = ref('')
 const field = ref<string | null>(null)
 const busy = ref(false)
@@ -69,25 +69,13 @@ async function submit(): Promise<void> {
       </div>
       <div class="g-field">
         <label class="g-label" for="password-new">Clave nueva</label>
-        <div class="password__row">
-          <input
-            id="password-new"
-            v-model="fresh"
-            class="g-input"
-            :type="show ? 'text' : 'password'"
-            autocomplete="new-password"
-            :aria-invalid="field === 'password' ? 'true' : undefined"
-          />
-          <button
-            type="button"
-            class="g-icon-btn"
-            :aria-label="show ? 'Ocultar clave' : 'Ver clave'"
-            @click="show = !show"
-          >
-            <ManagerIcon :name="show ? 'eye-slash' : 'eye'" />
-          </button>
-        </div>
-        <p class="g-help">Al menos {{ MIN_PASSWORD }} caracteres.</p>
+        <KeyInput
+          id="password-new"
+          v-model="fresh"
+          label="Clave nueva"
+          :invalid="field === 'password'"
+        />
+        <p class="g-help">Al menos {{ MIN_PASSWORD }} caracteres, sin espacios.</p>
       </div>
       <p v-if="error" class="g-error" role="alert">{{ error }}</p>
       <div class="password__actions">
@@ -108,10 +96,6 @@ async function submit(): Promise<void> {
 }
 .password .g-field + .g-field {
   margin-top: 0;
-}
-.password__row {
-  display: flex;
-  gap: 6px;
 }
 .password__actions {
   display: flex;

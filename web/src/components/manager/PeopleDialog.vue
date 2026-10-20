@@ -7,18 +7,21 @@ import { useToasts } from '@/composables/useToasts'
 import {
   accessMessage,
   initials,
+  MIN_PASSWORD,
   suggestUsername,
   USERNAME_PATTERN,
 } from '@/services/managerAccountService'
 import * as managerService from '@/services/managerService'
+import { accountPasswordProblem, generatePassword } from '@/services/passwordService'
 import type { ManagerUser } from '@/types/design'
 import GDialog from './GDialog.vue'
+import KeyInput from './KeyInput.vue'
 import ManagerIcon from './ManagerIcon.vue'
 
 /**
  * Personas del gestor (solo quien administra): agregar con una clave temporal, cambiar su
- * rol, darle otra clave temporal y quitar o devolver el acceso. La clave temporal se ve una
- * sola vez, junto con el mensaje listo para mandárselo.
+ * rol, ponerle otra clave (escrita o generada, temporal o fija) y quitar o devolver el
+ * acceso. La clave se ve una sola vez, junto con el mensaje listo para mandárselo.
  */
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: [] }>()
@@ -58,6 +61,7 @@ watch(
     if (!open) return
     handout.value = null
     adding.value = false
+    keyFor.value = null
     void load()
   },
 )
@@ -116,7 +120,12 @@ async function change(
     if (result.password) {
       handout.value = {
         name: result.user.name,
-        message: accessMessage(gestorUrl, result.user.username, result.password),
+        message: accessMessage(
+          gestorUrl,
+          result.user.username,
+          result.password,
+          result.user.must_change_password,
+        ),
       }
     }
     toast(done)
@@ -137,13 +146,31 @@ async function setRole(person: ManagerUser, select: HTMLSelectElement): Promise<
   if (!(await change(person, { role }, done))) select.value = person.role
 }
 
-function newPassword(person: ManagerUser): void {
-  if (
-    window.confirm(
-      `¿Darle a ${person.name} una clave temporal nueva? La de ahora deja de servir y se cierran sus sesiones.`,
-    )
-  )
-    void change(person, { reset_password: true }, `Clave temporal nueva para ${person.name}.`)
+/** Ponerle otra clave: llega una generada y quien administra la deja o escribe otra. */
+const keyFor = ref<string | null>(null)
+const keyDraft = ref('')
+const keyTemporary = ref(true)
+const keyError = ref('')
+
+function startKey(person: ManagerUser): void {
+  keyFor.value = person.username
+  keyDraft.value = generatePassword()
+  keyTemporary.value = true
+  keyError.value = ''
+  handout.value = null
+}
+
+async function saveKey(person: ManagerUser): Promise<void> {
+  const problem = accountPasswordProblem(keyDraft.value, person.username)
+  keyError.value = problem ?? ''
+  if (problem !== null) return
+  const done = keyTemporary.value
+    ? `Clave temporal nueva para ${person.name}.`
+    : `Clave nueva para ${person.name}.`
+  if (await change(person, { password: keyDraft.value, temporary: keyTemporary.value }, done)) {
+    keyFor.value = null
+    keyDraft.value = ''
+  }
 }
 
 function toggleAccess(person: ManagerUser): void {
@@ -172,7 +199,8 @@ const when = (iso: string | null) =>
     <div class="people">
       <p class="g-help">
         Cada quien entra con su usuario y su clave, y el historial dice quién publicó qué.
-        <strong>Administra</strong>: además agrega personas y les da o quita el acceso.
+        <strong>Administra</strong>: además agrega personas, les pone clave y les da o quita el
+        acceso.
       </p>
 
       <div v-if="handout" class="g-note g-note--ok people__handout" role="status">
@@ -289,9 +317,10 @@ const when = (iso: string | null) =>
                 type="button"
                 class="g-icon-btn"
                 :disabled="!p.active || busy === p.username"
-                :aria-label="`Clave temporal nueva para ${p.name}`"
-                title="Clave temporal nueva"
-                @click="newPassword(p)"
+                :aria-label="`Ponerle otra clave a ${p.name}`"
+                :aria-expanded="keyFor === p.username"
+                title="Ponerle otra clave"
+                @click="keyFor === p.username ? (keyFor = null) : startKey(p)"
               >
                 <ManagerIcon name="key" />
               </button>
@@ -309,6 +338,51 @@ const when = (iso: string | null) =>
               </button>
             </template>
           </div>
+          <form
+            v-if="keyFor === p.username"
+            class="people__key g-card"
+            @submit.prevent="saveKey(p)"
+          >
+            <label class="g-label" :for="`key-${p.username}`">Clave nueva para {{ p.name }}</label>
+            <KeyInput
+              :id="`key-${p.username}`"
+              v-model="keyDraft"
+              :label="`Clave nueva para ${p.name}`"
+              generate
+              visible
+              autofocus
+              :invalid="!!keyError"
+              :describedby="keyError ? `key-${p.username}-error` : undefined"
+              @update:model-value="keyError = ''"
+            />
+            <p class="g-help">
+              Déjala así o escribe otra: al menos {{ MIN_PASSWORD }} caracteres, sin espacios. La de
+              ahora deja de servir y se cierran sus sesiones.
+            </p>
+            <label class="people__check">
+              <input v-model="keyTemporary" type="checkbox" />
+              <span>Que la cambie por una suya al entrar</span>
+            </label>
+            <p v-if="keyError" :id="`key-${p.username}-error`" class="g-error" role="alert">
+              {{ keyError }}
+            </p>
+            <div class="people__form-actions">
+              <button type="button" class="g-btn g-btn--ghost g-btn--small" @click="keyFor = null">
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="g-btn g-btn--primary g-btn--small"
+                :disabled="!keyDraft || busy === p.username"
+              >
+                <ManagerIcon
+                  :name="busy === p.username ? 'spinner' : 'key'"
+                  :spin="busy === p.username"
+                />
+                Guardar clave
+              </button>
+            </div>
+          </form>
         </li>
       </ul>
       <p v-else-if="loading" class="people__loading">
@@ -367,10 +441,23 @@ const when = (iso: string | null) =>
 }
 .people__list li {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   padding: 10px 4px;
   border-bottom: 1px solid var(--g-line);
+}
+.people__key {
+  display: grid;
+  flex-basis: 100%;
+  gap: 8px;
+  padding: 12px;
+}
+.people__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
 }
 .people__list li.is-off .people__avatar,
 .people__list li.is-off .people__who strong {
@@ -432,9 +519,6 @@ const when = (iso: string | null) =>
   color: var(--g-faint);
 }
 @media (max-width: 520px) {
-  .people__list li {
-    flex-wrap: wrap;
-  }
   .people__actions {
     width: 100%;
     justify-content: flex-end;
