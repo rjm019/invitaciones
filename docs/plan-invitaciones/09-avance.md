@@ -1,6 +1,6 @@
 # Avance y cambios contra el plan
 
-**Actualizado:** 17-oct-2026. **Rama:** todo está en `main`: el motor, el gestor (unido el 15-oct), la landing, los temas `marfil` y `nueva-york` y la mesa de regalos. `feature/gestor-plantillas` y `feature/landing-y-secciones` ya quedaron dentro de `main`. En GitHub, hasta `c382f65` (eliminar invitaciones); los commits del 17-oct (ajustes de Nueva York, estadísticas y SEO) están en `main` sin push. La migración a Google Cloud vive aparte, en `feature/migracion-gcp`. **En Fly:** release v11 (16-oct).
+**Actualizado:** 20-oct-2026. **Rama:** todo está en `main`: el motor, el gestor (unido el 15-oct), la landing, los temas `marfil` y `nueva-york` y la mesa de regalos. `feature/gestor-plantillas` y `feature/landing-y-secciones` ya quedaron dentro de `main`. En GitHub, todo `main` (push del 20-oct: los commits del 17-oct, con ajustes de Nueva York, estadísticas y SEO, y los de claves del 20-oct). La migración a Google Cloud vive aparte, en `feature/migracion-gcp`. **En Fly:** release v11 (16-oct).
 
 Este archivo dice **qué se hizo, qué cambió contra el plan original y qué falta**. Las fases de `04-fases/` tienen sus casillas marcadas con la misma información. Las dudas abiertas están en `08-decisiones-pendientes.md`.
 
@@ -27,11 +27,18 @@ El cambio más grande contra el plan: **no hay base de datos**. Todo vive en arc
 
 Tú hiciste el commit (`de4a8dc`) y el deploy (release v11). Después vino un pedido más: eliminar también invitaciones (y muestras), con la dirección escrita para las que ya se compartieron. Eso falta publicarlo.
 
-**Nuevo (17-oct, en `main`, sin push ni `fly deploy`):**
+**Nuevo (17-oct, en `main` y en GitHub desde el 20-oct, sin `fly deploy`):**
 - **Ajustes de Nueva York para Ximena** (los del 16-oct en la noche, que estaban sin commit en la rama de Google Cloud): pasaron a `main` en dos commits.
 - **Estadísticas del sitio:** cada visita a la landing, a una invitación o a una muestra queda anotada, con su IP, de dónde llegó y el dispositivo. Se ven en el gestor → "Estadísticas", con el contador de hoy en el botón.
 - **SEO:** imágenes para compartir (no existían), `404` de verdad, `noindex` en la SPA, verificación de Search Console y Bing, y `robots.txt`, `sitemap.xml` y `llms.txt` armados con la dirección del sitio. El aviso de privacidad ya habla de las visitas.
 - Detalle abajo, en "Estadísticas del sitio y SEO". Preguntas 54–61.
+
+**Nuevo (20-oct, en `main` y en GitHub, sin `fly deploy`):**
+- **La clave del panel se cambia desde el gestor:** en "Datos generales" → "Acceso del cliente" se escribe a mano (de 8 a 64 caracteres, sin espacios) o se genera una aleatoria, se ve, se copia y se guarda con "Guardar clave". El servidor ya aceptaba `panel_password` en `PUT /manager/events/{slug}/settings`; faltaba la entrada en la pantalla. Al cambiarla, los paneles abiertos del cliente piden la clave nueva. Reglas en `panelPasswordService` (con prueba) y en `GeneralPanel`.
+- **Quitar la clave del panel** ("Quitar clave", con confirmación): el panel del cliente se apaga y quien lo tenga abierto sale; los enlaces de los invitados siguen sirviendo. Si la clave está escrita en el layout anterior, el servidor no la quita y lo dice. El cliente que entra a un panel sin clave ya no lee "agrega clave_panel en el layout" sino "pide la clave a quien armó tu invitación".
+- **Quien administra cambia todas las claves y los ajustes:** en "Personas del gestor" le pone a cualquier persona una clave escrita o generada (llega una generada, a la vista), temporal o fija ("Que la cambie por una suya al entrar"), en lugar de solo una temporal al azar. En "Datos generales" → "Confirmaciones" ve y cambia lo que el cliente movió desde su panel: cuántos de sus 3 cambios de fecha usó (para devolvérselos o cerrarlos) y "Quitar su fecha y dejar la de la invitación". Quien edita sigue cambiando la clave del panel de sus invitaciones, pero no esto (pregunta 62).
+- **Ninguna clave lleva espacios:** el mismo campo (`KeyInput`) en la clave del panel, la de otra persona, "Cambiar mi clave", la primera cuenta y "Elige tu clave" no deja escribirlos y quita los que se pegan (también el espacio duro de WhatsApp), con aviso. El servidor tampoco los acepta en las cuentas del gestor (las claves de antes siguen entrando). El generador es uno solo (`passwordService`, mismo formato que el del servidor).
+- Pruebas: 5 de `passwordService`, 4 de `KeyInput`, 7 de `GeneralPanel`, 2 de `PeopleDialog` y Feature de quitar la clave, espacios y formato anterior, lo del cliente (solo quien administra) y la clave que pone quien administra.
 
 **Revisado en producción (16-oct, 13:00):**
 - **Plantillas:** con lo de la v11 eliminaste `plantilla-nueva-york` (la de solo la portada) y armaste `plantilla-nat` y `plantilla-xv-ximena`.

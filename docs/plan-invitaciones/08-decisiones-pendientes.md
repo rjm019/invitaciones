@@ -147,5 +147,10 @@ Salieron durante la implementación y se juntaron para el final. Al responder un
 57. **La IP de los invitados:** quien abre una invitación también queda contado, con su IP, pero la invitación no enlaza al aviso de privacidad (la landing sí). ¿Agrego un enlace discreto "Aviso de privacidad" al pie de cada invitación, o prefieres no guardar la IP en las invitaciones (solo en la landing)?
 58. **Ciudad de cada visita:** con la IP se puede saber la ciudad aproximada. Hace falta una base de ubicaciones (MaxMind GeoLite2, gratis con registro) o un servicio externo (habría que mandarles las IP: no lo recomiendo). ¿La agrego?
 59. **Buscador de recepción en producción:** hoy no está publicado; `.dockerignore` deja fuera `recepcion/` y solo corre en local (`http://localhost:8090`). ¿Lo publicamos antes de Ximena (21-nov) y NAT (28-nov)? Hoy está en "Después del evento real" (`09-avance.md`).
-60. **Publicar:** los commits de esto están en `main`, sin push ni `fly deploy`. Se publica como siempre, cuando tú lo decidas.
+60. **Publicar:** los commits de esto están en `main` y en GitHub (push del 20-oct), sin `fly deploy`. Se publica como siempre, cuando tú lo decidas.
 61. **La rama de Google Cloud:** las visitas se escriben directo en la carpeta, como todo en `main`. Al unir `feature/migracion-gcp` hay que pasarlas al disco virtual: un archivo por día, cada uno muy por debajo del límite de 1 MB de Firestore. También hay que revisar que, detrás de Firebase Hosting, la IP sea la del visitante. ¿Traigo `main` a la rama ya o cuando se haga el corte?
+
+**Claves y ajustes desde el gestor (20-oct)**
+
+62. **Quién cambia la clave del panel:** quien administra cambia todas las claves y los ajustes; quien edita sigue pudiendo crear, cambiar o quitar la clave del panel de las invitaciones que tiene asignadas (como antes), pero no lo que movió el cliente ni las cuentas. ¿Lo dejo así, o la clave del panel también es solo de quien administra?
+63. **Fecha límite del cliente:** quien administra puede quitar la fecha que movió el cliente (vuelve la de la invitación) y cambiar cuántos de sus 3 cambios usó. Una fecha nueva se pone en "Confirmaciones" y se publica, para que pase por las mismas revisiones (antes del evento, etc.). ¿Te sirve así, o quieres poner una fecha del cliente directo desde el gestor?
