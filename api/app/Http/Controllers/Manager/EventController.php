@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\Controller;
 use App\Services\Design\DesignFactory;
+use App\Services\Design\InvitationConfigBuilder;
 use App\Services\Invitations\EventSettings;
 use App\Services\Layout\EventRepository;
 use App\Services\Manager\ConfirmationRequired;
@@ -88,9 +89,11 @@ class EventController extends Controller
     }
 
     /**
-     * PUT /api/manager/events/{slug}/settings — { panel_password?, published?, people? }
-     * Aplica al instante (no pasa por "Publicar"). people (quién la ve en el gestor) solo lo
-     * cambia quien administra.
+     * PUT /api/manager/events/{slug}/settings — { panel_password?, published?, people?, owner_deadline?, deadline_changes? }
+     * Aplica al instante (no pasa por "Publicar"). panel_password null quita la clave (el
+     * panel se apaga). Solo quien administra cambia people (quién la ve en el gestor) y lo
+     * que movió el cliente desde su panel: owner_deadline null quita su fecha límite (vuelve
+     * la de la invitación) y deadline_changes dice cuántos de sus cambios ya usó.
      */
     public function settings(Request $request, string $slug, EventRepository $events, EventSettings $settings, DesignPayload $payload, ManagerUsers $users): JsonResponse
     {
@@ -99,19 +102,32 @@ class EventController extends Controller
             return response()->json(['message' => 'Evento no encontrado.'], 404);
         }
         $data = $request->validate([
-            'panel_password' => ['sometimes', 'nullable', 'string', 'min:8', 'max:64', 'regex:/^[\x21-\x7E]+$/'],
+            'panel_password' => ['sometimes', 'nullable', 'string', 'min:'.InvitationConfigBuilder::MIN_PANEL_PASSWORD, 'max:64', 'regex:/^[\x21-\x7E]+$/'],
             'published' => ['sometimes', 'boolean'],
             'people' => ['sometimes', 'array', 'max:100'],
             'people.*' => ['string', 'max:60'],
+            'owner_deadline' => ['sometimes', 'nullable'],
+            'deadline_changes' => ['sometimes', 'integer', 'min:0', 'max:'.EventSettings::MAX_DEADLINE_CHANGES],
         ], [
-            'panel_password.min' => 'La clave del panel lleva al menos 8 caracteres.',
-            'panel_password.*' => 'La clave del panel lleva de 8 a 64 caracteres, sin espacios.',
+            'panel_password.min' => 'La clave del panel lleva al menos '.InvitationConfigBuilder::MIN_PANEL_PASSWORD.' caracteres.',
+            'panel_password.regex' => 'La clave del panel no lleva espacios ni acentos: solo letras, números y símbolos.',
+            'panel_password.*' => 'La clave del panel lleva de '.InvitationConfigBuilder::MIN_PANEL_PASSWORD.' a 64 caracteres, sin espacios.',
             'published.*' => 'Elige si la invitación se ve.',
             'people.*' => 'Elige a las personas de la lista.',
+            'deadline_changes.*' => 'Los cambios de fecha del cliente van de 0 a '.EventSettings::MAX_DEADLINE_CHANGES.'.',
         ]);
         $me = $request->attributes->get(ManagerAuth::ATTRIBUTE);
         if (array_key_exists('people', $data) && ($me['rol'] ?? '') !== 'admin') {
             return response()->json(['message' => 'Solo quien administra el gestor asigna las invitaciones.'], 403);
+        }
+        if ((array_key_exists('owner_deadline', $data) || array_key_exists('deadline_changes', $data)) && ($me['rol'] ?? '') !== 'admin') {
+            return response()->json(['message' => 'Solo quien administra el gestor cambia lo que el cliente movió en su panel.'], 403);
+        }
+        // Una fecha nueva va en la invitación (y se publica, con sus revisiones): aquí solo se quita la del cliente.
+        if (($data['owner_deadline'] ?? null) !== null) {
+            $message = 'Aquí solo se quita la fecha del cliente; para poner otra, cámbiala en Confirmaciones y publica.';
+
+            return response()->json(['message' => $message, 'errors' => ['owner_deadline' => [$message]]], 422);
         }
         foreach ($data['people'] ?? [] as $username) {
             if ($users->find($username) === null) {
@@ -126,9 +142,22 @@ class EventController extends Controller
             return response()->json(['message' => 'Una plantilla no se publica ni tiene panel del cliente.'], 422);
         }
 
+        // Si la clave también está escrita en el diseño (el layout anterior, o a mano en
+        // invitacion.csv), quitarla de ajustes.csv no apagaría el panel.
+        if (array_key_exists('panel_password', $data) && $data['panel_password'] === null
+            && trim((string) $events->layoutValue($slug, 'clave_panel')) !== '') {
+            return response()->json(['message' => 'La clave de esta invitación está escrita en su archivo de diseño (el layout anterior o invitacion.csv): quítala de ahí para apagar el panel.'], 422);
+        }
+
         $changes = [];
         if (array_key_exists('panel_password', $data)) {
             $changes['clave_panel'] = $data['panel_password'];
+        }
+        if (array_key_exists('owner_deadline', $data)) {
+            $changes['rsvp_limite'] = null;
+        }
+        if (array_key_exists('deadline_changes', $data)) {
+            $changes['rsvp_limite_cambios'] = $data['deadline_changes'] > 0 ? (string) $data['deadline_changes'] : null;
         }
         if (array_key_exists('published', $data)) {
             $changes['publicado'] = $data['published'] ? 'SI' : 'NO';

@@ -13,8 +13,9 @@ use RuntimeException;
 
 /**
  * Las personas del gestor (solo quien administra): la lista, agregar con una clave temporal,
- * cambiar nombre o rol, darle una clave temporal nueva y quitar o devolver el acceso.
- * La clave temporal se muestra una sola vez; la persona la cambia al entrar.
+ * cambiar nombre o rol, darle otra clave (generada o escrita por quien administra) y quitar
+ * o devolver el acceso. La clave se muestra una sola vez; si es temporal, la persona la
+ * cambia al entrar.
  */
 class UserController extends Controller
 {
@@ -61,9 +62,11 @@ class UserController extends Controller
     }
 
     /**
-     * PUT /api/manager/users/{username} — { name?, role?, active?, reset_password? }
-     * → { user, password? } (password solo si se pidió una clave temporal nueva).
-     * Nadie se quita a sí mismo el acceso ni el rol, y siempre queda alguien que administre.
+     * PUT /api/manager/users/{username} — { name?, role?, active?, reset_password?, password?, temporary? }
+     * → { user, password? } (password solo si su clave cambió: la temporal que se generó o la
+     * que escribió quien administra). Con password, temporary (por omisión true) le pide
+     * cambiarla al entrar. Nadie se quita a sí mismo el acceso ni el rol, y siempre queda
+     * alguien que administre.
      */
     public function update(Request $request, string $username): JsonResponse
     {
@@ -72,9 +75,13 @@ class UserController extends Controller
             'role' => ['sometimes', Rule::in(ManagerUsers::ROLES)],
             'active' => ['sometimes', 'boolean'],
             'reset_password' => ['sometimes', 'boolean'],
+            'password' => ['sometimes', 'string', 'min:'.ManagerUsers::MIN_PASSWORD, 'max:128'],
+            'temporary' => ['sometimes', 'boolean'],
         ], [
             'name.*' => 'Escribe el nombre de la persona (hasta 60 caracteres).',
             'role.*' => 'Elige si administra o solo edita.',
+            'password.*' => 'La clave lleva de '.ManagerUsers::MIN_PASSWORD.' a 128 caracteres, sin espacios.',
+            'temporary.*' => 'Elige si tendrá que cambiarla al entrar.',
         ]);
         if ($this->users->find($username) === null) {
             return response()->json(['message' => 'No existe esa persona.'], 404);
@@ -83,13 +90,16 @@ class UserController extends Controller
         if ($self && (($data['active'] ?? true) === false || (isset($data['role']) && $data['role'] !== 'admin'))) {
             return response()->json(['message' => 'No puedes quitarte el acceso ni dejar de administrar tú; pídeselo a otra persona que administre.'], 422);
         }
-        if ($self && ($data['reset_password'] ?? false)) {
+        if ($self && (($data['reset_password'] ?? false) || array_key_exists('password', $data))) {
             return response()->json(['message' => 'Para cambiar tu clave usa "Cambiar mi clave".'], 422);
         }
 
         $changes = array_intersect_key($data, array_flip(['name', 'role', 'active']));
         $password = null;
-        if ($data['reset_password'] ?? false) {
+        if (array_key_exists('password', $data)) {
+            $password = $data['password'];
+            $changes += ['password' => $password, 'temporary' => $data['temporary'] ?? true];
+        } elseif ($data['reset_password'] ?? false) {
             $password = ManagerUsers::temporaryPassword();
             $changes += ['password' => $password, 'temporary' => true];
         }

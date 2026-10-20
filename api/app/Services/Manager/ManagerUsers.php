@@ -216,6 +216,10 @@ final class ManagerUsers
         if ($length < self::MIN_PASSWORD || $length > 128) {
             throw new RuntimeException('La clave lleva de '.self::MIN_PASSWORD.' a 128 caracteres.');
         }
+        // Como la del panel: ninguna clave lleva espacios (las de antes siguen entrando).
+        if (preg_match('/[\s\p{Z}]/u', $password)) {
+            throw new RuntimeException('La clave no lleva espacios.');
+        }
         if ($username !== '' && self::normalize($password) === $username) {
             throw new RuntimeException('La clave no puede ser igual al usuario.');
         }

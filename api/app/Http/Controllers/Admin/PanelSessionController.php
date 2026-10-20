@@ -41,7 +41,7 @@ class PanelSessionController extends Controller
             return response()->json(['message' => 'Evento no encontrado.'], 404);
         }
         if ($auth->password($slug) === null) {
-            return response()->json(['message' => 'Este evento no tiene panel. Agrega clave_panel en la pestaña "evento" del layout.'], 403);
+            return response()->json(['message' => 'Esta invitación todavía no tiene panel. Pide la clave a quien armó tu invitación.'], 403);
         }
 
         $data = $request->validate(['password' => ['required', 'string', 'max:200']], [

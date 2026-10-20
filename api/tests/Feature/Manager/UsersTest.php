@@ -88,6 +88,40 @@ class UsersTest extends TestCase
         $this->asManager()->putJson('/api/manager/users/nadie', ['active' => false])->assertNotFound();
     }
 
+    public function test_who_administers_writes_someone_elses_password_without_spaces(): void
+    {
+        $this->enableManager();
+        $this->managerUser('beto', 'editor');
+        $beto = $this->postJson('/api/manager/session', ['username' => 'beto', 'password' => self::USER_PASSWORD])->json('token');
+
+        $this->asManager()->putJson('/api/manager/users/beto', ['password' => 'con espacio 2026'])
+            ->assertStatus(422)
+            ->assertJsonPath('message', 'La clave no lleva espacios.');
+        $this->putJson('/api/manager/users/beto', ['password' => 'corta'])->assertStatus(422)->assertJsonValidationErrors('password');
+
+        // Sin "temporary", la tiene que cambiar al entrar; sus sesiones abiertas se cierran.
+        $this->putJson('/api/manager/users/beto', ['password' => 'la-que-elegi-2026'])
+            ->assertOk()
+            ->assertJsonPath('password', 'la-que-elegi-2026')
+            ->assertJsonPath('user.must_change_password', true);
+        $this->withToken($beto)->getJson('/api/manager/events')->assertStatus(401);
+
+        // Con temporary false, se queda con esa.
+        $this->asManager()->putJson('/api/manager/users/beto', ['password' => 'la-definitiva-2026', 'temporary' => false])
+            ->assertOk()
+            ->assertJsonPath('user.must_change_password', false);
+        $this->postJson('/api/manager/session', ['username' => 'beto', 'password' => 'la-definitiva-2026'])
+            ->assertOk()
+            ->assertJsonPath('user.must_change_password', false);
+
+        // La propia se cambia con la clave actual, nunca desde aquí.
+        $this->asManager()->putJson('/api/manager/users/ana', ['password' => 'otra-para-ana-2026'])->assertStatus(422);
+        // Ni la propia lleva espacios.
+        $this->putJson('/api/manager/me/password', ['current_password' => self::USER_PASSWORD, 'password' => 'mi clave nueva'])
+            ->assertStatus(422)
+            ->assertJsonPath('errors.password.0', 'La clave no lleva espacios.');
+    }
+
     public function test_nobody_locks_themselves_out_and_someone_always_administers(): void
     {
         $this->asManager();

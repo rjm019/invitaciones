@@ -226,6 +226,58 @@ class EventsTest extends TestCase
         $this->putJson('/api/manager/events/nueva/settings', ['panel_password' => 'corta'])->assertStatus(422);
     }
 
+    public function test_the_panel_key_can_be_removed_but_never_carries_spaces(): void
+    {
+        $this->asManager()->putJson('/api/manager/events/nueva/settings', ['panel_password' => 'con espacio 2026'])
+            ->assertStatus(422)
+            ->assertJsonPath('errors.panel_password.0', 'La clave del panel no lleva espacios ni acentos: solo letras, números y símbolos.');
+
+        // Sin clave, el panel se apaga y el cliente lee qué hacer.
+        $this->putJson('/api/manager/events/nueva/settings', ['panel_password' => null])
+            ->assertOk()
+            ->assertJsonPath('settings.panel_password', null);
+        $this->assertStringContainsString('(quitada)', (string) file_get_contents("{$this->eventos}/nueva/ajustes-historial.csv"));
+        $this->postJson('/api/admin/events/nueva/session', ['password' => 'clave-de-prueba-nueva'])
+            ->assertForbidden()
+            ->assertJsonPath('message', 'Esta invitación todavía no tiene panel. Pide la clave a quien armó tu invitación.');
+
+        // En el formato anterior la clave vive en el layout: quitarla aquí no apagaría el panel.
+        $this->putJson('/api/manager/events/prueba/settings', ['panel_password' => null])->assertStatus(422);
+        $this->postJson('/api/admin/events/prueba/session', ['password' => 'clave-de-prueba'])->assertOk();
+    }
+
+    public function test_who_administers_undoes_what_the_client_moved_in_the_panel(): void
+    {
+        $dir = "{$this->eventos}/nueva";
+        app(EventSettings::class)->put($dir, ['rsvp_limite' => '2026-11-20', 'rsvp_limite_cambios' => '3'], CarbonImmutable::now(), EventSettings::OWNER);
+
+        // Quien edita (con la invitación asignada) cambia la clave, pero no lo del cliente.
+        $this->managerUser('beto', 'editor');
+        $this->asManager()->putJson('/api/manager/events/nueva/settings', ['people' => ['beto']])->assertOk();
+        $this->asManager('beto', 'editor')->putJson('/api/manager/events/nueva/settings', ['panel_password' => 'la-de-beto-2026'])->assertOk();
+        $this->putJson('/api/manager/events/nueva/settings', ['deadline_changes' => 0])->assertStatus(403);
+        $this->putJson('/api/manager/events/nueva/settings', ['owner_deadline' => null])->assertStatus(403);
+
+        // Una fecha nueva va en la invitación: aquí solo se quita la del cliente.
+        $this->asManager()->putJson('/api/manager/events/nueva/settings', ['owner_deadline' => '2026-11-25'])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('owner_deadline');
+        $this->putJson('/api/manager/events/nueva/settings', ['deadline_changes' => 4])->assertStatus(422);
+
+        $this->putJson('/api/manager/events/nueva/settings', ['owner_deadline' => null, 'deadline_changes' => 1])
+            ->assertOk()
+            ->assertJsonPath('settings.owner_deadline', null)
+            ->assertJsonPath('settings.deadline_changes', 1);
+        $this->putJson('/api/manager/events/nueva/settings', ['deadline_changes' => 0])->assertJsonPath('settings.deadline_changes', 0);
+
+        $settings = app(EventSettings::class)->read($dir);
+        $this->assertArrayNotHasKey('rsvp_limite', $settings);
+        $this->assertArrayNotHasKey('rsvp_limite_cambios', $settings);
+        $this->assertSame('la-de-beto-2026', $settings['clave_panel']);
+        // El historial dice quién lo quitó.
+        $this->assertStringContainsString('rsvp_limite,2026-11-20,,ana,', (string) file_get_contents("{$dir}/ajustes-historial.csv"));
+    }
+
     /** @return list<list<string>> los renglones de papelera.csv, sin el encabezado */
     private function trashLog(): array
     {

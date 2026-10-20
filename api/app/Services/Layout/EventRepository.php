@@ -189,6 +189,12 @@ final class EventRepository
             return trim($settings[$key]);
         }
 
+        return $this->layoutValue($slug, $key);
+    }
+
+    /** El mismo valor, pero solo de la invitación (o del layout anterior), sin ajustes.csv. */
+    public function layoutValue(string $slug, string $key): ?string
+    {
         $design = $this->design($slug);
         if ($design !== null) {
             return match ($key) {
