@@ -57,6 +57,11 @@ Van en `efectos`, separados por espacio; en el gestor, *Diseño → Animaciones*
 | `reflejo` | Una luz cruza de vez en cuando y aviva solo lo claro | `SectionShell` (`.section__sheen`, `color-dodge`) |
 | `panoramica` (`paneo`) | La imagen de fondo se desliza de lado a lado | `effects.css` |
 | `bola_disco` (`disco`) | Bolas de espejos en 3D que giran, con rayos, destellos y reflejos | `SectionAmbience` + `discoBalls`, `discoTiles`, `discoRays` y `discoSpots` (`effectsService`) |
+| `aparecer_zoom` · `aparecer_deslizar` · `aparecer_giro` | Otras formas de aparecer: crece, entra de un costado (alterna) o se levanta como tarjeta | `SectionShell` (`REVEALS`) + `effects.css` (`.fx-reveal-zoom/-slide/-tilt`) |
+| sección `capa` | Foto quieta que se ve por debajo mientras las secciones pasan por encima | `LayerSection` + fondo quieto de `SectionShell` (`section--sticky-bg`) |
+| `iconos` | Dibujos de línea de la ciudad (Estatua, taxi, Empire State, pretzel, puente, café, manzana…) a los costados, que se mecen | `SectionAmbience` + `cityIcons` (`effectsService`) + máscaras `effects/assets/ciudad/*.svg` (`--fx-icons-color`) |
+| `taxi` | Taxis que cruzan la sección por el pie, uno hacia cada lado | `SectionAmbience` + `taxis` (`--fx-taxi-color`) |
+| `franja_ciudad` | Hilera de esos dibujos en la orilla de arriba | `SectionAmbience` (`.fx-strip`) |
 | `luces_disco` (`reflejos_disco`) | Solo los reflejos: puntos de luz que cruzan la sección | `SectionAmbience` + `discoSpots` |
 | `difuminar` (`integrar`, `sin_cortes`) | La sección deja de ser tarjeta y se funde con sus vecinas (ver §3) | `SectionShell` + `withEdges` (`sectionService`) |
 

@@ -8,7 +8,8 @@
 ## Avance
 
 - [ ] 1. Ubicación (ceremonia, recepción o ambas) · Itinerario en vivo · ~~Mesa de regalos y lluvia de sobres~~ (hecha el 16-oct, ver §2)
-- [ ] 2. Galería (con miniaturas)
+- [ ] 2. Galería: hecha el 21-oct sin miniaturas (`galeria`, visor, `marcos`); faltan `<nombre>-480.webp` y `srcset`
+- [x] 2b. Lluvia de sobres como sección propia (`lluvia_sobres`, 21-oct)
 - [ ] 3. Video · Publicación de redes
 - [ ] 4. Trivia
 - [ ] 5. Álbum de los invitados (ciclo de 5 a 20 días)
