@@ -2,29 +2,27 @@
 import { computed, ref } from 'vue'
 import PhotoViewer from '@/components/ui/PhotoViewer.vue'
 import { useEvent } from '@/composables/useEvent'
+import { galleryItems } from '@/services/galleryService'
 import type { ResolvedSection } from '@/types/event'
 
 /**
- * Galería: las fotos de la lista "fotos" en una cuadrícula de miniaturas. Al tocar una se
+ * Galería: las fotos de su lista "fotos" en una cuadrícula de miniaturas (puede haber
+ * varias galerías en la invitación, cada una con las suyas). Al tocar una se
  * abre el visor a pantalla completa (deslizar, flechas, Esc). El pie de foto es opcional.
  * Con "cascada" las fotos entran una tras otra.
  */
 const props = defineProps<{ section: ResolvedSection }>()
-const { event, resolveAsset } = useEvent()
+const { resolveAsset } = useEvent()
 
-const title = computed(() => props.section.title ?? 'Galería')
-const photos = computed(() =>
-  (event.value.gallery ?? []).flatMap((p) => {
-    const src = resolveAsset.value(p.photo)
-    return src ? [{ src, caption: p.caption }] : []
-  }),
-)
+// Con varias galerías repartidas, el título solo va si la sección lo trae.
+const title = computed(() => props.section.title ?? null)
+const photos = computed(() => galleryItems(props.section.photos, resolveAsset.value))
 const opened = ref<number | null>(null)
 </script>
 
 <template>
   <div class="gallery">
-    <h2 class="gallery__title" data-text="title">{{ title }}</h2>
+    <h2 v-if="title" class="gallery__title" data-text="title">{{ title }}</h2>
     <p v-if="section.subtitle" class="gallery__subtitle" data-text="subtitle">
       {{ section.subtitle }}
     </p>

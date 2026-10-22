@@ -26,7 +26,11 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
   'no-kids': { cordon: () => import('./sections/variants/NoKidsRope.vue') },
   countdown: { tablero: () => import('./sections/variants/CountdownBoard.vue') },
   'envelope-rain': { sobre: () => import('./sections/variants/EnvelopeRainShower.vue') },
-  gallery: { marcos: () => import('./sections/variants/GalleryFrames.vue') },
+  gallery: {
+    marcos: () => import('./sections/variants/GalleryFrames.vue'),
+    carrusel: () => import('./sections/variants/GalleryCarousel.vue'),
+    diapositivas: () => import('./sections/variants/GallerySlideshow.vue'),
+  },
   hotels: { colgantes: () => import('./sections/variants/HotelsHangers.vue') },
   gifts: { bolsas: () => import('./sections/variants/GiftsBags.vue') },
   closing: { marquesina: () => import('./sections/variants/ClosingMarquee.vue') },

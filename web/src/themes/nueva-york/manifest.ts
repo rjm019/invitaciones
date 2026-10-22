@@ -135,7 +135,7 @@ const theme: ThemeManifest = {
     // La pared de una galería de arte: marcos de plata colgados de su cable, con su foco.
     gallery: {
       variant: 'marcos',
-      effects: ['reveal-zoom', 'cascade', 'shine', 'city-icons', 'icon-strip'],
+      effects: ['reveal-zoom', 'cascade', 'shine', 'city-icons'],
     },
     // Colgantes de puerta de hotel que se mecen.
     hotels: {

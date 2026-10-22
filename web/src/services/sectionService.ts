@@ -78,7 +78,7 @@ const WEATHER_AFTER_MS = 24 * 60 * 60 * 1000
  */
 export function withContent<T extends SectionConfig>(
   sections: T[],
-  event: Pick<EventConfig, 'music' | 'starts_at' | 'hotels' | 'gifts' | 'gallery' | 'envelope'>,
+  event: Pick<EventConfig, 'music' | 'starts_at' | 'hotels' | 'gifts' | 'envelope'>,
   now: number,
 ): T[] {
   return sections.filter((s) => {
@@ -86,7 +86,7 @@ export function withContent<T extends SectionConfig>(
     if (s.type === 'hotels') return event.hotels.length > 0
     if (s.type === 'gifts') return hasGifts(event.gifts)
     if (s.type === 'envelope-rain') return !!event.envelope
-    if (s.type === 'gallery') return (event.gallery?.length ?? 0) > 0
+    if (s.type === 'gallery') return (s.photos?.length ?? 0) > 0
     if (s.type === 'weather') {
       const start = event.starts_at ? Date.parse(event.starts_at) : NaN
       return Number.isFinite(start) && now < start + WEATHER_AFTER_MS

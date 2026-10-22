@@ -133,3 +133,22 @@ describe('SectionShell: secciones difuminadas y bola disco', () => {
     expect(lights.findAll('.fx-disco-spot')).toHaveLength(20)
   })
 })
+
+describe('SectionShell: capas de imagen', () => {
+  it('pinta una franja por foto, del mismo alto, con la foto quieta, y quita el relleno', () => {
+    const wrapper = render({ type: 'layer', panel: false, layers: ['a.webp', 'b.webp', 'c.webp'] })
+    const layers = wrapper.findAll('.section__layer')
+    expect(layers).toHaveLength(3)
+    expect(layers[1].attributes('style')).toContain('top: 33.3')
+    expect(layers[1].find('.section__layer-photo').attributes('style')).toContain('b.webp')
+    expect(wrapper.find('section').classes()).toContain('section--has-layers')
+    // Las capas van fuera del contenido (que es contenedor y no dejaría la foto quieta).
+    expect(wrapper.find('.section__content .section__layers').exists()).toBe(false)
+  })
+
+  it('sin fotos no hay capas', () => {
+    const wrapper = render({ type: 'layer', panel: false })
+    expect(wrapper.find('.section__layers').exists()).toBe(false)
+    expect(wrapper.find('section').classes()).not.toContain('section--has-layers')
+  })
+})

@@ -38,6 +38,13 @@ const bgToken = computed(() => {
 })
 const recolored = computed(() => Object.keys(props.section.colors ?? {}).length > 0)
 const hasImage = computed(() => '--section-bg-image' in style.value)
+// Capas de imagen: una franja por foto, del mismo alto, cada una con su foto quieta.
+const layers = computed(() =>
+  (props.section.layers ?? []).flatMap((file) => {
+    const url = resolveAsset.value(file)
+    return url ? [url] : []
+  }),
+)
 const hasColor = computed(() => '--section-bg-color' in style.value)
 const hasOverlay = computed(() => '--section-overlay' in style.value)
 
@@ -81,6 +88,7 @@ const classes = computed(() => [
     [`section--bg-${bgToken.value}`]: !!bgToken.value,
     'section--has-bg': hasImage.value || hasColor.value,
     'section--sticky-bg': hasImage.value && props.section.background?.attachment === 'sticky',
+    'section--has-layers': layers.value.length > 0,
     // Con colores propios, los tokens que se calculan desde otros (degradados, sombras) se
     // vuelven a calcular aquí (ver tokens.css).
     'section--recolored': recolored.value,
@@ -130,6 +138,20 @@ const classes = computed(() => [
           animationDuration: motionTime(star.duration),
         }"
       />
+    </div>
+    <!--
+      Capas: cada foto en su franja (recortada) con la foto fija a la pantalla. Fuera de
+      .section__content, que es contenedor y no dejaría que la foto se quede quieta.
+    -->
+    <div v-if="layers.length" class="section__layers" aria-hidden="true">
+      <div
+        v-for="(url, i) in layers"
+        :key="i"
+        class="section__layer"
+        :style="{ top: `${(i * 100) / layers.length}%`, height: `${100 / layers.length}%` }"
+      >
+        <div class="section__layer-photo" :style="{ backgroundImage: `url(&quot;${url}&quot;)` }" />
+      </div>
     </div>
     <SectionAmbience v-if="ambience" :section="section" />
     <div
@@ -339,6 +361,34 @@ const classes = computed(() => [
   background-size: var(--section-bg-size, cover);
   background-repeat: var(--section-bg-repeat, no-repeat);
   background-position: center;
+}
+/*
+ * Capas de imagen: la sección no lleva relleno (sus ventanas miden lo mismo que sus
+ * franjas) y cada franja recorta su foto fija: al bajar, la siguiente franja pasa por
+ * encima de la foto de la anterior.
+ */
+.section--has-layers {
+  padding: 0;
+}
+.section--has-layers > .section__content {
+  max-width: none;
+}
+.section__layers {
+  position: absolute;
+  inset: 0;
+}
+.section__layer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  clip-path: inset(0);
+}
+.section__layer-photo {
+  position: fixed;
+  inset: 0;
+  /* Un poco hacia arriba: en pantallas anchas, una foto vertical recortada al centro corta
+     las caras. */
+  background: 50% 25% / cover no-repeat;
 }
 /* "fijo": el fondo se queda quieto mientras el contenido pasa (sin background-attachment: fixed, que falla en iOS) */
 .section--sticky-bg {

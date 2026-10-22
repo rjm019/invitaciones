@@ -12,7 +12,7 @@ import ManagerIcon from './ManagerIcon.vue'
  * puede quitar (con "deshacer" del editor).
  */
 const props = defineProps<{ section: DesignSection; list: CatalogList }>()
-const { issues, addItem, removeItem, moveItem, setItem } = useEditor()
+const { issues, addItem, removeItem, moveItem, setItem, resolveAsset } = useEditor()
 
 const listEl = ref<HTMLElement | null>(null)
 const openIndex = ref<number | null>(props.section.items.length ? null : 0)
@@ -23,13 +23,20 @@ const sort = useDragSort(listEl, (from, to) => {
 
 const full = computed(() => props.section.items.length >= props.list.max)
 
-/** "17:00 · Recepción" — lo que se ve con la tarjeta cerrada. */
+/** El campo de foto de la lista (galería, hoteles…), si tiene. */
+const imageKey = computed(() => props.list.fields.find((f) => f.input === 'image')?.key ?? null)
+/** Miniatura de la foto del elemento, para reconocerlo con la tarjeta cerrada. */
+function thumb(item: Record<string, string>): string | null {
+  return imageKey.value && item[imageKey.value] ? resolveAsset.value(item[imageKey.value]) : null
+}
+/** "17:00 · Recepción" — lo que se ve con la tarjeta cerrada; si solo hay foto, su archivo. */
 function summary(item: Record<string, string>): string {
   const parts = props.list.fields
     .filter((f) => ['text', 'time', 'lines'].includes(f.input))
     .map((f) => (item[f.key] ?? '').split('\n')[0].trim())
     .filter(Boolean)
-  return parts.slice(0, 2).join(' · ') || `${props.list.item_label} sin datos`
+  const file = imageKey.value ? (item[imageKey.value] ?? '').trim() : ''
+  return parts.slice(0, 2).join(' · ') || file || `${props.list.item_label} sin datos`
 }
 function errorFor(index: number, key: string): string | null {
   return (
@@ -105,6 +112,7 @@ function add(): void {
             @click="openIndex = openIndex === i ? null : i"
           >
             <span class="item__n">{{ i + 1 }}</span>
+            <img v-if="thumb(item)" :src="thumb(item)!" alt="" class="item__thumb" loading="lazy" />
             <span class="item__summary">{{ summary(item) }}</span>
             <ManagerIcon v-if="hasError(i)" name="triangle-exclamation" class="item__warn" />
             <ManagerIcon :name="openIndex === i ? 'chevron-up' : 'chevron-down'" />
@@ -235,6 +243,14 @@ function add(): void {
   color: var(--g-muted);
   font-size: 11px;
   font-weight: 700;
+}
+.item__thumb {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--g-surface-3);
 }
 .item__summary {
   flex: 1;

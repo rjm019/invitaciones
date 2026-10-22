@@ -1,36 +1,52 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { ResolvedSection } from '@/types/event'
 
 /**
- * Capa de imagen: una ventana por la que se ve una foto que no se mueve. Al bajar, la foto
- * parece haber estado siempre debajo de la página: las secciones de arriba y de abajo pasan
- * por encima de ella. La foto (fondo quieto) la pinta SectionShell; aquí solo van el alto
- * ("variante": media, alta o pantalla) y, si hay, un título y un texto sobre la foto.
+ * Capa de imagen: ventanas por las que se ven fotos que no se mueven. Al bajar, cada foto
+ * parece haber estado siempre debajo de la página y la siguiente ventana pasa por encima
+ * de ella. Las fotos (una por ventana) las pinta SectionShell; aquí van las ventanas, todas
+ * del mismo alto ("variante": media, alta o pantalla), y sobre la primera el título y el
+ * texto, si hay.
  */
-defineProps<{ section: ResolvedSection }>()
+const props = defineProps<{ section: ResolvedSection }>()
+const windows = computed(() => Math.max(1, props.section.layers?.length ?? 0))
 </script>
 
 <template>
   <div class="layer" :class="`layer--${section.variant ?? 'media'}`">
-    <h2 v-if="section.title" class="layer__title" data-text="title">{{ section.title }}</h2>
-    <p v-if="section.text" class="layer__text" data-text="text">{{ section.text }}</p>
+    <div v-for="i in windows" :key="i" class="layer__window">
+      <template v-if="i === 1">
+        <h2 v-if="section.title" class="layer__title" data-text="title">{{ section.title }}</h2>
+        <p v-if="section.text" class="layer__text" data-text="text">{{ section.text }}</p>
+      </template>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .layer {
   display: grid;
+  container-type: inline-size;
+}
+.layer__window {
+  position: relative;
+  display: grid;
   align-content: center;
   justify-items: center;
   gap: var(--space-2);
-  min-height: 60svh;
+  height: 60svh;
   padding: var(--space-3) var(--space-2);
   text-align: center;
-  container-type: inline-size;
-  position: relative;
 }
-/* Sombra arriba y abajo: las secciones vecinas parecen pasar por encima de la foto. */
-.layer::before {
+.layer--alta .layer__window {
+  height: 85svh;
+}
+.layer--pantalla .layer__window {
+  height: 100svh;
+}
+/* Sombra arriba y abajo de cada ventana: la siguiente parece pasar por encima de la foto. */
+.layer__window::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -43,14 +59,8 @@ defineProps<{ section: ResolvedSection }>()
   );
   pointer-events: none;
 }
-.layer > * {
+.layer__window > * {
   position: relative;
-}
-.layer--alta {
-  min-height: 85svh;
-}
-.layer--pantalla {
-  min-height: 100svh;
 }
 .layer__title {
   margin: 0;

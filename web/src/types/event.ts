@@ -90,6 +90,10 @@ export interface SectionConfig {
   text_styles?: Record<string, TextStyle>
   /** Imagen propia de la sección (la foto de "foto"). */
   image?: string | null
+  /** Fotos quietas, una por capa (la "capa de imagen"): las pinta SectionShell. */
+  layers?: string[]
+  /** Fotos de una galería (puede haber varias galerías, cada una con las suyas). */
+  photos?: GalleryPhoto[]
   /** Forma de sus orillas, si es franja (si no, la de la página o la del tema). */
   edge?: EdgeStyle
 }
@@ -212,8 +216,6 @@ export interface EventConfig {
   itinerary: ItineraryItem[]
   locations: EventLocation[]
   hotels: EventHotel[]
-  /** Fotos de la sección galería (vacío: la sección no se muestra). */
-  gallery?: GalleryPhoto[]
   /** Sección "Lluvia de sobres" (independiente de la mesa de regalos). */
   envelope?: GiftEnvelope | null
   /** Mesa de regalos (solo si la invitación la tiene). */

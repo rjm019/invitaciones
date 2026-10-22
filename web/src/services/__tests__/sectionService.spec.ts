@@ -204,11 +204,13 @@ describe('withContent', () => {
     expect(types(withContent(list, event(null), before))).toEqual(['quote'])
   })
 
-  it('la galería solo aparece si trae alguna foto', () => {
-    const list = [section({ type: 'gallery' }), section({ type: 'quote' })]
-    const withPhotos = { ...event(null), gallery: [{ photo: 'a.webp', caption: '' }] }
-    expect(types(withContent(list, withPhotos, before))).toEqual(['gallery', 'quote'])
-    expect(types(withContent(list, event(null), before))).toEqual(['quote'])
+  it('cada galería aparece solo si trae alguna foto', () => {
+    const list = [
+      section({ type: 'gallery', photos: [{ photo: 'a.webp', caption: '' }] }),
+      section({ type: 'gallery', photos: [] }),
+      section({ type: 'quote' }),
+    ]
+    expect(types(withContent(list, event(null), before))).toEqual(['gallery', 'quote'])
   })
 
   it('la mesa de regalos solo aparece con alguna tienda o con la lluvia de sobres', () => {

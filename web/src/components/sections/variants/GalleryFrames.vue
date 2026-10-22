@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import PhotoViewer from '@/components/ui/PhotoViewer.vue'
 import { useEvent } from '@/composables/useEvent'
+import { galleryItems } from '@/services/galleryService'
 import type { ResolvedSection } from '@/types/event'
 
 /**
@@ -13,27 +14,17 @@ import type { ResolvedSection } from '@/types/event'
  * completa. El pie va en una placita debajo, como la cartela de una obra.
  */
 const props = defineProps<{ section: ResolvedSection }>()
-const { event, resolveAsset } = useEvent()
+const { resolveAsset } = useEvent()
 
-const title = computed(() => props.section.title ?? 'Galería')
-/** A partir de esta proporción (ancho / alto) la foto va a todo el ancho. */
-const WIDE = 1.15
-const photos = computed(() =>
-  (event.value.gallery ?? []).flatMap((p, i) => {
-    const src = resolveAsset.value(p.photo)
-    if (!src) return []
-    const ratio = p.width && p.height ? p.width / p.height : null
-    // Sin medidas (una URL de fuera): una de cada tres a todo el ancho, como antes.
-    const wide = ratio === null ? i % 3 === 0 : ratio >= WIDE
-    return [{ src, caption: p.caption, wide, ratio: ratio ?? (wide ? 4 / 3 : 3 / 4) }]
-  }),
-)
+// Con varias galerías repartidas, el título solo va si la sección lo trae.
+const title = computed(() => props.section.title ?? null)
+const photos = computed(() => galleryItems(props.section.photos, resolveAsset.value))
 const opened = ref<number | null>(null)
 </script>
 
 <template>
   <div class="ny-wall">
-    <h2 class="ny-wall__title" data-text="title">{{ title }}</h2>
+    <h2 v-if="title" class="ny-wall__title" data-text="title">{{ title }}</h2>
     <p v-if="section.subtitle" class="ny-wall__subtitle" data-text="subtitle">
       {{ section.subtitle }}
     </p>
@@ -42,7 +33,7 @@ const opened = ref<number | null>(null)
         v-for="(photo, i) in photos"
         :key="photo.src"
         class="ny-wall__piece"
-        :class="{ 'ny-wall__piece--wide': photo.wide }"
+        :class="{ 'ny-wall__piece--wide': photo.wide, 'ny-wall__piece--tall': photo.wide && photo.ratio < 1 }"
         data-cascade
       >
         <span class="ny-wall__lamp" aria-hidden="true" />
@@ -117,6 +108,10 @@ const opened = ref<number | null>(null)
 /* Las horizontales ocupan todo el ancho, como la obra principal de la pared. */
 .ny-wall__piece--wide {
   grid-column: 1 / -1;
+}
+/* Una vertical sola (la única foto de la galería): al centro, sin ocupar toda la pantalla. */
+.ny-wall__piece--tall .ny-wall__frame {
+  width: min(100%, 20rem);
 }
 /* El cable del que cuelga el marco y el foco de galería sobre él. */
 .ny-wall__piece::before {
