@@ -367,12 +367,12 @@ final class Catalog
             'texts' => ['titulo' => 'Iniciales'],
         ],
         'galeria' => [
-            'type' => 'gallery', 'label' => 'Galería', 'icon' => 'images',
-            'description' => 'Varias fotos que se abren a pantalla completa y se deslizan.',
+            'type' => 'gallery', 'label' => 'Galería', 'icon' => 'images', 'repeatable' => true,
+            'description' => 'Fotos que se abren a pantalla completa; puede haber varias galerías repartidas por la invitación, cada una con su presentación.',
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Galería', 'max_length' => 60],
                 ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'max_length' => 120],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Cuadrícula'], ['value' => 'marcos', 'label' => 'Marcos de plata']]],
+                ['key' => 'variante', 'label' => 'Presentación', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Cuadrícula'], ['value' => 'marcos', 'label' => 'Marcos de plata'], ['value' => 'carrusel', 'label' => 'Carrusel (se desliza de lado)'], ['value' => 'diapositivas', 'label' => 'Se cambian solas (como un gif)']]],
             ],
             'list' => ['key' => 'fotos', 'label' => 'Fotos', 'item_label' => 'Foto', 'max' => 24, 'fields' => [
                 ['key' => 'foto', 'label' => 'Foto', 'input' => 'image', 'required' => true],
@@ -410,13 +410,16 @@ final class Catalog
         ],
         'capa' => [
             'type' => 'layer', 'label' => 'Capa de imagen', 'icon' => 'images', 'repeatable' => true,
-            'description' => 'Una foto que se queda quieta mientras la página pasa por encima, como si siempre hubiera estado debajo.',
+            'description' => 'Fotos que se quedan quietas mientras la página pasa por encima, como si siempre hubieran estado debajo; cada foto es otra capa.',
             'fields' => [
-                ['key' => 'imagen', 'label' => 'Imagen', 'input' => 'image', 'help' => 'Se ve completa al llegar a ella y las demás secciones pasan por encima.'],
+                ['key' => 'imagen', 'label' => 'Primera foto', 'input' => 'image', 'help' => 'Se ve completa al llegar a ella y las demás secciones pasan por encima.'],
                 ['key' => 'titulo', 'label' => 'Título (opcional)', 'input' => 'text', 'max_length' => 60],
                 ['key' => 'texto', 'label' => 'Texto (opcional)', 'input' => 'textarea', 'max_length' => 300],
-                ['key' => 'variante', 'label' => 'Alto', 'input' => 'select', 'options' => [['value' => 'media', 'label' => 'Media pantalla'], ['value' => 'alta', 'label' => 'Casi toda la pantalla'], ['value' => 'pantalla', 'label' => 'Pantalla completa']]],
+                ['key' => 'variante', 'label' => 'Alto de cada capa', 'input' => 'select', 'options' => [['value' => 'media', 'label' => 'Media pantalla'], ['value' => 'alta', 'label' => 'Casi toda la pantalla'], ['value' => 'pantalla', 'label' => 'Pantalla completa']]],
             ],
+            'list' => ['key' => 'fotos', 'label' => 'Más capas', 'item_label' => 'Foto', 'max' => 8, 'help' => 'Cada foto es otra capa: al bajar, la siguiente pasa por encima de la anterior.', 'fields' => [
+                ['key' => 'foto', 'label' => 'Foto', 'input' => 'image', 'required' => true],
+            ]],
             'slots' => [],
             'texts' => ['titulo' => 'Título', 'texto' => 'Texto'],
         ],

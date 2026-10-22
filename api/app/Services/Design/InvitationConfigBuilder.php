@@ -33,6 +33,9 @@ final class InvitationConfigBuilder
     /** @var list<array{level: string, block: string, item: ?int, field: ?string, message: string}> */
     private array $issues = [];
 
+    /** El evento que se está armando (las fotos de la galería se miden en su media/). */
+    private string $slug = '';
+
     /**
      * @param  array<string, string>  $media  archivo en media/ → URL pública
      * @param  array<string, string>  $settings  ajustes.csv (rsvp_limite, publicado, plantilla…)
@@ -40,6 +43,7 @@ final class InvitationConfigBuilder
     public function build(string $slug, Design $design, array $media, array $settings = [], bool $lenient = false, ?CarbonImmutable $now = null): BuildResult
     {
         $this->issues = [];
+        $this->slug = $slug;
         $now ??= CarbonImmutable::now();
         $e = array_filter(array_map('trim', $design->event), fn ($v) => $v !== '');
         if (($settings['rsvp_limite'] ?? '') !== '') {
@@ -135,21 +139,17 @@ final class InvitationConfigBuilder
             'itinerary' => $this->itinerary($design->first('itinerario')),
             'locations' => $this->locations($design->first('ubicacion'), $media),
             'hotels' => $this->hotels($design->first('hospedaje'), $media),
-            'gallery' => $this->gallery($design->first('galeria'), $media, $slug),
             'envelope' => ($rain = $design->first('lluvia_sobres')) ? $this->envelope($rain) : null,
             'gifts' => $this->gifts($design->first('mesa_regalos')),
             'assets' => (object) $media,
         ];
 
-        // Sin mesa de regalos ni galería, la llave no va (como en el formato anterior).
+        // Sin mesa de regalos ni lluvia de sobres, la llave no va (como en el formato anterior).
         if ($config['gifts'] === null) {
             unset($config['gifts']);
         }
         if ($config['envelope'] === null) {
             unset($config['envelope']);
-        }
-        if ($config['gallery'] === []) {
-            unset($config['gallery']);
         }
         $page = $this->page($design->page, $media);
         if ($page !== []) {
@@ -326,12 +326,11 @@ final class InvitationConfigBuilder
         }
 
         $background = array_filter([
-            // La capa de imagen pone su imagen como fondo quieto (se queda mientras la página pasa).
-            'image' => $this->media(($f['fondo'] ?? '') ?: ($kind === 'capa' ? ($f['imagen'] ?? '') : ''), $media),
+            'image' => $this->media($f['fondo'] ?? '', $media),
             'fit' => self::BACKGROUND_FIT[$fit] ?? null,
             'color' => Normalizer::colorRef($f['color_fondo'] ?? ''),
             'overlay' => $overlay === '' ? null : (float) $overlay,
-            'attachment' => Normalizer::yes($f['fijo'] ?? '') || $kind === 'capa' ? 'sticky' : null,
+            'attachment' => Normalizer::yes($f['fijo'] ?? '') ? 'sticky' : null,
         ], fn ($v) => $v !== null && $v !== '');
 
         $entry = array_filter([
@@ -363,6 +362,20 @@ final class InvitationConfigBuilder
         }
         if (in_array($kind, ['foto', 'portada'], true) && isset($f['imagen'])) {
             $entry['image'] = $this->media($f['imagen'], $media);
+        }
+        // Galería: cada una con sus fotos (puede haber varias repartidas por la invitación).
+        if ($kind === 'galeria') {
+            $entry['photos'] = $this->gallery($section, $media);
+        }
+        // Capa de imagen: su foto y las de "Más capas", cada una una capa quieta (SectionShell).
+        if ($kind === 'capa') {
+            $layers = array_values(array_filter(array_map(
+                fn (string $file) => $this->media($file, $media),
+                [$f['imagen'] ?? '', ...array_column($section->items, 'foto')],
+            )));
+            if ($layers !== []) {
+                $entry['layers'] = $layers;
+            }
         }
 
         $this->unknownKeys($id, $f, Catalog::fieldOrder($kind), section: true);
@@ -660,18 +673,18 @@ final class InvitationConfigBuilder
      * @param  array<string, string>  $media
      * @return list<array{photo: string, caption: string, width?: int, height?: int}>
      */
-    private function gallery(?DesignSection $section, array $media, string $slug): array
+    private function gallery(DesignSection $section, array $media): array
     {
         $events = app(EventRepository::class);
         $out = [];
-        foreach ($section?->items ?? [] as $item) {
+        foreach ($section->items as $item) {
             $file = trim($item['foto'] ?? '');
             $photo = $this->media($file, $media);
             if ($photo === null) {
                 continue;
             }
             $entry = ['photo' => $photo, 'caption' => trim($item['pie'] ?? '')];
-            $path = isset($media[$file]) ? $events->mediaFile($slug, $file) : null;
+            $path = isset($media[$file]) ? $events->mediaFile($this->slug, $file) : null;
             $size = $path === null ? false : @getimagesize($path);
             if ($size !== false && $size[0] > 0 && $size[1] > 0) {
                 $entry['width'] = (int) $size[0];

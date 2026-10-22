@@ -53,76 +53,7 @@
       "type": "object",
       "properties": {
         "portrait": { "type": ["string", "null"] },
-        "gallery": { "type": "array", "items": { "type": "string" } }
-      }
-    },
-    "texts": {
-      "type": "object",
-      "properties": {
-        "blessing": { "type": "string" },
-        "quote": { "type": "string" },
-        "closing_quote": { "type": "string" },
-        "closing": { "type": "string" }
-      }
-    },
-    "family": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["role", "names"],
-        "properties": {
-          "role": { "type": "string" },
-          "names": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
-        }
-      }
-    },
-    "locations": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["label", "name", "maps_url"],
-        "properties": {
-          "label": { "type": "string" },
-          "name": { "type": "string" },
-          "time": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
-          "address": { "type": ["string", "null"] },
-          "maps_url": { "type": "string", "format": "uri" },
-          "photo": { "type": ["string", "null"] }
-        }
-      }
-    },
-    "itinerary": {
-      "type": "array",
-      "maxItems": 8,
-      "items": {
-        "type": "object",
-        "required": ["label", "time"],
-        "properties": {
-          "label": { "type": "string" },
-          "time": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
-          "icon": { "type": "string" }
-        }
-      }
-    },
-    "dress_code": {
-      "type": "object",
-      "properties": {
-        "title": { "type": "string" },
-        "text": { "type": "string" },
-        "colors": { "type": "array", "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }, "maxItems": 4 },
-        "reserved_colors": { "type": "array", "items": { "type": "string" } }
-      }
-    },
-    "hotels": {
-      "type": "array",
-      "items": { "type": "object", "properties": { "name": { "type": "string" }, "url": { "type": "string" }, "photo": { "type": "string" } } }
-    },
-    "gallery": {
-      "description": "Fotos de la sección galería (la llave no va si no hay).",
-      "type": "array",
-      "items": { "type": "object", "properties": { "photo": { "type": "string" }, "caption": { "type": "string" } } }
-    },
-    "gifts": {
+        "gifts": {
       "description": "Mesa de regalos (solo si la invitación la tiene). Por el enlace general, bank/account/holder llegan vacíos y hidden = true cuando private = true.",
       "type": "object",
       "properties": {
