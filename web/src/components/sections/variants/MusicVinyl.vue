@@ -203,7 +203,6 @@ onMounted(() => {
   padding: 6%;
   border-radius: 50%;
   background:
-    radial-gradient(circle, var(--color-night) 0 5%, transparent 5.5%),
     radial-gradient(
       circle at 35% 30%,
       var(--color-primary-soft),

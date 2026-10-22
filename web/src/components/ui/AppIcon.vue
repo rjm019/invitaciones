@@ -25,6 +25,9 @@ import moonSvg from '@fortawesome/fontawesome-free/svgs/solid/moon.svg?raw'
 import cloudSunSvg from '@fortawesome/fontawesome-free/svgs/solid/cloud-sun.svg?raw'
 import cloudMoonSvg from '@fortawesome/fontawesome-free/svgs/solid/cloud-moon.svg?raw'
 import cloudSvg from '@fortawesome/fontawesome-free/svgs/solid/cloud.svg?raw'
+import xmarkSvg from '@fortawesome/fontawesome-free/svgs/solid/xmark.svg?raw'
+import chevronLeftSvg from '@fortawesome/fontawesome-free/svgs/solid/chevron-left.svg?raw'
+import chevronRightSvg from '@fortawesome/fontawesome-free/svgs/solid/chevron-right.svg?raw'
 import smogSvg from '@fortawesome/fontawesome-free/svgs/solid/smog.svg?raw'
 import cloudRainSvg from '@fortawesome/fontawesome-free/svgs/solid/cloud-rain.svg?raw'
 import cloudShowersHeavySvg from '@fortawesome/fontawesome-free/svgs/solid/cloud-showers-heavy.svg?raw'
@@ -79,6 +82,9 @@ const ICONS: Record<string, string> = {
   'cloud-sun': cloudSunSvg,
   'cloud-moon': cloudMoonSvg,
   cloud: cloudSvg,
+  xmark: xmarkSvg,
+  'chevron-left': chevronLeftSvg,
+  'chevron-right': chevronRightSvg,
   smog: smogSvg,
   'cloud-rain': cloudRainSvg,
   'cloud-showers-heavy': cloudShowersHeavySvg,

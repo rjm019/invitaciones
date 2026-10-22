@@ -43,6 +43,8 @@ const theme: ThemeManifest = {
   // Cada sección es un panel; las que no traen fondo se turnan estos tres.
   panels: [{ color: 'panel' }, { color: 'panel-alt' }, { color: 'panel-warm' }],
   sections: {
+    // La capa de imagen es una ventana a una foto quieta: sin panel encima.
+    layer: { panel: false },
     // La portada no es panel: el sobre va directo sobre el papel.
     'hero-envelope': {
       panel: false,

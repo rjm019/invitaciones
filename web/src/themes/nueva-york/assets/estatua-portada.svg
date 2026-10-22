@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">
+  <!-- La Estatua de la Libertad de frente, simétrica en el eje (x = 150): se parte en dos por ahí. -->
+  <defs>
+    <linearGradient id="n" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0b0c"/><stop offset="1" stop-color="#1a1c20"/></linearGradient>
+    <linearGradient id="m" x1="0" x2="1"><stop offset="0" stop-color="#8a9099"/><stop offset="0.35" stop-color="#e2e5e9"/><stop offset="0.7" stop-color="#c4c8cd"/><stop offset="1" stop-color="#6e737b"/></linearGradient>
+    <linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9ebee"/><stop offset="1" stop-color="#9aa0a8"/></linearGradient>
+  </defs>
+  <rect width="300" height="400" fill="url(#n)"/>
+  <rect x="10" y="10" width="280" height="380" fill="none" stroke="url(#s)" stroke-width="2.5"/>
+  <rect x="19" y="19" width="262" height="362" fill="none" stroke="#8c9199" stroke-width="1"/>
+  <g fill="#e2e5e9" opacity="0.7"><circle cx="58" cy="70" r="1.6"/><circle cx="244" cy="52" r="1.3"/><circle cx="226" cy="118" r="1.6"/><circle cx="70" cy="140" r="1.2"/><circle cx="40" cy="210" r="1.4"/><circle cx="262" cy="200" r="1.2"/></g>
+  <g fill="url(#m)">
+    <!-- corona con sus siete rayos -->
+    <path d="M150 42L144 74H156ZM124 50L129 78L139 76ZM176 50L171 78L161 76ZM103 66L116 90L128 82ZM197 66L184 90L172 82ZM88 88L105 106L118 94ZM212 88L195 106L182 94Z"/>
+    <path d="M122 92H178L172 106H128Z"/>
+    <!-- cabeza -->
+    <path d="M130 106H170L168 134C166 150 158 158 150 158C142 158 134 150 132 134Z"/>
+    <!-- cuello y hombros -->
+    <path d="M140 156H160L162 172H138Z"/>
+    <path d="M138 170H162L196 186L204 210H96L104 186Z"/>
+    <!-- túnica -->
+    <path d="M100 206H200L214 318L224 352H76L86 318Z"/>
+    <!-- brazo con la antorcha (a la derecha), alzado -->
+    <path d="M196 184L226 140L238 148L212 198Z"/>
+    <path d="M222 140L238 98L250 104L238 150Z"/>
+    <path d="M232 100L248 100L250 82L230 82Z"/>
+    <path d="M240 42C250 56 254 68 247 78H233C228 68 232 56 240 42Z"/>
+    <!-- tabla de la ley (a la izquierda) -->
+    <path d="M70 196L106 204L100 262L64 254Z"/>
+    <!-- pedestal -->
+    <path d="M70 352H230V366H70Z"/>
+  </g>
+  <g fill="none" stroke="#0b0b0c" stroke-width="1.2" opacity="0.5">
+    <path d="M130 220L120 346M150 214V348M170 220L180 346M110 230L104 330M190 230L196 330"/>
+    <path d="M150 106V158"/>
+  </g>
+</svg>

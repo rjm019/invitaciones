@@ -455,3 +455,79 @@ export function foilConfetti(seed: string, count = 16): FoilPiece[] {
     }
   })
 }
+
+/** Los dibujos de la ciudad (effects/assets/ciudad), en el orden en que se reparten. */
+export const CITY_ICONS = [
+  'estatua',
+  'taxi',
+  'empire',
+  'pretzel',
+  'puente',
+  'cafe',
+  'manzana',
+  'chrysler',
+  'hidrante',
+  'metro',
+  'hotdog',
+  'flatiron',
+] as const
+
+export interface CityIcon {
+  /** Nombre del dibujo (CITY_ICONS). */
+  name: (typeof CITY_ICONS)[number]
+  top: number
+  /** Costado del que asoma. */
+  side: 'left' | 'right'
+  /** Cuánto se mete en la sección (rem; negativo = parte queda fuera de la orilla). */
+  inset: number
+  /** Tamaño en rem. */
+  size: number
+  /** Inclinación en grados. */
+  tilt: number
+  delay: number
+  duration: number
+  /** Cuánto sube y baja (px). */
+  bob: number
+}
+
+/**
+ * Íconos de la ciudad: dibujos de línea (la Estatua, un taxi, el Empire State, un pretzel…)
+ * que asoman por los costados de la sección, medio fuera de la orilla, y se mecen despacio.
+ * Nunca se repite un dibujo en la misma sección ni se meten al centro, donde va el texto.
+ */
+export function cityIcons(seed: string, count = 6): CityIcon[] {
+  const rand = seededRandom(seed)
+  const start = Math.floor(rand() * CITY_ICONS.length)
+  return Array.from({ length: Math.min(count, CITY_ICONS.length) }, (_, i) => {
+    return {
+      name: CITY_ICONS[(start + i * 5) % CITY_ICONS.length],
+      top: round(((i + 0.5) / count) * 92 + (rand() - 0.5) * 6),
+      side: i % 2 === 0 ? 'left' : 'right',
+      inset: round(-1.1 + rand() * 0.9, 2),
+      size: round(1.8 + rand() * 0.8, 2),
+      tilt: Math.round((rand() - 0.5) * 24),
+      delay: round(-rand() * 9),
+      duration: round(7 + rand() * 6),
+      bob: Math.round(5 + rand() * 7),
+    }
+  })
+}
+
+export interface Taxi {
+  /** Altura sobre el pie de la sección, en rem. */
+  bottom: number
+  /** Cruza de derecha a izquierda. */
+  reverse: boolean
+  delay: number
+  /** Segundos que tarda en cruzar toda la sección. */
+  duration: number
+}
+
+/** Taxis que cruzan la sección por el pie: uno hacia cada lado, a medio camino uno del otro. */
+export function taxis(seed: string): Taxi[] {
+  const rand = seededRandom(seed)
+  return [
+    { bottom: 0.2, reverse: false, delay: round(-rand() * 4), duration: 20 },
+    { bottom: 0.2, reverse: true, delay: -12, duration: 20 },
+  ]
+}

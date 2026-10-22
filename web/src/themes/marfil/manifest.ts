@@ -21,6 +21,8 @@ const theme: ThemeManifest = {
   page: { color: 'bg' },
   panels: [{ color: 'panel' }, { color: 'panel-alt' }, { color: 'panel-warm' }],
   sections: {
+    // La capa de imagen es una ventana a una foto quieta: sin panel encima.
+    layer: { panel: false },
     'hero-envelope': {
       panel: false,
       effects: ['float'],

@@ -17,6 +17,9 @@ import RsvpSection from './sections/RsvpSection.vue'
 import DedicationsSection from './sections/DedicationsSection.vue'
 import ClosingSection from './sections/ClosingSection.vue'
 import GiftsSection from './sections/GiftsSection.vue'
+import EnvelopeRainSection from './sections/EnvelopeRainSection.vue'
+import LayerSection from './sections/LayerSection.vue'
+import GallerySection from './sections/GallerySection.vue'
 
 /**
  * Tipo de sección (columna "seccion" del layout) → componente. Van todas en el mismo
@@ -38,6 +41,9 @@ export const sectionRegistry: Record<string, Component> = {
   countdown: CountdownSection,
   weather: WeatherSection,
   hotels: HotelsSection,
+  gallery: GallerySection,
+  layer: LayerSection,
+  'envelope-rain': EnvelopeRainSection,
   spotify: SpotifySection,
   rsvp: RsvpSection,
   dedications: DedicationsSection,

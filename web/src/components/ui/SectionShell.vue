@@ -45,11 +45,22 @@ const hasOverlay = computed(() => '--section-overlay' in style.value)
 const stars = computed(() =>
   props.section.effects.includes('sparkle') ? sparkles(props.section.id) : [],
 )
-// Reflectores, luces de ciudad, horizonte, escarcha y bola disco: detrás del contenido.
-const AMBIENCE = ['searchlights', 'city-lights', 'skyline', 'glitter', 'disco-ball', 'disco-lights']
+// Reflectores, luces de ciudad, horizonte, escarcha, bola disco, íconos de la ciudad y taxis: detrás del contenido.
+const AMBIENCE = [
+  'searchlights',
+  'city-lights',
+  'skyline',
+  'glitter',
+  'disco-ball',
+  'disco-lights',
+  'city-icons',
+  'taxi',
+  'icon-strip',
+]
 const ambience = computed(() => props.section.effects.some((e) => AMBIENCE.includes(e)))
 // cascada: los elementos de la sección entran uno tras otro; necesita saber cuándo se ve.
-const reveals = computed(() => props.section.effects.some((e) => e === 'reveal' || e === 'cascade'))
+const REVEALS = ['reveal', 'reveal-zoom', 'reveal-slide', 'reveal-tilt', 'cascade']
+const reveals = computed(() => props.section.effects.some((e) => REVEALS.includes(e)))
 
 // Lejos de la pantalla, sus animaciones se pausan y su ambiente no se pinta: con muchas
 // secciones con luces, escarcha o la ciudad, el celular no se satura (ver effects.css).
@@ -124,7 +135,7 @@ const classes = computed(() => [
     <div
       v-reveal="reveals"
       class="section__content"
-      :class="{ 'is-cascade-only': !section.effects.includes('reveal') }"
+      :class="{ 'is-cascade-only': !section.effects.some((e) => REVEALS.includes(e) && e !== 'cascade') }"
     >
       <slot />
     </div>

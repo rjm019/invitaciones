@@ -25,6 +25,12 @@ export type EffectName =
   | 'blend'
   | 'disco-ball'
   | 'disco-lights'
+  | 'city-icons'
+  | 'taxi'
+  | 'icon-strip'
+  | 'reveal-zoom'
+  | 'reveal-slide'
+  | 'reveal-tilt'
 
 /** Forma de las orillas de una franja (sección difuminada con fondo). */
 export type EdgeStyle = 'fade' | 'torn' | 'city' | 'wave' | 'scallop' | 'straight'
@@ -140,6 +146,15 @@ export interface EventGifts {
   envelope: GiftEnvelope | null
 }
 
+/** Una foto de la galería, con su pie opcional. */
+export interface GalleryPhoto {
+  photo: string
+  caption: string
+  /** Medidas de la foto (si está en media/): para acomodarla según su forma sin recortarla. */
+  width?: number
+  height?: number
+}
+
 /** Hotel recomendado (pestaña "hoteles" del layout). */
 export interface EventHotel {
   name: string
@@ -197,6 +212,10 @@ export interface EventConfig {
   itinerary: ItineraryItem[]
   locations: EventLocation[]
   hotels: EventHotel[]
+  /** Fotos de la sección galería (vacío: la sección no se muestra). */
+  gallery?: GalleryPhoto[]
+  /** Sección "Lluvia de sobres" (independiente de la mesa de regalos). */
+  envelope?: GiftEnvelope | null
   /** Mesa de regalos (solo si la invitación la tiene). */
   gifts?: EventGifts | null
   /** Archivos de eventos/<slug>/media → URL. */

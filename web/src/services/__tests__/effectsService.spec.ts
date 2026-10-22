@@ -9,10 +9,13 @@ import {
   flutterPieces,
   foilConfetti,
   glints,
+  CITY_ICONS,
+  cityIcons,
   glitter,
   motionTime,
   parallaxOffset,
   searchlights,
+  taxis,
   seededRandom,
   sparkles,
   splitLetters,
@@ -230,5 +233,27 @@ describe('bola disco y confeti plateado', () => {
       if (p.shape === 'strip') expect(p.height).toBeGreaterThan(p.width)
       else expect(p.height).toBe(p.width)
     }
+  })
+})
+
+describe('cityIcons', () => {
+  it('reparte dibujos distintos por los costados y es estable por sección', () => {
+    const icons = cityIcons('ubicacion')
+    expect(icons).toEqual(cityIcons('ubicacion'))
+    expect(new Set(icons.map((i) => i.name)).size).toBe(icons.length)
+    for (const icon of icons) {
+      expect(CITY_ICONS).toContain(icon.name)
+      expect(icon.inset).toBeLessThan(0.2)
+      expect(['left', 'right']).toContain(icon.side)
+    }
+    expect(cityIcons('otra').map((i) => i.name)).not.toEqual(icons.map((i) => i.name))
+  })
+})
+
+describe('taxis', () => {
+  it('un taxi hacia cada lado, a medio camino uno del otro', () => {
+    const cabs = taxis('itinerario')
+    expect(cabs.map((c) => c.reverse)).toEqual([false, true])
+    expect(cabs[1].delay).toBe(-cabs[0].duration * 0.6)
   })
 })

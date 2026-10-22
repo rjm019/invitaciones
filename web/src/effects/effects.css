@@ -704,3 +704,128 @@
     opacity: 0.5;
   }
 }
+
+/*
+ * Íconos de la ciudad (city-icons): dibujos de línea de 64×64 usados como máscara, así
+ * toman el color de la paleta (o de --fx-icons-color). Se mecen y se apagan y encienden;
+ * solo se anima transform y opacity.
+ */
+.fx-city-icon {
+  position: absolute;
+  aspect-ratio: 1;
+  background: var(--fx-icons-color, var(--color-primary));
+  -webkit-mask: var(--fx-mask) center / contain no-repeat;
+  mask: var(--fx-mask) center / contain no-repeat;
+  opacity: 0.3;
+  animation: fx-city-icon calc(9s * var(--motion-scale)) ease-in-out infinite;
+}
+@keyframes fx-city-icon {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.42;
+    transform: translateY(var(--fx-bob, -6px));
+  }
+}
+
+/*
+ * Taxis (taxi): una silueta que cruza la sección de lado a lado por el pie. La sección es
+ * contenedor (cqi), así que el recorrido mide lo que ella. Ojo: la clase es fx-taxi-car, no
+ * fx-taxi: SectionShell ya le pone fx-<efecto> a la sección entera.
+ */
+.fx-taxi-car {
+  position: absolute;
+  left: 0;
+  width: 3.2rem;
+  aspect-ratio: 1;
+  background: var(--fx-taxi-color, var(--color-primary-strong, var(--color-primary)));
+  -webkit-mask: var(--fx-mask) center / contain no-repeat;
+  mask: var(--fx-mask) center / contain no-repeat;
+  opacity: 0.4;
+  transform: translateX(-4rem);
+  animation: fx-taxi-car calc(17s * var(--motion-scale)) linear infinite;
+}
+.fx-taxi-car--reverse {
+  left: auto;
+  right: 0;
+  scale: -1 1;
+  animation-name: fx-taxi-car-back;
+}
+@keyframes fx-taxi-car {
+  to {
+    transform: translateX(calc(100cqi + 4rem));
+  }
+}
+@keyframes fx-taxi-car-back {
+  from {
+    transform: translateX(4rem);
+  }
+  to {
+    transform: translateX(calc(-100cqi - 4rem));
+  }
+}
+
+/* Franja de la ciudad (icon-strip): una hilera de dibujos en la orilla de arriba. */
+.fx-strip {
+  position: absolute;
+  top: 0.7rem;
+  left: 6%;
+  right: 6%;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.3rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-primary) 40%, transparent);
+  opacity: 0.75;
+}
+.fx-strip__icon {
+  flex: 0 1 1.5rem;
+  min-width: 0;
+  aspect-ratio: 1;
+  background: var(--fx-icons-color, var(--color-primary));
+  -webkit-mask: var(--fx-mask) center / contain no-repeat;
+  mask: var(--fx-mask) center / contain no-repeat;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fx-city-icon,
+  .fx-taxi-car {
+    animation: none;
+  }
+  .fx-taxi-car {
+    transform: translateX(30cqi);
+  }
+}
+
+/* La franja de la ciudad ocupa la orilla de arriba: el contenido baja un poco para no pisarla. */
+.fx-icon-strip > .section__content {
+  padding-top: 2.4rem;
+}
+
+/*
+ * Más formas de aparecer (reveal-zoom, reveal-slide, reveal-tilt): cambian de dónde viene
+ * la sección; el resto (opacidad, duración, curva) es el de "aparecer". Solo transform y
+ * opacity. Las secciones pares entran por la derecha y las nones por la izquierda.
+ */
+.fx-reveal-zoom .fx-reveal-target:not(.is-visible) {
+  transform: scale(0.9) translateY(14px);
+}
+.fx-reveal-slide .fx-reveal-target:not(.is-visible) {
+  transform: translateX(-3.2rem);
+}
+.fx-reveal-slide:nth-of-type(even) .fx-reveal-target:not(.is-visible) {
+  transform: translateX(3.2rem);
+}
+.fx-reveal-tilt .fx-reveal-target:not(.is-visible) {
+  transform: perspective(900px) rotateX(14deg) translateY(2rem);
+  transform-origin: 50% 100%;
+}
+.fx-reveal-zoom .fx-reveal-target,
+.fx-reveal-slide .fx-reveal-target,
+.fx-reveal-tilt .fx-reveal-target {
+  transition:
+    opacity calc(0.9s * var(--motion-scale)) var(--ease-out),
+    transform calc(1s * var(--motion-scale)) var(--ease-out);
+}

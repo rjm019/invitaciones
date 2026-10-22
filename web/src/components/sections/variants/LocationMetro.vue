@@ -73,13 +73,13 @@ const bullet = (time: string) => time.replace(':00', '').toUpperCase()
       <a
         v-if="place.maps_url"
         :href="place.maps_url"
-        class="ny-metro__button btn-shine inv-btn"
+        class="ny-metro__button inv-btn"
         data-text="button"
         target="_blank"
         rel="noopener"
         :aria-label="`${button}: ${place.name}`"
       >
-        <span aria-hidden="true">↗</span> {{ button }}
+        <AppIcon name="location-dot" /> {{ button }}
       </a>
 
       <div v-if="place.photo" class="ny-metro__mount">
@@ -198,50 +198,38 @@ const bullet = (time: string) => time.replace(':00', '').toUpperCase()
   line-height: 1.35;
   color: var(--t-detail-color, color-mix(in srgb, var(--color-on-night) 80%, transparent));
 }
+/* Igual que "Agregar a mi calendario" del boleto: pastilla con filo de plata. */
 .ny-metro__button {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.6rem 1.4rem;
+  padding: 0.55rem 1.1rem;
+  border: var(--btn-border, 1px solid color-mix(in srgb, var(--color-primary) 55%, transparent));
   border-radius: var(--btn-radius, 999px);
-  background: var(--btn-bg, var(--button-gradient));
-  color: var(--t-button-color, var(--btn-color, var(--color-on-button, var(--color-text))));
-  font-family: var(--t-button-font, var(--font-button));
-  font-weight: 600;
-  font-size: calc(0.86rem * var(--t-button-size, 1));
+  font-family: var(--t-button-font, var(--font-caps));
+  font-size: calc(0.78rem * var(--t-button-size, 1));
   letter-spacing: var(--btn-tracking, 0.16em);
-  text-decoration: var(--btn-decoration, none);
   text-transform: var(--btn-case, uppercase);
-  box-shadow: var(--btn-shadow, var(--shadow-button));
-  border: var(--btn-border, 0);
+  text-decoration: var(--btn-decoration, none);
+  color: var(--t-button-color, var(--btn-color, var(--color-text)));
+  box-shadow: var(--btn-shadow, none);
   clip-path: var(--btn-clip, none);
   text-shadow: var(--btn-glow, none);
+}
+.ny-metro__button :deep(.app-icon) {
+  width: 1.1em;
+  height: 1.1em;
 }
 .ny-metro__button:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 3px;
 }
-/* La foto en un marco de plata: el metal con sus reflejos en diagonal y un filo pulido. */
+/* La foto va sola, sin marco. */
 .ny-metro__mount {
   width: 100%;
-  padding: 0.55rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-primary-strong) 0%,
-    var(--color-primary) 24%,
-    var(--color-primary-soft) 46%,
-    var(--color-primary) 64%,
-    var(--color-primary-strong) 82%,
-    var(--color-primary) 100%
-  );
-  box-shadow:
-    var(--shadow-card),
-    inset 0 1px 0 rgb(255 255 255 / 0.55),
-    inset 0 -1px 0 rgb(0 0 0 / 0.18);
 }
 .ny-metro__frame {
   overflow: hidden;
-  border: 2px solid var(--color-primary-soft);
 }
 .ny-metro__photo {
   display: block;

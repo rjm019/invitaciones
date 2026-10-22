@@ -49,4 +49,12 @@ describe('giftService', () => {
     expect(forGeneralLink(open)).toBe(open)
     expect(event.gifts?.envelope?.account).toBe('012180001234567891')
   })
+
+  it('la sección propia de lluvia de sobres también se oculta en el enlace general', () => {
+    const own = { slug: 'ana', envelope } as unknown as EventConfig
+    expect(forGeneralLink(own).envelope).toMatchObject({ account: '', hidden: true })
+    expect(own.envelope?.account).toBe('012180001234567891')
+    const none = { slug: 'ana' } as unknown as EventConfig
+    expect(forGeneralLink(none)).toBe(none)
+  })
 })

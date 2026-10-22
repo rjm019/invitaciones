@@ -197,6 +197,20 @@ describe('withContent', () => {
     expect(types(withContent(list, event(null, []), before))).toEqual(['quote'])
   })
 
+  it('la lluvia de sobres solo aparece si trae datos', () => {
+    const list = [section({ type: 'envelope-rain' }), section({ type: 'quote' })]
+    const rain = { ...event(null), envelope: { title: '', text: 'Un sobre' } as never }
+    expect(types(withContent(list, rain, before))).toEqual(['envelope-rain', 'quote'])
+    expect(types(withContent(list, event(null), before))).toEqual(['quote'])
+  })
+
+  it('la galería solo aparece si trae alguna foto', () => {
+    const list = [section({ type: 'gallery' }), section({ type: 'quote' })]
+    const withPhotos = { ...event(null), gallery: [{ photo: 'a.webp', caption: '' }] }
+    expect(types(withContent(list, withPhotos, before))).toEqual(['gallery', 'quote'])
+    expect(types(withContent(list, event(null), before))).toEqual(['quote'])
+  })
+
   it('la mesa de regalos solo aparece con alguna tienda o con la lluvia de sobres', () => {
     const list = [section({ type: 'gifts' }), section({ type: 'quote' })]
     const store = { store: 'liverpool', name: 'Liverpool', note: '', url: '', event_number: '1' }

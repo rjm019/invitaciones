@@ -1,4 +1,4 @@
-import type { EventConfig, EventGifts, GiftStore } from '@/types/event'
+import type { EventConfig, EventGifts, GiftEnvelope, GiftStore } from '@/types/event'
 
 /** "012180001234567891" → "0121 8000 1234 5678 91": de 4 en 4 se dicta y se revisa mejor. */
 export function groupDigits(account: string, size = 4): string {
@@ -26,15 +26,16 @@ export function hasGifts(gifts: EventGifts | null | undefined): boolean {
  * vista previa del gestor enseñe lo que verá cada invitado.
  */
 export function forGeneralLink(event: EventConfig): EventConfig {
-  const envelope = event.gifts?.envelope
-  if (!envelope || !envelope.private || !(envelope.bank || envelope.account || envelope.holder)) {
-    return event
-  }
+  const hide = (envelope: GiftEnvelope): GiftEnvelope =>
+    !envelope.private || !(envelope.bank || envelope.account || envelope.holder)
+      ? envelope
+      : { ...envelope, bank: '', account: '', holder: '', hidden: true }
+  const own = event.envelope ? hide(event.envelope) : event.envelope
+  const legacy = event.gifts?.envelope ? hide(event.gifts.envelope) : null
+  if (own === event.envelope && legacy === (event.gifts?.envelope ?? null)) return event
   return {
     ...event,
-    gifts: {
-      ...event.gifts!,
-      envelope: { ...envelope, bank: '', account: '', holder: '', hidden: true },
-    },
+    ...(event.envelope ? { envelope: own } : {}),
+    ...(event.gifts ? { gifts: { ...event.gifts, envelope: legacy } } : {}),
   }
 }

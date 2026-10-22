@@ -43,6 +43,8 @@ const theme: ThemeManifest = {
   corners: 'deco',
   panels: [{ color: 'panel' }, { color: 'panel-alt' }, { color: 'panel-warm' }],
   sections: {
+    // La capa de imagen es una ventana a una foto quieta: sin panel encima.
+    layer: { panel: false },
     // La portada: el sobre perla sobre la noche, con reflectores detrás, la ciudad al pie
     // y escarcha cayendo.
     'hero-envelope': {
@@ -53,6 +55,7 @@ const theme: ThemeManifest = {
       effects: ['searchlights', 'skyline', 'glitter', 'sheen'],
       decor: {
         door: 'puerta.svg',
+        statue: 'estatua-portada.svg',
         envelope: 'sobre.svg',
         card: 'tarjeta.svg',
         crown: 'corona.svg',
@@ -66,7 +69,7 @@ const theme: ThemeManifest = {
     blessing: {
       variant: 'programa',
       background: { color: 'paper' },
-      effects: ['reveal', 'sheen'],
+      effects: ['reveal-tilt', 'sheen', 'icon-strip', 'city-icons'],
       decor: { divider: 'divisor.svg' },
     },
     // Un boleto plateado de Broadway y la semana del evento; alrededor del título,
@@ -74,7 +77,7 @@ const theme: ThemeManifest = {
     'save-the-date': {
       desktop: 'half',
       variant: 'boleto',
-      effects: ['reveal', 'sheen'],
+      effects: ['reveal-zoom', 'sheen', 'city-icons', 'taxi'],
       decor: { glitter: 'destellos-titulo.svg' },
       sprites: { glitter: TITLE_SPARKLES },
     },
@@ -92,13 +95,13 @@ const theme: ThemeManifest = {
       // Franja gris: con secciones difuminadas, la ciudad la corta arriba y abajo.
       background: { color: 'frame' },
       variant: 'metro',
-      effects: ['reveal', 'shine', 'ken-burns', 'skyline'],
+      effects: ['reveal-slide', 'shine', 'ken-burns', 'skyline', 'city-icons'],
     },
     // Un letrero de neón de Times Square que parpadea y se enciende.
     quote: {
       desktop: 'half',
       variant: 'neon',
-      effects: ['reveal', 'city-lights'],
+      effects: ['reveal-zoom', 'city-lights', 'city-icons', 'icon-strip'],
       decor: { divider: 'divisor.svg' },
     },
     // Una línea del metro que baja por un poste con farol: cada momento, su estación y su
@@ -107,14 +110,14 @@ const theme: ThemeManifest = {
       desktop: 'half',
       background: { color: 'paper' },
       variant: 'avenida',
-      effects: ['reveal', 'timeline-fill', 'cascade'],
+      effects: ['reveal-slide', 'timeline-fill', 'cascade', 'taxi'],
       decor: { statue: 'estatua.svg', bridge: 'puente.svg' },
     },
     // Dos escaparates de la Quinta Avenida, con sus toldos y la luz encendida.
     'dress-code': {
       desktop: 'half',
       variant: 'vitrinas',
-      effects: ['reveal', 'cascade', 'sheen'],
+      effects: ['reveal-tilt', 'cascade', 'sheen', 'city-icons', 'icon-strip'],
       decor: { woman: 'vestido.svg', man: 'traje.svg' },
     },
     // El tablero de llegadas de Grand Central: cada dígito cae al cambiar.
@@ -122,31 +125,38 @@ const theme: ThemeManifest = {
       desktop: 'half',
       background: { color: 'paper' },
       variant: 'tablero',
-      effects: ['reveal', 'cascade'],
+      effects: ['reveal-zoom', 'cascade', 'city-icons'],
       decor: { crown: 'corona.svg' },
     },
     // El cordón de terciopelo de la entrada de un club, con su letrero.
-    'no-kids': { variant: 'cordon', effects: ['reveal'], decor: { bow: 'lazo.svg' } },
+    'no-kids': { variant: 'cordon', effects: ['reveal-zoom', 'city-icons'], decor: { bow: 'lazo.svg' } },
+    // El sobre art déco con la tarjeta de los datos asomando.
+    'envelope-rain': { variant: 'sobre', effects: ['reveal-tilt', 'shine', 'city-icons'] },
+    // La pared de una galería de arte: marcos de plata colgados de su cable, con su foco.
+    gallery: {
+      variant: 'marcos',
+      effects: ['reveal-zoom', 'cascade', 'shine', 'city-icons', 'icon-strip'],
+    },
     // Colgantes de puerta de hotel que se mecen.
     hotels: {
       variant: 'colgantes',
-      effects: ['reveal', 'cascade', 'shine'],
+      effects: ['reveal-slide', 'cascade', 'shine', 'city-icons', 'taxi'],
       decor: { divider: 'divisor.svg' },
     },
-    weather: { desktop: 'half', effects: ['reveal', 'cascade'] },
-    spotify: { desktop: 'half', effects: ['reveal', 'city-lights'] },
+    weather: { desktop: 'half', effects: ['reveal-zoom', 'cascade'] },
+    spotify: { desktop: 'half', effects: ['reveal-tilt', 'city-lights'] },
     // Bolsas de compras de la Quinta Avenida y un sobre déco para la lluvia de sobres.
     gifts: {
       background: { color: 'frame' },
       variant: 'bolsas',
-      effects: ['reveal', 'cascade', 'shine'],
+      effects: ['reveal-slide', 'cascade', 'shine', 'city-icons'],
     },
     // Un pase VIP colgado de su cinta (piel del tema sobre la confirmación de siempre).
     rsvp: {
       desktop: 'half',
       background: { color: 'paper' },
       variant: 'pase',
-      effects: ['reveal', 'shine', 'glitter'],
+      effects: ['reveal-tilt', 'shine', 'glitter', 'city-icons', 'taxi'],
     },
     // El cierre: la ciudad otra vez, para despedirse como empezó.
     // La marquesina de un teatro de Broadway, con sus focos encendiéndose por turnos.
@@ -156,7 +166,7 @@ const theme: ThemeManifest = {
       decor: { crown: 'corona.svg' },
     },
     // Una postal de correo aéreo con su timbre de la Estatua de la Libertad.
-    dedications: { variant: 'postal', effects: ['reveal'], decor: { divider: 'divisor.svg' } },
+    dedications: { variant: 'postal', effects: ['reveal-zoom', 'city-icons'], decor: { divider: 'divisor.svg' } },
   },
 }
 

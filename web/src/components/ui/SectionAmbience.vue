@@ -7,6 +7,8 @@ import midLightsBUrl from '@/effects/assets/horizonte-medio-luces-b.svg?url'
 import nearUrl from '@/effects/assets/horizonte-cerca.svg?url'
 import nearLightsUrl from '@/effects/assets/horizonte-cerca-luces.svg?url'
 import {
+  CITY_ICONS,
+  cityIcons,
   cityLights,
   discoBalls,
   discoRays,
@@ -15,6 +17,7 @@ import {
   glitter,
   motionTime,
   searchlights,
+  taxis,
 } from '@/services/effectsService'
 import type { ResolvedSection } from '@/types/event'
 
@@ -29,6 +32,10 @@ import type { ResolvedSection } from '@/types/event'
  *   una cara en 3D; gira la bola entera con un solo transform), con rayos finos, destellos
  *   sobre sus espejos y sus reflejos recorriendo la sección.
  * - reflejos de bola disco (disco-lights): solo los puntos de luz que recorren la sección.
+ * - íconos de la ciudad (city-icons): dibujos de línea (la Estatua, un taxi, un pretzel…) a
+ *   los costados, que se mecen y se apagan y encienden.
+ * - taxis (taxi): uno hacia cada lado, cruzando la sección por el pie.
+ * - franja de la ciudad (icon-strip): una hilera de esos dibujos en la orilla de arriba.
  * Todo toma sus colores de la paleta (los edificios se recortan con máscaras SVG, así
  * siguen los colores de la invitación) y solo anima transform y opacity.
  */
@@ -60,6 +67,18 @@ const GLINTS = [
   { left: 44, top: 74, delay: -2.4 },
 ]
 const skyline = computed(() => has('skyline'))
+// Los dibujos de la ciudad son máscaras: toman el color de la paleta.
+const iconUrls = import.meta.glob<string>('@/effects/assets/ciudad/*.svg', {
+  query: '?url',
+  import: 'default',
+  eager: true,
+})
+const iconMask = (name: string) => ({
+  '--fx-mask': `url("${iconUrls[`/src/effects/assets/ciudad/${name}.svg`] ?? ''}")`,
+})
+const icons = computed(() => (has('city-icons') ? cityIcons(seed.value) : []))
+const cabs = computed(() => (has('taxi') ? taxis(seed.value) : []))
+const strip = computed(() => has('icon-strip'))
 // Sin panel (la portada), el ambiente llega hasta la orilla de la pantalla: un haz o la
 // ciudad cortados en el margen se verían como una franja. (Difuminada ya llega sola.)
 const bleed = computed(() => (props.section.panel || has('blend') ? null : 'ambience--bleed'))
@@ -203,6 +222,50 @@ const layers = [
           }"
         />
       </span>
+    </div>
+  </div>
+
+  <div v-if="icons.length" class="ambience" :class="bleed" aria-hidden="true">
+    <span
+      v-for="(icon, i) in icons"
+      :key="i"
+      class="fx-city-icon"
+      :style="{
+        ...iconMask(icon.name),
+        top: `${icon.top}%`,
+        [icon.side]: `${icon.inset}rem`,
+        width: `${icon.size}rem`,
+        rotate: `${icon.tilt}deg`,
+        '--fx-bob': `${-icon.bob}px`,
+        animationDelay: motionTime(icon.delay),
+        animationDuration: motionTime(icon.duration),
+      }"
+    />
+  </div>
+
+  <div v-if="cabs.length" class="ambience ambience--taxis" :class="bleed" aria-hidden="true">
+    <span
+      v-for="(cab, i) in cabs"
+      :key="i"
+      class="fx-taxi-car"
+      :class="{ 'fx-taxi-car--reverse': cab.reverse }"
+      :style="{
+        ...iconMask('taxi'),
+        bottom: `${cab.bottom}rem`,
+        animationDelay: motionTime(cab.delay),
+        animationDuration: motionTime(cab.duration),
+      }"
+    />
+  </div>
+
+  <div v-if="strip" class="ambience ambience--strip" :class="bleed" aria-hidden="true">
+    <div class="fx-strip">
+      <span
+        v-for="name in CITY_ICONS"
+        :key="name"
+        class="fx-strip__icon"
+        :style="iconMask(name)"
+      />
     </div>
   </div>
 

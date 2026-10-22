@@ -52,6 +52,7 @@ import envelopeSvg from '@fortawesome/fontawesome-free/svgs/solid/envelope.svg?r
 import doveSvg from '@fortawesome/fontawesome-free/svgs/solid/dove.svg?raw'
 import calendarDaysSvg from '@fortawesome/fontawesome-free/svgs/solid/calendar-days.svg?raw'
 import cameraSvg from '@fortawesome/fontawesome-free/svgs/solid/camera.svg?raw'
+import imagesSvg from '@fortawesome/fontawesome-free/svgs/solid/images.svg?raw'
 import locationDotSvg from '@fortawesome/fontawesome-free/svgs/solid/location-dot.svg?raw'
 import quoteLeftSvg from '@fortawesome/fontawesome-free/svgs/solid/quote-left.svg?raw'
 import clockSvg from '@fortawesome/fontawesome-free/svgs/solid/clock.svg?raw'
@@ -154,6 +155,7 @@ const ICONS: Record<string, string> = {
   dove: doveSvg,
   'calendar-days': calendarDaysSvg,
   camera: cameraSvg,
+  images: imagesSvg,
   'location-dot': locationDotSvg,
   'quote-left': quoteLeftSvg,
   clock: clockSvg,
