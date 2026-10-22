@@ -79,6 +79,12 @@ final class Catalog
         'panoramica' => ['effect' => 'pan', 'label' => 'Panorámica', 'help' => 'La imagen de fondo se desliza despacio de lado a lado.'],
         'difuminar' => ['effect' => 'blend', 'label' => 'Difuminar (sin cortes)', 'help' => 'La sección deja de verse como tarjeta: llega a las orillas y se funde con las de arriba y abajo. Con color de fondo es una franja.'],
         'bola_disco' => ['effect' => 'disco-ball', 'label' => 'Bola disco', 'help' => 'Bolas de espejos que giran colgadas arriba, con destellos y sus reflejos de luz por toda la sección.'],
+        'iconos' => ['effect' => 'city-icons', 'label' => 'Íconos de la ciudad', 'help' => 'La Estatua, un taxi, el Empire State, un pretzel… dibujados a los costados, que se mecen despacio.'],
+        'taxi' => ['effect' => 'taxi', 'label' => 'Taxis', 'help' => 'Taxis que cruzan la sección por el pie, uno hacia cada lado.'],
+        'franja_ciudad' => ['effect' => 'icon-strip', 'label' => 'Franja de la ciudad', 'help' => 'Una hilera de dibujos de Nueva York a lo largo de la orilla de arriba.'],
+        'aparecer_zoom' => ['effect' => 'reveal-zoom', 'label' => 'Aparecer con acercamiento', 'help' => 'La sección entra creciendo desde un poco más chica.'],
+        'aparecer_deslizar' => ['effect' => 'reveal-slide', 'label' => 'Aparecer deslizando', 'help' => 'La sección entra desde un costado (alterna izquierda y derecha).'],
+        'aparecer_giro' => ['effect' => 'reveal-tilt', 'label' => 'Aparecer con giro', 'help' => 'La sección entra levantándose, como una tarjeta que se abre.'],
         'luces_disco' => ['effect' => 'disco-lights', 'label' => 'Reflejos de bola disco', 'help' => 'Puntos de luz que recorren la sección, como los reflejos de una bola disco.'],
     ];
 
@@ -308,13 +314,15 @@ final class Catalog
             'description' => 'El sobre que se abre con el nombre y el salón.',
             'fields' => [
                 ['key' => 'boton', 'label' => 'Texto para abrir', 'input' => 'text', 'placeholder' => 'Toca para abrir', 'max_length' => 60],
+                ['key' => 'imagen', 'label' => 'Foto de la portada', 'input' => 'image', 'help' => 'La usa "Estatua de la Libertad" detrás del nombre.'],
                 ['key' => 'variante', 'label' => 'Cómo abre', 'input' => 'select', 'options' => [
                     ['value' => 'sobre', 'label' => 'Sobre'],
                     ['value' => 'elevador', 'label' => 'Elevador art déco'],
+                    ['value' => 'estatua', 'label' => 'Estatua de la Libertad'],
                 ]],
             ],
             'linked' => ['festejada_corto', 'festejada', 'subtitulo'],
-            'slots' => ['sobre', 'tarjeta', 'flores', 'corona', 'mariposas', 'lacre', 'puerta'],
+            'slots' => ['sobre', 'tarjeta', 'flores', 'corona', 'mariposas', 'lacre', 'puerta', 'estatua'],
             'texts' => ['subtitulo' => 'Frase (mis xv años)', 'nombre' => ['block' => 'name', 'label' => 'Nombre grande'], 'lugar' => ['block' => 'place', 'label' => 'Salón y ciudad'], 'para' => ['block' => 'to', 'label' => 'Nombre en el sobre'], 'boton' => 'Texto para abrir'],
         ],
         'musica' => [
@@ -358,6 +366,22 @@ final class Catalog
             'slots' => ['marco', 'estrellas', 'mariposas'],
             'texts' => ['titulo' => 'Iniciales'],
         ],
+        'galeria' => [
+            'type' => 'gallery', 'label' => 'Galería', 'icon' => 'images',
+            'description' => 'Varias fotos que se abren a pantalla completa y se deslizan.',
+            'fields' => [
+                ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Galería', 'max_length' => 60],
+                ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'max_length' => 120],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Cuadrícula'], ['value' => 'marcos', 'label' => 'Marcos de plata']]],
+            ],
+            'list' => ['key' => 'fotos', 'label' => 'Fotos', 'item_label' => 'Foto', 'max' => 24, 'fields' => [
+                ['key' => 'foto', 'label' => 'Foto', 'input' => 'image', 'required' => true],
+                ['key' => 'pie', 'label' => 'Pie de foto', 'input' => 'text', 'max_length' => 120],
+            ]],
+            'slots' => ['marco', 'divisor'],
+            'texts' => ['titulo' => 'Título', 'subtitulo' => 'Subtítulo', 'pie' => ['block' => 'caption', 'label' => 'Pie de foto']],
+            'hidden_without' => 'Agrega al menos una foto.',
+        ],
         'ubicacion' => [
             'type' => 'location', 'label' => 'Ubicación', 'icon' => 'location-dot',
             'description' => 'El salón (o varios lugares) con su botón a Maps.',
@@ -383,6 +407,18 @@ final class Catalog
             'fields' => [['key' => 'texto', 'label' => 'Frase', 'input' => 'textarea', 'placeholder' => 'Hoy comienza el capítulo más bonito de mi historia', 'max_length' => 400], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'neon', 'label' => 'Letrero de neón']]]],
             'slots' => ['divisor'],
             'texts' => ['texto' => 'Frase'],
+        ],
+        'capa' => [
+            'type' => 'layer', 'label' => 'Capa de imagen', 'icon' => 'images', 'repeatable' => true,
+            'description' => 'Una foto que se queda quieta mientras la página pasa por encima, como si siempre hubiera estado debajo.',
+            'fields' => [
+                ['key' => 'imagen', 'label' => 'Imagen', 'input' => 'image', 'help' => 'Se ve completa al llegar a ella y las demás secciones pasan por encima.'],
+                ['key' => 'titulo', 'label' => 'Título (opcional)', 'input' => 'text', 'max_length' => 60],
+                ['key' => 'texto', 'label' => 'Texto (opcional)', 'input' => 'textarea', 'max_length' => 300],
+                ['key' => 'variante', 'label' => 'Alto', 'input' => 'select', 'options' => [['value' => 'media', 'label' => 'Media pantalla'], ['value' => 'alta', 'label' => 'Casi toda la pantalla'], ['value' => 'pantalla', 'label' => 'Pantalla completa']]],
+            ],
+            'slots' => [],
+            'texts' => ['titulo' => 'Título', 'texto' => 'Texto'],
         ],
         'itinerario' => [
             'type' => 'itinerary', 'label' => 'Itinerario', 'icon' => 'clock',
@@ -461,9 +497,26 @@ final class Catalog
             'texts' => ['titulo' => 'Título', 'subtitulo' => 'Subtítulo', 'texto' => 'Texto', 'nombre' => ['block' => 'name', 'label' => 'Nombre del hotel'], 'nota' => ['block' => 'note', 'label' => 'Nota'], 'direccion' => ['block' => 'address', 'label' => 'Dirección'], 'boton' => 'Botón'],
             'hidden_without' => 'Agrega al menos un hotel.',
         ],
+        'lluvia_sobres' => [
+            'type' => 'envelope-rain', 'label' => 'Lluvia de sobres', 'icon' => 'envelope',
+            'description' => 'Los datos para regalar en un sobre o por transferencia, con botón para copiar la cuenta.',
+            'fields' => [
+                ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Lluvia de sobres', 'max_length' => 60],
+                ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'max_length' => 400],
+                ['key' => 'banco', 'label' => 'Banco', 'input' => 'text', 'placeholder' => 'BBVA', 'max_length' => 60],
+                ['key' => 'cuenta', 'label' => 'CLABE o tarjeta', 'input' => 'text', 'max_length' => 30, 'help' => 'Se ve de 4 en 4 dígitos, con botón para copiar.'],
+                ['key' => 'titular', 'label' => 'A nombre de', 'input' => 'text', 'max_length' => 120],
+                ['key' => 'sobre_fisico', 'label' => 'También habrá caja para sobres en el salón', 'input' => 'toggle'],
+                ['key' => 'solo_con_enlace', 'label' => 'Datos bancarios solo en las invitaciones personales', 'input' => 'toggle', 'help' => 'Así nadie los ve con el enlace general. Viene encendido.'],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'sobre', 'label' => 'Sobre art déco']]],
+            ],
+            'slots' => ['divisor'],
+            'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'cuenta' => ['block' => 'account', 'label' => 'Datos bancarios']],
+            'hidden_without' => 'Escribe un texto o los datos de la cuenta.',
+        ],
         'mesa_regalos' => [
             'type' => 'gifts', 'label' => 'Mesa de regalos', 'icon' => 'gift',
-            'description' => 'Las tiendas con su mesa de regalos y la lluvia de sobres.',
+            'description' => 'Las tiendas con su mesa de regalos (la lluvia de sobres ahora es una sección aparte).',
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Mesa de regalos', 'max_length' => 60],
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'placeholder' => 'Tu presencia es mi mejor regalo; si quieres consentirme, aquí van algunas ideas.', 'max_length' => 600],
@@ -472,13 +525,13 @@ final class Catalog
                     ['value' => 'tarjetas', 'label' => 'Tarjetas'],
                     ['value' => 'bolsas', 'label' => 'Bolsas de la Quinta Avenida'],
                 ]],
-                ['key' => 'sobres_titulo', 'label' => 'Título de la lluvia de sobres', 'input' => 'text', 'placeholder' => 'Lluvia de sobres', 'max_length' => 60],
-                ['key' => 'sobres_texto', 'label' => 'Texto de la lluvia de sobres', 'input' => 'textarea', 'max_length' => 400],
-                ['key' => 'banco', 'label' => 'Banco', 'input' => 'text', 'placeholder' => 'BBVA', 'max_length' => 60],
-                ['key' => 'cuenta', 'label' => 'CLABE o tarjeta', 'input' => 'text', 'max_length' => 30, 'help' => 'Se ve de 4 en 4 dígitos, con botón para copiar.'],
-                ['key' => 'titular', 'label' => 'A nombre de', 'input' => 'text', 'max_length' => 120],
-                ['key' => 'sobre_fisico', 'label' => 'También habrá caja para sobres en el salón', 'input' => 'toggle'],
-                ['key' => 'solo_con_enlace', 'label' => 'Datos bancarios solo en las invitaciones personales', 'input' => 'toggle', 'help' => 'Así nadie los ve con el enlace general. Viene encendido.'],
+                ['key' => 'sobres_titulo', 'label' => '(Antiguo) Título de la lluvia de sobres', 'input' => 'text', 'placeholder' => 'Lluvia de sobres', 'max_length' => 60],
+                ['key' => 'sobres_texto', 'label' => '(Antiguo) Texto de la lluvia de sobres', 'input' => 'textarea', 'max_length' => 400],
+                ['key' => 'banco', 'label' => '(Antiguo) Banco', 'input' => 'text', 'placeholder' => 'BBVA', 'max_length' => 60],
+                ['key' => 'cuenta', 'label' => '(Antiguo) CLABE o tarjeta', 'input' => 'text', 'max_length' => 30, 'help' => 'Se ve de 4 en 4 dígitos, con botón para copiar.'],
+                ['key' => 'titular', 'label' => '(Antiguo) A nombre de', 'input' => 'text', 'max_length' => 120],
+                ['key' => 'sobre_fisico', 'label' => '(Antiguo) También habrá caja para sobres en el salón', 'input' => 'toggle'],
+                ['key' => 'solo_con_enlace', 'label' => '(Antiguo) Datos bancarios solo en las invitaciones personales', 'input' => 'toggle', 'help' => 'Así nadie los ve con el enlace general. Viene encendido.'],
             ],
             'list' => ['key' => 'tiendas', 'label' => 'Tiendas', 'item_label' => 'Tienda', 'max' => 8, 'fields' => [
                 ['key' => 'tienda', 'label' => 'Tienda', 'input' => 'select', 'options' => [

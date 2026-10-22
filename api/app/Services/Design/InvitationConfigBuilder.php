@@ -2,6 +2,7 @@
 
 namespace App\Services\Design;
 
+use App\Services\Layout\EventRepository;
 use App\Services\Weather\VenueLocator;
 use Carbon\CarbonImmutable;
 
@@ -134,13 +135,21 @@ final class InvitationConfigBuilder
             'itinerary' => $this->itinerary($design->first('itinerario')),
             'locations' => $this->locations($design->first('ubicacion'), $media),
             'hotels' => $this->hotels($design->first('hospedaje'), $media),
+            'gallery' => $this->gallery($design->first('galeria'), $media, $slug),
+            'envelope' => ($rain = $design->first('lluvia_sobres')) ? $this->envelope($rain) : null,
             'gifts' => $this->gifts($design->first('mesa_regalos')),
             'assets' => (object) $media,
         ];
 
-        // Sin mesa de regalos, la llave no va (como en el formato anterior).
+        // Sin mesa de regalos ni galería, la llave no va (como en el formato anterior).
         if ($config['gifts'] === null) {
             unset($config['gifts']);
+        }
+        if ($config['envelope'] === null) {
+            unset($config['envelope']);
+        }
+        if ($config['gallery'] === []) {
+            unset($config['gallery']);
         }
         $page = $this->page($design->page, $media);
         if ($page !== []) {
@@ -317,11 +326,12 @@ final class InvitationConfigBuilder
         }
 
         $background = array_filter([
-            'image' => $this->media($f['fondo'] ?? '', $media),
+            // La capa de imagen pone su imagen como fondo quieto (se queda mientras la página pasa).
+            'image' => $this->media(($f['fondo'] ?? '') ?: ($kind === 'capa' ? ($f['imagen'] ?? '') : ''), $media),
             'fit' => self::BACKGROUND_FIT[$fit] ?? null,
             'color' => Normalizer::colorRef($f['color_fondo'] ?? ''),
             'overlay' => $overlay === '' ? null : (float) $overlay,
-            'attachment' => Normalizer::yes($f['fijo'] ?? '') ? 'sticky' : null,
+            'attachment' => Normalizer::yes($f['fijo'] ?? '') || $kind === 'capa' ? 'sticky' : null,
         ], fn ($v) => $v !== null && $v !== '');
 
         $entry = array_filter([
@@ -351,7 +361,7 @@ final class InvitationConfigBuilder
         if ($styles !== []) {
             $entry['text_styles'] = $styles;
         }
-        if ($kind === 'foto' && isset($f['imagen'])) {
+        if (in_array($kind, ['foto', 'portada'], true) && isset($f['imagen'])) {
             $entry['image'] = $this->media($f['imagen'], $media);
         }
 
@@ -643,6 +653,37 @@ final class InvitationConfigBuilder
     }
 
     /**
+     * Las fotos de la galería, en el orden de la lista; las filas sin foto se saltan. Las que
+     * están en media/ llevan su ancho y alto: la galería las acomoda según su forma (sin
+     * recortarlas) y les aparta el lugar antes de que carguen.
+     *
+     * @param  array<string, string>  $media
+     * @return list<array{photo: string, caption: string, width?: int, height?: int}>
+     */
+    private function gallery(?DesignSection $section, array $media, string $slug): array
+    {
+        $events = app(EventRepository::class);
+        $out = [];
+        foreach ($section?->items ?? [] as $item) {
+            $file = trim($item['foto'] ?? '');
+            $photo = $this->media($file, $media);
+            if ($photo === null) {
+                continue;
+            }
+            $entry = ['photo' => $photo, 'caption' => trim($item['pie'] ?? '')];
+            $path = isset($media[$file]) ? $events->mediaFile($slug, $file) : null;
+            $size = $path === null ? false : @getimagesize($path);
+            if ($size !== false && $size[0] > 0 && $size[1] > 0) {
+                $entry['width'] = (int) $size[0];
+                $entry['height'] = (int) $size[1];
+            }
+            $out[] = $entry;
+        }
+
+        return $out;
+    }
+
+    /**
      * Una opción de diseño (orilla, botones, esquinas): el nombre del CSV → su valor en el
      * contrato. Vacío: null (lo pone el tema). Uno que no existe se avisa y se ignora.
      *
@@ -707,11 +748,26 @@ final class InvitationConfigBuilder
             ];
         }
 
+        $envelope = $this->envelope($section);
+
+        return ['stores' => $stores, 'envelope' => $envelope];
+    }
+
+    /**
+     * La lluvia de sobres de una sección (la propia "lluvia_sobres" o, en invitaciones
+     * anteriores, la de la mesa de regalos); null si no trae nada que mostrar.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function envelope(DesignSection $section): ?array
+    {
         $f = $section->fields;
         $account = preg_replace('/\s+/', '', trim($f['cuenta'] ?? '')) ?? '';
+        $title = $section->kind() === 'lluvia_sobres' ? 'titulo' : 'sobres_titulo';
+        $text = $section->kind() === 'lluvia_sobres' ? 'texto' : 'sobres_texto';
         $envelope = [
-            'title' => trim($f['sobres_titulo'] ?? ''),
-            'text' => trim($f['sobres_texto'] ?? ''),
+            'title' => trim($f[$title] ?? ''),
+            'text' => trim($f[$text] ?? ''),
             'bank' => trim($f['banco'] ?? ''),
             'account' => $account,
             'holder' => trim($f['titular'] ?? ''),
@@ -720,9 +776,8 @@ final class InvitationConfigBuilder
             // Lo normal: los datos bancarios solo en las invitaciones personales.
             'private' => trim($f['solo_con_enlace'] ?? '') === '' || Normalizer::yes($f['solo_con_enlace']),
         ];
-        $hasEnvelope = $envelope['text'] !== '' || $envelope['account'] !== '' || $envelope['box'];
 
-        return ['stores' => $stores, 'envelope' => $hasEnvelope ? $envelope : null];
+        return $envelope['text'] !== '' || $envelope['account'] !== '' || $envelope['box'] ? $envelope : null;
     }
 
     /** Un enlace va en un botón: solo http(s). Cualquier otra cosa se reporta y se quita. */

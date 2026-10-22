@@ -16,15 +16,27 @@ final class GiftPrivacy
      */
     public static function forGeneralLink(array $config): array
     {
-        $envelope = $config['gifts']['envelope'] ?? null;
-        if (! is_array($envelope) || ! ($envelope['private'] ?? true)) {
-            return $config;
+        if (isset($config['gifts']['envelope'])) {
+            $config['gifts']['envelope'] = self::hide($config['gifts']['envelope']);
         }
-        $hasData = ($envelope['bank'] ?? '') !== '' || ($envelope['account'] ?? '') !== '' || ($envelope['holder'] ?? '') !== '';
-        if ($hasData) {
-            $config['gifts']['envelope'] = [...$envelope, 'bank' => '', 'account' => '', 'holder' => '', 'hidden' => true];
+        if (isset($config['envelope'])) {
+            $config['envelope'] = self::hide($config['envelope']);
         }
 
         return $config;
+    }
+
+    /**
+     * @param  mixed  $envelope
+     * @return mixed
+     */
+    private static function hide($envelope)
+    {
+        if (! is_array($envelope) || ! ($envelope['private'] ?? true)) {
+            return $envelope;
+        }
+        $hasData = ($envelope['bank'] ?? '') !== '' || ($envelope['account'] ?? '') !== '' || ($envelope['holder'] ?? '') !== '';
+
+        return $hasData ? [...$envelope, 'bank' => '', 'account' => '', 'holder' => '', 'hidden' => true] : $envelope;
     }
 }
