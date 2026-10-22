@@ -164,6 +164,11 @@
   letter-spacing: 0;
   text-transform: none;
 }
+/* Con brillo de metal, el espacio de la estampilla (4rem) ya da lugar a los floreos de ese lado. */
+.invitation[data-metal] .section.section--dedications--postal .dedication__title {
+  padding-right: 4rem;
+  margin-right: 0;
+}
 .section.section--dedications--postal .dedication__text {
   padding-right: 4rem;
   color: var(--t-text-color, var(--color-primary));

@@ -142,6 +142,11 @@ const weekLabel = computed(() =>
   line-height: 1;
   color: var(--t-title-color, var(--color-primary));
 }
+/* Con brillo de metal su relleno vertical ya da lugar a los floreos: solo falta el de los lados. */
+.invitation[data-metal] .ny-date__title {
+  padding: 0.5em var(--glyph-x);
+  margin: 0 calc(-1 * var(--glyph-x));
+}
 
 /*
  * El boleto: cuerpo y talón son dos piezas con las esquinas mordidas (máscaras radiales);

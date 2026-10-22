@@ -5,6 +5,7 @@ import CelebrationBurst from '@/components/ui/CelebrationBurst.vue'
 import DemoRibbon from '@/components/ui/DemoRibbon.vue'
 import FloatingDecor from '@/components/ui/FloatingDecor.vue'
 import FoilConfetti from '@/components/ui/FoilConfetti.vue'
+import InvitationFooter from '@/components/ui/InvitationFooter.vue'
 import MiniPlayer from '@/components/ui/MiniPlayer.vue'
 import PageLoader from '@/components/ui/PageLoader.vue'
 import SectionShell from '@/components/ui/SectionShell.vue'
@@ -227,6 +228,7 @@ onBeforeUnmount(() => revert?.())
           <p v-else class="invitation__pending">Sección «{{ section.type }}» en construcción</p>
         </SectionShell>
       </main>
+      <InvitationFooter v-if="complete" />
       <template v-if="complete">
         <MiniPlayer />
         <CelebrationBurst />

@@ -99,6 +99,10 @@ const mask = (url: string | null | undefined) =>
   line-height: 1.1;
   color: var(--t-title-color, var(--color-primary));
 }
+/* Con brillo de metal, su espacio de abajo descuenta el relleno que le da lugar a los floreos. */
+.invitation[data-metal] .ny-itin__title {
+  margin-bottom: calc(var(--space-2) - var(--glyph-y));
+}
 
 /*
  * La calle: tres columnas (letrero | línea | letrero). Cada estación ocupa su fila; su

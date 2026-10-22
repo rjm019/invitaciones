@@ -35,6 +35,9 @@ import cloudBoltSvg from '@fortawesome/fontawesome-free/svgs/solid/cloud-bolt.sv
 import snowflakeSvg from '@fortawesome/fontawesome-free/svgs/solid/snowflake.svg?raw'
 import dropletSvg from '@fortawesome/fontawesome-free/svgs/solid/droplet.svg?raw'
 import spotifySvg from '@fortawesome/fontawesome-free/svgs/brands/spotify.svg?raw'
+import tiktokSvg from '@fortawesome/fontawesome-free/svgs/brands/tiktok.svg?raw'
+import instagramSvg from '@fortawesome/fontawesome-free/svgs/brands/instagram.svg?raw'
+import facebookSvg from '@fortawesome/fontawesome-free/svgs/brands/facebook.svg?raw'
 import bedSvg from '@fortawesome/fontawesome-free/svgs/solid/bed.svg?raw'
 import phoneSvg from '@fortawesome/fontawesome-free/svgs/solid/phone.svg?raw'
 import taxiSvg from '@fortawesome/fontawesome-free/svgs/solid/taxi.svg?raw'
@@ -92,6 +95,9 @@ const ICONS: Record<string, string> = {
   snowflake: snowflakeSvg,
   droplet: dropletSvg,
   spotify: spotifySvg,
+  tiktok: tiktokSvg,
+  instagram: instagramSvg,
+  facebook: facebookSvg,
   bed: bedSvg,
   phone: phoneSvg,
   taxi: taxiSvg,

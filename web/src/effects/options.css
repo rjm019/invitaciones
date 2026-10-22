@@ -83,11 +83,23 @@
  * su color, una franja oscura y otra vez claro) hecho desde el color de cada texto, así
  * respeta el que se elija en el gestor. Solo en textos sin elementos adentro (el efecto
  * "escribir" anima cada letra por separado).
+ *
+ * El degradado solo se pinta dentro de la caja del texto, y las letras cursivas (rabillos,
+ * remates, floreos) se salen de ella: sin margen se cortan en seco. El relleno les da lugar
+ * y el margen negativo lo compensa, así el texto no se mueve (con `content-box`, para que
+ * un `max-width: 100%` no se coma el relleno y parta la palabra). Un título con margen o
+ * relleno propio lo repite en su componente, bajo `.invitation[data-metal]`, sumando o
+ * restando `--glyph-x` y `--glyph-y` (ver `.ny-date__title` e `.ny-itin__title`).
  */
 .invitation[data-metal]
   :is([data-text='title'], [data-text='name'], [data-text='date'], [data-text='digits']):not(
     :has(*)
   ) {
+  --glyph-x: 0.35em;
+  --glyph-y: 0.25em;
+  box-sizing: content-box;
+  padding: var(--glyph-y) var(--glyph-x);
+  margin: calc(-1 * var(--glyph-y)) calc(-1 * var(--glyph-x));
   background-image: linear-gradient(
     180deg,
     color-mix(in srgb, currentColor 40%, #fff) 0%,
