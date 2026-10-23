@@ -47,7 +47,7 @@ docker compose exec api php artisan gestor:usuario [<usuario> --clave-nueva]    
 docker run --rm -v "$PWD/recepcion":/app -w /app node:20-alpine node tests/importador.test.js
 ```
 
-Producción (Fly.io, cuenta `tu cuenta personal`): `fly deploy --ha=false` publica el código; `deploy/subir-evento.sh <slug>` sube media (y el layout anterior, si lo hay) sin pisar los CSV que escribe la app; `invitacion.csv` solo con `--forzar` (allá la edita el gestor; respalda antes la del servidor). `deploy/bajar-evento.sh <slug>` trae un evento del servidor a una carpeta nueva.
+Producción (Fly.io, cuenta personal): `fly deploy --ha=false` publica el código; `deploy/subir-evento.sh <slug>` sube media (y el layout anterior, si lo hay) sin pisar los CSV que escribe la app; `invitacion.csv` solo con `--forzar` (allá la edita el gestor; respalda antes la del servidor). `deploy/bajar-evento.sh <slug>` trae un evento del servidor a una carpeta nueva.
 
 Gestor en local: `GESTOR_CLAVE` (16+ caracteres) en `api/.env` y `http://localhost:5173/gestor`; la primera vez pide crear tu cuenta con esa clave.
 

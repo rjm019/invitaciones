@@ -8,7 +8,7 @@ Se eligió Fly.io porque es barato y tiene disco persistente. La app guarda todo
 
 | Pieza | Valor |
 |---|---|
-| Cuenta | `tu cuenta personal` (organización *personal*) |
+| Cuenta | Personal (organización *personal*; `fly auth whoami`) |
 | App | `invitaciones-jiro`, región `dfw` (Dallas) |
 | Servidor | 1 máquina `shared-cpu-1x`, 512 MB, sin swap. Sin visitas se **suspende** (guarda su memoria) y despierta en unos cientos de ms; si Fly no puede reanudarla, arranca de cero (~5 s) |
 | Disco | Volumen `eventos` de 1 GB, cifrado, montado en `/data` |

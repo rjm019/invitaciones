@@ -170,7 +170,7 @@ Tú hiciste el commit (`de4a8dc`) y el deploy (release v11). Después vino un pe
 
 ### Publicado en Fly.io (13-oct)
 
-- **Dónde:** https://invitaciones-jiro.fly.dev, cuenta `tu cuenta personal`, región Dallas. Detalle y comandos en `06-despliegue/despliegue.md`.
+- **Dónde:** https://invitaciones-jiro.fly.dev, cuenta personal, región Dallas. Detalle y comandos en `06-despliegue/despliegue.md`.
 - **Por qué Fly:** ~2–3 USD/mes con disco persistente. Los planes gratis de Koyeb y Render no tienen disco (se perderían las respuestas en cada reinicio) y Cloud Run no tiene candados de archivo.
 - **Cómo:**
   - Un solo contenedor: Apache + Laravel + la invitación compilada (`Dockerfile` de la raíz). Laravel responde `app.html` en toda ruta que no sea `/api` ni `/media`, así todo vive en un solo dominio, sin CORS.
