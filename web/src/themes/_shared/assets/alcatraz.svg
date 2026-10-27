@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="240" viewBox="0 0 120 240">
+  <!-- Alcatraz (cala): espata blanca con el espádice amarillo, tallo y hoja oliva. -->
+  <defs>
+    <linearGradient id="e" x1="0" y1="0" x2="1" y2="0.2">
+      <stop offset="0" stop-color="#fffdf6"/><stop offset="0.55" stop-color="#f6f1e2"/><stop offset="1" stop-color="#dcd5bf"/>
+    </linearGradient>
+    <linearGradient id="h" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7d8a5f"/><stop offset="1" stop-color="#3f4a2c"/>
+    </linearGradient>
+    <linearGradient id="s" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f1d46a"/><stop offset="1" stop-color="#c79a2c"/>
+    </linearGradient>
+  </defs>
+  <!-- hoja larga a la izquierda -->
+  <path d="M58 238 C38 200 16 150 22 96 C40 130 62 176 60 238Z" fill="url(#h)"/>
+  <path d="M58 236 C48 190 36 150 24 100" fill="none" stroke="#c9d3ac" stroke-opacity="0.55" stroke-width="0.9"/>
+  <!-- tallo -->
+  <path d="M64 240 C60 200 66 160 62 118" fill="none" stroke="#5a6842" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- espata: embudo que se abre y se dobla la punta -->
+  <path d="M62 122 C40 114 22 84 26 44 C28 26 38 10 50 6 C48 22 58 34 76 38 C96 42 104 62 96 86 C90 106 78 122 62 122Z" fill="url(#e)" stroke="#cfc8b0" stroke-width="1"/>
+  <path d="M50 6 C60 10 72 14 84 24 C92 32 98 48 96 62" fill="none" stroke="#cfc8b0" stroke-width="0.9"/>
+  <path d="M62 120 C54 96 46 66 50 30" fill="none" stroke="#cfc8b0" stroke-opacity="0.7" stroke-width="0.8"/>
+  <path d="M62 120 C70 96 78 76 90 58" fill="none" stroke="#fff" stroke-opacity="0.9" stroke-width="1.1"/>
+  <!-- espádice -->
+  <path d="M60 116 C58 96 58 74 64 54 C68 52 72 54 73 58 C72 80 70 100 66 118Z" fill="url(#s)"/>
+  <path d="M63 108 C62 92 63 76 66 62" fill="none" stroke="#fff" stroke-opacity="0.55" stroke-width="0.8"/>
+</svg>

@@ -30,18 +30,22 @@ export type EffectName =
   | 'city-icons'
   | 'taxi'
   | 'icon-strip'
+  | 'veil'
   | 'reveal-zoom'
   | 'reveal-slide'
   | 'reveal-tilt'
 
 /** Forma de las orillas de una franja (sección difuminada con fondo). */
-export type EdgeStyle = 'fade' | 'torn' | 'city' | 'wave' | 'scallop' | 'straight'
+export type EdgeStyle = 'fade' | 'torn' | 'city' | 'wave' | 'scallop' | 'straight' | 'lace'
 
 /** Estilo de todos los botones de la invitación (bloque "pagina"). */
-export type ButtonStyle = 'gradient' | 'solid' | 'outline' | 'deco' | 'ticket' | 'neon' | 'link'
+export type ButtonStyle = 'gradient' | 'solid' | 'outline' | 'deco' | 'ticket' | 'neon' | 'link' | 'ribbon'
 
 /** Esquinas de los paneles. */
-export type CornerStyle = 'deco' | 'none'
+export type CornerStyle = 'deco' | 'lace' | 'none'
+
+/** Textura de tela del fondo de los paneles. */
+export type TextureStyle = 'velvet' | 'satin' | 'gauze' | 'linen' | 'paper' | 'none'
 
 export interface SectionBackground {
   /** Nombre de archivo (media del evento o assets del tema) o URL. */
@@ -286,6 +290,7 @@ export interface EventConfig {
     confetti?: boolean
     metal?: boolean
     corners?: CornerStyle
+    texture?: TextureStyle
   }
   /** Fuentes que usan los estilos de texto de las secciones (se cargan de Google Fonts). */
   extra_fonts?: string[]

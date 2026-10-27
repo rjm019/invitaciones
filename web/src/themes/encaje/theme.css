@@ -1,0 +1,96 @@
+/*
+ * Encaje: boda en salvia y marfil. Paneles de terciopelo oliva (la textura la pone la opción
+ * `textura`), franjas de papel marfil con tinta oliva, letra de pluma con floreo. La paleta
+ * se puede cambiar por invitación (bloque "colores"): el telón, los filos y las esquinas la
+ * siguen. Acentos pastel para la vestimenta: --color-pastel-*.
+ */
+:root[data-theme='encaje'] {
+  color-scheme: dark;
+  --color-bg: #5f6b4f;
+  --color-text: #f3eedf;
+  --color-primary: #e6dec4;
+  --color-primary-strong: #f3eedf;
+  --color-primary-soft: #fbf8ee;
+  --color-accent: #aab491;
+  --color-accent-soft: #46513a;
+  /* Botones del panel del dueño (letra blanca encima) */
+  --color-accent-strong: #4a5639;
+  --color-surface: #3f4935;
+  --color-frame: #7f8c68;
+  --color-lino: #4a553d;
+  --color-night: #262d1d;
+  --color-on-night: #fbf8ee;
+  /* Letra de los botones de listón (sobre el marfil) */
+  --color-on-button: #3f4535;
+  /* Papel: las franjas marfil de las secciones difuminadas */
+  --color-paper: #f3eedf;
+  --glint-tint: #fbf8ee;
+  /* El telón de la portada: terciopelo oliva profundo */
+  --color-curtain: #46533a;
+  /* Pastel de la vestimenta */
+  --color-pastel-rosa: #f2c9cf;
+  --color-pastel-durazno: #f6d3b5;
+  --color-pastel-amarillo: #f4e6a8;
+  --color-pastel-celeste: #bcd9ea;
+  --color-pastel-lila: #d6c8e8;
+  --color-pastel-verde: #c5dcb6;
+  /* Terciopelo oliva: la caída de luz va en cada panel; la textura, encima */
+  --color-panel: linear-gradient(180deg, #46523a 0%, #38422d 100%);
+  --color-panel-alt: linear-gradient(160deg, #4b583f 0%, #3a452f 60%, #444f37 100%);
+  --color-panel-warm: radial-gradient(120% 80% at 50% 0%, #536045 0%, #384230 72%);
+  --color-panel-pearl: linear-gradient(
+    155deg,
+    #4a553d 0%,
+    #5a6748 34%,
+    #3b462f 60%,
+    #55623f 82%,
+    #333d29 100%
+  );
+
+  --shadow-card: 0 14px 34px rgb(20 26 14 / 0.5);
+  --shadow-button: 0 2px 10px rgb(20 26 14 / 0.4);
+  --panel-radius: 4px;
+  --panel-shadow: 0 12px 30px rgb(20 26 14 / 0.5);
+  --panel-border: 1px solid rgb(230 222 196 / 0.28);
+  /* El sobre y la tarjeta son marfil: quién la recibe va en tinta oliva */
+  --t-to-color: #3f4535;
+}
+
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+  :root[data-theme='encaje'],
+  :root[data-theme='encaje'] .section--recolored {
+    --panel-border: 1px solid color-mix(in srgb, var(--color-primary) 28%, transparent);
+  }
+}
+
+/* La letra de pluma es más fina que una serif: la frase de la portada, un poco más chica. */
+:root[data-theme='encaje'] .section--hero-envelope {
+  --t-subtitle-size: 0.8;
+}
+
+/*
+ * Franja de papel marfil (fondo "papel"): adentro todo va en tinta oliva; los tokens se
+ * vuelven a declarar para la sección, así cada componente se ve oscuro sobre marfil.
+ */
+:root[data-theme='encaje'] .section--bg-paper {
+  --color-text: #3f4535;
+  --color-primary: #55623f;
+  --color-primary-strong: #343b28;
+  --color-primary-soft: #8d9877;
+  --color-accent: #7d8a62;
+  --color-accent-soft: #e7e1cb;
+  --color-accent-strong: #3f4a2f;
+  --color-surface: #fbf8ee;
+  --color-frame: #c9c8a8;
+  --color-lino: #ece6d2;
+  --color-bg: var(--color-paper);
+  --color-on-button: #fbf8ee;
+  --t-to-color: #3f4535;
+  --panel-border: 1px solid rgb(63 69 53 / 0.22);
+  --button-gradient: linear-gradient(180deg, #7f8c68 0%, #55623f 55%, #3a4430 100%);
+  --shadow-card: 0 10px 24px rgb(63 69 53 / 0.16);
+  --shadow-button: 0 2px 8px rgb(63 69 53 / 0.25);
+  --blend-rim: #c9c4a8;
+  --blend-shade: rgb(63 69 53 / 0.28);
+  color-scheme: light;
+}

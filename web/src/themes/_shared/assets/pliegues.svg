@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="400" viewBox="0 0 180 400" preserveAspectRatio="none">
+  <!-- Pliegues verticales de una cortina: solo luz y sombra (neutro), para ponerlo sobre cualquier color de tela.
+       Dos juegos de pliegues con periodos de 60 y 90: no se nota el mosaico. Empata izquierda con derecha. -->
+  <defs>
+    <linearGradient id="a" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="60" y2="0" spreadMethod="repeat">
+      <stop offset="0" stop-color="#000" stop-opacity="0.42"/>
+      <stop offset="0.16" stop-color="#000" stop-opacity="0.1"/>
+      <stop offset="0.42" stop-color="#fff" stop-opacity="0.2"/>
+      <stop offset="0.6" stop-color="#fff" stop-opacity="0.34"/>
+      <stop offset="0.74" stop-color="#fff" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.42"/>
+    </linearGradient>
+    <linearGradient id="b" gradientUnits="userSpaceOnUse" x1="14" y1="0" x2="104" y2="0" spreadMethod="repeat">
+      <stop offset="0" stop-color="#000" stop-opacity="0.2"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="c" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0.3"/>
+      <stop offset="0.25" stop-color="#000" stop-opacity="0"/>
+      <stop offset="0.8" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.18"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="400" fill="url(#a)"/>
+  <rect width="180" height="400" fill="url(#b)"/>
+  <rect width="180" height="400" fill="url(#c)"/>
+</svg>

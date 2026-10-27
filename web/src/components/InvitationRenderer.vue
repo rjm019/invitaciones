@@ -133,10 +133,12 @@ const designAttrs = computed(() => {
   const p = props.event.page
   const buttons = p?.buttons ?? theme.value?.buttons
   const corners = p?.corners ?? theme.value?.corners
+  const texture = p?.texture ?? theme.value?.texture
   return {
     'data-buttons': buttons || undefined,
     'data-metal': (p?.metal ?? theme.value?.metallic) ? '' : undefined,
     'data-corners': corners && corners !== 'none' ? corners : undefined,
+    'data-texture': texture && texture !== 'none' ? texture : undefined,
   }
 })
 const fonts = computed(() =>

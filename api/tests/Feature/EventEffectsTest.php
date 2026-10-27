@@ -82,6 +82,56 @@ class EventEffectsTest extends TestCase
         $this->assertArrayNotHasKey('edge', $sections->firstWhere('type', 'closing'));
     }
 
+    public function test_lace_ribbon_texture_and_veil_options(): void
+    {
+        $this->copyEventFixtures();
+        foreach ([
+            'pagina,,orilla,encaje',
+            'pagina,,botones,listón',
+            'pagina,,esquinas,encaje',
+            'pagina,,textura,terciopelo',
+            'portada,,variante,telon',
+            'portada,,imagen_paisaje,ninguna',
+            'frase,,visible,SI',
+            'frase,,efectos,velo',
+            'frase,,orilla,encaje',
+        ] as $line) {
+            $this->appendLine('nueva', 'invitacion.csv', $line);
+        }
+
+        $event = $this->getJson('/api/public/events/nueva')->assertOk()->json('event');
+
+        $this->assertSame('lace', $event['page']['edge']);
+        $this->assertSame('ribbon', $event['page']['buttons']);
+        $this->assertSame('lace', $event['page']['corners']);
+        $this->assertSame('velvet', $event['page']['texture']);
+        $sections = collect($event['sections']);
+        $this->assertSame('telon', $sections->firstWhere('type', 'hero-envelope')['variant']);
+        $this->assertSame(['veil'], $sections->firstWhere('type', 'quote')['effects']);
+        $this->assertSame('lace', $sections->firstWhere('type', 'quote')['edge']);
+    }
+
+    public function test_encaje_section_variants_pass_through(): void
+    {
+        $this->copyEventFixtures();
+        foreach ([
+            'fecha,,visible,SI', 'fecha,,variante,calendario',
+            'foto,1,visible,SI', 'foto,1,variante,camafeo',
+            'cuenta_regresiva,,visible,SI', 'cuenta_regresiva,,variante,corazon',
+            'cierre,,visible,SI', 'cierre,,variante,bordado', 'cierre,,imagen_tela,ninguna',
+        ] as $line) {
+            $this->appendLine('nueva', 'invitacion.csv', $line);
+        }
+
+        $sections = collect($this->getJson('/api/public/events/nueva')->assertOk()->json('event.sections'));
+
+        $this->assertSame('calendario', $sections->firstWhere('type', 'save-the-date')['variant']);
+        $this->assertSame('corazon', $sections->firstWhere('type', 'countdown')['variant']);
+        $closing = $sections->firstWhere('type', 'closing');
+        $this->assertSame('bordado', $closing['variant']);
+        $this->assertNull($closing['decor']['cloth']);
+    }
+
     public function test_blend_and_disco_effects_and_a_blended_page(): void
     {
         $this->copyEventFixtures();
