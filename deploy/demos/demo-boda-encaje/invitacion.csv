@@ -1,0 +1,262 @@
+﻿seccion,elemento,campo,valor
+evento,,tipo,boda
+evento,,tema,encaje
+evento,,festejada,Isabella & Mateo
+evento,,festejada_corto,Isabella & Mateo
+evento,,pareja,Isabella & Mateo
+evento,,subtitulo,nos casamos
+evento,,titulo,Isabella & Mateo · Nuestra boda
+evento,,inicia,2027-10-23 17:00
+evento,,zona_horaria,America/Mexico_City
+evento,,salon,Hacienda Santa Elena
+evento,,salon_ciudad,San Miguel de Allende
+evento,,salon_direccion,Camino a la Cañada 120
+evento,,salon_maps,https://maps.google.com/?q=San+Miguel+de+Allende
+evento,,rsvp_modo,token
+evento,,rsvp_limite,2027-09-25
+evento,,musica_fuente,spotify
+evento,,spotify,https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO
+evento,,tarjeta_frase,Nuestra boda
+portada,,visible,SI
+portada,,variante,telon
+portada,,imagen,paisaje.webp
+portada,,boton,Toca para abrir
+musica,,visible,SI
+musica,,titulo,Nuestra canción
+bendicion,,visible,SI
+bendicion,,color_fondo,papel
+bendicion,,texto,"Con la bendición de Dios y el amor de nuestras familias, te invitamos a celebrar el día más especial de nuestra vida."
+bendicion,1,rol,Papás de la novia
+bendicion,1,nombres,"Elena Carrillo
+Javier Ruiz"
+bendicion,2,rol,Papás del novio
+bendicion,2,nombres,"Lucía Fernández
+Andrés Montoya"
+bendicion,3,rol,Padrinos de velación
+bendicion,3,nombres,"Marina Solís
+Gabriel Ortega"
+fecha,,visible,SI
+fecha,,variante,calendario
+fecha,,titulo,Save the date
+foto,,visible,SI
+foto,,variante,camafeo
+foto,,imagen,pareja.webp
+foto,,titulo,I & M
+capa,,visible,SI
+capa,,variante,alta
+capa,,imagen,oleo-capa.webp
+capa,,titulo,Un paisaje para empezar
+galeria,,visible,SI
+galeria,,variante,bastidor
+galeria,,titulo,Nuestra historia
+galeria,1,foto,pasillo.webp
+galeria,2,foto,ramo.webp
+galeria,3,foto,anillos-manos.webp
+galeria,4,foto,manos.webp
+galeria,5,foto,biblia.webp
+galeria,6,foto,iglesia.webp
+frase,,visible,SI
+frase,,texto,Hoy comienza el capítulo más bonito de nuestra historia.
+ubicacion,,visible,SI
+ubicacion,,color_fondo,papel
+ubicacion,,variante,grabado
+ubicacion,,titulo,La ceremonia
+ubicacion,,boton,Ver ubicación
+ubicacion,,calendario,SI
+ubicacion,1,tipo,ceremonia religiosa
+ubicacion,1,lugar,Parroquia de San Rafael
+ubicacion,1,hora,17:00
+ubicacion,1,direccion,"Calle del Cardo 8, Centro"
+ubicacion,1,maps,https://maps.google.com/?q=San+Miguel+de+Allende+Centro
+ubicacion-2,,visible,SI
+ubicacion-2,,color_fondo,panel
+ubicacion-2,,variante,grabado
+ubicacion-2,,titulo,La recepción
+ubicacion-2,,boton,Ver ubicación
+ubicacion-2,,calendario,SI
+ubicacion-2,1,tipo,recepcion
+ubicacion-2,1,lugar,Hacienda Santa Elena
+ubicacion-2,1,hora,19:00
+ubicacion-2,1,direccion,Camino a la Cañada 120
+ubicacion-2,1,maps,https://maps.google.com/?q=San+Miguel+de+Allende
+itinerario,,visible,SI
+itinerario,,variante,grabado
+itinerario,,en_vivo,SI
+itinerario,,titulo,Itinerario
+itinerario,1,hora,17:00
+itinerario,1,actividad,Ceremonia
+itinerario,1,icono,church
+itinerario,2,hora,19:00
+itinerario,2,actividad,Cóctel de bienvenida
+itinerario,2,icono,champagne-glasses
+itinerario,3,hora,20:30
+itinerario,3,actividad,Cena
+itinerario,3,icono,utensils
+itinerario,4,hora,22:00
+itinerario,4,actividad,Vals y pastel
+itinerario,4,icono,cake-candles
+itinerario,5,hora,22:30
+itinerario,5,actividad,Baile
+itinerario,5,icono,music
+vestimenta,,visible,SI
+vestimenta,,color_fondo,panel-alt
+vestimenta,,variante,muestrario
+vestimenta,,titulo,Código de vestimenta
+vestimenta,,subtitulo,Formal
+vestimenta,,texto,"Te sugerimos tonos salvia, arena y terracota; el blanco es solo para la novia."
+vestimenta,,colores,#7C8967 #D9CBA8 #B9805F
+vestimenta,,enlace,https://www.pinterest.com/
+vestimenta,,boton,Ver ejemplos
+sin_ninos,,visible,SI
+sin_ninos,,titulo,Una noche para adultos
+sin_ninos,,subtitulo,Solo adultos
+sin_ninos,,texto,"Amamos a sus pequeños, pero este día es solo para adultos. Gracias por entenderlo."
+capa-2,,visible,SI
+capa-2,,variante,media
+capa-2,,imagen,encaje-capa.webp
+clima,,visible,SI
+clima,,color_fondo,panel-alt
+clima,,titulo,El clima del gran día
+hospedaje,,visible,SI
+hospedaje,,color_fondo,papel
+hospedaje,,titulo,Hospedaje
+hospedaje,,subtitulo,Para que nadie maneje de regreso
+hospedaje,1,nombre,Casa de la Cañada
+hospedaje,1,nota,A cinco minutos de la hacienda
+hospedaje,1,maps,https://maps.google.com/?q=San+Miguel+de+Allende
+hospedaje,2,nombre,Hotel Portal del Jardín
+hospedaje,2,nota,"En el centro, junto a la parroquia"
+hospedaje,2,maps,https://maps.google.com/?q=San+Miguel+de+Allende+Centro
+hospedaje,3,nombre,Posada del Cantador
+hospedaje,3,nota,A 10 minutos en auto
+hospedaje,3,maps,https://maps.google.com/?q=San+Miguel+de+Allende
+lluvia_sobres,,visible,SI
+lluvia_sobres,,titulo,Lluvia de sobres
+lluvia_sobres,,texto,"Si prefieres, puedes darnos tu regalo en un sobre o por transferencia."
+lluvia_sobres,,banco,Banco Ejemplo
+lluvia_sobres,,cuenta,123456789012345678
+lluvia_sobres,,titular,Isabella Ruiz Carrillo
+lluvia_sobres,,sobre_fisico,SI
+mesa_regalos,,visible,SI
+mesa_regalos,,variante,etiqueta
+mesa_regalos,,texto,"Tu presencia es nuestro mejor regalo; si quieres consentirnos, aquí hay algunas ideas."
+mesa_regalos,1,tienda,liverpool
+mesa_regalos,1,numero_evento,51234567
+mesa_regalos,1,enlace,https://www.liverpool.com.mx/
+mesa_regalos,2,tienda,amazon
+mesa_regalos,2,nota,Lista de deseos
+mesa_regalos,2,enlace,https://www.amazon.com.mx/
+mesa_regalos,3,tienda,palacio
+mesa_regalos,3,numero_evento,70123456
+mesa_regalos,3,enlace,https://www.elpalaciodehierro.com/
+playlist,,visible,SI
+playlist,,color_fondo,papel
+playlist,,titulo,La playlist de la boda
+playlist,,texto,Guárdala y llega cantando.
+playlist,,variante,lista
+cuenta_regresiva,,visible,SI
+cuenta_regresiva,,variante,corazon
+cuenta_regresiva,,titulo,Faltan
+cuenta_regresiva,,texto,El gran día está cada vez más cerca.
+galeria-2,,visible,SI
+galeria-2,,color_fondo,papel
+galeria-2,,variante,carrusel
+galeria-2,,titulo,Un paseo por el jardín
+galeria-2,1,foto,bosque.webp
+galeria-2,2,foto,desierto.webp
+galeria-2,3,foto,hacienda.webp
+galeria-2,4,foto,abrazo.webp
+video,,visible,SI
+video,,variante,encaje
+video,,titulo,Nuestro video
+video,,texto,Un adelanto de lo que viene.
+video,,fuente,youtube
+video,,enlace,https://www.youtube.com/watch?v=aqz-KE-bpKQ
+video,,poster,pasillo.webp
+publicacion,,visible,SI
+publicacion,,color_fondo,papel
+publicacion,,variante,encaje
+publicacion,,titulo,Síguenos
+publicacion,,texto,Etiqueta tus fotos con #IsabellaYMateo.
+publicacion,,red,instagram
+publicacion,,enlace,https://www.instagram.com/p/DemoIsabellaMateo/
+publicacion,,poster,ramo.webp
+trivia,,visible,SI
+trivia,,variante,tarjetas
+trivia,,titulo,Trivia de los novios
+trivia,,texto,"¿Qué tanto conoces a Isabella y Mateo? De paso, descubre todo lo que tiene tu invitación."
+trivia,,boton,Empezar
+trivia,1,pregunta,¿Dónde se conocieron Isabella y Mateo?
+trivia,1,opcion_1,En una librería de Guanajuato
+trivia,1,opcion_2,En una boda de amigos
+trivia,1,opcion_3,En el trabajo
+trivia,1,correcta,2
+trivia,2,pregunta,¿Qué pidieron en su primera cita?
+trivia,2,opcion_1,Pizza con piña
+trivia,2,opcion_2,Chilaquiles y café
+trivia,2,opcion_3,Sushi
+trivia,2,correcta,2
+trivia,3,pregunta,¿Cuál es el postre favorito de Mateo?
+trivia,3,opcion_1,Pay de limón
+trivia,3,opcion_2,Tres leches
+trivia,3,opcion_3,Flan napolitano
+trivia,3,opcion_4,Helado de vainilla
+trivia,3,correcta,1
+trivia,4,pregunta,"¿Quién dijo ""te quiero"" primero?"
+trivia,4,opcion_1,Isabella
+trivia,4,opcion_2,Mateo
+trivia,4,correcta,2
+trivia,5,pregunta,¿Dónde ves el código de vestimenta en esta invitación?
+trivia,5,opcion_1,"En su propia sección, con retazos de tela de los colores sugeridos"
+trivia,5,opcion_2,Solo se avisa por WhatsApp
+trivia,5,opcion_3,No hay código
+trivia,5,correcta,1
+trivia,6,pregunta,¿Qué pasa al tocar «Agregar al calendario»?
+trivia,6,opcion_1,"Nada, es de adorno"
+trivia,6,opcion_2,Se guarda la hora del evento en tu calendario
+trivia,6,opcion_3,Se confirma tu asistencia
+trivia,6,correcta,2
+trivia,7,pregunta,¿Cuántas fotos puede subir cada invitado al álbum?
+trivia,7,opcion_1,1
+trivia,7,opcion_2,2
+trivia,7,opcion_3,10
+trivia,7,opcion_4,Las que quiera
+trivia,7,correcta,2
+trivia,8,pregunta,¿Qué sección te avisa el clima del día de la boda?
+trivia,8,opcion_1,La de hospedaje
+trivia,8,opcion_2,La de clima
+trivia,8,opcion_3,La de la mesa de regalos
+trivia,8,correcta,2
+trivia,9,pregunta,"¿Cómo se llama su perro, que será el paje de los anillos?"
+trivia,9,opcion_1,Canelo
+trivia,9,opcion_2,Firulais
+trivia,9,opcion_3,Max
+trivia,9,correcta,1
+trivia,10,pregunta,¿Qué hace la sección «Itinerario» el día de la boda?
+trivia,10,opcion_1,Marca «Ahora» y «Sigue» según la hora
+trivia,10,opcion_2,Cambia la música
+trivia,10,opcion_3,Se apaga
+trivia,10,correcta,1
+album,,visible,SI
+album,,color_fondo,panel
+album,,titulo,Álbum de los invitados
+album,,texto,"Desde el día de la boda, sube hasta 2 fotos de la fiesta; nosotros elegimos las que se quedan."
+album,,boton,Elegir fotos
+album,1,foto,desierto.webp
+album,2,foto,hacienda.webp
+album,3,foto,abrazo.webp
+album,4,foto,dama.webp
+album,5,foto,novia-ramo.webp
+album,6,foto,manos.webp
+confirmacion,,visible,SI
+confirmacion,,subtitulo,¡Agradecemos que confirmes tu asistencia!
+dedicatoria,,visible,SI
+dedicatoria,,titulo,Unas palabras para nosotros
+dedicatoria,,texto,"Escríbenos un deseo, un recuerdo o un consejo. Lo guardaremos para siempre."
+capa-3,,visible,SI
+capa-3,,variante,media
+capa-3,,imagen,terciopelo.webp
+cierre,,visible,SI
+cierre,,variante,bordado
+cierre,,titulo,¡Te esperamos!
+cierre,,texto,Este día no sería lo mismo sin ti.
