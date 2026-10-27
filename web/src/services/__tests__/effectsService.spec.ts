@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
+  FABRIC_EFFECTS,
+  laceDoilies,
+  laceStrokes,
+  lightDust,
+  pearlBeads,
+  pearlStrands,
+  petals,
+  tulleVeils,
   cityLights,
   confetti,
   discoBalls,
@@ -255,5 +263,68 @@ describe('taxis', () => {
     const cabs = taxis('itinerario')
     expect(cabs.map((c) => c.reverse)).toEqual([false, true])
     expect(cabs[1].delay).toBe(-cabs[0].duration * 0.6)
+  })
+})
+
+describe('efectos de tela y encaje', () => {
+  it('las carpetas de encaje van en esquinas opuestas, giran al revés y son estables', () => {
+    const [big, small] = laceDoilies('bendicion')
+    expect(laceDoilies('bendicion')).toEqual([big, small])
+    expect(big.size).toBeGreaterThan(small.size)
+    expect(big.reverse).not.toBe(small.reverse)
+    expect(Math.sign(big.left - 50)).not.toBe(Math.sign(small.left - 50))
+  })
+
+  it('el encaje se dibuja a trazos escalonados, de adentro hacia afuera', () => {
+    const strokes = laceStrokes()
+    expect(strokes.filter((s) => s.kind === 'ring')).toHaveLength(4)
+    expect(strokes.filter((s) => s.kind === 'petal')).toHaveLength(8)
+    expect(strokes.filter((s) => s.kind === 'dot')).toHaveLength(16)
+    const delays = strokes.map((s) => s.delay)
+    expect([...delays].sort((a, b) => a - b)).toEqual(delays)
+    expect(new Set(delays).size).toBeGreaterThan(20)
+  })
+
+  it('las perlas cuelgan en arco y el destello las recorre de punta a punta', () => {
+    const beads = pearlBeads(15)
+    expect(beads).toHaveLength(15)
+    expect(beads[0].sag).toBe(0)
+    expect(beads[14].sag).toBe(0)
+    expect(beads[7].sag).toBeGreaterThan(beads[2].sag)
+    expect(beads[14].delay).toBeGreaterThan(beads[0].delay)
+    expect(pearlBeads(1)[0].left).toBeGreaterThan(40)
+  })
+
+  it('los hilos de perlas cuelgan por las orillas, uno corto al centro, y caen escalonados', () => {
+    const strands = pearlStrands('contador')
+    expect(strands).toHaveLength(7)
+    expect(strands).toEqual(pearlStrands('contador'))
+    const sides = strands.slice(0, 6).map((s) => s.left)
+    expect(sides.every((l) => l < 20 || l > 80)).toBe(true)
+    expect(Math.abs(strands[6].left - 50)).toBeLessThan(1)
+    expect(strands[6].length).toBeLessThan(3)
+    expect(strands[5].drop).toBeGreaterThan(strands[0].drop)
+  })
+
+  it('pétalos, polvo de luz y velos: estables por sección, pocos y dentro de la sección', () => {
+    const fall = petals('rsvp')
+    expect(fall).toHaveLength(12)
+    expect(fall).toEqual(petals('rsvp'))
+    for (const p of fall) {
+      expect(p.left).toBeGreaterThan(0)
+      expect(p.left).toBeLessThan(100)
+      expect(p.fall).toBeGreaterThan(100)
+      expect(p.duration).toBeGreaterThanOrEqual(12)
+    }
+    const dust = lightDust('nosotros')
+    expect(dust).toHaveLength(22)
+    expect(Math.max(...dust.map((m) => m.size))).toBeLessThanOrEqual(7)
+    const veils = tulleVeils('clima')
+    expect(veils.map((v) => v.side)).toEqual(['left', 'left', 'right', 'right'])
+    expect(veils[0].width).toBeGreaterThan(veils[1].width)
+  })
+
+  it('FABRIC_EFFECTS no repite nombres', () => {
+    expect(new Set(FABRIC_EFFECTS).size).toBe(FABRIC_EFFECTS.length)
   })
 })

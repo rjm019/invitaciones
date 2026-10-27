@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import FabricAmbience from '@/components/ui/FabricAmbience.vue'
 import SectionAmbience from '@/components/ui/SectionAmbience.vue'
 import { useEvent } from '@/composables/useEvent'
 import { useInView } from '@/composables/useInView'
 import { vReveal } from '@/directives/reveal'
 import { backgroundVars } from '@/services/backgroundService'
-import { motionTime, seededRandom, sparkles } from '@/services/effectsService'
+import { FABRIC_EFFECTS, motionTime, seededRandom, sparkles } from '@/services/effectsService'
 import { sectionStyleVars } from '@/services/themeService'
 import type { ResolvedSection } from '@/types/event'
 
@@ -53,6 +54,7 @@ const stars = computed(() =>
   props.section.effects.includes('sparkle') ? sparkles(props.section.id) : [],
 )
 // Reflectores, luces de ciudad, horizonte, escarcha, bola disco, íconos de la ciudad y taxis: detrás del contenido.
+const FABRIC: readonly string[] = FABRIC_EFFECTS
 const AMBIENCE = [
   'searchlights',
   'city-lights',
@@ -65,14 +67,20 @@ const AMBIENCE = [
   'icon-strip',
 ]
 const ambience = computed(() => props.section.effects.some((e) => AMBIENCE.includes(e)))
+// Efectos de tela y encaje (FabricAmbience): su entrada (hilos que caen, encaje que se dibuja,
+// luz que se enciende) arranca cuando la sección se ve por primera vez.
+const fabric = computed(() => props.section.effects.some((e) => FABRIC.includes(e)))
 // cascada: los elementos de la sección entran uno tras otro; necesita saber cuándo se ve.
-const REVEALS = ['reveal', 'reveal-zoom', 'reveal-slide', 'reveal-tilt', 'cascade']
+const REVEALS = ['reveal', 'reveal-zoom', 'reveal-slide', 'reveal-tilt', 'cascade', 'stitch-in']
+// Estos dos solo necesitan saber cuándo se ve la sección: el bloque no se desvanece por ellos.
+const REVEALS_QUIET = ['cascade', 'stitch-in']
 const reveals = computed(() => props.section.effects.some((e) => REVEALS.includes(e)))
 
 // Lejos de la pantalla, sus animaciones se pausan y su ambiente no se pinta: con muchas
 // secciones con luces, escarcha o la ciudad, el celular no se satura (ver effects.css).
 const root = ref<HTMLElement | null>(null)
 const near = useInView(root, { once: false, rootMargin: '60% 0px', threshold: 0 })
+const entered = useInView(root, { once: true, threshold: 0.25 })
 
 const classes = computed(() => [
   'section',
@@ -154,10 +162,11 @@ const classes = computed(() => [
       </div>
     </div>
     <SectionAmbience v-if="ambience" :section="section" />
+    <FabricAmbience v-if="fabric" :section="section" :entered="entered" />
     <div
       v-reveal="reveals"
       class="section__content"
-      :class="{ 'is-cascade-only': !section.effects.some((e) => REVEALS.includes(e) && e !== 'cascade') }"
+      :class="{ 'is-cascade-only': !section.effects.some((e) => REVEALS.includes(e) && !REVEALS_QUIET.includes(e)) }"
     >
       <slot />
     </div>

@@ -531,3 +531,245 @@ export function taxis(seed: string): Taxi[] {
     { bottom: 0.2, reverse: true, delay: -12, duration: 20 },
   ]
 }
+
+/* ------------------------------------------------------------------------------------
+ * Efectos de tela y encaje (tema `encaje`, pero globales): FabricAmbience.vue pinta lo que
+ * calculan estas funciones. Todo con semilla (misma sección, mismo resultado) y sin DOM.
+ * ---------------------------------------------------------------------------------- */
+
+/** Los efectos que pinta FabricAmbience (los demás de encaje son solo CSS sobre la sección). */
+export const FABRIC_EFFECTS = [
+  'lace-spin',
+  'lace-wave',
+  'lace-draw',
+  'spotlight',
+  'spotlight-travel',
+  'pearl-glint',
+  'satin-sweep',
+  'drape-sway',
+  'pearl-strands',
+  'petals',
+  'light-dust',
+  'tulle-breathe',
+] as const
+
+export interface LaceDoily {
+  /** Centro, en % de la sección. */
+  top: number
+  left: number
+  /** Diámetro en cqi (% del ancho de la sección). */
+  size: number
+  /** Segundos por vuelta (cada uno gira hacia un lado). */
+  spin: number
+  reverse: boolean
+  delay: number
+}
+
+/**
+ * Carpetas de encaje que giran lento detrás del contenido: una grande y una chica, medio
+ * fuera de la sección, en esquinas opuestas (el texto va al centro).
+ */
+export function laceDoilies(seed: string): LaceDoily[] {
+  const rand = seededRandom(seed)
+  const flip = rand() < 0.5
+  return [
+    {
+      top: 6,
+      left: flip ? 92 : 8,
+      size: round(52 + rand() * 10, 1),
+      spin: round(110 + rand() * 30, 1),
+      reverse: false,
+      delay: 0,
+    },
+    {
+      top: 94,
+      left: flip ? 6 : 94,
+      size: round(34 + rand() * 8, 1),
+      spin: round(85 + rand() * 25, 1),
+      reverse: true,
+      delay: round(-rand() * 30, 1),
+    },
+  ]
+}
+
+/** Un trazo del encaje que se dibuja: un aro, un pétalo (óvalo girado) o una puntada (punto). */
+export interface LaceStroke {
+  kind: 'ring' | 'petal' | 'dot'
+  /** Radio (aro) o distancia al centro (pétalo y puntada), en el lienzo de 200. */
+  r: number
+  /** Ángulo en grados (pétalo y puntada). */
+  angle: number
+  /** Segundos de espera antes de aparecer (a velocidad 1). */
+  delay: number
+}
+
+/**
+ * Trazos de un encaje de flor que se "dibuja" de adentro hacia afuera: tres aros, ocho
+ * pétalos y dieciséis puntadas de ojal. Cada trazo aparece (opacity + scale) uno tras otro;
+ * así el dibujo se arma a trazos sin animar nada más que transform y opacity.
+ */
+export function laceStrokes(): LaceStroke[] {
+  const strokes: LaceStroke[] = []
+  let at = 0
+  const step = 0.16
+  for (const r of [14, 38, 62]) {
+    strokes.push({ kind: 'ring', r, angle: 0, delay: round(at) })
+    at += step * 2
+  }
+  for (let i = 0; i < 8; i++) {
+    strokes.push({ kind: 'petal', r: 50, angle: i * 45, delay: round(at) })
+    at += step
+  }
+  for (let i = 0; i < 16; i++) {
+    strokes.push({ kind: 'dot', r: 86, angle: i * 22.5 + 11.25, delay: round(at) })
+    at += step / 2
+  }
+  strokes.push({ kind: 'ring', r: 94, angle: 0, delay: round(at) })
+  return strokes
+}
+
+export interface PearlBead {
+  /** Posición a lo ancho de la sección, en %. */
+  left: number
+  /** Retraso del destello (segundos): corre de un extremo al otro, como una luz sobre un collar. */
+  delay: number
+  /** Cuánto cuelga el collar en ese punto (px): una catenaria suave. */
+  sag: number
+}
+
+/**
+ * Perlas en hilera al borde de arriba: el collar cuelga en arco y un destello las recorre
+ * una a una. `count` perlas repartidas parejo; el arco sale de una parábola.
+ */
+export function pearlBeads(count = 15): PearlBead[] {
+  return Array.from({ length: count }, (_, i) => {
+    const t = count === 1 ? 0.5 : i / (count - 1)
+    return {
+      left: round(3 + t * 94, 1),
+      delay: round(t * 3.2),
+      sag: Math.round(4 * t * (1 - t) * 22),
+    }
+  })
+}
+
+export interface PearlStrand {
+  left: number
+  /** Largo del hilo en rem. */
+  length: number
+  /** Cuánto se mece (grados) y cada cuánto (segundos). */
+  swing: number
+  duration: number
+  /** Retraso de la caída al entrar. */
+  drop: number
+  delay: number
+}
+
+/**
+ * Hilos de perlas que cuelgan del borde de arriba: cada uno cae al entrar la sección y
+ * luego se balancea. Seis por las orillas (tres a cada lado) y uno corto al centro.
+ */
+export function pearlStrands(seed: string, count = 7): PearlStrand[] {
+  const rand = seededRandom(seed)
+  return Array.from({ length: count }, (_, i) => {
+    const side = i % 2 === 0 ? 0 : 1
+    const slot = Math.floor(i / 2)
+    const left = i === count - 1 ? 50 : side === 0 ? 3 + slot * 3.4 : 97 - slot * 3.4
+    return {
+      left: round(left + (rand() - 0.5) * 1.2, 1),
+      length: round(i === count - 1 ? 2.6 : 3.5 + rand() * 3.5, 1),
+      swing: round(1.6 + rand() * 1.6, 1),
+      duration: round(4.5 + rand() * 3, 1),
+      drop: round(i * 0.12 + rand() * 0.2),
+      delay: round(-rand() * 5),
+    }
+  })
+}
+
+export interface Petal {
+  left: number
+  top: number
+  /** Largo del pétalo en px. */
+  size: number
+  /** Cuánto cae (px), cuánto se va de lado y cuánto da vueltas (grados). */
+  fall: number
+  sway: number
+  turn: number
+  delay: number
+  duration: number
+}
+
+/**
+ * Pétalos blancos que caen muy despacio y sobrios: pocos (una docena), grandes y claros,
+ * que se mecen y giran suave. Salen de la mitad de arriba para verse caer.
+ */
+export function petals(seed: string, count = 12): Petal[] {
+  const rand = seededRandom(seed)
+  return Array.from({ length: count }, () => ({
+    left: round(2 + rand() * 96, 1),
+    top: round(-4 + rand() * 50, 1),
+    size: round(9 + rand() * 8, 1),
+    fall: Math.round(120 + rand() * 150),
+    sway: Math.round((rand() - 0.5) * 2 * 36),
+    turn: Math.round(60 + rand() * 120) * (rand() < 0.5 ? -1 : 1),
+    delay: round(-rand() * 16),
+    duration: round(12 + rand() * 8),
+  }))
+}
+
+export interface LightMote {
+  top: number
+  left: number
+  /** Diámetro en px. */
+  size: number
+  /** Cuánto sube (px). */
+  rise: number
+  delay: number
+  duration: number
+}
+
+/**
+ * Polvo de luz: motas pequeñas y nítidas (sin desenfoque, que costaría en el celular) que
+ * suben lentísimo y se encienden y apagan. Más numerosas y más chicas que las luces de ciudad.
+ */
+export function lightDust(seed: string, count = 22): LightMote[] {
+  const rand = seededRandom(seed)
+  return Array.from({ length: count }, () => ({
+    top: round(20 + rand() * 78, 1),
+    left: round(2 + rand() * 96, 1),
+    size: round(2 + rand() ** 2 * 5, 1),
+    rise: Math.round(28 + rand() * 60),
+    delay: round(-rand() * 12),
+    duration: round(9 + rand() * 8),
+  }))
+}
+
+/** Los velos de tul de las orillas: dos de cada lado, de distinto ancho y ritmo. */
+export interface TulleVeil {
+  side: 'left' | 'right'
+  /** Ancho en cqi. */
+  width: number
+  duration: number
+  delay: number
+  /** Cuánto se inclina al ondear (grados). */
+  skew: number
+}
+
+export function tulleVeils(seed: string): TulleVeil[] {
+  const rand = seededRandom(seed)
+  return (['left', 'right'] as const).flatMap((side) => [
+    {
+      side,
+      width: round(16 + rand() * 4, 1),
+      duration: round(8 + rand() * 3, 1),
+      delay: round(-rand() * 8, 1),
+      skew: round(2.5 + rand(), 1),
+    },
+    {
+      side,
+      width: round(9 + rand() * 3, 1),
+      duration: round(6 + rand() * 2, 1),
+      delay: round(-rand() * 8, 1),
+      skew: round(3.5 + rand(), 1),
+    },
+  ])
+}

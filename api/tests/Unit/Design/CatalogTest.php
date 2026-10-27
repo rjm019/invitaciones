@@ -19,6 +19,8 @@ class CatalogTest extends TestCase
         'reveal', 'parallax', 'float', 'shine', 'timeline-fill', 'typewriter', 'sparkle', 'cascade',
         'ken-burns', 'color-shift', 'skyline', 'searchlights', 'city-lights', 'glitter', 'sheen', 'pan',
         'blend', 'disco-ball', 'disco-lights', 'city-icons', 'taxi', 'icon-strip', 'reveal-zoom', 'reveal-slide', 'reveal-tilt', 'veil',
+        'lace-spin', 'lace-wave', 'lace-draw', 'spotlight', 'spotlight-travel', 'pearl-glint', 'satin-sweep',
+        'drape-sway', 'pearl-strands', 'petals', 'light-dust', 'tulle-breathe', 'stitch-in', 'breathe',
     ];
 
     public function test_every_effect_maps_to_an_effect_the_web_paints(): void

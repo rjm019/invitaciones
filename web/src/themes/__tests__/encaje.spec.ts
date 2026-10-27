@@ -65,4 +65,25 @@ describe('tema encaje', () => {
     // La hacienda es un adorno compartido: cualquier tema la encuentra.
     expect(themeAssets('marfil')['hacienda.svg']).toBeTruthy()
   })
+
+  it('el sobre central es una portada registrada que el tema puede pedir', () => {
+    expect(sectionVariants['hero-envelope']['sobre-central']).toBeTypeOf('function')
+  })
+
+  it('los efectos de tela y encaje del tema existen en el catálogo de la web', async () => {
+    const manifest = await loadTheme('encaje')
+    const used = new Set(Object.values(manifest!.sections).flatMap((s) => s.effects ?? []))
+    for (const effect of [
+      'lace-spin', 'lace-wave', 'lace-draw', 'spotlight', 'spotlight-travel', 'pearl-glint',
+      'satin-sweep', 'drape-sway', 'pearl-strands', 'petals', 'light-dust', 'tulle-breathe',
+      'stitch-in', 'breathe',
+    ]) {
+      expect(used.has(effect), effect).toBe(true)
+    }
+    // Y cada capa tiene su regla de CSS.
+    const css = readFileSync(resolve(process.cwd(), 'src/effects/fabric.css'), 'utf8')
+    for (const cls of ['.fab-doily', '.fab-lace', '.fab-draw', '.fab-beam', '.fab-pearl', '.fab-satin', '.fab-drape', '.fab-strand', '.fab-petal', '.fab-mote', '.fab-tulle', '.fx-stitch-in', '.fx-breathe']) {
+      expect(css, cls).toContain(cls)
+    }
+  })
 })

@@ -175,3 +175,32 @@ Todos globales: cualquier tema los usa con `variante` y sus propios colores; `en
 - **Enlace de la vestimenta:** `muestrario` ya no busca en Google; su botón ("Ver ejemplos", o el `boton` de la sección) lleva al campo `enlace` de la sección (https validado por el servidor, `section.link`). Sin enlace no hay botón.
 - **Plantilla:** `deploy/plantillas/encaje/invitacion.csv` (boda con todas las secciones y variantes, datos neutros; galería, video y publicación quedan ocultas hasta poner sus fotos o enlaces).
 
+
+## Tema `encaje`: sobre central y efectos de tela y encaje
+
+Todo global: cualquier tema los pide por nombre en `efectos` (o en su manifest, `sections[tipo].effects`) y los pinta con sus colores. Un efecto nuevo = entrada en `Catalog::EFFECTS` (nombre CSV, ayuda en español) + el id en `EffectName` (`types/event.ts`) + su pintura. Las capas con nodos van en `components/ui/FabricAmbience.vue` (cuyos números salen de funciones con semilla en `services/effectsService.ts`, con prueba) y su CSS en `effects/fabric.css`; los que son solo CSS cuelgan de la clase `fx-<id>` de la sección. Todas las capas llevan `.ambience`, así que se pausan y se ocultan con `.is-idle`. `SectionShell` le avisa a `FabricAmbience` (`entered`) la primera vez que se ve la sección, para las entradas (luz que se enciende, hilos que caen, encaje que se dibuja).
+
+**Portada `sobre-central`** (`variante` de la portada; `HeroCenterEnvelope.vue`): sobre marfil cerrado con una costura de lado a lado, perla (o el lacre de la ranura `lacre`) al centro y una tira de encaje en la costura. Al tocar: la perla salta, la mitad de arriba se levanta sobre la costura (bisagra en el centro, `rotateX` con perspectiva hasta quedar de canto), la tarjeta sube desde adentro con una luz detrás y la mitad de abajo baja y se desvanece. Ranuras: `tarjeta`, `lacre` y la nueva `papel` (`imagen_papel`, textura del papel de las dos mitades). Mismas reglas de las otras portadas: sin scroll mientras está cerrada, música al tocar, "menos movimiento" la deja abierta, `motionTime`/`--motion-scale`, y nada de lo que anima sale de transform y opacity.
+
+| CSV (`efectos`) | Id | Qué hace | Luce en |
+|---|---|---|---|
+| `encaje_giratorio` | `lace-spin` | carpetas de encaje que giran muy lento en dos esquinas, detrás del contenido | bendición, paneles oscuros |
+| `encaje_ondulante` | `lace-wave` | las orillas de encaje de arriba y abajo se mecen como tela con brisa | foto, trivia, vestimenta |
+| `encaje_dibujado` | `lace-draw` | una flor de encaje se arma trazo a trazo (aros, pétalos, puntadas) al llegar a la sección | ubicación, cierre |
+| `foco` | `spotlight` | luz de escenario: los bordes se oscurecen y un haz cae sobre el centro al llegar | frase, spotify, video |
+| `foco_viaja` | `spotlight-travel` | el mismo foco, que recorre la sección de lado a lado | música, galería |
+| `perlas_destello` | `pearl-glint` | un collar de perlas al borde con un destello que lo recorre perla por perla | fecha, mesa de regalos |
+| `satin_brillo` | `satin-sweep` | un barrido de brillo de satén cruza el fondo | itinerario, música |
+| `cortinaje_mece` | `drape-sway` | guirnaldas de gasa con perlas (adorno `cortinaje`) arriba, que se balancean | hospedaje, portadas |
+| `perlas_cuelgan` | `pearl-strands` | siete hilos de perlas caen al entrar y se balancean | cuenta regresiva |
+| `petalos` | `petals` | una docena de pétalos blancos caen muy despacio, meciéndose | lluvia de sobres, asistencia, cierre |
+| `polvo_luz` | `light-dust` | motas de luz nítidas (sin desenfoque) que suben y se encienden | portada, sin niños, dedicatorias |
+| `tul_respira` | `tulle-breathe` | velos de tul en las orillas que respiran (distinto a `velo`, que cruza la sección) | clima |
+| `bordado_aparece` | `stitch-in` | el título aparece de a poco y debajo se cose una línea de puntadas, una tras otra | bendición, fecha, frase |
+| `respira` | `breathe` | el panel crece y se encoge apenas (propiedad `scale`, que no estorba al resto) | foto, asistencia |
+
+Alias: `polvo`/`luciernagas` → `polvo_luz`, `bordado` → `bordado_aparece`, `saten` → `satin_brillo`, `foco_escenario` → `foco`. Con "menos movimiento": el encaje, el collar, el satén y el cortinaje quedan quietos, la luz y el dibujo ya encendidos, y los pétalos y destellos no se pintan.
+
+- **Adornos nuevos:** ninguno en archivo; la flor que se dibuja es SVG en línea (data de `laceStrokes()`), el resto reusa `encaje.svg`, `cortinaje.svg` y `encaje-arriba/abajo.svg`.
+- **Nota sobre "dibujado":** no usa `stroke-dashoffset` (repinta) sino trazos que aparecen escalonados con opacity + scale, para respetar la regla de solo transform y opacity.
+- **Prueba:** `effectsService.spec.ts` (funciones), `SectionShell.spec.ts` (capas, orden y velocidad), `HeroCenterEnvelope.spec.ts`, `encaje.spec.ts` y `CatalogTest`/`EventEffectsTest` (nombres en español).

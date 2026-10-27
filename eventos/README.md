@@ -250,6 +250,21 @@ Cada texto de la invitación es un **bloque**: los cuatro comunes (`titulo`, `su
   - `panoramica` (o `paneo`): la imagen de fondo de la sección se desliza de lado a lado (para una foto de la ciudad).
   - `bola_disco` (o `disco`): bolas de espejos colgadas que giran, con rayos, destellos y sus reflejos recorriendo la sección.
   - `luces_disco` (o `reflejos_disco`): solo los reflejos, puntos de luz que cruzan la sección.
+- Los de tela y encaje (tema `encaje`; sirven en cualquier tema):
+  - `encaje_giratorio`: carpetas de encaje que giran muy despacio en las esquinas.
+  - `encaje_ondulante`: las orillas de encaje arriba y abajo se mecen como tela con brisa.
+  - `encaje_dibujado`: una flor de encaje se dibuja trazo a trazo al llegar a la sección.
+  - `foco` (o `foco_escenario`): luz de escenario; los bordes se oscurecen y un haz cae sobre el centro (frase, video, música).
+  - `foco_viaja`: el haz de luz recorre la sección de lado a lado.
+  - `perlas_destello`: un collar de perlas al borde con un destello que lo recorre.
+  - `satin_brillo` (o `saten`): un barrido de brillo de satén cruza el fondo.
+  - `cortinaje_mece`: guirnaldas de gasa con perlas que se balancean arriba.
+  - `perlas_cuelgan`: hilos de perlas que caen al entrar y se balancean.
+  - `petalos`: pétalos blancos que caen muy despacio.
+  - `polvo_luz` (o `polvo`, `luciernagas`): motas de luz que suben lentamente.
+  - `tul_respira`: velos de tul en las orillas que respiran.
+  - `bordado_aparece` (o `bordado`): el título aparece de a poco y se cose una línea de puntadas debajo.
+  - `respira`: el panel crece y se encoge apenas.
 - `difuminar` (o `sin_cortes`, `integrar`): la sección deja de ser tarjeta (ver abajo).
 - `ninguno` apaga los que el tema trae por defecto (no quita `difuminar` si la página lo pide).
 
@@ -412,6 +427,7 @@ Diseños de sección nuevos (`variante`; sirven en cualquier tema):
 | Sección | Valor | Diseño |
 |---|---|---|
 | `portada` | `telon` / `encaje` | Telón de terciopelo que se abre sobre un paisaje / sobre marfil con solapa de encaje |
+| `portada` | `sobre-central` | Sobre marfil con costura al centro y perla (o lacre): al tocar, la mitad de arriba se levanta sobre la costura y la tarjeta sube desde adentro. Adornos: `imagen_tarjeta`, `imagen_lacre` e `imagen_papel` (textura del papel) |
 | `fecha` | `calendario` | Mes en una tarjeta dentro de un sobre |
 | `foto` | `camafeo` | Óvalo sobre carpeta de encaje |
 | `vestimenta` | `muestrario` | Retazos de tela con los colores sugeridos |

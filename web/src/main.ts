@@ -1,6 +1,7 @@
 import './assets/main.css'
 import './themes/tokens.css'
 import './effects/effects.css'
+import './effects/fabric.css'
 import './effects/options.css'
 import './effects/buttons.css'
 import './components/sections/variants/skins.css'
