@@ -18,12 +18,15 @@ evento,,musica_fuente,spotify
 evento,,spotify,https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO
 evento,,tarjeta_frase,Nuestra boda
 portada,,visible,SI
-portada,,variante,telon
+portada,,efectos,flotar polvo_luz
+portada,,variante,sobre-central
 portada,,imagen,paisaje.webp
 portada,,boton,Toca para abrir
 musica,,visible,SI
+musica,,efectos,aparecer satin_brillo
 musica,,titulo,Nuestra canción
 bendicion,,visible,SI
+bendicion,,efectos,aparecer velo encaje_giratorio
 bendicion,,color_fondo,papel
 bendicion,,texto,"Con la bendición de Dios y el amor de nuestras familias, te invitamos a celebrar el día más especial de nuestra vida."
 bendicion,1,rol,Papás de la novia
@@ -36,9 +39,11 @@ bendicion,3,rol,Padrinos de velación
 bendicion,3,nombres,"Marina Solís
 Gabriel Ortega"
 fecha,,visible,SI
+fecha,,efectos,aparecer perlas_destello bordado_aparece
 fecha,,variante,calendario
 fecha,,titulo,Save the date
 foto,,visible,SI
+foto,,efectos,aparecer encaje_ondulante respira
 foto,,variante,camafeo
 foto,,imagen,pareja.webp
 foto,,titulo,I & M
@@ -47,6 +52,7 @@ capa,,variante,alta
 capa,,imagen,oleo-capa.webp
 capa,,titulo,Un paisaje para empezar
 galeria,,visible,SI
+galeria,,efectos,aparecer cascada foco_viaja
 galeria,,variante,bastidor
 galeria,,titulo,Nuestra historia
 galeria,1,foto,pasillo.webp
@@ -56,8 +62,10 @@ galeria,4,foto,manos.webp
 galeria,5,foto,biblia.webp
 galeria,6,foto,iglesia.webp
 frase,,visible,SI
+frase,,efectos,aparecer foco bordado_aparece
 frase,,texto,Hoy comienza el capítulo más bonito de nuestra historia.
 ubicacion,,visible,SI
+ubicacion,,efectos,aparecer
 ubicacion,,color_fondo,papel
 ubicacion,,variante,grabado
 ubicacion,,titulo,La ceremonia
@@ -69,6 +77,7 @@ ubicacion,1,hora,17:00
 ubicacion,1,direccion,"Calle del Cardo 8, Centro"
 ubicacion,1,maps,https://maps.google.com/?q=San+Miguel+de+Allende+Centro
 ubicacion-2,,visible,SI
+ubicacion-2,,efectos,aparecer encaje_dibujado
 ubicacion-2,,color_fondo,panel
 ubicacion-2,,variante,grabado
 ubicacion-2,,titulo,La recepción
@@ -80,6 +89,7 @@ ubicacion-2,1,hora,19:00
 ubicacion-2,1,direccion,Camino a la Cañada 120
 ubicacion-2,1,maps,https://maps.google.com/?q=San+Miguel+de+Allende
 itinerario,,visible,SI
+itinerario,,efectos,aparecer linea cascada satin_brillo
 itinerario,,variante,grabado
 itinerario,,en_vivo,SI
 itinerario,,titulo,Itinerario
@@ -99,6 +109,7 @@ itinerario,5,hora,22:30
 itinerario,5,actividad,Baile
 itinerario,5,icono,music
 vestimenta,,visible,SI
+vestimenta,,efectos,aparecer cascada encaje_ondulante
 vestimenta,,color_fondo,panel-alt
 vestimenta,,variante,muestrario
 vestimenta,,titulo,Código de vestimenta
@@ -108,6 +119,7 @@ vestimenta,,colores,#7C8967 #D9CBA8 #B9805F
 vestimenta,,enlace,https://www.pinterest.com/
 vestimenta,,boton,Ver ejemplos
 sin_ninos,,visible,SI
+sin_ninos,,efectos,aparecer polvo_luz
 sin_ninos,,titulo,Una noche para adultos
 sin_ninos,,subtitulo,Solo adultos
 sin_ninos,,texto,"Amamos a sus pequeños, pero este día es solo para adultos. Gracias por entenderlo."
@@ -115,9 +127,11 @@ capa-2,,visible,SI
 capa-2,,variante,media
 capa-2,,imagen,encaje-capa.webp
 clima,,visible,SI
+clima,,efectos,aparecer tul_respira
 clima,,color_fondo,panel-alt
 clima,,titulo,El clima del gran día
 hospedaje,,visible,SI
+hospedaje,,efectos,aparecer cascada cortinaje_mece
 hospedaje,,color_fondo,papel
 hospedaje,,titulo,Hospedaje
 hospedaje,,subtitulo,Para que nadie maneje de regreso
@@ -131,6 +145,7 @@ hospedaje,3,nombre,Posada del Cantador
 hospedaje,3,nota,A 10 minutos en auto
 hospedaje,3,maps,https://maps.google.com/?q=San+Miguel+de+Allende
 lluvia_sobres,,visible,SI
+lluvia_sobres,,efectos,aparecer petalos
 lluvia_sobres,,titulo,Lluvia de sobres
 lluvia_sobres,,texto,"Si prefieres, puedes darnos tu regalo en un sobre o por transferencia."
 lluvia_sobres,,banco,Banco Ejemplo
@@ -138,6 +153,7 @@ lluvia_sobres,,cuenta,123456789012345678
 lluvia_sobres,,titular,Isabella Ruiz Carrillo
 lluvia_sobres,,sobre_fisico,SI
 mesa_regalos,,visible,SI
+mesa_regalos,,efectos,aparecer cascada perlas_destello
 mesa_regalos,,variante,etiqueta
 mesa_regalos,,texto,"Tu presencia es nuestro mejor regalo; si quieres consentirnos, aquí hay algunas ideas."
 mesa_regalos,1,tienda,liverpool
@@ -150,15 +166,18 @@ mesa_regalos,3,tienda,palacio
 mesa_regalos,3,numero_evento,70123456
 mesa_regalos,3,enlace,https://www.elpalaciodehierro.com/
 playlist,,visible,SI
+playlist,,efectos,aparecer foco
 playlist,,color_fondo,papel
 playlist,,titulo,La playlist de la boda
 playlist,,texto,Guárdala y llega cantando.
 playlist,,variante,lista
 cuenta_regresiva,,visible,SI
+cuenta_regresiva,,efectos,aparecer cascada perlas_cuelgan
 cuenta_regresiva,,variante,corazon
 cuenta_regresiva,,titulo,Faltan
 cuenta_regresiva,,texto,El gran día está cada vez más cerca.
 galeria-2,,visible,SI
+galeria-2,,efectos,aparecer
 galeria-2,,color_fondo,papel
 galeria-2,,variante,carrusel
 galeria-2,,titulo,Un paseo por el jardín
@@ -167,6 +186,7 @@ galeria-2,2,foto,desierto.webp
 galeria-2,3,foto,hacienda.webp
 galeria-2,4,foto,abrazo.webp
 video,,visible,SI
+video,,efectos,aparecer foco
 video,,variante,encaje
 video,,titulo,Nuestro video
 video,,texto,Un adelanto de lo que viene.
@@ -174,6 +194,7 @@ video,,fuente,youtube
 video,,enlace,https://www.youtube.com/watch?v=aqz-KE-bpKQ
 video,,poster,pasillo.webp
 publicacion,,visible,SI
+publicacion,,efectos,aparecer respira
 publicacion,,color_fondo,papel
 publicacion,,variante,encaje
 publicacion,,titulo,Síguenos
@@ -182,6 +203,7 @@ publicacion,,red,instagram
 publicacion,,enlace,https://www.instagram.com/p/DemoIsabellaMateo/
 publicacion,,poster,ramo.webp
 trivia,,visible,SI
+trivia,,efectos,aparecer encaje_ondulante
 trivia,,variante,tarjetas
 trivia,,titulo,Trivia de los novios
 trivia,,texto,"¿Qué tanto conoces a Isabella y Mateo? De paso, descubre todo lo que tiene tu invitación."
@@ -238,6 +260,7 @@ trivia,10,opcion_2,Cambia la música
 trivia,10,opcion_3,Se apaga
 trivia,10,correcta,1
 album,,visible,SI
+album,,efectos,aparecer
 album,,color_fondo,panel
 album,,titulo,Álbum de los invitados
 album,,texto,"Desde el día de la boda, sube hasta 2 fotos de la fiesta; nosotros elegimos las que se quedan."
@@ -249,14 +272,17 @@ album,4,foto,dama.webp
 album,5,foto,novia-ramo.webp
 album,6,foto,manos.webp
 confirmacion,,visible,SI
+confirmacion,,efectos,aparecer respira petalos
 confirmacion,,subtitulo,¡Agradecemos que confirmes tu asistencia!
 dedicatoria,,visible,SI
+dedicatoria,,efectos,aparecer bordado_aparece polvo_luz
 dedicatoria,,titulo,Unas palabras para nosotros
 dedicatoria,,texto,"Escríbenos un deseo, un recuerdo o un consejo. Lo guardaremos para siempre."
 capa-3,,visible,SI
 capa-3,,variante,media
 capa-3,,imagen,terciopelo.webp
 cierre,,visible,SI
+cierre,,efectos,aparecer petalos polvo_luz
 cierre,,variante,bordado
 cierre,,titulo,¡Te esperamos!
 cierre,,texto,Este día no sería lo mismo sin ti.
