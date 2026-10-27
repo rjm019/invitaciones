@@ -87,7 +87,7 @@ export function useMediaLibrary(slug: string, withSession: WithSession) {
   /** Sube un archivo y lo deja al principio de la lista. Lanza ApiError con el motivo. */
   async function upload(
     file: File,
-    options: { purpose?: 'fondo' | 'foto' | 'adorno'; trim?: boolean } = {},
+    options: { purpose?: 'fondo' | 'foto' | 'adorno' | 'video'; trim?: boolean } = {},
   ): Promise<MediaFile> {
     const entry: Upload = { id: nextUpload++, name: file.name, progress: 0, error: null }
     uploads.value = [...uploads.value, entry]

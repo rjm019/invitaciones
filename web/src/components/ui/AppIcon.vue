@@ -38,6 +38,7 @@ import spotifySvg from '@fortawesome/fontawesome-free/svgs/brands/spotify.svg?ra
 import tiktokSvg from '@fortawesome/fontawesome-free/svgs/brands/tiktok.svg?raw'
 import instagramSvg from '@fortawesome/fontawesome-free/svgs/brands/instagram.svg?raw'
 import facebookSvg from '@fortawesome/fontawesome-free/svgs/brands/facebook.svg?raw'
+import youtubeSvg from '@fortawesome/fontawesome-free/svgs/brands/youtube.svg?raw'
 import bedSvg from '@fortawesome/fontawesome-free/svgs/solid/bed.svg?raw'
 import phoneSvg from '@fortawesome/fontawesome-free/svgs/solid/phone.svg?raw'
 import taxiSvg from '@fortawesome/fontawesome-free/svgs/solid/taxi.svg?raw'
@@ -98,6 +99,7 @@ const ICONS: Record<string, string> = {
   tiktok: tiktokSvg,
   instagram: instagramSvg,
   facebook: facebookSvg,
+  youtube: youtubeSvg,
   bed: bedSvg,
   phone: phoneSvg,
   taxi: taxiSvg,

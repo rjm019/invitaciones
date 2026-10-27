@@ -10,7 +10,7 @@
 - [x] 1. Ubicación (ceremonia, recepción o ambas; 27-oct, sin publicar) · Itinerario en vivo (27-oct, sin publicar) · ~~Mesa de regalos y lluvia de sobres~~ (hecha el 16-oct, ver §2)
 - [x] 2. Galería: `galeria`, visor, `marcos` (21-oct) y miniaturas `<nombre>-480.webp` con `srcset` (27-oct)
 - [x] 2b. Lluvia de sobres como sección propia (`lluvia_sobres`, 21-oct)
-- [ ] 3. Video · Publicación de redes
+- [x] 3. Video · Publicación de redes (27-oct, sin publicar; sin variante propia de `nueva-york` todavía)
 - [x] 4. Trivia (27-oct; sin publicar)
 - [ ] 5. Álbum de los invitados (ciclo de 5 a 20 días)
 

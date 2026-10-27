@@ -482,7 +482,7 @@ final class InvitationConfigBuilder
             return null;
         }
 
-        $video = ['source' => $source, 'format' => $this->videoFormat($f['formato'] ?? '', $id)];
+        $video = ['source' => $source === 'archivo' ? 'file' : $source, 'format' => $this->videoFormat($f['formato'] ?? '', $id)];
         if ($source === 'archivo') {
             if ($file === '') {
                 return null;

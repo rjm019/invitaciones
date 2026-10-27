@@ -3,6 +3,7 @@ import { computed, useId } from 'vue'
 import { listThemes } from '@/themes'
 import type { FieldDef } from '@/types/design'
 import AudioField from './AudioField.vue'
+import VideoField from './VideoField.vue'
 import ColorField from './ColorField.vue'
 import ColorsField from './ColorsField.vue'
 import IconField from './IconField.vue'
@@ -271,6 +272,11 @@ const describedBy = computed(
     />
     <AudioField
       v-else-if="def.input === 'audio'"
+      :model-value="modelValue"
+      @update:model-value="set"
+    />
+    <VideoField
+      v-else-if="def.input === 'video'"
       :model-value="modelValue"
       @update:model-value="set"
     />

@@ -36,9 +36,9 @@ export type Selection =
     }
 
 export interface MediaRequest {
-  kind: 'image' | 'audio'
+  kind: 'image' | 'audio' | 'video'
   /** Para el ancho con que se guarda una imagen nueva. */
-  purpose?: 'fondo' | 'foto' | 'adorno'
+  purpose?: 'fondo' | 'foto' | 'adorno' | 'video'
   /** Archivo elegido ahora (para marcarlo). */
   current?: string | null
   /** Ofrecer "recortar aire transparente" (adornos de Canva). */

@@ -5,6 +5,8 @@
  * su layout.xlsx (api/app/Services/Layout/EventConfigBuilder.php).
  */
 
+import type { SocialLink } from '@/services/socialEmbedService'
+
 export type EffectName =
   | 'reveal'
   | 'parallax'
@@ -94,6 +96,10 @@ export interface SectionConfig {
   layers?: string[]
   /** Fotos de una galería (puede haber varias galerías, cada una con las suyas). */
   photos?: GalleryPhoto[]
+  /** Video: de dónde sale y qué mostrar (el servidor ya validó el enlace). */
+  video?: SectionVideo
+  /** Publicación de redes: la red, su enlace validado y la portada. */
+  post?: SectionPost
   /** Preguntas de la trivia (sin la respuesta correcta: esa solo la tiene el servidor). */
   questions?: TriviaQuestion[]
   /** Cuándo cierra la trivia (ISO con offset). */
@@ -166,6 +172,21 @@ export interface GiftEnvelope {
 export interface EventGifts {
   stores: GiftStore[]
   envelope: GiftEnvelope | null
+}
+
+/** Video de una sección: YouTube, Instagram o Facebook (enlace validado) o un MP4 propio. */
+export interface SectionVideo extends Partial<SocialLink> {
+  source: 'youtube' | 'instagram' | 'facebook' | 'file'
+  format: 'horizontal' | 'vertical'
+  /** URL del MP4 de la biblioteca (solo con source = file). */
+  file?: string
+  /** Portada de la biblioteca; sin ella, un fondo con el ícono (nunca la miniatura de la red). */
+  poster?: string
+}
+
+/** Publicación de una red (sección "publicacion"). */
+export interface SectionPost extends SocialLink {
+  poster?: string
 }
 
 /** Una pregunta de la trivia: 2 a 4 opciones; se responde con el número de la opción (desde 1). */

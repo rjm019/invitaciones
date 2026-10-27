@@ -51,6 +51,7 @@ class SocialEmbedTest extends TestCase
             'userinfo' => ['https://youtube.com@evil.com/watch?v=dQw4w9WgXcQ'],
             'userinfo al revés' => ['https://evil.com@www.youtube.com/watch?v=dQw4w9WgXcQ'],
             'puerto' => ['https://www.youtube.com:8443/watch?v=dQw4w9WgXcQ'],
+            'puerto 443' => ['https://www.youtube.com:443/watch?v=dQw4w9WgXcQ'],
             'id corto' => ['https://youtu.be/abc'],
             'id con comilla' => ['https://www.youtube.com/watch?v=dQw4w9WgXc"'],
             'canal sin video' => ['https://www.youtube.com/@jiro'],

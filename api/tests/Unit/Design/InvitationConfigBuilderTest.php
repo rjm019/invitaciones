@@ -250,7 +250,7 @@ class InvitationConfigBuilderTest extends TestCase
     {
         $ok = $this->build($this->minimal([new DesignSection('video', ['fuente' => 'archivo', 'archivo' => 'baile-1a2b.mp4'])]), media: self::VIDEO_MEDIA);
         $this->assertSame([], $ok->errors());
-        $this->assertSame(['source' => 'archivo', 'format' => 'horizontal', 'file' => 'https://ejemplo.test/media/nueva/baile-1a2b.mp4'], $ok->config['sections'][0]['video']);
+        $this->assertSame(['source' => 'file', 'format' => 'horizontal', 'file' => 'https://ejemplo.test/media/nueva/baile-1a2b.mp4'], $ok->config['sections'][0]['video']);
 
         // Una imagen, un archivo que no existe o una URL de afuera no son un MP4 de la biblioteca.
         foreach (['salon.webp', 'otro.mp4', 'https://evil.test/x.mp4'] as $bad) {

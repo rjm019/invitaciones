@@ -149,7 +149,7 @@ Estos datos van en `evento` porque los usan varias partes: la portada, el calend
 
 ### Secciones
 
-Los tipos, en el orden de la invitación de NAT. Solo `foto`, `frase` y `cierre` se pueden repetir (`frase-2`, `foto-2`…). Los nombres viejos (`sobre`, `familia`, `hoteles`…) se aceptan al leer y se guardan con su nombre de hoy.
+Los tipos, en el orden de la invitación de NAT. Solo `foto`, `frase`, `cierre` y las demás marcadas «repetible» se pueden repetir (`frase-2`, `foto-2`, `video-2`…). Los nombres viejos (`sobre`, `familia`, `hoteles`…) se aceptan al leer y se guardan con su nombre de hoy.
 
 | Sección | Campos propios | Elementos de su lista | Datos de `evento` que muestra | Adornos (`imagen_…`) | Textos propios |
 |---|---|---|---|---|---|
@@ -171,6 +171,8 @@ Los tipos, en el orden de la invitación de NAT. Solo `foto`, `frase` y `cierre`
 | `confirmacion` | `titulo`, `subtitulo`, `boton` | — | `rsvp_modo`, `rsvp_limite`, `rsvp_whatsapp` | `tarjeta`, `flores` | `fecha_limite` |
 | `dedicatoria` | `titulo`, `texto`, `boton` | — | — | `divisor` | `mensaje`, `autor` |
 | `trivia` | `titulo`, `texto`, `boton`, `cierra` | `pregunta`, `opcion_1` a `opcion_4`, `correcta` | — | `divisor` | `pregunta`, `opcion`, `resultado` |
+| `video` (repetible) | `titulo`, `texto`, `fuente` (`youtube`, `archivo`, `instagram`, `facebook`), `enlace`, `archivo` (un `.mp4` de `media/`), `poster` (imagen de `media/`), `formato` (`horizontal` 16:9 o `vertical` 9:16), `boton` (texto de "Ver en…") | — | — | `divisor` | `titulo`, `texto` |
+| `publicacion` (repetible) | `titulo`, `texto`, `red` (`instagram`, `facebook`, `youtube`), `enlace`, `poster`, `boton` | — | — | `divisor` | `titulo`, `texto` |
 | `cierre` | `titulo`, `texto` | — | — | `flores`, `corona` | — |
 
 **Íconos del itinerario** (`icono`): un archivo de `media/` (`copas.webp`) o un nombre: `utensils`, `church`, `crown`, `music`, `heart`, `ring`, `dove`, `gift`, `cake-candles`, `graduation-cap`, `door-open`, `champagne-glasses`, `location-dot`, y los de Nueva York: `statue-of-liberty`, `brooklyn-bridge`, `empire-state`, `disco-ball`, `taxi`, `martini-glass-citrus`, `city`.
@@ -271,6 +273,8 @@ Sin `musica_fuente`: se usa el MP3 si hay; si no hay MP3 pero sí playlist, Spot
 **Clima** (`clima`): el clima del día del evento en la ciudad del salón (`salon_ciudad`, por ejemplo "Pachuca, Hidalgo"; o `clima_coordenadas` como `20.1170, -98.7333` para más precisión). Mientras faltan más de 16 días muestra el clima típico de esa fecha (promedio de 10 años); desde 16 días antes, el pronóstico real, que se renueva cada 30 minutos. Incluye la temperatura en las horas de la fiesta y un consejo (abrigo, paraguas). Se quita sola un día después del evento. Datos de Open-Meteo. En la vista previa del gestor sale un ejemplo hasta que la invitación se publica.
 
 **Dedicatoria** (`dedicatoria`): nombre y mensaje (`titulo`, `texto` y `boton` cambian los textos). **Una por enlace**: ya enviada se ve fija y no se puede cambiar; se guarda en `dedicatorias.csv` y la ves en el panel. No depende de la fecha límite. En la invitación general (`/e/<slug>`) pide abrir el enlace personal.
+
+**Video y publicación de redes** (`video`, `publicacion`): el `enlace` debe ser `https` y de **YouTube** (`youtube.com`, `youtu.be`, también Shorts), **Instagram** (reel, post o video) o **Facebook** (video, reel o publicación); cualquier otro dominio, `http`, `javascript:` o un enlace con usuario o puerto se reporta como error y la sección no se muestra. El servidor saca el id y arma las direcciones (`SocialEmbed`); lo que se escribió nunca viaja tal cual. Con `fuente = archivo`, `archivo` es un **MP4 (H.264) de la biblioteca**, de **hasta 40 MB**, que se sube tal cual (sin re-codificar) en la pestaña «Videos»; Apache lo sirve con `Range`. La portada (`poster`) debe ser una imagen de la biblioteca: **nunca** se pide la miniatura de YouTube ni ninguna imagen de afuera. **Fachada:** al abrir la invitación no se hace ninguna petición a YouTube, Instagram ni Facebook (ni a sus CDNs); el reproductor (iframe `youtube-nocookie.com`, `blockquote` + `embed.js` de Instagram, plugin de Facebook) se carga solo al tocar play, y ese toque pausa la música de la invitación. Si la red lo bloquea o tarda más de 10 s, queda el botón «Ver en Instagram». En una muestra (`demo=SI`) se ve igual.
 
 **Trivia** (`trivia`): hasta **10 preguntas**; cada una lleva `pregunta`, de 2 a 4 opciones (`opcion_1` a `opcion_4`, en orden y sin huecos) y `correcta`, el **número** de la opción correcta (1 a 4). `cierra` (fecha, o fecha y hora; una fecha sola cierra al terminar ese día) es opcional: sin ella cierra cuando empieza el evento. **La respuesta correcta nunca sale en la invitación**: el servidor califica. Cada enlace responde **una vez** con su nombre; se guarda en `trivia.csv` (`respuestas` son los números elegidos separados por `;`) y los `segundos` los mide el servidor desde que se abrió la trivia (`trivia-inicios.csv`). Ya respondida o cerrada, el enlace da `409`. En una muestra (`demo=SI`) califica pero no guarda nada. En el panel, la pestaña **Trivia** muestra el ranking (más aciertos y, en empate, menos segundos) y lo descarga en CSV.
 

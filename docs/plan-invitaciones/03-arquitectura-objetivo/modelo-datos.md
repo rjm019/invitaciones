@@ -11,7 +11,7 @@ eventos/<slug>/
 ├── invitacion.csv           la invitación publicada (la escribe el gestor al publicar)
 ├── borrador/invitacion.csv  lo que se edita en el gestor (solo con cambios sin publicar)
 ├── layout.xlsx              formato anterior (deprecado): solo se lee si no hay invitacion.csv
-├── media/                   fotos, decoraciones y audio
+├── media/                   fotos, decoraciones, audio y videos MP4 (≤ 40 MB, sin re-codificar)
 ├── invitaciones.csv         un renglón por enlace generado en el panel (con `telefono` para los recordatorios)
 ├── recordatorios.csv        cada recordatorio por WhatsApp y su estado (solo crece; fase 12)
 ├── respuestas.csv           un renglón por persona registrada
@@ -126,6 +126,7 @@ erDiagram
 | Throttle de dedicatorias: 5/min por IP y token | `AppServiceProvider` |
 | Trivia: **una participación por enlace** (la segunda → `409`, revisado dentro del `flock`); `409` también si ya cerró (`cierra` o el inicio del evento); los segundos y la calificación salen del servidor; `correcta` nunca va en el `config` público ni en `/e/`; una muestra califica y no escribe | `TriviaController` + `TriviaService` + `TriviaStore` + `TriviaQuiz` |
 | Throttle de la trivia: 10/min por IP y token | `AppServiceProvider` |
+| Video y publicación de redes: solo `https` y dominios de YouTube, Instagram o Facebook, sin usuario ni puerto; el config lleva solo las partes validadas (red, tipo, id, URL canónica, embed), nunca el texto escrito; la portada solo de `media/`; el MP4 se acepta únicamente con el propósito `video` (`finfo` = `video/mp4`, ≤ 40 MB) | `SocialEmbed` + `InvitationConfigBuilder` + `MediaLibrary` |
 | Gestor: sin `GESTOR_CLAVE` de 16+ caracteres → `403`; cada persona con su usuario y su clave (10+ caracteres, hash bcrypt); la clave maestra solo crea la primera cuenta; login 5/min por IP; el resto 240/min | `ManagerAuth` + `EnsureManagerSession` + `routes/api.php` |
 | Quién ve qué: quien edita solo ve las invitaciones que creó o le asignaron (`ajustes.csv` → `personas_gestor`: "ana, beto") y todas las plantillas; quien administra ve todas y es quien asigna. En otra invitación todo responde `403` | `ManagerAccess` + `EnsureManagerEventAccess` + `ManagerEvents::list` |
 | Cuentas: solo quien administra agrega, cambia o quita el acceso; nadie se quita el acceso ni el rol a sí mismo y siempre queda alguien activo que administra; nadie se borra (el historial guarda su nombre); una clave temporal se cambia al entrar | `ManagerUsers` + `UserController` + `EnsureManagerAdmin` |

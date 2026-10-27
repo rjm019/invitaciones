@@ -21,6 +21,8 @@ import EnvelopeRainSection from './sections/EnvelopeRainSection.vue'
 import LayerSection from './sections/LayerSection.vue'
 import GallerySection from './sections/GallerySection.vue'
 import TriviaSection from './sections/TriviaSection.vue'
+import VideoSection from './sections/VideoSection.vue'
+import SocialPostSection from './sections/SocialPostSection.vue'
 
 /**
  * Tipo de sección (columna "seccion" del layout) → componente. Van todas en el mismo
@@ -51,4 +53,6 @@ export const sectionRegistry: Record<string, Component> = {
   closing: ClosingSection,
   gifts: GiftsSection,
   trivia: TriviaSection,
+  video: VideoSection,
+  'social-post': SocialPostSection,
 }

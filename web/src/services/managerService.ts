@@ -244,7 +244,7 @@ export async function uploadMedia(
   file: Blob,
   name: string,
   options: {
-    purpose?: 'fondo' | 'foto' | 'adorno'
+    purpose?: 'fondo' | 'foto' | 'adorno' | 'video'
     trim?: boolean
     onProgress?: (fraction: number) => void
   } = {},

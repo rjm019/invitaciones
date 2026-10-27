@@ -9,7 +9,7 @@ import GDialog from './GDialog.vue'
 import ManagerIcon from './ManagerIcon.vue'
 
 /**
- * La biblioteca de imágenes y audio de la invitación: elegir un archivo, subir uno nuevo
+ * La biblioteca de imágenes, audio y video de la invitación: elegir un archivo, subir uno nuevo
  * (arrastrando o eligiéndolo; una foto grande se reduce sola) y borrar lo que no se usa.
  */
 const props = defineProps<{ open: boolean; slug: string; request: MediaRequest | null }>()
@@ -18,7 +18,7 @@ const { withSession } = useManagerSession()
 const { toast } = useToasts()
 const library = useMediaLibrary(props.slug, withSession)
 
-const filter = ref<'image' | 'audio'>('image')
+const filter = ref<'image' | 'audio' | 'video'>('image')
 const trim = ref(false)
 const dragging = ref(false)
 const input = ref<HTMLInputElement | null>(null)
@@ -38,16 +38,36 @@ watch(
 const shown = computed(() => library.files.value.filter((f) => f.kind === filter.value))
 const usedMb = computed(() => (library.totalBytes.value / 1024 / 1024).toFixed(1))
 const accept = computed(() =>
-  filter.value === 'audio'
-    ? 'audio/mpeg,audio/mp4,audio/x-m4a,.mp3,.m4a'
-    : 'image/jpeg,image/png,image/webp,image/gif,image/heic,.heic',
+  filter.value === 'video'
+    ? 'video/mp4,.mp4'
+    : filter.value === 'audio'
+      ? 'audio/mpeg,audio/mp4,audio/x-m4a,.mp3,.m4a'
+      : 'image/jpeg,image/png,image/webp,image/gif,image/heic,.heic',
+)
+const noun = computed(() =>
+  filter.value === 'video'
+    ? { list: 'Videos', empty: 'Aún no hay videos.', use: 'este video', icon: 'play' as const }
+    : filter.value === 'audio'
+      ? {
+          list: 'Canciones',
+          empty: 'Aún no hay canciones.',
+          use: 'esta canción',
+          icon: 'music' as const,
+        }
+      : {
+          list: 'Imágenes',
+          empty: 'Aún no hay imágenes.',
+          use: 'esta imagen',
+          icon: 'image' as const,
+        },
 )
 
 async function upload(files: FileList | File[] | null): Promise<void> {
   for (const file of [...(files ?? [])]) {
     try {
       const stored = await library.upload(file, {
-        purpose: props.request?.purpose,
+        // En la pestaña de videos, todo lo que se suba es un MP4 (se guarda tal cual).
+        purpose: filter.value === 'video' ? 'video' : props.request?.purpose,
         trim: trim.value,
       })
       selected.value = stored.name
@@ -96,7 +116,7 @@ const size = (bytes: number) =>
 </script>
 
 <template>
-  <GDialog :open="open" title="Imágenes y audio" size="xl" @close="emit('close')">
+  <GDialog :open="open" title="Imágenes, audio y video" size="xl" @close="emit('close')">
     <div class="library">
       <div class="library__bar">
         <div class="g-segmented" role="tablist">
@@ -118,6 +138,15 @@ const size = (bytes: number) =>
           >
             <ManagerIcon name="music" /> Canciones
           </button>
+          <button
+            type="button"
+            role="tab"
+            :aria-selected="filter === 'video'"
+            :aria-pressed="filter === 'video'"
+            @click="filter = 'video'"
+          >
+            <ManagerIcon name="play" /> Videos
+          </button>
         </div>
         <span class="library__space">{{ usedMb }} MB usados</span>
       </div>
@@ -135,9 +164,11 @@ const size = (bytes: number) =>
           <button type="button" class="drop__link" @click="input?.click()">elígelos</button>
         </p>
         <small>{{
-          filter === 'audio'
-            ? 'MP3 o M4A, ideal de 3 MB o menos.'
-            : 'JPG, PNG, WebP o GIF. Las fotos grandes se reducen solas.'
+          filter === 'video'
+            ? 'MP4 (H.264), de hasta 40 MB. Se sube tal cual, sin comprimir.'
+            : filter === 'audio'
+              ? 'MP3 o M4A, ideal de 3 MB o menos.'
+              : 'JPG, PNG, WebP o GIF. Las fotos grandes se reducen solas.'
         }}</small>
         <label v-if="filter === 'image' && request?.trim" class="drop__trim">
           <input v-model="trim" type="checkbox" /> Recortar el aire transparente (para adornos de
@@ -174,12 +205,7 @@ const size = (bytes: number) =>
 
       <p v-if="library.error.value" class="g-note g-note--danger">{{ library.error.value }}</p>
 
-      <div
-        v-if="shown.length"
-        class="grid"
-        role="listbox"
-        :aria-label="filter === 'audio' ? 'Canciones' : 'Imágenes'"
-      >
+      <div v-if="shown.length" class="grid" role="listbox" :aria-label="noun.list">
         <div
           v-for="f in shown"
           :key="f.name"
@@ -194,7 +220,7 @@ const size = (bytes: number) =>
         >
           <div class="file__thumb">
             <img v-if="f.kind === 'image'" :src="f.url" alt="" loading="lazy" />
-            <ManagerIcon v-else name="music" />
+            <ManagerIcon v-else :name="f.kind === 'video' ? 'play' : 'music'" />
           </div>
           <div class="file__info">
             <span class="file__name" :title="f.name">{{ f.name }}</span>
@@ -224,15 +250,15 @@ const size = (bytes: number) =>
         </div>
       </div>
       <div v-else-if="!library.loading.value" class="g-empty">
-        <ManagerIcon :name="filter === 'audio' ? 'music' : 'image'" />
-        <span>{{ filter === 'audio' ? 'Aún no hay canciones.' : 'Aún no hay imágenes.' }}</span>
+        <ManagerIcon :name="noun.icon" />
+        <span>{{ noun.empty }}</span>
       </div>
     </div>
 
     <template #footer>
       <button type="button" class="g-btn" @click="emit('close')">Cancelar</button>
       <button type="button" class="g-btn g-btn--primary" :disabled="!selected" @click="choose">
-        <ManagerIcon name="check" /> Usar {{ filter === 'audio' ? 'esta canción' : 'esta imagen' }}
+        <ManagerIcon name="check" /> Usar {{ noun.use }}
       </button>
     </template>
   </GDialog>

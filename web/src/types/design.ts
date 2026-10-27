@@ -51,6 +51,7 @@ export type FieldInput =
   | 'colors'
   | 'image'
   | 'audio'
+  | 'video'
   | 'icon'
   | 'font'
   | 'timezone'
@@ -312,7 +313,7 @@ export interface DesignPayload extends DesignBuild {
 export interface MediaFile {
   name: string
   url: string
-  kind: 'image' | 'audio'
+  kind: 'image' | 'audio' | 'video'
   bytes: number
   width: number | null
   height: number | null

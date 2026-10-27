@@ -213,6 +213,25 @@ describe('withContent', () => {
     expect(types(withContent(list, event(null), before))).toEqual(['trivia'])
   })
 
+  it('el video y la publicación aparecen solo con un enlace o archivo válido', () => {
+    const list = [
+      section({ type: 'video', video: { source: 'file', format: 'horizontal', file: 'a.mp4' } }),
+      section({ type: 'video' }),
+      section({
+        type: 'social-post',
+        post: {
+          network: 'instagram',
+          kind: 'post',
+          id: 'Cabc_12-x',
+          url: 'https://www.instagram.com/p/Cabc_12-x/',
+          embed: null,
+        },
+      }),
+      section({ type: 'social-post' }),
+    ]
+    expect(types(withContent(list, event(null), before))).toEqual(['video', 'social-post'])
+  })
+
   it('cada galería aparece solo si trae alguna foto', () => {
     const list = [
       section({ type: 'gallery', photos: [{ photo: 'a.webp', caption: '' }] }),
