@@ -82,6 +82,38 @@ class EventEffectsTest extends TestCase
         $this->assertArrayNotHasKey('edge', $sections->firstWhere('type', 'closing'));
     }
 
+    public function test_the_lace_and_fabric_effects_have_spanish_names(): void
+    {
+        $this->copyEventFixtures();
+        foreach ([
+            'cuenta_regresiva,,visible,SI',
+            'cuenta_regresiva,,efectos,"encaje_giratorio encaje_ondulante encaje_dibujado foco foco_viaja perlas_destello satin_brillo"',
+            'frase,,visible,SI',
+            'frase,,efectos,"cortinaje_mece perlas_cuelgan petalos polvo_luz tul_respira bordado_aparece respira"',
+            'cierre,,visible,SI',
+            'cierre,,efectos,"luciernagas bordado saten"',
+            'portada,,variante,sobre-central',
+            'portada,,imagen_papel,ninguna',
+        ] as $line) {
+            $this->appendLine('nueva', 'invitacion.csv', $line);
+        }
+
+        $sections = collect($this->getJson('/api/public/events/nueva')->assertOk()->json('event.sections'));
+
+        $this->assertSame(
+            ['lace-spin', 'lace-wave', 'lace-draw', 'spotlight', 'spotlight-travel', 'pearl-glint', 'satin-sweep'],
+            $sections->firstWhere('type', 'countdown')['effects'],
+        );
+        $this->assertSame(
+            ['drape-sway', 'pearl-strands', 'petals', 'light-dust', 'tulle-breathe', 'stitch-in', 'breathe'],
+            $sections->firstWhere('type', 'quote')['effects'],
+        );
+        $this->assertSame(['light-dust', 'stitch-in', 'satin-sweep'], $sections->firstWhere('type', 'closing')['effects']);
+        $hero = $sections->firstWhere('type', 'hero-envelope');
+        $this->assertSame('sobre-central', $hero['variant']);
+        $this->assertNull($hero['decor']['paper'] ?? null);
+    }
+
     public function test_lace_ribbon_texture_and_veil_options(): void
     {
         $this->copyEventFixtures();

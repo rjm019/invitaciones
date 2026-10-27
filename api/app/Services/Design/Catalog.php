@@ -87,6 +87,20 @@ final class Catalog
         'aparecer_giro' => ['effect' => 'reveal-tilt', 'label' => 'Aparecer con giro', 'help' => 'La sección entra levantándose, como una tarjeta que se abre.'],
         'velo' => ['effect' => 'veil', 'label' => 'Velo', 'help' => 'Un tul marfil que ondea despacio sobre la sección.'],
         'luces_disco' => ['effect' => 'disco-lights', 'label' => 'Reflejos de bola disco', 'help' => 'Puntos de luz que recorren la sección, como los reflejos de una bola disco.'],
+        'encaje_giratorio' => ['effect' => 'lace-spin', 'label' => 'Encaje que gira', 'help' => 'Carpetas de encaje que giran muy despacio en las esquinas, detrás del contenido.'],
+        'encaje_ondulante' => ['effect' => 'lace-wave', 'label' => 'Encaje ondulante', 'help' => 'Las orillas de encaje de arriba y abajo se mecen como una tela con brisa.'],
+        'encaje_dibujado' => ['effect' => 'lace-draw', 'label' => 'Encaje que se dibuja', 'help' => 'Al llegar a la sección, una flor de encaje se dibuja trazo a trazo en dos esquinas.'],
+        'foco' => ['effect' => 'spotlight', 'label' => 'Foco de escenario', 'help' => 'Al llegar a la sección se enciende un haz de luz sobre el centro y los bordes se oscurecen, como cuando alguien canta.'],
+        'foco_viaja' => ['effect' => 'spotlight-travel', 'label' => 'Foco que recorre', 'help' => 'El haz de luz de escenario se enciende y recorre la sección de lado a lado.'],
+        'perlas_destello' => ['effect' => 'pearl-glint', 'label' => 'Perlas con destello', 'help' => 'Un collar de perlas al borde de arriba; un destello lo recorre perla por perla.'],
+        'satin_brillo' => ['effect' => 'satin-sweep', 'label' => 'Brillo de satén', 'help' => 'Un barrido de brillo, como luz sobre satén, cruza el fondo de vez en cuando.'],
+        'cortinaje_mece' => ['effect' => 'drape-sway', 'label' => 'Cortinaje que se mece', 'help' => 'Guirnaldas de gasa con perlas cuelgan arriba y se balancean con suavidad.'],
+        'perlas_cuelgan' => ['effect' => 'pearl-strands', 'label' => 'Hilos de perlas', 'help' => 'Hilos de perlas caen desde arriba al entrar a la sección y se balancean.'],
+        'petalos' => ['effect' => 'petals', 'label' => 'Pétalos que caen', 'help' => 'Pétalos blancos que caen muy despacio, meciéndose y girando.'],
+        'polvo_luz' => ['effect' => 'light-dust', 'label' => 'Polvo de luz', 'help' => 'Motas de luz pequeñas que suben lentamente y se encienden y apagan.'],
+        'tul_respira' => ['effect' => 'tulle-breathe', 'label' => 'Tul que respira', 'help' => 'Velos de tul en las orillas que ondean como cortinas con brisa.'],
+        'bordado_aparece' => ['effect' => 'stitch-in', 'label' => 'Título bordado', 'help' => 'El título aparece de a poco y debajo se cose una línea de puntadas.'],
+        'respira' => ['effect' => 'breathe', 'label' => 'Respirar', 'help' => 'El panel crece y se encoge apenas, como si respirara.'],
     ];
 
     /** Otros nombres de efectos que ya aceptaba el Excel. */
@@ -100,6 +114,11 @@ final class Catalog
         'sin_cortes' => 'difuminar',
         'disco' => 'bola_disco',
         'reflejos_disco' => 'luces_disco',
+        'polvo' => 'polvo_luz',
+        'luciernagas' => 'polvo_luz',
+        'bordado' => 'bordado_aparece',
+        'foco_escenario' => 'foco',
+        'saten' => 'satin_brillo',
     ];
 
     /** Palabras que apagan los efectos que el tema trae por defecto. */
@@ -154,6 +173,7 @@ final class Catalog
         'alcatraz' => ['slot' => 'lily', 'label' => 'Alcatraz'],
         'encaje' => ['slot' => 'lace', 'label' => 'Carpeta de encaje'],
         'hacienda' => ['slot' => 'estate', 'label' => 'Dibujo de la hacienda'],
+        'papel' => ['slot' => 'paper', 'label' => 'Papel del sobre central'],
     ];
 
     /** División entre secciones (la orilla de las franjas): nombre en el CSV → código. */
@@ -355,10 +375,11 @@ final class Catalog
                     ['value' => 'estatua', 'label' => 'Estatua de la Libertad'],
                     ['value' => 'telon', 'label' => 'Telón de terciopelo'],
                     ['value' => 'encaje', 'label' => 'Sobre de encaje'],
+                    ['value' => 'sobre-central', 'label' => 'Sobre que abre desde el centro hacia arriba'],
                 ]],
             ],
             'linked' => ['festejada_corto', 'festejada', 'subtitulo'],
-            'slots' => ['sobre', 'tarjeta', 'flores', 'corona', 'mariposas', 'lacre', 'puerta', 'estatua', 'paisaje', 'cortinaje', 'telon', 'pliegues', 'tela', 'alcatraz'],
+            'slots' => ['sobre', 'tarjeta', 'flores', 'corona', 'mariposas', 'lacre', 'puerta', 'estatua', 'paisaje', 'cortinaje', 'telon', 'pliegues', 'tela', 'alcatraz', 'papel'],
             'texts' => ['subtitulo' => 'Frase (mis xv años)', 'nombre' => ['block' => 'name', 'label' => 'Nombre grande'], 'lugar' => ['block' => 'place', 'label' => 'Salón y ciudad'], 'para' => ['block' => 'to', 'label' => 'Nombre en el sobre'], 'boton' => 'Texto para abrir'],
         ],
         'musica' => [

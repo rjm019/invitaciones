@@ -152,3 +152,67 @@ describe('SectionShell: capas de imagen', () => {
     expect(wrapper.find('section').classes()).not.toContain('section--has-layers')
   })
 })
+
+describe('SectionShell: efectos de tela y encaje', () => {
+  const ALL = [
+    'lace-spin',
+    'lace-wave',
+    'lace-draw',
+    'spotlight',
+    'pearl-glint',
+    'satin-sweep',
+    'drape-sway',
+    'pearl-strands',
+    'petals',
+    'light-dust',
+    'tulle-breathe',
+  ]
+
+  it('pinta cada capa detrás del contenido y la marca como ambiente', () => {
+    const wrapper = render({ effects: ALL })
+    expect(wrapper.findAll('.fab-doily')).toHaveLength(2)
+    expect(wrapper.findAll('.fab-lace')).toHaveLength(2)
+    expect(wrapper.findAll('.fab-draw')).toHaveLength(2)
+    expect(wrapper.findAll('.fab-dim')).toHaveLength(1)
+    expect(wrapper.findAll('.fab-beam')).toHaveLength(1)
+    expect(wrapper.findAll('.fab-pearl')).toHaveLength(15)
+    expect(wrapper.findAll('.fab-satin')).toHaveLength(2)
+    expect(wrapper.findAll('.fab-drape')).toHaveLength(2)
+    expect(wrapper.findAll('.fab-strand')).toHaveLength(7)
+    expect(wrapper.findAll('.fab-petal')).toHaveLength(12)
+    expect(wrapper.findAll('.fab-mote')).toHaveLength(22)
+    expect(wrapper.findAll('.fab-tulle')).toHaveLength(4)
+    const children = [...wrapper.find('section').element.children].map((el) => el.className)
+    const content = children.findIndex((c) => c.split(' ').includes('section__content'))
+    const layers = children.flatMap((c, i) => (c.split(' ').includes('fab') ? [i] : []))
+    expect(layers.length).toBeGreaterThan(0)
+    expect(Math.max(...layers)).toBeLessThan(content)
+    // Son del grupo "ambiente": se pausan y se ocultan lejos de la pantalla.
+    expect(wrapper.findAll('.ambience.fab').length).toBe(layers.length)
+  })
+
+  it('el foco que viaja reemplaza al fijo y comparte la viñeta', () => {
+    const wrapper = render({ effects: ['spotlight', 'spotlight-travel'] })
+    expect(wrapper.findAll('.fab--spot')).toHaveLength(1)
+    expect(wrapper.find('.fab--spot').classes()).toContain('fab--spot-travel')
+  })
+
+  it('bordado y respira son solo CSS: ninguna capa; el bordado pide saber cuándo se ve', () => {
+    const wrapper = render({ effects: ['stitch-in', 'breathe'] })
+    expect(wrapper.find('.fab').exists()).toBe(false)
+    expect(wrapper.find('section').classes()).toEqual(
+      expect.arrayContaining(['fx-stitch-in', 'fx-breathe']),
+    )
+    // El bloque no se desvanece por el bordado (solo el título).
+    expect(wrapper.find('.section__content').classes()).toContain('is-cascade-only')
+    expect(wrapper.find('.section__content').classes()).toContain('fx-reveal-target')
+  })
+
+  it('toda duración y retraso pasa por la velocidad de la invitación', () => {
+    const wrapper = render({ effects: ['petals', 'light-dust', 'pearl-strands', 'lace-spin'] })
+    for (const sel of ['.fab-petal', '.fab-mote', '.fab-doily']) {
+      expect(wrapper.find(sel).attributes('style')).toContain('--motion-scale')
+    }
+    expect(wrapper.find('.fab-strand').attributes('style')).toContain('--motion-scale')
+  })
+})
