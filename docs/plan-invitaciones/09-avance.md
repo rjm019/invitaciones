@@ -459,6 +459,14 @@ Pedido: "un contador de visualizaciones en la página y, si no es invasivo, que 
 - **Probado:** 221 pruebas de la API y 349 del front (con las nuevas: visitas, clasificador, estadísticas, enlaces con etiqueta, sitemap y cabeceras); lint, tipos y build en verde. En local con Chromium: la landing con etiqueta de Instagram, la página de bodas y `/e/nat` quedaron anotadas; una dirección que no existe, no. La ventana, revisada en capturas de escritorio y de celular.
 - **Cambió contra el plan:** la fase 10 no traía estadísticas; se hicieron propias (sin Google Analytics, sin cookies ni avisos de cookies) y con los mismos CSV de siempre.
 
+### Muestra "Isabella & Mateo" con el tema `encaje` (27-oct, rama `feature/secciones-fase-9`; sin publicar ni anunciar)
+
+- `deploy/demos/demo-boda-encaje` (`/i/DemoEncaje27`, `demo=SI`; el token tiene 12 caracteres porque `InvitationStore::PATTERN` no acepta más): boda ficticia en San Miguel de Allende (23-oct-2027), portada `telon` sobre un óleo, 29 secciones: todas las del catálogo, ubicación de ceremonia y de recepción por separado, tres galerías (`bastidor`, `carrusel`, y las del álbum de ejemplo), tres `capa` (óleo, encaje, terciopelo), trivia de 10 preguntas que de paso explica las secciones, álbum, video y publicación en óvalo de encaje. Alterna panel de terciopelo oliva y papel marfil (bendición, ubicación, hospedaje, playlist, carrusel y publicación van en papel).
+- Fotos de Wikimedia Commons con licencia CC0 o dominio público (Unsplash espejado y óleos de Constable); autores y URL en `deploy/demos/demo-boda-encaje/CREDITOS.md`. El terciopelo de la última capa es un degradado generado.
+- Defectos del tema encontrados con capturas a 390 y 1440 px y corregidos: botones de `muestrario`, `etiqueta`, `grabado` y del calendario sin fondo (salían como enlaces azules); botón «Empezar» de la trivia `tarjetas` ilegible; la fila 31 del calendario quedaba tras la solapa del sobre; etiquetas del corazón de la cuenta regresiva fuera del corazón; texto del lugar de la portada `telon` tapado por los arbustos; título del reproductor y frase en letra ilegible o apagada.
+- NAT y las tres muestras anteriores se compararon antes y después a 390 px: iguales (solo cambian el clima, el iframe de Spotify y las fotos perezosas según llegan).
+- No se tocó la landing: la muestra aún no se anuncia. Falta el sobre que abre del centro hacia arriba y los efectos nuevos del tema (otro agente).
+
 ### Invitación personal y confirmación
 
 - Cada enlace (`/i/<token>`) muestra la misma invitación. Lo que cambia es el formulario: **un campo de nombre por invitado**, con "Asistiré / Lo siento, no asistiré".
