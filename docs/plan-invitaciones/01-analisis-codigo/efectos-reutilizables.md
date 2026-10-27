@@ -157,3 +157,21 @@ Todo es global: el tema `encaje` solo les pone valor en su manifest.
 | mesa de regalos | `etiqueta` | `GiftsTags.vue`: etiquetas de papel rasgado con perforaciones y perla o moño |
 | cuenta regresiva | `corazon` | `CountdownHeart.vue`: doily recortado en corazón con los números |
 | cierre | `bordado` | `ClosingEmbroidery.vue`: tela arrugada al pie, alcatraces y firma (bloque `firma`) |
+
+### Tema `encaje`, etapa 6b-2: grabado, bastidores, tarjetas y óvalos de encaje
+
+Todos globales: cualquier tema los usa con `variante` y sus propios colores; `encaje` los pone en su manifest.
+
+| Sección | Variante | Pieza |
+|---|---|---|
+| itinerario | `grabado` | `ItineraryEngraving.vue`: hilo vertical con un medallón por momento (hora a un lado, actividad al otro). El dibujo de línea (copa, anillos, plato, pastel, música, iglesia, cámara, corazón, flor) sale de `services/engravedIconService.ts`: primero por el `icono` del editor (`champagne-glasses`, `ring`, `utensils`, `cake-candles`…) y, si no, por las palabras de la actividad. Soporta `en_vivo` (`useLiveItinerary` + `LiveItineraryBanner`) y la línea que se llena (`timeline-fill`). Ranura `divisor` (perlas) |
+| ubicación | `grabado` | `LocationEngraving.vue`: lámina de panel oliva (`page-palette`) con la hacienda dibujada a línea (ranura `hacienda`, adorno compartido `hacienda.svg`, pintado con máscara en el color de la tinta), etiqueta, nombre, hora y dirección; "Ver ubicación" y "Agregar al calendario" por lugar. Mismas props que `metro`: `acomodo` (lado a lado/apilado), `calendario` y el `tipo` de cada lugar |
+| galería | `bastidor` | `GalleryHoops.vue`: cada foto en un aro de bordado (madera clara con tornillo, tela de lino y puntada discontinua), una de cada tres a todo el ancho. Usa `galleryItems` (miniaturas con `srcset`) y el `PhotoViewer` |
+| trivia | `tarjetas` | Piel en `skins.css` sobre `TriviaSection` (mismo comportamiento y mismo servicio): tarjeta de papel con puntada y carpeta de encaje que asoma arriba; tinta y papel de `--color-on-button` y `--color-paper` |
+| video, publicación | `encaje` | Piel en `skins.css` sobre `SocialPlayer`: marco ovalado con aro de perlas y puntadas. La fachada no cambia: sigue sin cargar nada de terceros hasta tocar play |
+
+- Las pieles no se descargan: se registran en `skinVariants` (`sectionVariants.ts`) y el spec del tema comprueba que su regla exista en `skins.css`.
+- **Adorno nuevo compartido:** `hacienda` (`themes/_shared/assets/hacienda.svg`, ranura `estate`).
+- **Enlace de la vestimenta:** `muestrario` ya no busca en Google; su botón ("Ver ejemplos", o el `boton` de la sección) lleva al campo `enlace` de la sección (https validado por el servidor, `section.link`). Sin enlace no hay botón.
+- **Plantilla:** `deploy/plantillas/encaje/invitacion.csv` (boda con todas las secciones y variantes, datos neutros; galería, video y publicación quedan ocultas hasta poner sus fotos o enlaces).
+

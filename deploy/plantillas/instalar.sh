@@ -3,7 +3,7 @@
 # Crea eventos/plantilla-<nombre>/ con su invitacion.csv y ajustes.csv (plantilla=SI, oculta).
 # Si ya existe no la toca: puede tener cambios hechos en el gestor.
 set -eu
-name="${1:?Uso: deploy/plantillas/instalar.sh <nombre>  (por ejemplo: nueva-york)}"
+name="${1:?Uso: deploy/plantillas/instalar.sh <nombre>  (por ejemplo: nueva-york o encaje)}"
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/../.." && pwd)"
 src="$here/$name"

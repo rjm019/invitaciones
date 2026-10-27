@@ -114,6 +114,8 @@ export interface SectionConfig {
   calendar?: boolean
   /** Ubicación: lugares lado a lado (se apilan en el celular) o uno debajo del otro. */
   layout?: 'side' | 'stack'
+  /** Vestimenta: enlace https del botón "Ver ejemplos" (sin enlace, el botón no aparece). */
+  link?: string
   /** Itinerario: resalta el momento actual el día del evento. */
   live?: boolean
   /** Forma de sus orillas, si es franja (si no, la de la página o la del tema). */

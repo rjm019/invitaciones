@@ -421,6 +421,13 @@ final class InvitationConfigBuilder
                 $entry['layout'] = $layout;
             }
         }
+        // Vestimenta: el enlace del botón de ejemplos, solo si es https (si no, se reporta y se quita).
+        if ($kind === 'vestimenta') {
+            $link = $this->webUrl($f['enlace'] ?? '', $id, null, 'enlace');
+            if ($link !== '') {
+                $entry['link'] = $link;
+            }
+        }
         // Itinerario en vivo: el día del evento resalta el momento actual (lo calcula la web).
         if ($kind === 'itinerario' && Normalizer::yes($f['en_vivo'] ?? '')) {
             $entry['live'] = true;

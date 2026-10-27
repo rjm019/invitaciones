@@ -7,7 +7,8 @@ import type { ResolvedSection } from '@/types/event'
  * Código de vestimenta en muestrario ("muestrario"): cada color sugerido es un retazo de
  * tela con sus bordes cortados en zigzag (tijera de picos), una costura y un ligero giro,
  * como las muestras de una modista. Sin colores en el evento, el muestrario usa los
- * pasteles del tema (--color-pastel-*). El botón "Ver ejemplos" busca ideas en imágenes.
+ * pasteles del tema (--color-pastel-*). El botón ("Ver ejemplos") lleva al enlace propio de
+ * la sección (`enlace`, ya validado como https por el servidor); sin enlace, no aparece.
  */
 const props = defineProps<{ section: ResolvedSection }>()
 const { event } = useEvent()
@@ -20,13 +21,8 @@ const swatches = computed(() => {
     ? chosen.map((c) => ({ key: c, color: c }))
     : PASTELS.map((p) => ({ key: p, color: `var(--color-pastel-${p}, var(--color-accent))` }))
 })
-const button = computed(() => props.section.button)
-const examples = computed(
-  () =>
-    `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(
-      `vestimenta ${props.section.subtitle ?? ''} ${event.value.title ?? ''}`.trim(),
-    )}`,
-)
+const link = computed(() => props.section.link ?? null)
+const button = computed(() => props.section.button ?? 'Ver ejemplos')
 </script>
 
 <template>
@@ -50,8 +46,8 @@ const examples = computed(
     </ul>
 
     <a
-      v-if="button"
-      :href="examples"
+      v-if="link"
+      :href="link"
       class="swatches__button inv-btn"
       data-text="button"
       target="_blank"

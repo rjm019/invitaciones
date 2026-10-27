@@ -5,7 +5,7 @@
 # hechos en el gestor. Con --forzar reemplaza su invitacion.csv (y suma su media), guardando
 # antes la del servidor en respaldos/; sus ajustes se quedan.
 set -eu
-name="${1:?Uso: deploy/plantillas/subir.sh <nombre> [--forzar]  (por ejemplo: nueva-york)}"
+name="${1:?Uso: deploy/plantillas/subir.sh <nombre> [--forzar]  (por ejemplo: nueva-york o encaje)}"
 case "$name" in
   '' | *[!a-z0-9-]*) echo "El nombre solo lleva minúsculas, números y guiones: $name"; exit 1 ;;
 esac

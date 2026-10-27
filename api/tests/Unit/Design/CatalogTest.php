@@ -52,6 +52,27 @@ class CatalogTest extends TestCase
         }
     }
 
+    public function test_lace_theme_variants_are_offered_by_the_editor(): void
+    {
+        $options = fn (string $section) => array_column(
+            collect(Catalog::section($section)['fields'])->firstWhere('key', 'variante')['options'],
+            'value',
+        );
+
+        $this->assertContains('grabado', $options('itinerario'));
+        $this->assertContains('grabado', $options('ubicacion'));
+        $this->assertContains('bastidor', $options('galeria'));
+        $this->assertContains('tarjetas', $options('trivia'));
+        $this->assertContains('encaje', $options('video'));
+        $this->assertContains('encaje', $options('publicacion'));
+        $this->assertArrayHasKey('hacienda', Catalog::slots('ubicacion'));
+        $this->assertSame('estate', Catalog::slots('ubicacion')['hacienda']['slot']);
+        // El botón de ejemplos de la vestimenta es un campo propio: texto y enlace.
+        $keys = array_column(Catalog::section('vestimenta')['fields'], 'key');
+        $this->assertContains('enlace', $keys);
+        $this->assertContains('boton', $keys);
+    }
+
     public function test_the_editor_gets_the_whole_catalog(): void
     {
         $catalog = Catalog::toArray();
