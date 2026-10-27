@@ -2,6 +2,7 @@
 
 namespace App\Services\Design;
 
+use App\Services\Album\AlbumService;
 use App\Services\Layout\EventRepository;
 use App\Services\Media\ImageOptimizer;
 use App\Services\Media\SocialEmbed;
@@ -43,6 +44,9 @@ final class InvitationConfigBuilder
 
     private ?CarbonImmutable $startsAt = null;
 
+    /** ¿Es una muestra? (el álbum enseña fotos de ejemplo y no guarda nada) */
+    private bool $demo = false;
+
     /** Id de la primera sección de ubicación: sus lugares van también en `locations`. */
     private ?string $firstLocationId = null;
 
@@ -83,6 +87,7 @@ final class InvitationConfigBuilder
         $startsAt = $this->startsAt($e['inicia'] ?? '', $timezone);
         $this->timezone = $timezone;
         $this->startsAt = $startsAt;
+        $this->demo = Normalizer::yes($settings['demo'] ?? 'NO');
         $this->firstLocationId = null;
         $deadline = $this->deadline($e['rsvp_limite'] ?? '');
         $mode = strtolower($e['rsvp_modo'] ?? 'token');
@@ -432,6 +437,20 @@ final class InvitationConfigBuilder
             $closes = TriviaQuiz::closesAt($section, $this->timezone) ?? $this->startsAt;
             if ($closes !== null) {
                 $entry['closes_at'] = $closes->toIso8601String();
+            }
+        }
+
+        // Álbum de los invitados: los días que sigue abierto (acotado en el servidor) y las fotos
+        // elegidas; en una muestra, las de ejemplo de la lista (nada se guarda).
+        if ($kind === 'album') {
+            $days = $f['album_dias'] ?? '';
+            if (trim($days) !== '' && (! is_numeric($days) || (int) $days < AlbumService::MIN_DAYS || (int) $days > AlbumService::MAX_DAYS)) {
+                $this->warning($id, null, 'album_dias', "'{$days}' va de ".AlbumService::MIN_DAYS.' a '.AlbumService::MAX_DAYS.' (se usa '.AlbumService::clampDays($days).')');
+            }
+            $entry['days'] = AlbumService::clampDays($days);
+            $photos = $this->demo ? $this->gallery($section, $media) : app(AlbumService::class)->publicPhotos($this->slug);
+            if ($photos !== []) {
+                $entry['photos'] = $photos;
             }
         }
 

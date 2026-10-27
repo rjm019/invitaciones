@@ -14,9 +14,9 @@ export class ApiError extends Error {
   }
 }
 
-// Mensajes propios por estado. En 403, 409 y 422 manda el del servidor, que ya viene en
+// Mensajes propios por estado. En 403, 409, 410 (el evento ya terminó), 422 y 507 (álbum lleno) manda el del servidor, que ya viene en
 // español y dice el motivo ("cerraron el 6 de noviembre", "solo queda 1 lugar").
-const SERVER_MESSAGE = [403, 409, 422]
+const SERVER_MESSAGE = [403, 409, 410, 422, 507]
 const MESSAGES: Record<number, string> = {
   401: 'Tu sesión terminó. Escribe la clave de nuevo.',
   404: 'No encontramos esta invitación.',

@@ -6,14 +6,17 @@ import { getEvent } from '@/services/eventService'
 import { ApiError } from '@/services/http'
 import { trackVisit } from '@/services/visitService'
 import type { EventConfig } from '@/types/event'
+import type { PanelBrand } from '@/types/panel'
+import EndedPage from './EndedPage.vue'
 import NotFoundPage from './NotFoundPage.vue'
 
 /** /e/:slug — invitación general del evento (sin pases). */
 const props = defineProps<{ slug: string }>()
 
 const event = ref<EventConfig | null>(null)
-const status = ref<'loading' | 'ready' | 'not-found' | 'error'>('loading')
+const status = ref<'loading' | 'ready' | 'not-found' | 'ended' | 'error'>('loading')
 const message = ref('')
+const brand = ref<PanelBrand | null>(null)
 
 watch(
   () => props.slug,
@@ -25,6 +28,12 @@ watch(
       status.value = 'ready'
       trackVisit(window, { event: slug, demo: event.value.demo }, import.meta.env.VITE_API_URL)
     } catch (e) {
+      if (e instanceof ApiError && e.status === 410) {
+        // El evento ya terminó: la API manda los colores para mostrarlo con su diseño.
+        brand.value = (e.data as { brand?: PanelBrand } | null)?.brand ?? null
+        status.value = 'ended'
+        return
+      }
       status.value = e instanceof ApiError && e.status === 404 ? 'not-found' : 'error'
       message.value = e instanceof Error ? e.message : 'Algo salió mal.'
     }
@@ -36,6 +45,7 @@ watch(
 <template>
   <InvitationRenderer v-if="status === 'ready' && event" :event="event" />
   <NotFoundPage v-else-if="status === 'not-found'" />
+  <EndedPage v-else-if="status === 'ended'" :brand="brand" />
   <PageLoader v-else-if="status === 'loading'" />
   <PageLoader v-else :message="message" :busy="false" />
 </template>

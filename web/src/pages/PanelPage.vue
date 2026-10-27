@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import DeadlineCard from '@/components/panel/DeadlineCard.vue'
 import DedicationList from '@/components/panel/DedicationList.vue'
+import AlbumList from '@/components/panel/AlbumList.vue'
 import TriviaList from '@/components/panel/TriviaList.vue'
 import GuestList from '@/components/panel/GuestList.vue'
 import InvitationCreator from '@/components/panel/InvitationCreator.vue'
@@ -34,7 +35,7 @@ usePolling(
   () => !!token.value && !!overview.value,
 )
 
-const tab = ref<'invitations' | 'guests' | 'dedications' | 'trivia'>('invitations')
+const tab = ref<'invitations' | 'guests' | 'dedications' | 'trivia' | 'album'>('invitations')
 const highlight = ref<string | null>(null)
 const sending = ref<PanelInvitation | null>(null)
 const bounds = computed(() =>
@@ -161,6 +162,18 @@ onMounted(() => {
           >
             Trivia ({{ overview.trivia.ranking.length }})
           </button>
+          <button
+            v-if="overview.album"
+            id="tab-album"
+            type="button"
+            role="tab"
+            class="panel__tab"
+            :aria-selected="tab === 'album'"
+            aria-controls="view-album"
+            @click="tab = 'album'"
+          >
+            Álbum ({{ overview.album.counts.pending + overview.album.counts.chosen }})
+          </button>
         </div>
 
         <div
@@ -225,6 +238,23 @@ onMounted(() => {
             :timezone="overview.event.timezone"
             :slug="slug"
             :download="panel.downloadTrivia"
+          />
+        </div>
+
+        <div
+          v-if="overview.album"
+          v-show="tab === 'album'"
+          id="view-album"
+          role="tabpanel"
+          aria-labelledby="tab-album"
+        >
+          <AlbumList
+            :album="overview.album"
+            :timezone="overview.event.timezone"
+            :slug="slug"
+            :decide="panel.decideAlbum"
+            :photo="panel.albumPhoto"
+            :download="panel.downloadAlbum"
           />
         </div>
 

@@ -11,7 +11,7 @@ class CatalogTest extends TestCase
     private const WEB_TYPES = [
         'hero-envelope', 'music-player', 'blessing', 'save-the-date', 'photo-arch', 'location',
         'quote', 'itinerary', 'dress-code', 'no-kids', 'countdown', 'weather', 'hotels', 'spotify',
-        'rsvp', 'dedications', 'closing', 'gifts', 'gallery', 'envelope-rain', 'layer', 'trivia', 'video', 'social-post',
+        'rsvp', 'dedications', 'closing', 'gifts', 'gallery', 'envelope-rain', 'layer', 'trivia', 'video', 'social-post', 'guest-album',
     ];
 
     /** Los efectos que pinta la web (EffectName en web/src/types/event.ts). */
@@ -56,7 +56,7 @@ class CatalogTest extends TestCase
     {
         $catalog = Catalog::toArray();
 
-        $this->assertCount(24, $catalog['sections']);
+        $this->assertCount(25, $catalog['sections']);
         $itinerary = collect($catalog['sections'])->firstWhere('id', 'itinerario');
         $this->assertSame('itinerary', $itinerary['type']);
         $this->assertSame(['hora', 'actividad', 'icono'], array_column($itinerary['list']['fields'], 'key'));

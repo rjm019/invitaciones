@@ -1,7 +1,13 @@
 import { ref } from 'vue'
 import { ApiError } from '@/services/http'
 import * as panelService from '@/services/panelService'
-import type { PanelBrand, PanelInvitation, PanelOverview, TableAssignment } from '@/types/panel'
+import type {
+  PanelAlbumAction,
+  PanelBrand,
+  PanelInvitation,
+  PanelOverview,
+  TableAssignment,
+} from '@/types/panel'
 
 /**
  * Estado del panel de un evento. La sesión (token) se guarda solo mientras la pestaña
@@ -118,6 +124,21 @@ export function usePanel(slug: string) {
     return withSession((t) => panelService.exportTrivia(slug, t))
   }
 
+  /** Elige, quita o rechaza fotos del álbum y deja el panel al día. */
+  async function decideAlbum(ids: string[], action: PanelAlbumAction): Promise<void> {
+    overview.value = await withSession((t) => panelService.decideAlbum(slug, t, ids, action))
+  }
+
+  /** Una foto del álbum (o su miniatura) como archivo; hay que pedirla con la sesión. */
+  function albumPhoto(id: string, kind: 'thumb' | 'photo'): Promise<Blob> {
+    return withSession((t) => panelService.fetchAlbumPhoto(slug, t, id, kind))
+  }
+
+  /** Las fotos elegidas en .zip, listo para guardarse. */
+  function downloadAlbum(): Promise<Blob> {
+    return withSession((t) => panelService.exportAlbum(slug, t))
+  }
+
   /** Colores y título de la entrada; si no llegan, el panel se ve con sus colores de siempre. */
   async function loadBrand(): Promise<void> {
     if (brand.value) return
@@ -164,5 +185,8 @@ export function usePanel(slug: string) {
     changePhone,
     changeReminders,
     downloadTrivia,
+    decideAlbum,
+    albumPhoto,
+    downloadAlbum,
   }
 }

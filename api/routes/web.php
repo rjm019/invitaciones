@@ -4,6 +4,10 @@ use App\Http\Controllers\Public\MediaController;
 use App\Http\Controllers\SpaController;
 use Illuminate\Support\Facades\Route;
 
+// Fotos elegidas del álbum (eventos/<slug>/media/album/); en producción las sirve Apache.
+Route::get('/media/{slug}/album/{file}', [MediaController::class, 'album'])
+    ->where(['slug' => '[a-z0-9-]+', 'file' => '[a-f0-9]{16}(-480)?\.webp']);
+
 // Fotos, fondos y audio de cada evento (eventos/<slug>/media/).
 Route::get('/media/{slug}/{file}', MediaController::class)
     ->where(['slug' => '[a-z0-9-]+', 'file' => '[A-Za-z0-9._-]+']);

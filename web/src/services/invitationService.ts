@@ -1,6 +1,7 @@
 import type {
   DedicationPayload,
   Invitation,
+  InvitationAlbum,
   InvitationResponse,
   RsvpPayload,
   TriviaPayload,
@@ -49,4 +50,25 @@ export async function sendTrivia(
     payload,
   )
   return data
+}
+
+/**
+ * Sube UNA foto del álbum (ya reducida en el celular). El servidor revisa el límite de 2 por
+ * invitación, el día del evento y el tope de espacio; con 410 el evento ya terminó.
+ */
+export async function sendAlbumPhoto(
+  token: string,
+  photo: Blob,
+  name: string,
+  onProgress?: (fraction: number) => void,
+): Promise<InvitationAlbum> {
+  const form = new FormData()
+  form.append('photo', photo, name)
+  const { data } = await http.post<{ album: InvitationAlbum }>(`${path(token)}/album`, form, {
+    timeout: 90_000,
+    onUploadProgress: (e) => {
+      if (onProgress && e.total) onProgress(e.loaded / e.total)
+    },
+  })
+  return data.album
 }

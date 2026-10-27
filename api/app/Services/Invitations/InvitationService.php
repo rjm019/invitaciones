@@ -2,8 +2,11 @@
 
 namespace App\Services\Invitations;
 
+use App\Services\Album\AlbumService;
+use App\Services\Album\EventEnded;
 use App\Services\Layout\EventRepository;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\UploadedFile;
 use Throwable;
 
 /**
@@ -20,9 +23,14 @@ final class InvitationService
         private readonly ResponseStore $responses,
         private readonly DedicationStore $dedications,
         private readonly TriviaService $trivia,
+        private readonly AlbumService $album,
     ) {}
 
-    /** null si el token no existe o el evento no está publicado. */
+    /**
+     * null si el token no existe o el evento no está publicado.
+     *
+     * @throws EventEnded si el evento ya terminó (se cerró el álbum): responde 410
+     */
     public function find(string $token): ?Invitation
     {
         $where = $this->invitations->locate($token);
@@ -34,6 +42,7 @@ final class InvitationService
         if ($event === null || ! $event['published']) {
             return null;
         }
+        $this->album->guard($where['slug'], $event);
 
         $record = $this->invitations->all($where['slug'])[$where['id']] ?? null;
 
@@ -142,6 +151,20 @@ final class InvitationService
         return ['result' => $result, 'invitation' => $present];
     }
 
+    /**
+     * Sube una foto del álbum de este enlace (una por petición).
+     *
+     * @return array<string, mixed> el estado del álbum de este enlace
+     *
+     * @throws RsvpException 409 aún no es el día · 422 foto inválida o ya subió 2 · 507 álbum lleno
+     */
+    public function uploadAlbumPhoto(Invitation $invitation, UploadedFile $photo): array
+    {
+        $this->album->upload($invitation, $photo);
+
+        return ['album' => $this->album->present($invitation)];
+    }
+
     /** Anota la apertura. Nunca debe tumbar la invitación: si falla, solo se reporta. */
     public function recordOpen(Invitation $invitation): void
     {
@@ -186,7 +209,7 @@ final class InvitationService
                 'sent_at' => CarbonImmutable::parse($dedication['sent_at'], $timezone)->toIso8601String(),
             ],
             'trivia' => $this->trivia->present($invitation),
-        ];
+        ] + (($album = $this->album->present($invitation)) === null ? [] : ['album' => $album]);
     }
 
     /**

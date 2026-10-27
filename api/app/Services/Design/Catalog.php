@@ -703,6 +703,22 @@ final class Catalog
             'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'pregunta' => ['block' => 'question', 'label' => 'Preguntas'], 'opcion' => ['block' => 'option', 'label' => 'Opciones'], 'resultado' => ['block' => 'result', 'label' => 'Resultado'], 'boton' => 'Botón'],
             'hidden_without' => 'Agrega al menos una pregunta con sus opciones y la respuesta correcta.',
         ],
+        'album' => [
+            'type' => 'guest-album', 'label' => 'Álbum de los invitados', 'icon' => 'camera',
+            'description' => 'Desde el día del evento cada invitación sube hasta 2 fotos; el dueño elige cuáles se muestran en el panel. A los 5–20 días del evento el álbum se borra y la invitación se cierra. En una muestra se ve un álbum de ejemplo (fotos de la lista) y la subida se simula sin guardar nada.',
+            'fields' => [
+                ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Álbum', 'max_length' => 60],
+                ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'placeholder' => 'Comparte tus mejores fotos de la fiesta.', 'max_length' => 400],
+                ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Elegir fotos', 'max_length' => 40],
+                ['key' => 'album_dias', 'label' => 'Días que sigue abierto después del evento', 'input' => 'range', 'min' => 5, 'max' => 20, 'step' => 1, 'help' => 'Se cuentan desde el día siguiente al evento (5 por defecto, de 5 a 20). Al terminar el último día se borra el álbum completo y la invitación ya no abre.'],
+                ['key' => 'album_max_mb', 'label' => 'Espacio máximo del álbum (MB)', 'input' => 'text', 'placeholder' => '300', 'max_length' => 5, 'help' => 'Al llegar al tope ya no se aceptan más fotos (300 MB por defecto, unas 1,000 fotos).'],
+            ],
+            'list' => ['key' => 'fotos', 'label' => 'Fotos de ejemplo (solo para muestras)', 'item_label' => 'Foto', 'max' => 8, 'fields' => [
+                ['key' => 'foto', 'label' => 'Foto', 'input' => 'image', 'required' => true],
+            ]],
+            'slots' => ['marco', 'divisor'],
+            'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'boton' => 'Botón'],
+        ],
         'cierre' => [
             'type' => 'closing', 'label' => 'Cierre', 'icon' => 'heart', 'repeatable' => true,
             'description' => 'La despedida: "¡Te esperamos!".',

@@ -21,6 +21,10 @@ eventos/<slug>/
 ├── trivia.csv               una participación por enlace: invitacion, para, nombre, respuestas (números de opción separados por ;), aciertos, segundos, fecha
 ├── trivia-inicios.csv       cuándo abrió cada enlace la trivia: invitacion, inicio (la primera vez gana; de ahí salen los segundos)
 ├── trivia-eliminadas.csv    participaciones de invitaciones eliminadas
+├── album.csv                bitácora del álbum: id, invitacion, para, archivo, ancho, alto, estado (pendiente|elegida|rechazada|borrada), subida, decidida
+├── album-eliminadas.csv     fotos de invitaciones eliminadas
+├── album/                   fotos subidas por los invitados (<id>.webp + <id>-480.webp), fuera de /media; se borra completa al cerrar
+├── media/album/             copia de las elegidas, servida por Apache; se borra con el álbum
 ├── respuestas-eliminadas.csv   personas de invitaciones eliminadas: eliminada + columnas de respuestas
 ├── dedicatorias-eliminadas.csv dedicatorias de invitaciones eliminadas: eliminada + columnas de dedicatorias
 ├── ajustes.csv              clave_panel, publicado, plantilla, demo (muestra: no guarda nada), personas_gestor y la fecha límite del cliente
@@ -126,6 +130,8 @@ erDiagram
 | Throttle de dedicatorias: 5/min por IP y token | `AppServiceProvider` |
 | Trivia: **una participación por enlace** (la segunda → `409`, revisado dentro del `flock`); `409` también si ya cerró (`cierra` o el inicio del evento); los segundos y la calificación salen del servidor; `correcta` nunca va en el `config` público ni en `/e/`; una muestra califica y no escribe | `TriviaController` + `TriviaService` + `TriviaStore` + `TriviaQuiz` |
 | Throttle de la trivia: 10/min por IP y token | `AppServiceProvider` |
+| Álbum: **2 fotos por invitación** revisadas dentro del `flock` de `album.csv` (rechazar libera el lugar); la subida procesa una foto a la vez por evento (dentro del candado) y comprueba el tope `album_max_mb` (`507`); las pendientes viven en `album/` (nunca en `/media`) y solo las elegidas se copian a `media/album/`; el cierre (`closeIfDue`) corre bajo candado, es idempotente y borra todo el álbum | `AlbumController` + `AlbumService` + `EventEnded` |
+| Throttle del álbum: 6/min por IP y token | `AppServiceProvider` |
 | Video y publicación de redes: solo `https` y dominios de YouTube, Instagram o Facebook, sin usuario ni puerto; el config lleva solo las partes validadas (red, tipo, id, URL canónica, embed), nunca el texto escrito; la portada solo de `media/`; el MP4 se acepta únicamente con el propósito `video` (`finfo` = `video/mp4`, ≤ 40 MB) | `SocialEmbed` + `InvitationConfigBuilder` + `MediaLibrary` |
 | Gestor: sin `GESTOR_CLAVE` de 16+ caracteres → `403`; cada persona con su usuario y su clave (10+ caracteres, hash bcrypt); la clave maestra solo crea la primera cuenta; login 5/min por IP; el resto 240/min | `ManagerAuth` + `EnsureManagerSession` + `routes/api.php` |
 | Quién ve qué: quien edita solo ve las invitaciones que creó o le asignaron (`ajustes.csv` → `personas_gestor`: "ana, beto") y todas las plantillas; quien administra ve todas y es quien asigna. En otra invitación todo responde `403` | `ManagerAccess` + `EnsureManagerEventAccess` + `ManagerEvents::list` |

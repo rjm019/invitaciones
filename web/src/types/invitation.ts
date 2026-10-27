@@ -5,6 +5,7 @@
  * hasta la fecha límite.
  */
 import type { EventConfig } from './event'
+import type { PanelBrand } from './panel'
 
 export interface InvitationGuest {
   /** Lugar de 1 a N. */
@@ -31,6 +32,29 @@ export interface Invitation {
   dedication: InvitationDedication | null
   /** Estado de la trivia de este enlace; null si el evento no tiene. */
   trivia?: InvitationTrivia | null
+  /** Álbum de este enlace; ausente si el evento no tiene álbum. */
+  album?: InvitationAlbum
+}
+
+/** Lo que el servidor dice del álbum para este enlace (nunca las fotos pendientes de nadie). */
+export interface InvitationAlbum {
+  state: 'before' | 'event_day' | 'after' | 'closed'
+  can_upload: boolean
+  /** Fotos de este enlace que ocupan un lugar (se libera si el dueño la rechaza). */
+  used: number
+  remaining: number
+  max: number
+  /** ISO con offset: cuándo se borra (null en una muestra). */
+  closes_at: string | null
+  /** 'AAAA-MM-DD' del último día abierto. */
+  last_day: string | null
+}
+
+/** Respuesta de la API cuando el evento ya terminó (410): con los colores del evento. */
+export interface EndedResponse {
+  message: string
+  ended: true
+  brand: PanelBrand
 }
 
 /** Lo que el invitado sabe de su trivia: si puede participar y su resultado (nunca las correctas). */

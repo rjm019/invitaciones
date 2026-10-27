@@ -43,7 +43,7 @@ fi
 
 tmp="$(mktemp -t evento)"
 # shellcheck disable=SC2086
-COPYFILE_DISABLE=1 tar -czf "$tmp" --exclude 'media/originales' --exclude '.DS_Store' $files
+COPYFILE_DISABLE=1 tar -czf "$tmp" --exclude 'media/originales' --exclude 'media/album' --exclude '.DS_Store' $files
 
 # Con --forzar, primero se guarda la invitación que había en el servidor.
 backup=""

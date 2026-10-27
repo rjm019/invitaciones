@@ -1,4 +1,5 @@
 import type {
+  PanelAlbumAction,
   PanelBrand,
   PanelDedication,
   PanelInvitation,
@@ -100,6 +101,41 @@ export async function exportTrivia(slug: string, token: string): Promise<Blob> {
   const { data } = await http.get<Blob>(`${base(slug)}/trivia.csv`, {
     ...auth(token),
     responseType: 'blob',
+  })
+  return data
+}
+
+/** Elige, quita o rechaza fotos del álbum (varias a la vez); devuelve el panel ya actualizado. */
+export async function decideAlbum(
+  slug: string,
+  token: string,
+  ids: string[],
+  action: PanelAlbumAction,
+): Promise<PanelOverview> {
+  const { data } = await http.put<PanelOverview>(`${base(slug)}/album`, { ids, action }, auth(token))
+  return data
+}
+
+/** Una foto del álbum (o su miniatura): solo se pide con la sesión, por eso llega como archivo. */
+export async function fetchAlbumPhoto(
+  slug: string,
+  token: string,
+  id: string,
+  kind: 'thumb' | 'photo',
+): Promise<Blob> {
+  const { data } = await http.get<Blob>(`${base(slug)}/album/${encodeURIComponent(id)}/${kind}`, {
+    ...auth(token),
+    responseType: 'blob',
+  })
+  return data
+}
+
+/** El álbum de las fotos elegidas en .zip. */
+export async function exportAlbum(slug: string, token: string): Promise<Blob> {
+  const { data } = await http.get<Blob>(`${base(slug)}/album.zip`, {
+    ...auth(token),
+    responseType: 'blob',
+    timeout: 120_000,
   })
   return data
 }

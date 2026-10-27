@@ -1,9 +1,16 @@
 import { inject, provide, ref, type InjectionKey, type Ref } from 'vue'
-import { sendDedication, sendRsvp, sendTrivia, startTrivia } from '@/services/invitationService'
+import {
+  sendAlbumPhoto,
+  sendDedication,
+  sendRsvp,
+  sendTrivia,
+  startTrivia,
+} from '@/services/invitationService'
 import { previewRespond } from '@/services/previewService'
 import type {
   DedicationPayload,
   Invitation,
+  InvitationAlbum,
   RsvpPayload,
   TriviaPayload,
   TriviaResult,
@@ -22,6 +29,12 @@ export interface InvitationContext {
   startTrivia: () => Promise<void>
   /** Envía las respuestas y devuelve el resultado; si la API las rechaza, lanza ApiError. */
   answerTrivia: (payload: TriviaPayload) => Promise<TriviaResult>
+  /** Sube una foto del álbum (ya reducida); devuelve el estado nuevo; si la API la rechaza, lanza ApiError. */
+  uploadAlbumPhoto: (
+    photo: Blob,
+    name: string,
+    onProgress?: (fraction: number) => void,
+  ) => Promise<InvitationAlbum>
 }
 
 const KEY: InjectionKey<InvitationContext> = Symbol('invitation')
@@ -48,6 +61,11 @@ export function createInvitationContext(token: string): InvitationContext {
     submit: (payload) => send(sendRsvp(token, payload)),
     dedicate: (payload) => send(sendDedication(token, payload)),
     startTrivia: () => startTrivia(token),
+    async uploadAlbumPhoto(photo, name, onProgress) {
+      const album = await sendAlbumPhoto(token, photo, name, onProgress)
+      if (invitation.value) invitation.value = { ...invitation.value, album }
+      return album
+    },
     async answerTrivia(payload) {
       sending.value = true
       try {
@@ -102,6 +120,20 @@ export function createPreviewInvitationContext(start: Invitation): InvitationCon
       return invitation.value
     },
     async startTrivia() {},
+    async uploadAlbumPhoto() {
+      // La vista previa no sube nada: la sección simula la subida en el navegador.
+      return (
+        invitation.value?.album ?? {
+          state: 'after',
+          can_upload: true,
+          used: 0,
+          remaining: 2,
+          max: 2,
+          closes_at: null,
+          last_day: null,
+        }
+      )
+    },
     async answerTrivia(payload) {
       // Sin respuestas correctas en el navegador: la vista previa solo muestra cómo se ve el resultado.
       const total = payload.answers.length

@@ -130,8 +130,41 @@ export interface PanelOverview {
   dedications: PanelDedication[]
   /** Ranking de la trivia; null si el evento no tiene. */
   trivia?: PanelTrivia | null
+  /** Álbum de los invitados; null si el evento no tiene. */
+  album?: PanelAlbum | null
   max_passes: number
   reminders?: PanelReminders | null
+}
+
+/** Una foto del álbum en el panel: pendiente de revisar o ya elegida. */
+export interface PanelAlbumPhoto {
+  id: string
+  invitation: string
+  label: string | null
+  status: 'pending' | 'chosen'
+  width: number
+  height: number
+  uploaded_at: string | null
+}
+
+export type PanelAlbumAction = 'choose' | 'unchoose' | 'reject'
+
+/** Álbum en el panel: sus fotos, el espacio usado y cuándo se borra. */
+export interface PanelAlbum {
+  state: 'before' | 'event_day' | 'after' | 'closed'
+  /** ISO con offset: cuándo se borra todo (null en una muestra). */
+  closes_at: string | null
+  /** 'AAAA-MM-DD' del último día abierto. */
+  last_day: string | null
+  days: number
+  used_bytes: number
+  max_bytes: number
+  percent: number
+  /** Al 80 % del tope o más. */
+  near_limit: boolean
+  counts: { pending: number; chosen: number }
+  /** La más reciente primero. */
+  photos: PanelAlbumPhoto[]
 }
 
 /** Dedicatoria que dejó un enlace (una por invitación). */

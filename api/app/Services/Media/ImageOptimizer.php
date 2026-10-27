@@ -20,7 +20,7 @@ final class ImageOptimizer
      *
      * @throws RuntimeException si no es una imagen que GD pueda leer o es demasiado grande
      */
-    public function toWebp(string $source, string $target, int $maxWidth = 920, int $quality = 82, bool $trim = false, bool $noShadow = false): array
+    public function toWebp(string $source, string $target, int $maxWidth = 920, int $quality = 82, bool $trim = false, bool $noShadow = false, ?int $maxSide = null): array
     {
         $size = @getimagesize($source);
         if ($size === false) {
@@ -39,9 +39,12 @@ final class ImageOptimizer
             // Alfa de GD: 0 = opaco, 127 = transparente.
             $image = $this->trimTransparent($image, $noShadow ? 3 : 120);
         }
-        if (imagesx($image) > $maxWidth) {
-            $height = (int) round(imagesy($image) * $maxWidth / imagesx($image));
-            $scaled = imagescale($image, $maxWidth, $height, IMG_BICUBIC);
+        // Con `$maxSide` se limita el lado mayor (fotos verticales incluidas); sin él, solo el ancho.
+        $largest = $maxSide === null ? imagesx($image) : max(imagesx($image), imagesy($image));
+        $limit = $maxSide ?? $maxWidth;
+        if ($largest > $limit) {
+            $ratio = $limit / $largest;
+            $scaled = imagescale($image, max(1, (int) round(imagesx($image) * $ratio)), max(1, (int) round(imagesy($image) * $ratio)), IMG_BICUBIC);
             if ($scaled !== false) {
                 $image = $scaled;
             }

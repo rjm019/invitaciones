@@ -116,6 +116,8 @@ export interface SectionConfig {
   layout?: 'side' | 'stack'
   /** Itinerario: resalta el momento actual el día del evento. */
   live?: boolean
+  /** Álbum: días que sigue abierto después del evento (5 a 20, ya acotado por el servidor). */
+  days?: number
   /** Forma de sus orillas, si es franja (si no, la de la página o la del tema). */
   edge?: EdgeStyle
 }

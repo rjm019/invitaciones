@@ -300,4 +300,23 @@ class InvitationConfigBuilderTest extends TestCase
         $this->assertArrayNotHasKey('video', $result->config['sections'][0]);
         $this->assertArrayNotHasKey('post', $result->config['sections'][1]);
     }
+
+    public function test_album_days_are_clamped_and_sample_photos_only_show_in_a_demo(): void
+    {
+        $items = [['foto' => 'salon.webp'], ['foto' => 'salon.webp']];
+        $section = fn (string $days) => new DesignSection('album', ['titulo' => 'Álbum', 'album_dias' => $days], $items);
+
+        $result = $this->build($this->minimal([$section('99')]));
+        $entry = $result->config['sections'][0];
+        $this->assertSame('guest-album', $entry['type']);
+        $this->assertSame(20, $entry['days']);
+        $this->assertCount(1, $result->warnings());
+        $this->assertArrayNotHasKey('photos', $entry, 'las fotos de ejemplo solo salen en una muestra');
+
+        $this->assertSame(5, $this->build($this->minimal([$section('')]))->config['sections'][0]['days']);
+        $this->assertSame(7, $this->build($this->minimal([$section('7')]))->config['sections'][0]['days']);
+
+        $demo = $this->build($this->minimal([$section('7')]), ['demo' => 'SI'])->config['sections'][0];
+        $this->assertCount(2, $demo['photos']);
+    }
 }

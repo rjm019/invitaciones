@@ -37,12 +37,13 @@ Devuelve el evento y la invitación (para cuántas personas es y quiénes ya est
     "closed_message": null,
     "deadline": "2026-11-06",
     "dedication": { "name": "Ana Pérez", "message": "¡Felicidades!", "sent_at": "2026-10-13T12:00:00-06:00" },
-    "trivia": { "open": true, "closed_message": null, "result": null }
+    "trivia": { "open": true, "closed_message": null, "result": null },
+    "album": { "state": "event_day", "can_upload": true, "used": 0, "remaining": 2, "max": 2, "closes_at": "2026-12-04T00:00:00-06:00", "last_day": "2026-12-03" }
   }
 }
 ```
 
-`dedication` es `null` mientras ese enlace no deje su dedicatoria. `trivia` es `null` si el evento no tiene trivia; si la tiene, `open` dice si ese enlace aún puede participar y `result` trae `{ name, correct, total, seconds }` cuando ya respondió (nunca las respuestas correctas).
+`dedication` es `null` mientras ese enlace no deje su dedicatoria. `trivia` es `null` si el evento no tiene trivia; si la tiene, `open` dice si ese enlace aún puede participar y `result` trae `{ name, correct, total, seconds }` cuando ya respondió (nunca las respuestas correctas). `album` solo aparece si el evento tiene la sección `album`: `state` es `before` · `event_day` · `after` · `closed`, `can_upload` dice si este enlace puede subir ahora y `remaining` cuántos de sus 2 lugares quedan (nunca trae las fotos pendientes de nadie).
 
 **Errores:** `404` si el token no existe o el evento no está publicado.
 
@@ -87,6 +88,18 @@ Abre la trivia: el servidor anota el inicio (abrirla otra vez no reinicia el rel
 ```
 
 `answers` trae el número de la opción elegida (desde 1) de cada pregunta, en orden. **Validación (en el servidor):** `name` requerido (máx. 80, una línea); una respuesta por pregunta y dentro de sus opciones (`422`); `409` si ya respondió o ya cerró (`cierra` o el inicio del evento). Se guarda en `trivia.csv`, protegida contra fórmulas de Excel; los segundos van desde `trivia/start`. **Throttle:** 10/min por IP e invitación. **Respuesta `200`:** `{ "result": { name, correct, total, seconds }, "invitation": … }`; las respuestas correctas no se revelan. En una muestra califica pero no guarda.
+
+### `POST /public/invitations/{token}/album`
+
+`multipart/form-data` con **una** foto en `photo` (JPG, PNG o WebP; la web ya la reduce a 1600 px). Hasta 2 por invitación, revisado dentro del `flock`; se recodifica a WebP 1600 px q80 + miniatura 480 px q72, sin EXIF, en `eventos/<slug>/album/` (no público) y queda `pendiente` en `album.csv`. **Throttle:** 6/min por IP y enlace. **Respuestas:** `201 { album: {…} }` · `404` token desconocido o sin álbum · `409` "Todavía no es el día de la fiesta…" · `410` el evento ya terminó · `422` más de 8 MB, más de 4096 px, no es una foto o ya subió sus 2 · `507` el álbum llegó a su tope (`album_max_mb`) · `429` throttle. En una muestra (`demo`) responde `201` sin escribir nada (la web ni siquiera llama: simula la subida).
+
+### `410` — el evento ya terminó
+
+Al terminar el último día del álbum (`album_dias`, 5–20, desde el día siguiente al evento), `GET /public/events/{slug}`, `GET /public/invitations/{token}` y cualquier otra llamada de un enlace responden `410 { message: "Este evento ya terminó. ¡Gracias por acompañarnos!", ended: true, brand: { title, theme, palette, fonts } }`; la web muestra esa pantalla con los colores del evento. En ese momento (la primera petición, `AlbumService::closeIfDue`) se borra el álbum completo. El panel y los CSV se quedan.
+
+### `GET /media/{slug}/album/{archivo}`
+
+Solo las fotos **elegidas** (`<id>.webp` y `<id>-480.webp`), de `eventos/<slug>/media/album/`; en producción las sirve Apache (`AliasMatch`). Las pendientes no están en esa carpeta: `404`.
 
 ### `GET /public/events/{slug}` (modo abierto, sin pases)
 
@@ -148,10 +161,13 @@ Se entra con `clave_panel` (mínimo 8 caracteres): en `ajustes.csv`, donde la po
 |---|---|---|
 | GET | `/admin/events/{slug}/brand` | Sin sesión, para la entrada: `{ brand: { title, theme, palette, fonts } }`. `title` es `titulo_panel` del layout o, en unos XV, "XV de {festejada_corto}". Sin fotos ni datos del evento. `404` evento desconocido · throttle 60/min |
 | POST | `/admin/events/{slug}/session` | `{ password }` → `{ token, expires_at }`. `422` clave incorrecta · `403` evento sin clave · throttle 5/min |
-| GET | `/admin/events/{slug}` | `{ version, brand: { title, theme, palette, fonts, subtitle, celebrant, starts_at, timezone, venue: { name, city }, assets, card: { background, phrase, text } }, event, rsvp: { deadline, open, changes_used, changes_left, max_changes }, summary: { invitations, seats, attending, declined, empty }, invitations: [{ id, label, passes, url, message, whatsapp_url, guests: [{ slot, full_name, attending, table, responded_at }], opens, created_at }], dedications: [{ invitation, label, name, message, sent_at }], trivia: { total, closes_at, ranking: [{ rank, invitation, label, name, correct, total, seconds, sent_at }] } \| null, max_passes }` (dedicatorias: la más reciente primero; `trivia`: por aciertos y, en empate, menos segundos; `null` si no hay). `message` es el texto de `mensaje_whatsapp` ya armado; el panel lo manda sin el enlace junto al PDF de la invitación. `brand.card` sale de `tarjeta_fondo`, `tarjeta_frase` y `tarjeta_texto` del layout (`null` si no están) |
+| GET | `/admin/events/{slug}` | `{ version, brand: { title, theme, palette, fonts, subtitle, celebrant, starts_at, timezone, venue: { name, city }, assets, card: { background, phrase, text } }, event, rsvp: { deadline, open, changes_used, changes_left, max_changes }, summary: { invitations, seats, attending, declined, empty }, invitations: [{ id, label, passes, url, message, whatsapp_url, guests: [{ slot, full_name, attending, table, responded_at }], opens, created_at }], dedications: [{ invitation, label, name, message, sent_at }], trivia: { total, closes_at, ranking: [{ rank, invitation, label, name, correct, total, seconds, sent_at }] }, album: { state, closes_at, last_day, days, used_bytes, max_bytes, percent, near_limit, counts: { pending, chosen }, photos: [{ id, invitation, label, status: pending\|chosen, width, height, uploaded_at }] } \| null, max_passes }` (dedicatorias: la más reciente primero; `trivia`: por aciertos y, en empate, menos segundos; `null` si no hay) y `album` (`null` si el evento no tiene álbum; con el álbum ya cerrado, `state: closed` y sin fotos). `message` es el texto de `mensaje_whatsapp` ya armado; el panel lo manda sin el enlace junto al PDF de la invitación. `brand.card` sale de `tarjeta_fondo`, `tarjeta_frase` y `tarjeta_texto` del layout (`null` si no están) |
 | POST | `/admin/events/{slug}/invitations` | `{ passes: 1…30, label? }` → `201 { invitation }` |
 | DELETE | `/admin/events/{slug}/invitations/{id}` | Elimina la invitación con sus invitados y su dedicatoria → el panel actualizado. `404` si no existe o ya se eliminó. El enlace deja de abrir |
 | PUT | `/admin/events/{slug}/deadline` | `{ deadline: AAAA-MM-DD }` → `{ rsvp }`. Entre hoy y el día del evento; **máximo 3 cambios** (`409` después) |
+| GET | `/admin/events/{slug}/album/{id}/{photo\|thumb}` | Una foto del álbum (pendiente o elegida) o su miniatura; solo con la sesión del panel (la web la pide como archivo). `404` si se rechazó o no existe |
+| PUT | `/admin/events/{slug}/album` | `{ ids: [id…], action: choose\|unchoose\|reject }` → el panel actualizado. Elegir copia a `media/album/`; Quitar la regresa a pendiente; Rechazar borra el archivo al instante y libera el lugar de esa invitación. `404` sin álbum · `409` si ya se borró |
+| GET | `/admin/events/{slug}/album.zip` | Las fotos elegidas en .zip (`ZipArchive`, sin comprimir, enviado en streaming). `404` sin fotos elegidas · `409` si ya se borró |
 | GET | `/admin/events/{slug}/trivia.csv` | El ranking de la trivia en CSV (UTF-8 con BOM): `lugar, nombre, invitacion, aciertos, total, segundos, fecha`. `404` si el evento no tiene trivia |
 | GET | `/admin/events/{slug}/version` | `{ version }`: huella de los archivos del evento. El panel la consulta cada 5 s y recarga solo si cambió (en vivo sin base de datos) |
 | PUT | `/admin/events/{slug}/invitations/{id}/phone` | `{ phone: string \| null }` → el panel actualizado. `403` si la invitación no tiene recordatorios · `422` teléfono inválido (campo `phone`). `POST …/invitations` también acepta `phone` |

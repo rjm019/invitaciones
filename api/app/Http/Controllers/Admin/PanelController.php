@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\Album\AlbumService;
 use App\Services\Invitations\InvitationStore;
 use App\Services\Invitations\ResponseStore;
 use App\Services\Layout\LayoutException;
@@ -12,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Panel del dueño (con sesión): lista de invitaciones, generar y eliminar enlaces y cambiar la fecha límite.
@@ -44,6 +46,42 @@ class PanelController extends Controller
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="trivia-'.$slug.'.csv"',
         ]);
+    }
+
+    /** GET /api/admin/events/{slug}/album/{id}/{photo|thumb} — una foto del álbum (pendiente o elegida), solo con la sesión del panel. */
+    public function albumPhoto(string $slug, string $id, string $kind, AlbumService $album): BinaryFileResponse
+    {
+        $path = $album->panelFile($slug, $id, $kind === 'thumb');
+        abort_if($path === null, 404);
+
+        return response()->file($path, [
+            'Cache-Control' => 'private, max-age=300',
+            'X-Robots-Tag' => 'noindex, nofollow',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
+    /** PUT /api/admin/events/{slug}/album — { ids: [...], action: choose|unchoose|reject }. Devuelve el panel. */
+    public function albumDecide(Request $request, string $slug, PanelService $panel): JsonResponse
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'array', 'min:1', 'max:500'],
+            'ids.*' => ['required', 'string', 'regex:/^[a-f0-9]{16}$/'],
+            'action' => ['required', 'in:choose,unchoose,reject'],
+        ], [
+            'ids.*' => 'Elige al menos una foto.',
+            'action.*' => 'Elige qué hacer con las fotos.',
+        ]);
+
+        return response()->json($panel->decideAlbum($slug, array_values($data['ids']), $data['action']));
+    }
+
+    /** GET /api/admin/events/{slug}/album.zip — las fotos elegidas, armadas al vuelo y enviadas en streaming. */
+    public function albumZip(string $slug, AlbumService $album): BinaryFileResponse
+    {
+        $zip = $album->zip($slug);
+
+        return response()->download($zip['path'], $zip['name'], ['Content-Type' => 'application/zip'])->deleteFileAfterSend(true);
     }
 
     /**

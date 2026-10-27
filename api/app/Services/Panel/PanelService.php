@@ -2,6 +2,7 @@
 
 namespace App\Services\Panel;
 
+use App\Services\Album\AlbumService;
 use App\Services\Csv\CsvFile;
 use App\Services\Design\TriviaQuiz;
 use App\Services\Invitations\DedicationStore;
@@ -35,6 +36,7 @@ final class PanelService
         private readonly DedicationStore $dedications,
         private readonly TriviaStore $trivia,
         private readonly ReminderPlanner $reminders,
+        private readonly AlbumService $album,
     ) {}
 
     /**
@@ -45,6 +47,7 @@ final class PanelService
     public function overview(string $slug): array
     {
         $event = $this->event($slug);
+        $this->album->closeIfDue($slug);
         $guests = $this->responses->all($slug);
         $opens = $this->responses->opens($slug);
 
@@ -80,6 +83,7 @@ final class PanelService
             'invitations' => $list,
             'dedications' => $this->dedicationList($slug, $records, $event['timezone']),
             'trivia' => $this->triviaPanel($slug, $event, $records),
+            'album' => $this->album->panel($slug, $event, $records),
             'max_passes' => InvitationStore::MAX_PASSES,
         ];
     }
@@ -353,6 +357,23 @@ final class PanelService
     }
 
     /**
+     * Elige, quita o rechaza fotos del álbum y devuelve el panel actualizado.
+     *
+     * @param  list<string>  $ids
+     * @param  'choose'|'unchoose'|'reject'  $action
+     * @return array<string, mixed>
+     *
+     * @throws RsvpException 404 sin álbum · 409 si ya se borró
+     */
+    public function decideAlbum(string $slug, array $ids, string $action): array
+    {
+        $event = $this->event($slug);
+        $this->album->decide($slug, $ids, $action, CarbonImmutable::now($event['timezone']));
+
+        return $this->overview($slug);
+    }
+
+    /**
      * Elimina una invitación con sus invitados y su dedicatoria, y devuelve el panel
      * actualizado. Primero se marca la invitación (el enlace deja de abrir y ya no acepta
      * nombres); después se quitan sus personas y su dedicatoria, que quedan en los archivos
@@ -372,6 +393,7 @@ final class PanelService
         $this->responses->removeInvitation($slug, $id, $now);
         $this->dedications->removeInvitation($slug, $id, $now);
         $this->trivia->removeInvitation($slug, $id, $now);
+        $this->album->removeInvitation($slug, $id, $now);
 
         return $this->overview($slug);
     }

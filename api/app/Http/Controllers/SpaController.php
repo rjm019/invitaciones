@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Album\AlbumService;
+use App\Services\Album\EventEnded;
 use App\Services\Design\GiftPrivacy;
 use App\Services\Invitations\InvitationService;
 use App\Services\Layout\EventRepository;
@@ -21,13 +23,13 @@ class SpaController extends Controller
     private const JSON = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
         | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR;
 
-    public function __invoke(Request $request, EventRepository $events, InvitationService $invitations, PanelService $panel): Response
+    public function __invoke(Request $request, EventRepository $events, InvitationService $invitations, PanelService $panel, AlbumService $album): Response
     {
         $spa = (string) config('invitaciones.spa_path');
         abort_if($request->is('api', 'api/*') || ! is_file($spa), 404);
 
         $html = (string) file_get_contents($spa);
-        $boot = $this->boot($request->path(), $events, $invitations, $panel);
+        $boot = $this->boot($request->path(), $events, $invitations, $panel, $album);
         if ($boot !== null) {
             // JSON_HEX_*: un texto del layout con "</script>" no puede cerrar la etiqueta.
             $html = str_replace('</head>', '<script>window.__BOOT__='.json_encode($boot, self::JSON).'</script></head>', $html);
@@ -62,7 +64,7 @@ class SpaController extends Controller
      *
      * @return array{kind: string, key: string, data: array<string, mixed>}|null
      */
-    private function boot(string $path, EventRepository $events, InvitationService $invitations, PanelService $panel): ?array
+    private function boot(string $path, EventRepository $events, InvitationService $invitations, PanelService $panel, AlbumService $album): ?array
     {
         try {
             if (preg_match('#^panel/([a-z0-9-]+)$#', $path, $m)) {
@@ -72,6 +74,9 @@ class SpaController extends Controller
             }
             if (preg_match('#^e/([a-z0-9-]+)$#', $path, $m)) {
                 $event = $events->find($m[1]);
+                if ($event !== null && $event['published']) {
+                    $album->guard($m[1], $event);
+                }
 
                 return $event !== null && $event['published']
                     ? ['kind' => 'event', 'key' => $m[1], 'data' => ['event' => GiftPrivacy::forGeneralLink($event)]]
@@ -89,6 +94,8 @@ class SpaController extends Controller
             }
         } catch (LayoutException) {
             // Con errores en el layout, la página los pide a la API y los muestra.
+        } catch (EventEnded) {
+            // El evento ya terminó: la página pide los datos a la API (410) y muestra "ya terminó".
         }
 
         return null;

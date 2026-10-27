@@ -12,6 +12,7 @@ use App\Http\Controllers\Manager\SessionController as ManagerSessionController;
 use App\Http\Controllers\Manager\TransferController;
 use App\Http\Controllers\Manager\UserController;
 use App\Http\Controllers\Manager\VisitController as ManagerVisitController;
+use App\Http\Controllers\Public\AlbumController;
 use App\Http\Controllers\Public\DedicationController;
 use App\Http\Controllers\Public\EventController;
 use App\Http\Controllers\Public\InvitationController;
@@ -38,6 +39,9 @@ Route::prefix('public')->group(function () {
     Route::post('/invitations/{token}/trivia/start', [TriviaController::class, 'start'])->middleware('throttle:trivia');
     Route::post('/invitations/{token}/trivia', [TriviaController::class, 'store'])->middleware('throttle:trivia');
 
+    // Álbum de los invitados: una foto por petición, hasta 2 por enlace, desde el día del evento.
+    Route::post('/invitations/{token}/album', [AlbumController::class, 'store'])->middleware('throttle:album');
+
     // Cotizaciones de la landing.
     Route::post('/quotes', [QuoteController::class, 'store'])->middleware('throttle:quote');
 
@@ -55,6 +59,10 @@ Route::prefix('admin/events/{slug}')->where(['slug' => '[a-z0-9-]+'])->group(fun
         Route::get('/', [PanelController::class, 'show']);
         Route::get('/version', [PanelController::class, 'version']);
         Route::get('/trivia.csv', [PanelController::class, 'triviaCsv']);
+        // Álbum: ver (con la sesión), elegir/quitar/rechazar y descargar las elegidas en .zip.
+        Route::get('/album/{id}/{kind}', [PanelController::class, 'albumPhoto'])->where(['id' => '[a-f0-9]{16}', 'kind' => 'photo|thumb']);
+        Route::put('/album', [PanelController::class, 'albumDecide']);
+        Route::get('/album.zip', [PanelController::class, 'albumZip']);
         Route::put('/tables', [PanelController::class, 'updateTables']);
         Route::post('/invitations', [PanelController::class, 'storeInvitation']);
         Route::delete('/invitations/{id}', [PanelController::class, 'destroyInvitation'])->where('id', '[0-9]+');
