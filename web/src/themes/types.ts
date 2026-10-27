@@ -5,6 +5,7 @@ import type {
   DesktopWidth,
   EdgeStyle,
   SectionBackground,
+  TextureStyle,
 } from '@/types/event'
 
 export interface ThemeFont {
@@ -88,6 +89,8 @@ export interface ThemeManifest {
   buttons?: ButtonStyle
   metallic?: boolean
   corners?: CornerStyle
+  /** Textura de tela del fondo de los paneles (terciopelo, satén, gasa, lino, papel). */
+  texture?: TextureStyle
   /**
    * Fondos que se turnan los paneles sin fondo propio (en el layout o en el tema), para
    * que dos secciones seguidas no se vean iguales.

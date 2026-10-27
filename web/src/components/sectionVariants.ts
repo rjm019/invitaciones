@@ -14,6 +14,7 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
   'hero-envelope': {
     elevador: () => import('./sections/variants/HeroElevator.vue'),
     estatua: () => import('./sections/variants/HeroStatue.vue'),
+    telon: () => import('./sections/variants/HeroCurtain.vue'),
   },
   'music-player': { vinilo: () => import('./sections/variants/MusicVinyl.vue') },
   blessing: { programa: () => import('./sections/variants/BlessingPlaybill.vue') },

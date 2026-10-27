@@ -565,6 +565,7 @@ final class InvitationConfigBuilder
             'edge' => $this->choice($page['orilla'] ?? '', Catalog::EDGES, 'pagina', 'orilla'),
             'buttons' => $this->choice($page['botones'] ?? '', Catalog::BUTTONS, 'pagina', 'botones'),
             'corners' => $this->choice($page['esquinas'] ?? '', Catalog::CORNERS, 'pagina', 'esquinas'),
+            'texture' => $this->choice($page['textura'] ?? '', Catalog::TEXTURES, 'pagina', 'textura'),
         ];
         foreach (['confetti' => 'confeti', 'metal' => 'metalico'] as $key => $field) {
             if (trim($page[$field] ?? '') !== '') {

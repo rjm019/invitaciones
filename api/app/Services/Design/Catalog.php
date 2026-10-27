@@ -85,6 +85,7 @@ final class Catalog
         'aparecer_zoom' => ['effect' => 'reveal-zoom', 'label' => 'Aparecer con acercamiento', 'help' => 'La sección entra creciendo desde un poco más chica.'],
         'aparecer_deslizar' => ['effect' => 'reveal-slide', 'label' => 'Aparecer deslizando', 'help' => 'La sección entra desde un costado (alterna izquierda y derecha).'],
         'aparecer_giro' => ['effect' => 'reveal-tilt', 'label' => 'Aparecer con giro', 'help' => 'La sección entra levantándose, como una tarjeta que se abre.'],
+        'velo' => ['effect' => 'veil', 'label' => 'Velo', 'help' => 'Un tul marfil que ondea despacio sobre la sección.'],
         'luces_disco' => ['effect' => 'disco-lights', 'label' => 'Reflejos de bola disco', 'help' => 'Puntos de luz que recorren la sección, como los reflejos de una bola disco.'],
     ];
 
@@ -145,6 +146,12 @@ final class Catalog
         'estatua' => ['slot' => 'statue', 'label' => 'Estatua'],
         'puente' => ['slot' => 'bridge', 'label' => 'Puente'],
         'puerta' => ['slot' => 'door', 'label' => 'Puerta del elevador'],
+        'paisaje' => ['slot' => 'landscape', 'label' => 'Paisaje del telón'],
+        'cortinaje' => ['slot' => 'valance', 'label' => 'Cortinaje (guirnalda de gasa)'],
+        'telon' => ['slot' => 'curtain', 'label' => 'Tela del telón'],
+        'pliegues' => ['slot' => 'folds', 'label' => 'Pliegues de la cortina'],
+        'tela' => ['slot' => 'cloth', 'label' => 'Tela arrugada al pie'],
+        'alcatraz' => ['slot' => 'lily', 'label' => 'Alcatraz'],
     ];
 
     /** División entre secciones (la orilla de las franjas): nombre en el CSV → código. */
@@ -155,6 +162,7 @@ final class Catalog
         'ola' => ['value' => 'wave', 'label' => 'Ola'],
         'feston' => ['value' => 'scallop', 'label' => 'Festón (medias lunas)'],
         'recta' => ['value' => 'straight', 'label' => 'Recta'],
+        'encaje' => ['value' => 'lace', 'label' => 'Encaje'],
     ];
 
     /** Estilos de botón de toda la invitación. */
@@ -166,12 +174,24 @@ final class Catalog
         'boleto' => ['value' => 'ticket', 'label' => 'Boleto (con muescas)'],
         'neon' => ['value' => 'neon', 'label' => 'Neón'],
         'texto' => ['value' => 'link', 'label' => 'Texto subrayado'],
+        'liston' => ['value' => 'ribbon', 'label' => 'Listón de satén'],
     ];
 
     /** Esquinas de los paneles. */
     public const CORNERS = [
         'deco' => ['value' => 'deco', 'label' => 'Escalonadas art déco'],
+        'encaje' => ['value' => 'lace', 'label' => 'Encaje'],
         'ninguna' => ['value' => 'none', 'label' => 'Sin adorno'],
+    ];
+
+    /** Textura de tela del fondo de los paneles. */
+    public const TEXTURES = [
+        'terciopelo' => ['value' => 'velvet', 'label' => 'Terciopelo'],
+        'satin' => ['value' => 'satin', 'label' => 'Satén'],
+        'gasa' => ['value' => 'gauze', 'label' => 'Gasa'],
+        'lino' => ['value' => 'linen', 'label' => 'Lino'],
+        'papel' => ['value' => 'paper', 'label' => 'Papel'],
+        'ninguna' => ['value' => 'none', 'label' => 'Sin textura'],
     ];
 
     /** Valor de imagen_<adorno> que quita ese adorno. */
@@ -201,6 +221,7 @@ final class Catalog
             ['value' => 'ola', 'label' => 'Ola'],
             ['value' => 'feston', 'label' => 'Festón (medias lunas)'],
             ['value' => 'recta', 'label' => 'Recta'],
+            ['value' => 'encaje', 'label' => 'Encaje'],
         ]],
         ['key' => 'escritorio', 'label' => 'En computadora', 'input' => 'select', 'options' => [
             ['value' => 'completo', 'label' => 'Toda la fila'],
@@ -278,6 +299,7 @@ final class Catalog
             ['value' => 'ola', 'label' => 'Ola'],
             ['value' => 'feston', 'label' => 'Festón (medias lunas)'],
             ['value' => 'recta', 'label' => 'Recta'],
+            ['value' => 'encaje', 'label' => 'Encaje'],
         ]],
         ['key' => 'botones', 'label' => 'Estilo de los botones', 'input' => 'select', 'options' => [
             ['value' => 'degradado', 'label' => 'Degradado metálico'],
@@ -287,6 +309,7 @@ final class Catalog
             ['value' => 'boleto', 'label' => 'Boleto (con muescas)'],
             ['value' => 'neon', 'label' => 'Neón'],
             ['value' => 'texto', 'label' => 'Texto subrayado'],
+            ['value' => 'liston', 'label' => 'Listón de satén'],
         ]],
         ['key' => 'confeti', 'label' => 'Confeti que cae', 'input' => 'select', 'help' => 'Pedacitos de papel metálico con los colores de la paleta.', 'options' => [
             ['value' => 'SI', 'label' => 'Sí'],
@@ -298,7 +321,16 @@ final class Catalog
         ]],
         ['key' => 'esquinas', 'label' => 'Esquinas de los paneles', 'input' => 'select', 'options' => [
             ['value' => 'deco', 'label' => 'Escalonadas art déco'],
+            ['value' => 'encaje', 'label' => 'Encaje'],
             ['value' => 'ninguna', 'label' => 'Sin adorno'],
+        ]],
+        ['key' => 'textura', 'label' => 'Textura de tela de los paneles', 'input' => 'select', 'help' => 'El fondo de cada panel con trama de tela: brillo en las crestas y sombra en los valles.', 'options' => [
+            ['value' => 'terciopelo', 'label' => 'Terciopelo'],
+            ['value' => 'satin', 'label' => 'Satén'],
+            ['value' => 'gasa', 'label' => 'Gasa'],
+            ['value' => 'lino', 'label' => 'Lino'],
+            ['value' => 'papel', 'label' => 'Papel'],
+            ['value' => 'ninguna', 'label' => 'Sin textura'],
         ]],
     ];
 
@@ -319,10 +351,12 @@ final class Catalog
                     ['value' => 'sobre', 'label' => 'Sobre'],
                     ['value' => 'elevador', 'label' => 'Elevador art déco'],
                     ['value' => 'estatua', 'label' => 'Estatua de la Libertad'],
+                    ['value' => 'telon', 'label' => 'Telón de terciopelo'],
+                    ['value' => 'encaje', 'label' => 'Sobre de encaje'],
                 ]],
             ],
             'linked' => ['festejada_corto', 'festejada', 'subtitulo'],
-            'slots' => ['sobre', 'tarjeta', 'flores', 'corona', 'mariposas', 'lacre', 'puerta', 'estatua'],
+            'slots' => ['sobre', 'tarjeta', 'flores', 'corona', 'mariposas', 'lacre', 'puerta', 'estatua', 'paisaje', 'cortinaje', 'telon', 'pliegues', 'tela', 'alcatraz'],
             'texts' => ['subtitulo' => 'Frase (mis xv años)', 'nombre' => ['block' => 'name', 'label' => 'Nombre grande'], 'lugar' => ['block' => 'place', 'label' => 'Salón y ciudad'], 'para' => ['block' => 'to', 'label' => 'Nombre en el sobre'], 'boton' => 'Texto para abrir'],
         ],
         'musica' => [

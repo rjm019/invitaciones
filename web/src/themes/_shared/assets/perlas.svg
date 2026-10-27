@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="20" viewBox="0 0 120 20">
+  <!-- Hilo de perlas (divisor): se repite a lo ancho sin costura. -->
+  <defs><radialGradient id="pe" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="#ffffff"/><stop offset="0.45" stop-color="#f1ebdb"/><stop offset="1" stop-color="#b7ad95"/></radialGradient></defs>
+  <path d="M0 10H120" stroke="#9c927a" stroke-width="0.7" stroke-opacity="0.7"/>
+  <circle cx="10" cy="10" r="6.2" fill="url(#pe)"/><circle cx="8" cy="7.6" r="1.4" fill="#fff" fill-opacity="0.85"/>
+  <circle cx="30" cy="10" r="6.2" fill="url(#pe)"/><circle cx="28" cy="7.6" r="1.4" fill="#fff" fill-opacity="0.85"/>
+  <circle cx="50" cy="10" r="6.2" fill="url(#pe)"/><circle cx="48" cy="7.6" r="1.4" fill="#fff" fill-opacity="0.85"/>
+  <circle cx="70" cy="10" r="6.2" fill="url(#pe)"/><circle cx="68" cy="7.6" r="1.4" fill="#fff" fill-opacity="0.85"/>
+  <circle cx="90" cy="10" r="6.2" fill="url(#pe)"/><circle cx="88" cy="7.6" r="1.4" fill="#fff" fill-opacity="0.85"/>
+  <circle cx="110" cy="10" r="6.2" fill="url(#pe)"/><circle cx="108" cy="7.6" r="1.4" fill="#fff" fill-opacity="0.85"/>
+</svg>

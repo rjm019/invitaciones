@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="405" viewBox="0 0 360 405">
+  <!-- Tarjeta marfil con marco oliva de doble filo, orilla de festones y perlas en las esquinas. -->
+  <defs>
+    <radialGradient id="pe" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="#ffffff"/><stop offset="0.45" stop-color="#f1ebdb"/><stop offset="1" stop-color="#b7ad95"/></radialGradient>
+    <linearGradient id="fondo" x1="0" y1="0" x2="0.7" y2="1"><stop offset="0" stop-color="#fcfaf2"/><stop offset="0.6" stop-color="#f3eedf"/><stop offset="1" stop-color="#e8e0c8"/></linearGradient>
+  </defs>
+  <rect width="360" height="405" fill="url(#fondo)"/>
+  <rect x="14" y="14" width="332" height="377" fill="none" stroke="#7b8762" stroke-width="1.2"/>
+  <rect x="20" y="20" width="320" height="365" fill="none" stroke="#a9b08e" stroke-width="0.7"/>
+  <path d="M28 26 A8 8 0 0 1 44 26 M44 26 A8 8 0 0 1 60 26 M60 26 A8 8 0 0 1 76 26 M76 26 A8 8 0 0 1 92 26 M92 26 A8 8 0 0 1 108 26 M108 26 A8 8 0 0 1 124 26 M124 26 A8 8 0 0 1 140 26 M140 26 A8 8 0 0 1 156 26 M156 26 A8 8 0 0 1 172 26 M172 26 A8 8 0 0 1 188 26 M188 26 A8 8 0 0 1 204 26 M204 26 A8 8 0 0 1 220 26 M220 26 A8 8 0 0 1 236 26 M236 26 A8 8 0 0 1 252 26 M252 26 A8 8 0 0 1 268 26 M268 26 A8 8 0 0 1 284 26 M284 26 A8 8 0 0 1 300 26 M300 26 A8 8 0 0 1 316 26 M316 26 A8 8 0 0 1 332 26" fill="none" stroke="#a9b08e" stroke-width="0.9" stroke-linecap="round"/>
+  <path d="M28 379 A8 8 0 0 0 44 379 M44 379 A8 8 0 0 0 60 379 M60 379 A8 8 0 0 0 76 379 M76 379 A8 8 0 0 0 92 379 M92 379 A8 8 0 0 0 108 379 M108 379 A8 8 0 0 0 124 379 M124 379 A8 8 0 0 0 140 379 M140 379 A8 8 0 0 0 156 379 M156 379 A8 8 0 0 0 172 379 M172 379 A8 8 0 0 0 188 379 M188 379 A8 8 0 0 0 204 379 M204 379 A8 8 0 0 0 220 379 M220 379 A8 8 0 0 0 236 379 M236 379 A8 8 0 0 0 252 379 M252 379 A8 8 0 0 0 268 379 M268 379 A8 8 0 0 0 284 379 M284 379 A8 8 0 0 0 300 379 M300 379 A8 8 0 0 0 316 379 M316 379 A8 8 0 0 0 332 379" fill="none" stroke="#a9b08e" stroke-width="0.9" stroke-linecap="round"/>
+  <circle cx="20" cy="20" r="5" fill="url(#pe)"/><circle cx="340" cy="20" r="5" fill="url(#pe)"/><circle cx="20" cy="385" r="5" fill="url(#pe)"/><circle cx="340" cy="385" r="5" fill="url(#pe)"/>
+</svg>

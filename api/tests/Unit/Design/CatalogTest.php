@@ -18,7 +18,7 @@ class CatalogTest extends TestCase
     private const WEB_EFFECTS = [
         'reveal', 'parallax', 'float', 'shine', 'timeline-fill', 'typewriter', 'sparkle', 'cascade',
         'ken-burns', 'color-shift', 'skyline', 'searchlights', 'city-lights', 'glitter', 'sheen', 'pan',
-        'blend', 'disco-ball', 'disco-lights', 'city-icons', 'taxi', 'icon-strip', 'reveal-zoom', 'reveal-slide', 'reveal-tilt',
+        'blend', 'disco-ball', 'disco-lights', 'city-icons', 'taxi', 'icon-strip', 'reveal-zoom', 'reveal-slide', 'reveal-tilt', 'veil',
     ];
 
     public function test_every_effect_maps_to_an_effect_the_web_paints(): void
