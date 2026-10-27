@@ -94,11 +94,11 @@ const heartStyle = computed(() => (lace.value ? { '--lace': `url("${lace.value}"
 }
 .heart__grid {
   position: absolute;
-  inset: 22% 24% 24%;
+  inset: 17% 22% 30%;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-content: center;
-  gap: 0.3rem 0.5rem;
+  gap: 0.1rem 0.4rem;
 }
 .heart__unit {
   display: grid;
@@ -106,7 +106,7 @@ const heartStyle = computed(() => (lace.value ? { '--lace': `url("${lace.value}"
 }
 .heart__number {
   font-family: var(--t-digits-font, var(--font-display));
-  font-size: calc(clamp(1.5rem, 11cqi, 2.6rem) * var(--t-digits-size, 1));
+  font-size: calc(clamp(1.4rem, 10cqi, 2.4rem) * var(--t-digits-size, 1));
   line-height: 1;
   color: var(--t-digits-color, var(--color-primary));
   font-variant-numeric: tabular-nums;
@@ -116,8 +116,8 @@ const heartStyle = computed(() => (lace.value ? { '--lace': `url("${lace.value}"
 }
 .heart__label {
   font-family: var(--t-units-font, var(--font-caps));
-  font-size: calc(0.7rem * var(--t-units-size, 1));
-  letter-spacing: 0.16em;
+  font-size: calc(0.62rem * var(--t-units-size, 1));
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--t-units-color, var(--color-primary));
 }

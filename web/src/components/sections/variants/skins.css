@@ -252,6 +252,9 @@
   filter: drop-shadow(0 0.25rem 0.4rem rgb(0 0 0 / 0.3));
   pointer-events: none;
 }
+.section.section--trivia--tarjetas .trivia__panel .trivia__submit {
+  color: var(--card-paper);
+}
 .section.section--trivia--tarjetas .trivia__bar {
   background: color-mix(in srgb, var(--card-ink) 15%, transparent);
 }

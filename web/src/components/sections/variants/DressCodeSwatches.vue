@@ -157,4 +157,21 @@ const button = computed(() => props.section.button ?? 'Ver ejemplos')
   border: 1.5px dashed rgb(255 255 255 / 0.65);
   mix-blend-mode: soft-light;
 }
+.swatches__button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1.3rem;
+  border: var(--btn-border, 0);
+  border-radius: var(--btn-radius, 6px);
+  background: var(--btn-bg, var(--button-gradient));
+  color: var(--t-button-color, var(--btn-color, var(--color-on-button, var(--color-text))));
+  font-family: var(--t-button-font, var(--font-button));
+  font-size: calc(1rem * var(--t-button-size, 1));
+  font-weight: 600;
+  letter-spacing: var(--btn-tracking, 0.06em);
+  text-decoration: var(--btn-decoration, none);
+  text-transform: var(--btn-case, none);
+  box-shadow: var(--btn-shadow, var(--shadow-button, none));
+  clip-path: var(--btn-clip, none);
+}
 </style>

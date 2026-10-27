@@ -94,3 +94,15 @@
   --blend-shade: rgb(63 69 53 / 0.28);
   color-scheme: light;
 }
+
+/* El título del reproductor va en mayúsculas espaciadas: en letra de pluma no se lee. */
+:root[data-theme='encaje'] .player__title {
+  font-family: var(--t-title-font, var(--font-serif));
+  font-weight: 600;
+  color: var(--t-title-color, var(--color-primary-strong));
+}
+
+/* La frase: el acento salvia se pierde sobre el terciopelo; va en marfil. */
+:root[data-theme='encaje'] .quote__text {
+  color: var(--t-text-color, var(--color-primary));
+}

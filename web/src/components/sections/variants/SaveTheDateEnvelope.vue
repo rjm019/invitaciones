@@ -142,7 +142,8 @@ const shown = useInView(root)
   position: relative;
   z-index: 1;
   margin: 0 7% -26%;
-  padding: 1rem 0.9rem 1.2rem;
+  /* El pie de la tarjeta queda tras el frente del sobre: el mes termina antes de la solapa. */
+  padding: 1rem 0.9rem calc(26cqi + 0.8rem);
   transform: translateY(0);
   background: var(--paper);
   color: var(--ink);
@@ -186,6 +187,24 @@ const shown = useInView(root)
   box-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
 }
 .env-date__add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   margin-top: calc(var(--space-1, 0.5rem));
+  padding: 0.5rem 1.3rem;
+  border: var(--btn-border, 1px solid var(--color-primary));
+  border-radius: var(--btn-radius, 999px);
+  background: var(--btn-bg, transparent);
+  font-family: var(--t-button-font, var(--font-serif));
+  font-size: 1.05rem;
+  color: var(--btn-color, var(--color-primary));
+  text-decoration: var(--btn-decoration, none);
+  box-shadow: var(--btn-shadow, none);
+  letter-spacing: var(--btn-tracking, normal);
+  clip-path: var(--btn-clip, none);
+}
+.env-date__add :deep(.app-icon) {
+  width: 1.1em;
+  height: 1.1em;
 }
 </style>

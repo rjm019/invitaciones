@@ -232,6 +232,7 @@ const estateStyle = computed(() =>
   padding: 0.55rem 1.1rem;
   border: var(--btn-border, 1px solid color-mix(in srgb, var(--color-primary) 55%, transparent));
   border-radius: var(--btn-radius, 999px);
+  background: var(--btn-bg, transparent);
   font-family: var(--t-button-font, var(--font-caps));
   font-size: calc(0.78rem * var(--t-button-size, 1));
   letter-spacing: var(--btn-tracking, 0.16em);

@@ -193,7 +193,7 @@ onBeforeUnmount(() => clearTimeout(timer))
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24% 7% 12%;
+  padding: 24% 7% 22%;
   text-align: center;
   background:
     linear-gradient(to top, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0) 55%, rgb(0 0 0 / 0.25)),
@@ -236,7 +236,7 @@ onBeforeUnmount(() => clearTimeout(timer))
   display: grid;
   margin: 0;
   font-family: var(--t-place-font, var(--font-script-mono));
-  font-size: calc(9cqi * var(--t-place-size, 1));
+  font-size: calc(8cqi * var(--t-place-size, 1));
   line-height: 1.15;
   color: var(--t-place-color, var(--color-text));
 }

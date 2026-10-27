@@ -235,6 +235,20 @@ const divider = computed(() =>
   cursor: pointer;
 }
 .tag__button {
+  display: inline-flex;
+  align-items: center;
   margin-top: 0.3rem;
+  padding: 0.35rem 1.2rem;
+  border: 0;
+  border-radius: var(--btn-radius, 6px);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ink) 78%, #fff) 0%, var(--ink) 100%);
+  color: var(--paper);
+  font-family: var(--t-button-font, var(--font-button));
+  font-size: calc(0.95rem * var(--t-button-size, 1));
+  font-weight: 600;
+  letter-spacing: var(--btn-tracking, 0.06em);
+  text-decoration: none;
+  text-transform: var(--btn-case, none);
+  clip-path: var(--btn-clip, none);
 }
 </style>
