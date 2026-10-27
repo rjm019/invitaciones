@@ -153,6 +153,7 @@ final class Catalog
         'tela' => ['slot' => 'cloth', 'label' => 'Tela arrugada al pie'],
         'alcatraz' => ['slot' => 'lily', 'label' => 'Alcatraz'],
         'encaje' => ['slot' => 'lace', 'label' => 'Carpeta de encaje'],
+        'hacienda' => ['slot' => 'estate', 'label' => 'Dibujo de la hacienda'],
     ];
 
     /** División entre secciones (la orilla de las franjas): nombre en el CSV → código. */
@@ -407,7 +408,7 @@ final class Catalog
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Galería', 'max_length' => 60],
                 ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'max_length' => 120],
-                ['key' => 'variante', 'label' => 'Presentación', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Cuadrícula'], ['value' => 'marcos', 'label' => 'Marcos de plata'], ['value' => 'carrusel', 'label' => 'Carrusel (se desliza de lado)'], ['value' => 'diapositivas', 'label' => 'Se cambian solas (como un gif)']]],
+                ['key' => 'variante', 'label' => 'Presentación', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Cuadrícula'], ['value' => 'marcos', 'label' => 'Marcos de plata'], ['value' => 'carrusel', 'label' => 'Carrusel (se desliza de lado)'], ['value' => 'diapositivas', 'label' => 'Se cambian solas (como un gif)'], ['value' => 'bastidor', 'label' => 'Bastidores de bordado']]],
             ],
             'list' => ['key' => 'fotos', 'label' => 'Fotos', 'item_label' => 'Foto', 'max' => 24, 'fields' => [
                 ['key' => 'foto', 'label' => 'Foto', 'input' => 'image', 'required' => true],
@@ -428,6 +429,7 @@ final class Catalog
                 ['key' => 'archivo', 'label' => 'Archivo MP4 (H.264, máx. 40 MB)', 'input' => 'video', 'help' => 'Solo con "Archivo propio". Se sube tal cual, sin comprimir.'],
                 ['key' => 'poster', 'label' => 'Portada (opcional)', 'input' => 'image', 'help' => 'Se ve antes del play. Sin portada, un fondo con el ícono de la red.'],
                 ['key' => 'formato', 'label' => 'Formato', 'input' => 'select', 'options' => [['value' => 'horizontal', 'label' => 'Horizontal (16:9)'], ['value' => 'vertical', 'label' => 'Vertical (9:16)']]],
+                ['key' => 'variante', 'label' => 'Marco', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásico'], ['value' => 'encaje', 'label' => 'Óvalo de encaje y perlas']]],
             ],
             'slots' => ['divisor'],
             'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'boton' => 'Botón'],
@@ -442,6 +444,7 @@ final class Catalog
                 ['key' => 'red', 'label' => 'Red', 'input' => 'select', 'options' => [['value' => 'instagram', 'label' => 'Instagram'], ['value' => 'facebook', 'label' => 'Facebook'], ['value' => 'youtube', 'label' => 'YouTube']]],
                 ['key' => 'enlace', 'label' => 'Enlace de la publicación', 'input' => 'url', 'placeholder' => 'https://www.instagram.com/reel/…', 'help' => 'Solo https y de la red elegida.'],
                 ['key' => 'poster', 'label' => 'Portada (opcional)', 'input' => 'image', 'help' => 'Se ve antes de tocar. Sin portada, un fondo con el ícono de la red.'],
+                ['key' => 'variante', 'label' => 'Marco', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásico'], ['value' => 'encaje', 'label' => 'Óvalo de encaje y perlas']]],
             ],
             'slots' => ['divisor'],
             'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'boton' => 'Botón'],
@@ -453,7 +456,7 @@ final class Catalog
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Ubicación', 'max_length' => 60],
                 ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Ver en Maps', 'max_length' => 40],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'metro', 'label' => 'Letrero del metro']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'metro', 'label' => 'Letrero del metro'], ['value' => 'grabado', 'label' => 'Hacienda en grabado']]],
                 ['key' => 'acomodo', 'label' => 'Acomodo de los lugares', 'input' => 'select', 'help' => 'Lado a lado (en el celular se apilan) o uno debajo del otro.', 'options' => [['value' => 'lado a lado', 'label' => 'Lado a lado'], ['value' => 'uno debajo del otro', 'label' => 'Uno debajo del otro']]],
                 ['key' => 'calendario', 'label' => 'Botón "Agregar al calendario"', 'input' => 'select', 'options' => [['value' => 'SI', 'label' => 'Sí'], ['value' => 'NO', 'label' => 'No']]],
             ],
@@ -467,6 +470,7 @@ final class Catalog
                 ['key' => 'maps', 'label' => 'Enlace de Google Maps', 'input' => 'url'],
                 ['key' => 'foto', 'label' => 'Foto', 'input' => 'image'],
             ]],
+            'slots' => ['hacienda'],
             'texts' => ['titulo' => 'Título', 'etiqueta' => ['block' => 'label', 'label' => 'Qué es (Ceremonia)'], 'lugar' => ['block' => 'place', 'label' => 'Nombre del lugar'], 'detalle' => ['block' => 'detail', 'label' => 'Hora y dirección'], 'boton' => 'Botón'],
         ],
         'frase' => [
@@ -501,6 +505,7 @@ final class Catalog
                     ['value' => 'zigzag', 'label' => 'Zigzag'],
                     ['value' => 'lista', 'label' => 'Lista'],
                     ['value' => 'avenida', 'label' => 'Letreros de calle'],
+                    ['value' => 'grabado', 'label' => 'Grabado con íconos de línea'],
                 ]],
             ],
             'list' => ['key' => 'momentos', 'label' => 'Momentos', 'item_label' => 'Momento', 'max' => 12, 'fields' => [
@@ -508,7 +513,7 @@ final class Catalog
                 ['key' => 'actividad', 'label' => 'Qué pasa', 'input' => 'text', 'placeholder' => 'Recepción', 'required' => true, 'max_length' => 60],
                 ['key' => 'icono', 'label' => 'Ícono', 'input' => 'icon'],
             ]],
-            'slots' => ['marco', 'estatua', 'puente'],
+            'slots' => ['marco', 'estatua', 'puente', 'divisor'],
             'texts' => ['titulo' => 'Título', 'hora' => ['block' => 'time', 'label' => 'Horas'], 'actividad' => ['block' => 'activity', 'label' => 'Actividades']],
         ],
         'vestimenta' => [
@@ -520,9 +525,11 @@ final class Catalog
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'max_length' => 600],
                 ['key' => 'colores', 'label' => 'Colores sugeridos', 'input' => 'colors', 'help' => 'De 1 a 4.'],
                 ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'vitrinas', 'label' => 'Escaparates de la Quinta Avenida'], ['value' => 'muestrario', 'label' => 'Muestrario de telas']]],
+                ['key' => 'enlace', 'label' => 'Enlace de ejemplos', 'input' => 'url', 'placeholder' => 'https://…', 'help' => 'Un tablero o una galería con ideas de vestimenta. Solo https. Sin enlace, el botón no aparece.'],
+                ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Ver ejemplos', 'max_length' => 40],
             ],
             'slots' => ['lacre', 'tarjeta', 'mujer', 'hombre', 'encaje'],
-            'texts' => ['titulo' => 'Título', 'subtitulo' => 'Tipo de vestimenta', 'texto' => 'Texto'],
+            'texts' => ['titulo' => 'Título', 'subtitulo' => 'Tipo de vestimenta', 'texto' => 'Texto', 'boton' => 'Botón'],
         ],
         'sin_ninos' => [
             'type' => 'no-kids', 'label' => 'Solo adultos', 'icon' => 'user-group',
@@ -687,6 +694,7 @@ final class Catalog
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'placeholder' => '¿Qué tanto conoces a la festejada?', 'max_length' => 400],
                 ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Empezar', 'max_length' => 40],
                 ['key' => 'cierra', 'label' => 'Cierra el', 'input' => 'datetime', 'help' => 'Después de esa fecha ya no se puede responder. Sin fecha, cierra cuando empieza el evento.'],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'tarjetas', 'label' => 'Tarjetas de papel con encaje']]],
             ],
             'list' => ['key' => 'preguntas', 'label' => 'Preguntas', 'item_label' => 'Pregunta', 'max' => 10, 'fields' => [
                 ['key' => 'pregunta', 'label' => 'Pregunta', 'input' => 'text', 'required' => true, 'max_length' => 200],

@@ -26,9 +26,15 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     ventana: () => import('./sections/variants/PhotoTower.vue'),
     camafeo: () => import('./sections/variants/PhotoCameo.vue'),
   },
-  location: { metro: () => import('./sections/variants/LocationMetro.vue') },
+  location: {
+    metro: () => import('./sections/variants/LocationMetro.vue'),
+    grabado: () => import('./sections/variants/LocationEngraving.vue'),
+  },
   quote: { neon: () => import('./sections/variants/QuoteNeon.vue') },
-  itinerary: { avenida: () => import('./sections/variants/ItineraryAvenue.vue') },
+  itinerary: {
+    avenida: () => import('./sections/variants/ItineraryAvenue.vue'),
+    grabado: () => import('./sections/variants/ItineraryEngraving.vue'),
+  },
   'dress-code': {
     vitrinas: () => import('./sections/variants/DressCodeWindows.vue'),
     muestrario: () => import('./sections/variants/DressCodeSwatches.vue'),
@@ -43,6 +49,7 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     marcos: () => import('./sections/variants/GalleryFrames.vue'),
     carrusel: () => import('./sections/variants/GalleryCarousel.vue'),
     diapositivas: () => import('./sections/variants/GallerySlideshow.vue'),
+    bastidor: () => import('./sections/variants/GalleryHoops.vue'),
   },
   hotels: { colgantes: () => import('./sections/variants/HotelsHangers.vue') },
   gifts: {
@@ -53,4 +60,16 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     marquesina: () => import('./sections/variants/ClosingMarquee.vue'),
     bordado: () => import('./sections/variants/ClosingEmbroidery.vue'),
   },
+}
+
+/**
+ * Diseños que son solo una piel de CSS sobre el componente de siempre (variants/skins.css,
+ * `.section--<tipo>--<variante>`): no se descargan, pero cuentan como registrados.
+ */
+export const skinVariants: Record<string, string[]> = {
+  rsvp: ['pase'],
+  dedications: ['postal'],
+  trivia: ['tarjetas'],
+  video: ['encaje'],
+  'social-post': ['encaje'],
 }

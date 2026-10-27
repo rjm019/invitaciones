@@ -164,7 +164,7 @@ Los tipos, en el orden de la invitación de NAT. Solo `foto`, `frase`, `cierre` 
 | `ubicacion` (repetible: una sección por lugar o varios lugares en una) | `titulo`, `boton`, `variante`, `acomodo` (`lado a lado`, que en el celular se apila, o `uno debajo del otro`), `calendario` (`SI`/`NO`: botón «Agregar al calendario» en cada lugar con `hora`, el día del evento) | Varias ubicaciones (misa y recepción): `tipo` (`ceremonia religiosa`, `ceremonia civil`, `recepcion`, `ceremonia y recepcion`, `otro`: pone etiqueta e ícono por defecto; `etiqueta` gana si se escribe), `etiqueta`, `lugar`, `hora`, `direccion`, `maps`, `foto` | El salón: `salon`, `salon_nombre_visible`, `salon_ciudad`, `salon_direccion`, `salon_maps`, `salon_foto` | — | `etiqueta`, `lugar`, `detalle` |
 | `frase` | `texto` | — | — | `divisor` | — |
 | `itinerario` | `titulo`, `variante`, `en_vivo` (`SI`: el día del evento, en su zona horaria, resalta «Ahora» y «Sigue» y atenúa lo pasado; una hora menor que la anterior cuenta como del día siguiente) | `hora` (`17:00` o `5:00 pm`), `actividad`, `icono` | — | `marco`, `estatua`, `puente` | `hora`, `actividad` |
-| `vestimenta` | `titulo`, `subtitulo`, `texto`, `colores` (de 1 a 4 hex, separados por espacio) | — | — | `lacre`, `tarjeta`, `mujer`, `hombre` | — |
+| `vestimenta` | `titulo`, `subtitulo`, `texto`, `colores` (de 1 a 4 hex, separados por espacio), `variante`, `enlace` (https; es el botón «Ver ejemplos» del `muestrario`: sin enlace, no aparece) y `boton` | — | — | `lacre`, `tarjeta`, `mujer`, `hombre` | — |
 | `sin_ninos` | `titulo`, `subtitulo` (la etiqueta "Solo adultos"), `texto` | — | — | `lazo` | — |
 | `clima` | `titulo`, `texto` | — | `salon_ciudad`, `clima_coordenadas` | — | `lugar`, `datos` |
 | `hospedaje` | `titulo`, `subtitulo`, `texto`, `boton` | `nombre` (obligatorio), `nota`, `direccion`, `maps`, `telefono`, `foto` | — | `tarjeta`, `divisor` | `nombre`, `nota`, `direccion` |
@@ -174,9 +174,9 @@ Los tipos, en el orden de la invitación de NAT. Solo `foto`, `frase`, `cierre` 
 | `confirmacion` | `titulo`, `subtitulo`, `boton` | — | `rsvp_modo`, `rsvp_limite`, `rsvp_whatsapp` | `tarjeta`, `flores` | `fecha_limite` |
 | `dedicatoria` | `titulo`, `texto`, `boton` | — | — | `divisor` | `mensaje`, `autor` |
 | `album` | `titulo`, `texto`, `boton`, `album_dias` (5 a 20, 5 por defecto), `album_max_mb` (300 por defecto) | `foto` (fotos de ejemplo, solo para muestras) | — | `marco`, `divisor` | `titulo`, `texto`, `boton` |
-| `trivia` | `titulo`, `texto`, `boton`, `cierra` | `pregunta`, `opcion_1` a `opcion_4`, `correcta` | — | `divisor` | `pregunta`, `opcion`, `resultado` |
-| `video` (repetible) | `titulo`, `texto`, `fuente` (`youtube`, `archivo`, `instagram`, `facebook`), `enlace`, `archivo` (un `.mp4` de `media/`), `poster` (imagen de `media/`), `formato` (`horizontal` 16:9 o `vertical` 9:16), `boton` (texto de "Ver en…") | — | — | `divisor` | `titulo`, `texto` |
-| `publicacion` (repetible) | `titulo`, `texto`, `red` (`instagram`, `facebook`, `youtube`), `enlace`, `poster`, `boton` | — | — | `divisor` | `titulo`, `texto` |
+| `trivia` | `titulo`, `texto`, `boton`, `cierra`, `variante` | `pregunta`, `opcion_1` a `opcion_4`, `correcta` | — | `divisor` | `pregunta`, `opcion`, `resultado` |
+| `video` (repetible) | `titulo`, `texto`, `fuente` (`youtube`, `archivo`, `instagram`, `facebook`), `enlace`, `archivo` (un `.mp4` de `media/`), `poster` (imagen de `media/`), `formato` (`horizontal` 16:9 o `vertical` 9:16), `boton` (texto de "Ver en…"), `variante` (`encaje`: óvalo con perlas) | — | — | `divisor` | `titulo`, `texto` |
+| `publicacion` (repetible) | `titulo`, `texto`, `red` (`instagram`, `facebook`, `youtube`), `enlace`, `poster`, `boton`, `variante` (`encaje`) | — | — | `divisor` | `titulo`, `texto` |
 | `cierre` | `titulo`, `texto` | — | — | `flores`, `corona` | — |
 
 **Íconos del itinerario** (`icono`): un archivo de `media/` (`copas.webp`) o un nombre: `utensils`, `church`, `crown`, `music`, `heart`, `ring`, `dove`, `gift`, `cake-candles`, `graduation-cap`, `door-open`, `champagne-glasses`, `location-dot`, y los de Nueva York: `statue-of-liberty`, `brooklyn-bridge`, `empire-state`, `disco-ball`, `taxi`, `martini-glass-citrus`, `city`.
@@ -420,3 +420,16 @@ Diseños de sección nuevos (`variante`; sirven en cualquier tema):
 | `cierre` | `bordado` | Tela arrugada, alcatraces y firma |
 
 Adornos nuevos (`imagen_<adorno>`): `paisaje`, `cortinaje`, `telon`, `pliegues`, `tela`, `alcatraz` y `encaje`; `portada,,imagen` es el paisaje del telón.
+
+### Diseños de la etapa 6b-2 (sirven en cualquier tema)
+
+| Sección | `variante` | Diseño |
+|---|---|---|
+| `itinerario` | `grabado` | Hilo vertical con medallones de línea (copa, anillos, plato, pastel…): el dibujo sale del `icono` o de la actividad; con `en_vivo` marca «Ahora» y «Sigue» |
+| `ubicacion` | `grabado` | Lámina oliva con la hacienda dibujada a línea, «Ver ubicación» y, con `calendario`, «Agregar al calendario» por lugar (`acomodo` y `tipo` como siempre) |
+| `galeria` | `bastidor` | Fotos en aros de bordado con tela y puntada |
+| `trivia` | `tarjetas` | Tarjeta de papel con encaje por pregunta (misma trivia) |
+| `video`, `publicacion` | `encaje` | Marco ovalado con aro de perlas; sigue sin cargar nada de terceros hasta tocar play |
+
+Adorno nuevo: `imagen_hacienda` (en `ubicacion`) cambia o quita el dibujo de la hacienda; `imagen_divisor` (en `itinerario`) el hilo de perlas. En `vestimenta`, `enlace` es el destino del botón de ejemplos y `boton` su texto; la plantilla `deploy/plantillas/encaje/` los trae todos.
+

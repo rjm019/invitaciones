@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="170" viewBox="0 0 320 170" fill="none" stroke="#f3eedf" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Hacienda dibujada a línea (grabado): portal de arcos, torre con campanario, tejado de teja, cipreses y pájaros. Neutra: se pinta con el color que se le ponga (máscara). -->
+  <path d="M10 150H310"/>
+  <path d="M20 156H300" stroke-width="0.9" opacity="0.7"/>
+  <!-- Muros y tejado -->
+  <path d="M62 150V84H258V150"/>
+  <path d="M48 84L72 66H248L272 84Z"/>
+  <path d="M80 66L72 84M96 66L88 84M112 66L104 84M128 66L120 84M192 66L200 84M208 66L216 84M224 66L232 84M240 66L248 84" stroke-width="1"/>
+  <!-- Torre y campanario -->
+  <path d="M138 66V34H182V66"/>
+  <path d="M132 34L160 12L188 34Z"/>
+  <path d="M148 56V45a12 12 0 0 1 24 0V56Z"/>
+  <path d="M160 33V25M156 29H164" stroke-width="1.2"/>
+  <!-- Portal de arcos -->
+  <path d="M74 150V122a13 13 0 0 1 26 0V150"/>
+  <path d="M104 150V122a13 13 0 0 1 26 0V150"/>
+  <path d="M190 150V122a13 13 0 0 1 26 0V150"/>
+  <path d="M220 150V122a13 13 0 0 1 26 0V150"/>
+  <path d="M138 150V108a22 22 0 0 1 44 0V150"/>
+  <path d="M148 150V110a12 12 0 0 1 24 0V150" stroke-width="1"/>
+  <path d="M160 98V150" stroke-width="1"/>
+  <!-- Ventanas altas -->
+  <path d="M80 106V92a6 6 0 0 1 12 0V106ZM112 106V92a6 6 0 0 1 12 0V106ZM196 106V92a6 6 0 0 1 12 0V106ZM228 106V92a6 6 0 0 1 12 0V106Z" stroke-width="1.2"/>
+  <!-- Cipreses -->
+  <path d="M28 150C14 122 18 84 28 52C38 84 42 122 28 150Z"/>
+  <path d="M28 150V60M22 128C26 110 26 96 28 80M34 128C30 110 30 96 28 80" stroke-width="0.9"/>
+  <path d="M294 150C280 124 284 90 294 62C304 90 308 124 294 150Z"/>
+  <path d="M294 150V70M288 130C291 112 291 100 294 88M300 130C297 112 297 100 294 88" stroke-width="0.9"/>
+  <!-- Matas al pie -->
+  <path d="M46 150C48 144 52 142 56 140M50 150C52 146 58 146 60 143M262 150C264 144 268 142 272 140M266 150C268 146 274 146 276 143"/>
+  <!-- Sol y pájaros -->
+  <circle cx="246" cy="34" r="8"/>
+  <path d="M246 18V21M246 47V50M230 34H233M259 34H262M234.7 22.7L236.8 24.8M255.2 43.2L257.3 45.3M257.3 22.7L255.2 24.8M236.8 43.2L234.7 45.3" stroke-width="1.1"/>
+  <path d="M76 36q5-6 10 0q5-6 10 0M96 24q4-5 8 0q4-5 8 0" stroke-width="1.3"/>
+</svg>

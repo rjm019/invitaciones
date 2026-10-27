@@ -1,0 +1,141 @@
+﻿seccion,elemento,campo,valor
+evento,,tipo,boda
+evento,,tema,encaje
+evento,,festejada,Nombre y Nombre
+evento,,festejada_corto,Nombre & Nombre
+evento,,pareja,Nombre & Nombre
+evento,,subtitulo,nos casamos
+evento,,titulo,Nuestra boda
+evento,,inicia,2027-10-23 17:00
+evento,,zona_horaria,America/Mexico_City
+evento,,salon,Nombre del salón
+evento,,salon_ciudad,"Ciudad, Estado"
+evento,,rsvp_modo,token
+evento,,musica_fuente,archivo
+evento,,mensaje_whatsapp,"¡Hola{, familia}! Te compartimos la invitación ({pases}): {enlace}"
+evento,,tarjeta_frase,Nuestra boda
+portada,,visible,SI
+portada,,variante,telon
+portada,,boton,Toca para abrir
+musica,,visible,SI
+musica,,titulo,Dale play
+bendicion,,visible,SI
+bendicion,,texto,"Con la bendición de Dios y el amor de nuestras familias, te invitamos a celebrar el día más especial de nuestra vida."
+bendicion,1,rol,Papás de la novia
+bendicion,1,nombres,"Nombre Apellido
+Nombre Apellido"
+bendicion,2,rol,Papás del novio
+bendicion,2,nombres,"Nombre Apellido
+Nombre Apellido"
+fecha,,visible,SI
+fecha,,variante,calendario
+fecha,,titulo,Save the date
+foto,,visible,SI
+foto,,variante,camafeo
+ubicacion,,visible,SI
+ubicacion,,variante,grabado
+ubicacion,,titulo,Ceremonia y recepción
+ubicacion,,boton,Ver ubicación
+ubicacion,,acomodo,lado a lado
+ubicacion,,calendario,SI
+ubicacion,1,tipo,ceremonia religiosa
+ubicacion,1,lugar,Nombre de la parroquia
+ubicacion,1,hora,17:00
+ubicacion,1,direccion,Calle y número
+ubicacion,2,tipo,recepcion
+ubicacion,2,lugar,Nombre de la hacienda
+ubicacion,2,hora,19:00
+ubicacion,2,direccion,Calle y número
+frase,,visible,SI
+frase,,texto,Hoy comienza el capítulo más bonito de nuestra historia
+itinerario,,visible,SI
+itinerario,,variante,grabado
+itinerario,,en_vivo,SI
+itinerario,,titulo,Itinerario
+itinerario,1,hora,17:00
+itinerario,1,actividad,Ceremonia
+itinerario,1,icono,church
+itinerario,2,hora,19:00
+itinerario,2,actividad,Recepción
+itinerario,2,icono,champagne-glasses
+itinerario,3,hora,20:00
+itinerario,3,actividad,Cena
+itinerario,3,icono,utensils
+itinerario,4,hora,21:30
+itinerario,4,actividad,Vals y pastel
+itinerario,4,icono,cake-candles
+itinerario,5,hora,22:00
+itinerario,5,actividad,Baile
+itinerario,5,icono,music
+vestimenta,,visible,SI
+vestimenta,,variante,muestrario
+vestimenta,,titulo,Dress Code
+vestimenta,,subtitulo,Formal
+vestimenta,,texto,Te sugerimos tonos pastel y suaves; el blanco es solo para la novia.
+vestimenta,,enlace,https://www.pinterest.com/
+vestimenta,,boton,Ver ejemplos
+sin_ninos,,visible,SI
+sin_ninos,,texto,"Amamos a sus pequeños, pero este día es solo para adultos."
+cuenta_regresiva,,visible,SI
+cuenta_regresiva,,variante,corazon
+cuenta_regresiva,,titulo,Faltan
+cuenta_regresiva,,texto,El gran día está cada vez más cerca.
+clima,,visible,SI
+galeria,,visible,SI
+galeria,,variante,bastidor
+galeria,,titulo,Nuestra historia
+hospedaje,,visible,SI
+hospedaje,,titulo,Recomendación de hospedaje
+hospedaje,1,nombre,Nombre del hotel
+hospedaje,1,nota,A unos pasos de la hacienda
+hospedaje,2,nombre,Otro hotel
+hospedaje,2,nota,A unos 10 min en auto
+mesa_regalos,,visible,SI
+mesa_regalos,,variante,etiqueta
+mesa_regalos,,texto,"Tu presencia es nuestro mejor regalo; si quieres consentirnos, aquí hay algunas ideas."
+mesa_regalos,,sobres_texto,"Si prefieres, puedes darnos tu regalo en un sobre:"
+mesa_regalos,,banco,Banco
+mesa_regalos,,cuenta,000000000000000000
+mesa_regalos,,titular,Nombre del titular
+mesa_regalos,,sobre_fisico,SI
+mesa_regalos,1,tienda,liverpool
+mesa_regalos,1,numero_evento,00000000
+mesa_regalos,1,enlace,https://mesaderegalos.liverpool.com.mx/
+mesa_regalos,2,tienda,amazon
+mesa_regalos,2,nota,Lista de deseos
+mesa_regalos,2,enlace,https://www.amazon.com.mx/
+playlist,,visible,SI
+video,,visible,SI
+video,,variante,encaje
+video,,titulo,Nuestro video
+video,,fuente,youtube
+publicacion,,visible,SI
+publicacion,,variante,encaje
+publicacion,,titulo,Síguenos
+publicacion,,red,instagram
+trivia,,visible,SI
+trivia,,variante,tarjetas
+trivia,,titulo,Trivia de los novios
+trivia,,texto,¿Qué tanto conoces a los novios?
+trivia,,boton,Empezar
+trivia,1,pregunta,¿Dónde nos conocimos?
+trivia,1,opcion_1,En la escuela
+trivia,1,opcion_2,En una fiesta
+trivia,1,opcion_3,En el trabajo
+trivia,1,correcta,1
+trivia,2,pregunta,"¿Quién dijo ""te quiero"" primero?"
+trivia,2,opcion_1,Ella
+trivia,2,opcion_2,Él
+trivia,2,correcta,2
+trivia,3,pregunta,¿Cuál es nuestro destino soñado?
+trivia,3,opcion_1,La playa
+trivia,3,opcion_2,La montaña
+trivia,3,opcion_3,Una ciudad
+trivia,3,correcta,1
+confirmacion,,visible,SI
+confirmacion,,subtitulo,¡Agradecemos que confirmes tu asistencia!
+dedicatoria,,visible,SI
+cierre,,visible,SI
+cierre,,variante,bordado
+cierre,,titulo,¡Te esperamos!
+cierre,,texto,Este día no sería lo mismo sin ti.

@@ -205,3 +205,118 @@
   clip-path: var(--btn-clip, none);
   text-shadow: var(--btn-glow, none);
 }
+
+/*
+ * Trivia "tarjetas": cada pregunta es una tarjeta de papel marfil con tinta oscura, una
+ * puntada discontinua por dentro y una carpeta de encaje (el adorno compartido "encaje")
+ * que asoma arriba como un sello. Es la trivia de siempre (mismo comportamiento): solo
+ * cambia su piel. La tinta y el papel salen de la paleta (--color-on-button y
+ * --color-paper); si el tema no los trae, usan marfil y tinta oliva.
+ */
+.section.section--trivia--tarjetas .trivia__panel {
+  --card-ink: var(--color-on-button, #3f4535);
+  --card-paper: var(--color-paper, #f3eedf);
+  --color-text: var(--card-ink);
+  --color-primary: var(--card-ink);
+  position: relative;
+  margin-top: 3.4rem;
+  padding: 2.6rem 1.3rem 1.5rem;
+  border-radius: 0.35rem;
+  background:
+    url('../../../themes/_shared/assets/grano.svg') 0 0 / 240px,
+    radial-gradient(
+      120% 90% at 50% 20%,
+      color-mix(in srgb, var(--card-paper) 70%, #fff) 0%,
+      var(--card-paper) 75%
+    );
+  color: var(--card-ink);
+  box-shadow: var(--shadow-card);
+}
+.section.section--trivia--tarjetas .trivia__panel::after {
+  content: '';
+  position: absolute;
+  inset: 0.45rem;
+  border: 1px dashed color-mix(in srgb, var(--card-ink) 45%, transparent);
+  border-radius: 0.2rem;
+  pointer-events: none;
+}
+.section.section--trivia--tarjetas .trivia__panel::before {
+  content: '';
+  position: absolute;
+  top: -2.5rem;
+  left: 50%;
+  width: 5rem;
+  aspect-ratio: 1;
+  translate: -50% 0;
+  background: url('../../../themes/_shared/assets/encaje.svg') center / contain no-repeat;
+  filter: drop-shadow(0 0.25rem 0.4rem rgb(0 0 0 / 0.3));
+  pointer-events: none;
+}
+.section.section--trivia--tarjetas .trivia__bar {
+  background: color-mix(in srgb, var(--card-ink) 15%, transparent);
+}
+.section.section--trivia--tarjetas .trivia__bar-fill {
+  background: var(--card-ink);
+}
+.section.section--trivia--tarjetas .trivia__field {
+  border-color: color-mix(in srgb, var(--card-ink) 45%, transparent);
+  border-radius: 0.2rem;
+  background: rgb(255 255 255 / 0.55);
+  color: var(--card-ink);
+}
+.section.section--trivia--tarjetas .trivia__field::placeholder {
+  color: color-mix(in srgb, var(--card-ink) 55%, transparent);
+}
+.section.section--trivia--tarjetas .trivia__option {
+  border-color: color-mix(in srgb, var(--card-ink) 40%, transparent);
+  border-radius: 0.2rem;
+  background: transparent;
+}
+.section.section--trivia--tarjetas .trivia__option[aria-pressed='true'] {
+  border-color: var(--card-ink);
+  background: color-mix(in srgb, var(--card-ink) 14%, transparent);
+}
+.section.section--trivia--tarjetas .trivia__score {
+  color: var(--t-result-color, var(--card-ink));
+}
+.section.section--trivia--tarjetas .trivia__error {
+  color: color-mix(in srgb, var(--color-error, #b3261e) 85%, #000);
+}
+
+/*
+ * Video y publicación de redes "encaje": la fachada (la portada con su play, que no carga
+ * nada de terceros) en un marco ovalado, con un aro de perlas alrededor y un filo de
+ * puntadas por dentro. Solo piel: el reproductor es el de siempre.
+ */
+.section.section--video--encaje .player,
+.section.section--social-post--encaje .player {
+  position: relative;
+  margin-block: 1rem;
+}
+.section.section--video--encaje .player__frame,
+.section.section--social-post--encaje .player__frame {
+  border-radius: 46% / 40%;
+  box-shadow:
+    0 0 0 0.3rem var(--color-primary-strong),
+    0 0 0 calc(0.3rem + 1px) color-mix(in srgb, var(--color-primary) 60%, transparent),
+    0 0.9rem 1.8rem rgb(0 0 0 / 0.38);
+}
+.section.section--video--encaje .player::after,
+.section.section--social-post--encaje .player::after {
+  content: '';
+  position: absolute;
+  inset: -0.95rem;
+  border: 0.32rem dotted var(--color-primary-soft);
+  border-radius: 48% / 42%;
+  opacity: 0.9;
+  pointer-events: none;
+}
+.section.section--video--encaje .player__frame::after,
+.section.section--social-post--encaje .player__frame::after {
+  content: '';
+  position: absolute;
+  inset: 0.45rem;
+  border: 1px dashed color-mix(in srgb, var(--color-primary-strong) 85%, transparent);
+  border-radius: 46% / 40%;
+  pointer-events: none;
+}

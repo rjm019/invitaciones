@@ -166,6 +166,60 @@ class InvitationConfigBuilderTest extends TestCase
         $this->assertArrayNotHasKey('starts_at', $second['places'][0]);
     }
 
+    public function test_dress_code_examples_link_is_its_own_validated_field(): void
+    {
+        $with = $this->build($this->minimal([new DesignSection('vestimenta', ['variante' => 'muestrario', 'enlace' => 'https://ejemplo.test/ideas', 'boton' => 'Ver ideas'])]));
+        $without = $this->build($this->minimal([new DesignSection('vestimenta', ['variante' => 'muestrario'])]));
+        $bad = $this->build($this->minimal([new DesignSection('vestimenta', ['enlace' => 'javascript:alert(1)'])]), lenient: true);
+
+        $this->assertSame([], $with->errors());
+        $this->assertSame('https://ejemplo.test/ideas', $with->config['sections'][0]['link']);
+        $this->assertSame('Ver ideas', $with->config['sections'][0]['button']);
+        $this->assertArrayNotHasKey('link', $without->config['sections'][0]);
+        $this->assertArrayNotHasKey('link', $bad->config['sections'][0]);
+        $this->assertStringContainsString('vestimenta → enlace: debe ser un enlace', $bad->errors()[0]);
+    }
+
+    public function test_engraved_and_lace_variants_and_the_estate_slot_pass_through(): void
+    {
+        $result = $this->build($this->minimal([
+            new DesignSection('itinerario', ['variante' => 'grabado', 'en_vivo' => 'SI'], [['hora' => '17:00', 'actividad' => 'Misa']]),
+            new DesignSection('ubicacion', ['variante' => 'grabado', 'acomodo' => 'lado a lado', 'calendario' => 'SI', 'imagen_hacienda' => 'salon.webp']),
+            new DesignSection('galeria', ['variante' => 'bastidor']),
+            new DesignSection('video', ['variante' => 'encaje', 'fuente' => 'youtube', 'enlace' => 'https://youtu.be/dQw4w9WgXcQ']),
+        ]), lenient: true);
+
+        $sections = $result->config['sections'];
+        $this->assertSame([], array_filter($result->errors(), fn ($e) => str_contains($e, 'variante') || str_contains($e, 'hacienda')));
+        $this->assertSame('grabado', $sections[0]['variant']);
+        $this->assertTrue($sections[0]['live']);
+        $this->assertSame('grabado', $sections[1]['variant']);
+        $this->assertSame('side', $sections[1]['layout']);
+        $this->assertTrue($sections[1]['calendar']);
+        $this->assertSame('https://ejemplo.test/media/nueva/salon.webp', $sections[1]['decor']['estate']);
+        $this->assertSame('bastidor', $sections[2]['variant']);
+        $this->assertSame('encaje', $sections[3]['variant']);
+    }
+
+    public function test_the_lace_template_builds_clean_with_every_variant(): void
+    {
+        $file = base_path('../deploy/plantillas/encaje/invitacion.csv');
+        if (! is_file($file)) {
+            $this->markTestSkipped('deploy/plantillas no está montado en este contenedor.');
+        }
+        [$design] = app(DesignFile::class)->read($file);
+
+        $result = $this->build($design, media: []);
+
+        $this->assertSame([], $result->errors());
+        $this->assertSame('encaje', $result->config['theme']);
+        $variants = collect($result->config['sections'])->pluck('variant', 'type')->all();
+        $this->assertEquals(
+            ['itinerary' => 'grabado', 'location' => 'grabado', 'gallery' => 'bastidor', 'trivia' => 'tarjetas', 'video' => 'encaje', 'social-post' => 'encaje', 'dress-code' => 'muestrario'],
+            array_intersect_key($variants, array_flip(['itinerary', 'location', 'gallery', 'trivia', 'video', 'social-post', 'dress-code'])),
+        );
+    }
+
     public function test_live_itinerary_is_only_flagged_when_asked(): void
     {
         $off = $this->build($this->minimal([new DesignSection('itinerario', [], [['hora' => '17:00', 'actividad' => 'Misa']])]));
