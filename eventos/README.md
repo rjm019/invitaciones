@@ -376,3 +376,29 @@ Para pasarlo al formato nuevo hay dos caminos:
 | Datos sin sección (hoteles sin la sección `hospedaje`) | Una sección oculta con esos datos |
 
 `layout:xlsx` (armar el Excel desde CSV) también queda deprecado: lo sustituye "Descargar" del gestor o `invitacion:exportar`.
+
+## Opciones del tema `encaje`
+
+En el bloque `pagina` (y, donde se indica, en cada sección):
+
+| Fila | Valores |
+|---|---|
+| `pagina,,orilla` / `<sección>,,orilla` | `encaje`: orilla calada de las franjas |
+| `pagina,,esquinas` | `encaje`: rosetas de encaje en las esquinas de los paneles |
+| `pagina,,botones` | `liston`: botón en forma de cinta de satén |
+| `pagina,,textura` | `terciopelo`, `satin`, `gasa`, `lino`, `papel` o `ninguna`: trama de tela en el fondo de los paneles |
+| `<sección>,,efectos` | `velo`: tul que ondea sobre la sección |
+
+Diseños de sección nuevos (`variante`; sirven en cualquier tema):
+
+| Sección | Valor | Diseño |
+|---|---|---|
+| `portada` | `telon` / `encaje` | Telón de terciopelo que se abre sobre un paisaje / sobre marfil con solapa de encaje |
+| `fecha` | `calendario` | Mes en una tarjeta dentro de un sobre |
+| `foto` | `camafeo` | Óvalo sobre carpeta de encaje |
+| `vestimenta` | `muestrario` | Retazos de tela con los colores sugeridos |
+| `mesa_regalos` | `etiqueta` | Etiquetas de papel rasgado con perforaciones |
+| `cuenta_regresiva` | `corazon` | Corazón de encaje con los números |
+| `cierre` | `bordado` | Tela arrugada, alcatraces y firma |
+
+Adornos nuevos (`imagen_<adorno>`): `paisaje`, `cortinaje`, `telon`, `pliegues`, `tela`, `alcatraz` y `encaje`; `portada,,imagen` es el paisaje del telón.

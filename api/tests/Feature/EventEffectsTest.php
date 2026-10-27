@@ -111,6 +111,27 @@ class EventEffectsTest extends TestCase
         $this->assertSame('lace', $sections->firstWhere('type', 'quote')['edge']);
     }
 
+    public function test_encaje_section_variants_pass_through(): void
+    {
+        $this->copyEventFixtures();
+        foreach ([
+            'fecha,,visible,SI', 'fecha,,variante,calendario',
+            'foto,1,visible,SI', 'foto,1,variante,camafeo',
+            'cuenta_regresiva,,visible,SI', 'cuenta_regresiva,,variante,corazon',
+            'cierre,,visible,SI', 'cierre,,variante,bordado', 'cierre,,imagen_tela,ninguna',
+        ] as $line) {
+            $this->appendLine('nueva', 'invitacion.csv', $line);
+        }
+
+        $sections = collect($this->getJson('/api/public/events/nueva')->assertOk()->json('event.sections'));
+
+        $this->assertSame('calendario', $sections->firstWhere('type', 'save-the-date')['variant']);
+        $this->assertSame('corazon', $sections->firstWhere('type', 'countdown')['variant']);
+        $closing = $sections->firstWhere('type', 'closing');
+        $this->assertSame('bordado', $closing['variant']);
+        $this->assertNull($closing['decor']['cloth']);
+    }
+
     public function test_blend_and_disco_effects_and_a_blended_page(): void
     {
         $this->copyEventFixtures();

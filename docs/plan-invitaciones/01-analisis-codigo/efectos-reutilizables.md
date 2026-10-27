@@ -127,3 +127,33 @@ Nacieron para Nueva York, pero cualquier tema los usa con sus colores y letras. 
 4. **`@media (prefers-reduced-motion: reduce)`** desactiva los movimientos decorativos.
 5. **Configuración por props o por tema**, nunca valores fijos.
 6. **Cada composable con su prueba en Vitest** (countdown, calendar y timeline al menos).
+
+## Tema `encaje` (boda en salvia, encaje y telas): piezas nuevas
+
+Todo es global: el tema `encaje` solo les pone valor en su manifest.
+
+**Opciones de página** (`Catalog::PAGE`, `InvitationConfigBuilder::page()`, `designAttrs`):
+
+| Opción | Valores nuevos | Dónde vive |
+|---|---|---|
+| `orilla` (página y sección) | `encaje` (`lace`) | `effects/assets/encaje-arriba.svg` y `encaje-abajo.svg` (repiten sin costura); `.section--edge-lace` en `SectionShell.vue` |
+| `esquinas` | `encaje` (`lace`) | `effects/assets/encaje-esquina-{tl,tr,bl,br}.svg`; reglas en `effects/options.css` |
+| `botones` | `liston` (`ribbon`) | `effects/buttons.css`: cinta de satén con puntas en V |
+| `textura` | `terciopelo`, `satin`, `gasa`, `lino`, `papel`, `ninguna` | `effects/options.css` (`data-texture`); mosaicos neutros en `effects/assets/textura-*.svg` |
+
+**Efecto `velo`** (`fx-veil`): tul marfil que ondea sobre la sección (solo `::after`, transform y opacity).
+
+**Adornos compartidos** (`themes/_shared/assets/`): `cortinaje` (guirnalda de gasa con hilo de perlas), `pliegues` (luz y sombra de una cortina, neutro), `perlas` (divisor), `alcatraz`, `tela-pie` (tela arrugada), `encaje` (carpeta o doily). Ranuras nuevas: `paisaje`, `cortinaje`, `telon`, `pliegues`, `tela`, `alcatraz`, `encaje`.
+
+**Diseños de sección nuevos**
+
+| Sección | Variante | Componente |
+|---|---|---|
+| portada | `telon` | `HeroCurtain.vue`: telón de terciopelo en dos mitades que se recogen y descubren un paisaje (`paisaje` o la `imagen` de la portada) |
+| portada | `encaje` | El sobre de siempre con el sobre, la tarjeta y el lacre del tema `encaje` |
+| fecha | `calendario` | `SaveTheDateEnvelope.vue`: mes en tarjeta dentro de un sobre, día en corazón |
+| foto | `camafeo` | `PhotoCameo.vue`: óvalo sobre carpeta de encaje |
+| vestimenta | `muestrario` | `DressCodeSwatches.vue`: retazos de tela con borde de tijera de picos (colores sugeridos o `--color-pastel-*`) |
+| mesa de regalos | `etiqueta` | `GiftsTags.vue`: etiquetas de papel rasgado con perforaciones y perla o moño |
+| cuenta regresiva | `corazon` | `CountdownHeart.vue`: doily recortado en corazón con los números |
+| cierre | `bordado` | `ClosingEmbroidery.vue`: tela arrugada al pie, alcatraces y firma (bloque `firma`) |

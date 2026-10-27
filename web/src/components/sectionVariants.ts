@@ -18,14 +18,26 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
   },
   'music-player': { vinilo: () => import('./sections/variants/MusicVinyl.vue') },
   blessing: { programa: () => import('./sections/variants/BlessingPlaybill.vue') },
-  'save-the-date': { boleto: () => import('./sections/variants/SaveTheDateTicket.vue') },
-  'photo-arch': { ventana: () => import('./sections/variants/PhotoTower.vue') },
+  'save-the-date': {
+    boleto: () => import('./sections/variants/SaveTheDateTicket.vue'),
+    calendario: () => import('./sections/variants/SaveTheDateEnvelope.vue'),
+  },
+  'photo-arch': {
+    ventana: () => import('./sections/variants/PhotoTower.vue'),
+    camafeo: () => import('./sections/variants/PhotoCameo.vue'),
+  },
   location: { metro: () => import('./sections/variants/LocationMetro.vue') },
   quote: { neon: () => import('./sections/variants/QuoteNeon.vue') },
   itinerary: { avenida: () => import('./sections/variants/ItineraryAvenue.vue') },
-  'dress-code': { vitrinas: () => import('./sections/variants/DressCodeWindows.vue') },
+  'dress-code': {
+    vitrinas: () => import('./sections/variants/DressCodeWindows.vue'),
+    muestrario: () => import('./sections/variants/DressCodeSwatches.vue'),
+  },
   'no-kids': { cordon: () => import('./sections/variants/NoKidsRope.vue') },
-  countdown: { tablero: () => import('./sections/variants/CountdownBoard.vue') },
+  countdown: {
+    tablero: () => import('./sections/variants/CountdownBoard.vue'),
+    corazon: () => import('./sections/variants/CountdownHeart.vue'),
+  },
   'envelope-rain': { sobre: () => import('./sections/variants/EnvelopeRainShower.vue') },
   gallery: {
     marcos: () => import('./sections/variants/GalleryFrames.vue'),
@@ -33,6 +45,12 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     diapositivas: () => import('./sections/variants/GallerySlideshow.vue'),
   },
   hotels: { colgantes: () => import('./sections/variants/HotelsHangers.vue') },
-  gifts: { bolsas: () => import('./sections/variants/GiftsBags.vue') },
-  closing: { marquesina: () => import('./sections/variants/ClosingMarquee.vue') },
+  gifts: {
+    bolsas: () => import('./sections/variants/GiftsBags.vue'),
+    etiqueta: () => import('./sections/variants/GiftsTags.vue'),
+  },
+  closing: {
+    marquesina: () => import('./sections/variants/ClosingMarquee.vue'),
+    bordado: () => import('./sections/variants/ClosingEmbroidery.vue'),
+  },
 }

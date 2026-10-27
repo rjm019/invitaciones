@@ -152,6 +152,7 @@ final class Catalog
         'pliegues' => ['slot' => 'folds', 'label' => 'Pliegues de la cortina'],
         'tela' => ['slot' => 'cloth', 'label' => 'Tela arrugada al pie'],
         'alcatraz' => ['slot' => 'lily', 'label' => 'Alcatraz'],
+        'encaje' => ['slot' => 'lace', 'label' => 'Carpeta de encaje'],
     ];
 
     /** División entre secciones (la orilla de las franjas): nombre en el CSV → código. */
@@ -384,7 +385,7 @@ final class Catalog
         'fecha' => [
             'type' => 'save-the-date', 'label' => 'Fecha', 'icon' => 'calendar-days',
             'description' => 'La fecha grande, el calendario del mes y "Agregar a mi calendario".',
-            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Save the date', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'boleto', 'label' => 'Boleto de Broadway']]]],
+            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Save the date', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'boleto', 'label' => 'Boleto de Broadway'], ['value' => 'calendario', 'label' => 'Calendario en un sobre']]]],
             'linked' => ['inicia', 'zona_horaria'],
             'slots' => ['destellos'],
             'texts' => ['titulo' => 'Título', 'fecha' => ['block' => 'date', 'label' => 'Fecha grande'], 'calendario' => ['block' => 'calendar', 'label' => 'Calendario']],
@@ -395,9 +396,9 @@ final class Catalog
             'fields' => [
                 ['key' => 'imagen', 'label' => 'Foto (de preferencia sin fondo)', 'input' => 'image'],
                 ['key' => 'titulo', 'label' => 'Iniciales o apodo', 'input' => 'text', 'help' => 'Va en la esquina de la foto.', 'max_length' => 20],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'ventana', 'label' => 'Ventana de rascacielos']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'ventana', 'label' => 'Ventana de rascacielos'], ['value' => 'camafeo', 'label' => 'Camafeo de encaje']]],
             ],
-            'slots' => ['marco', 'estrellas', 'mariposas'],
+            'slots' => ['marco', 'estrellas', 'mariposas', 'encaje'],
             'texts' => ['titulo' => 'Iniciales'],
         ],
         'galeria' => [
@@ -484,9 +485,9 @@ final class Catalog
                 ['key' => 'subtitulo', 'label' => 'Tipo de vestimenta', 'input' => 'text', 'placeholder' => 'Formal', 'max_length' => 80],
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'max_length' => 600],
                 ['key' => 'colores', 'label' => 'Colores sugeridos', 'input' => 'colors', 'help' => 'De 1 a 4.'],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'vitrinas', 'label' => 'Escaparates de la Quinta Avenida']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'vitrinas', 'label' => 'Escaparates de la Quinta Avenida'], ['value' => 'muestrario', 'label' => 'Muestrario de telas']]],
             ],
-            'slots' => ['lacre', 'tarjeta', 'mujer', 'hombre'],
+            'slots' => ['lacre', 'tarjeta', 'mujer', 'hombre', 'encaje'],
             'texts' => ['titulo' => 'Título', 'subtitulo' => 'Tipo de vestimenta', 'texto' => 'Texto'],
         ],
         'sin_ninos' => [
@@ -561,6 +562,7 @@ final class Catalog
                 ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [
                     ['value' => 'tarjetas', 'label' => 'Tarjetas'],
                     ['value' => 'bolsas', 'label' => 'Bolsas de la Quinta Avenida'],
+                    ['value' => 'etiqueta', 'label' => 'Etiquetas de papel rasgado'],
                 ]],
                 ['key' => 'sobres_titulo', 'label' => '(Antiguo) Título de la lluvia de sobres', 'input' => 'text', 'placeholder' => 'Lluvia de sobres', 'max_length' => 60],
                 ['key' => 'sobres_texto', 'label' => '(Antiguo) Texto de la lluvia de sobres', 'input' => 'textarea', 'max_length' => 400],
@@ -584,6 +586,7 @@ final class Catalog
                 ['key' => 'enlace', 'label' => 'Enlace de la mesa', 'input' => 'url'],
                 ['key' => 'numero_evento', 'label' => 'Número de evento', 'input' => 'text', 'max_length' => 30, 'help' => 'El de Liverpool, con botón para copiar.'],
             ]],
+            'slots' => ['lazo', 'divisor'],
             'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'tienda' => ['block' => 'store', 'label' => 'Tiendas'], 'sobres' => ['block' => 'envelope', 'label' => 'Lluvia de sobres'], 'cuenta' => ['block' => 'account', 'label' => 'Datos bancarios'], 'boton' => 'Botón'],
             'hidden_without' => 'Agrega una tienda o los datos de la lluvia de sobres.',
         ],
@@ -611,10 +614,10 @@ final class Catalog
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Inicia la cuenta regresiva', 'max_length' => 60],
                 ['key' => 'texto', 'label' => 'Frase', 'input' => 'textarea', 'max_length' => 400],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'tablero', 'label' => 'Tablero de Grand Central']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'tablero', 'label' => 'Tablero de Grand Central'], ['value' => 'corazon', 'label' => 'Corazón de encaje']]],
             ],
             'linked' => ['inicia'],
-            'slots' => ['corona', 'mariposa'],
+            'slots' => ['corona', 'mariposa', 'encaje'],
             'texts' => ['titulo' => 'Título', 'numeros' => ['block' => 'digits', 'label' => 'Números'], 'unidades' => ['block' => 'units', 'label' => 'Días, horas…'], 'texto' => 'Frase'],
         ],
         'confirmacion' => [
@@ -648,10 +651,10 @@ final class Catalog
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => '¡Te esperamos!', 'max_length' => 80],
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'max_length' => 400],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'marquesina', 'label' => 'Marquesina de Broadway']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'marquesina', 'label' => 'Marquesina de Broadway'], ['value' => 'bordado', 'label' => 'Tela bordada con alcatraces']]],
             ],
-            'slots' => ['flores', 'corona'],
-            'texts' => ['titulo' => 'Título', 'texto' => 'Texto'],
+            'slots' => ['flores', 'corona', 'tela', 'alcatraz'],
+            'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'firma' => ['block' => 'signature', 'label' => 'Firma']],
         ],
     ];
 

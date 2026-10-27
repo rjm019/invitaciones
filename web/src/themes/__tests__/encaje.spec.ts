@@ -23,4 +23,15 @@ describe('tema encaje', () => {
     expect(manifest?.sections['hero-envelope'].variant).toBe('telon')
     expect(sectionVariants['hero-envelope'].telon).toBeTypeOf('function')
   })
+
+  it('cada diseño del tema está registrado', async () => {
+    const manifest = await loadTheme('encaje')
+    for (const [type, section] of Object.entries(manifest!.sections)) {
+      if (section.variant) {
+        expect(sectionVariants[type][section.variant], `${type}:${section.variant}`).toBeTypeOf(
+          'function',
+        )
+      }
+    }
+  })
 })
