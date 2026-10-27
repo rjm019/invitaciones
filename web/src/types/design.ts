@@ -257,6 +257,10 @@ export interface ManagerSettings {
   /** Fecha límite que el dueño movió desde su panel (gana sobre la invitación). */
   owner_deadline: string | null
   deadline_changes: number
+  /** Recordatorios del RSVP por WhatsApp: encendidos, tope de mensajes y mensajes enviados. */
+  whatsapp_reminders?: boolean
+  whatsapp_cap?: number
+  whatsapp_used?: number
   /** Quién la ve y la edita en el gestor, además de quien administra. */
   people: { username: string; name: string; role: 'admin' | 'editor'; active: boolean }[]
 }
@@ -272,6 +276,10 @@ export interface SettingsChange {
   owner_deadline?: null
   /** Solo quien administra: cuántos de sus cambios de fecha ya usó el cliente (0 a 3). */
   deadline_changes?: number
+  /** Solo quien administra: enciende los recordatorios por WhatsApp. */
+  whatsapp_reminders?: boolean
+  /** Solo quien administra: tope de mensajes (1 a 5000). */
+  whatsapp_cap?: number
 }
 
 export interface DesignChange {

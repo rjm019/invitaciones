@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useClipboard } from '@/composables/useClipboard'
+import { ApiError } from '@/services/http'
 import {
   deletionWarning,
   filterInvitations,
   invitationProgress,
   parseTable,
 } from '@/services/panelService'
-import type { PanelDedication, PanelInvitation, TableAssignment } from '@/types/panel'
+import { formatPhone, reminderStatusLabel } from '@/services/reminderService'
+import type {
+  PanelDedication,
+  PanelInvitation,
+  PanelReminders,
+  TableAssignment,
+} from '@/types/panel'
 
 /**
  * Invitaciones generadas: se despliega al tocar el título (cerrada al entrar, para que el
@@ -22,6 +29,9 @@ const props = defineProps<{
   dedications: PanelDedication[]
   assign: (assignments: TableAssignment[]) => Promise<void>
   remove: (id: string) => Promise<void>
+  /** Recordatorios por WhatsApp (null o sin valor = apagados: no se muestra nada de teléfonos). */
+  reminders?: PanelReminders | null
+  changePhone?: (id: string, phone: string | null) => Promise<void>
 }>()
 const emit = defineEmits<{ send: [invitation: PanelInvitation] }>()
 
@@ -61,6 +71,49 @@ async function seatAll(inv: PanelInvitation) {
     }
   } finally {
     tableSaving.value = null
+  }
+}
+
+// Teléfono (WhatsApp) en línea: vacío = el campo ya está abierto; con número = texto y lápiz.
+const phoneDraft = ref<Record<string, string>>({})
+const phoneError = ref<Record<string, string>>({})
+const phoneEditing = ref<string | null>(null)
+const phoneSaving = ref<string | null>(null)
+
+function editPhone(inv: PanelInvitation) {
+  phoneDraft.value = { ...phoneDraft.value, [inv.id]: inv.phone ?? '' }
+  phoneError.value = { ...phoneError.value, [inv.id]: '' }
+  phoneEditing.value = inv.id
+  void nextTick(() => document.getElementById(`phone-${inv.id}`)?.focus())
+}
+
+function cancelPhone(inv: PanelInvitation) {
+  phoneEditing.value = null
+  phoneDraft.value = { ...phoneDraft.value, [inv.id]: '' }
+  phoneError.value = { ...phoneError.value, [inv.id]: '' }
+}
+
+async function savePhone(inv: PanelInvitation) {
+  if (!props.changePhone) return
+  const value = (phoneDraft.value[inv.id] ?? '').trim()
+  phoneError.value = { ...phoneError.value, [inv.id]: '' }
+  phoneSaving.value = inv.id
+  try {
+    await props.changePhone(inv.id, value || null)
+    phoneEditing.value = null
+    phoneDraft.value = { ...phoneDraft.value, [inv.id]: '' }
+    // Captura rápida: el foco pasa al siguiente teléfono vacío.
+    const rest = shown.value.slice(shown.value.findIndex((i) => i.id === inv.id) + 1)
+    const next = rest.find((i) => !i.phone)
+    if (value && next) void nextTick(() => document.getElementById(`phone-${next.id}`)?.focus())
+  } catch (e) {
+    const fields = e instanceof ApiError && !Array.isArray(e.errors) ? e.errors : {}
+    phoneError.value = {
+      ...phoneError.value,
+      [inv.id]: fields.phone?.[0] ?? (e instanceof Error ? e.message : 'No se pudo guardar.'),
+    }
+  } finally {
+    phoneSaving.value = null
   }
 }
 
@@ -160,6 +213,66 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
             <span class="item__meta">
               · {{ inv.opens ? `abierta ${plural(inv.opens, 'vez', 'veces')}` : 'aún no se abre' }}
             </span>
+          </div>
+
+          <div v-if="reminders" class="item__phone">
+            <template v-if="inv.phone && phoneEditing !== inv.id">
+              <span class="item__phone-label">WhatsApp</span>
+              <span class="item__phone-value">{{ formatPhone(inv.phone) }}</span>
+              <button
+                type="button"
+                class="item__pencil"
+                :aria-label="`Cambiar el WhatsApp de la invitación ${inv.id}`"
+                title="Cambiar"
+                @click="editPhone(inv)"
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                  <path
+                    d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+            </template>
+            <form
+              v-else
+              class="item__phone-form"
+              @submit.prevent="savePhone(inv)"
+              @keydown.esc="inv.phone && cancelPhone(inv)"
+            >
+              <label :for="`phone-${inv.id}`">WhatsApp</label>
+              <input
+                :id="`phone-${inv.id}`"
+                v-model="phoneDraft[inv.id]"
+                type="tel"
+                inputmode="tel"
+                autocomplete="off"
+                maxlength="20"
+                placeholder="55 1234 5678"
+                :aria-invalid="!!phoneError[inv.id]"
+              />
+              <button
+                type="submit"
+                class="p-button p-button--small p-button--ghost"
+                :disabled="phoneSaving === inv.id"
+              >
+                {{ phoneSaving === inv.id ? 'Guardando…' : 'Guardar' }}
+              </button>
+            </form>
+            <template v-if="inv.reminder">
+              <span class="p-chip item__reminder" :class="`is-${inv.reminder.status}`">{{
+                reminderStatusLabel(inv.reminder.status)
+              }}</span>
+              <span class="item__meta"
+                >{{ inv.reminder.sent }} de {{ reminders.per_link_max }}</span
+              >
+            </template>
+            <p v-if="phoneError[inv.id]" class="p-error item__phone-error">
+              {{ phoneError[inv.id] }}
+            </p>
           </div>
 
           <ul v-if="inv.guests.length" class="item__guests">
@@ -432,6 +545,65 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 }
 .item__seat-error {
   grid-column: 1 / -1;
+  font-size: 0.9rem;
+}
+.item__phone {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.7rem;
+}
+.item__phone-label {
+  color: var(--p-muted);
+  font-size: 0.92rem;
+}
+.item__phone-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.item__pencil {
+  display: inline-grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--p-muted);
+  cursor: pointer;
+}
+.item__pencil:hover {
+  color: var(--p-accent);
+}
+.item__phone-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
+  font-size: 0.95rem;
+}
+.item__phone-form input {
+  width: 11rem;
+  min-height: 2.6rem;
+}
+.item__reminder {
+  background: var(--p-soft);
+  color: var(--p-accent);
+}
+.item__reminder.is-responded,
+.item__reminder.is-read,
+.item__reminder.is-delivered {
+  background: #e3f2e8;
+  color: var(--p-ok);
+}
+.item__reminder.is-failed,
+.item__reminder.is-no_whatsapp,
+.item__reminder.is-opted_out {
+  background: #f6e3df;
+  color: var(--p-no);
+}
+.item__phone-error {
+  flex-basis: 100%;
   font-size: 0.9rem;
 }
 .item__actions {

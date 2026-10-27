@@ -75,9 +75,15 @@ export function usePanel(slug: string) {
     await refresh()
   }
 
-  async function create(passes: number, label: string): Promise<PanelInvitation> {
+  async function create(
+    passes: number,
+    label: string,
+    phone: string | null = null,
+  ): Promise<PanelInvitation> {
     const invitation = await withSession((t) =>
-      panelService.createInvitation(slug, t, passes, label),
+      phone
+        ? panelService.createInvitation(slug, t, passes, label, phone)
+        : panelService.createInvitation(slug, t, passes, label),
     )
     await refresh() // totales al día
     return invitation
@@ -122,6 +128,18 @@ export function usePanel(slug: string) {
     if (overview.value) overview.value = { ...overview.value, rsvp }
   }
 
+  async function changePhone(id: string, phone: string | null): Promise<void> {
+    overview.value = await withSession((t) =>
+      panelService.updateInvitationPhone(slug, t, id, phone),
+    )
+  }
+
+  async function changeReminders(everyDays: number, consent: boolean): Promise<void> {
+    overview.value = await withSession((t) =>
+      panelService.updateReminders(slug, t, everyDays, consent),
+    )
+  }
+
   return {
     token,
     overview,
@@ -138,5 +156,7 @@ export function usePanel(slug: string) {
     remove,
     changeDeadline,
     assignTables,
+    changePhone,
+    changeReminders,
   }
 }

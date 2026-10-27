@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use App\Services\Manager\ManagerAuth;
+use App\Services\Reminders\LogChannel;
+use App\Services\Reminders\MetaWhatsAppChannel;
+use App\Services\Reminders\ReminderChannel;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -12,7 +15,10 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Por dónde salen los recordatorios del RSVP: "meta" (WhatsApp Cloud API) o "log" (local y pruebas).
+        $this->app->bind(ReminderChannel::class, fn () => config('invitaciones.whatsapp.driver') === 'meta'
+            ? new MetaWhatsAppChannel((array) config('invitaciones.whatsapp'))
+            : new LogChannel);
     }
 
     public function boot(): void

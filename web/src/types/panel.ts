@@ -54,6 +54,45 @@ export interface PanelInvitation {
   guests: PanelGuest[]
   opens: number
   created_at: string | null
+  /** WhatsApp para los recordatorios (solo dígitos con lada de país). null con la función apagada. */
+  phone?: string | null
+  /** Estado de sus recordatorios; null con la función apagada. */
+  reminder?: PanelInvitationReminder | null
+}
+
+export type PanelReminderStatus =
+  | 'responded'
+  | 'no_phone'
+  | 'opted_out'
+  | 'no_whatsapp'
+  | 'failed'
+  | 'read'
+  | 'delivered'
+  | 'sent'
+  | 'waiting'
+
+export interface PanelInvitationReminder {
+  status: PanelReminderStatus
+  sent: number
+  last_sent_at: string | null
+  /** 'YYYY-MM-DD' */
+  next_at: string | null
+}
+
+/** Recordatorios por WhatsApp del evento (null en el overview = función apagada). */
+export interface PanelReminders {
+  every_days: number
+  options: number[]
+  consent_at: string | null
+  cap: number
+  used: number
+  per_link_max: number
+  with_phone: number
+  pending_with_phone: number
+  pending_without_phone: number
+  next_run: string | null
+  active: boolean
+  stopped_reason: null | 'off' | 'no_consent' | 'deadline' | 'cap'
 }
 
 export interface PanelRsvp {
@@ -90,6 +129,7 @@ export interface PanelOverview {
   /** La más reciente primero. */
   dedications: PanelDedication[]
   max_passes: number
+  reminders?: PanelReminders | null
 }
 
 /** Dedicatoria que dejó un enlace (una por invitación). */

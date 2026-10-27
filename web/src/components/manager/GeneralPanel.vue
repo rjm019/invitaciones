@@ -5,6 +5,7 @@ import { useEditor } from '@/composables/useEditorContext'
 import { useManagerPeople } from '@/composables/useManagerPeople'
 import { useManagerSession } from '@/composables/useManagerSession'
 import { useToasts } from '@/composables/useToasts'
+import { reminderCost } from '@/services/reminderService'
 import { initials } from '@/services/managerAccountService'
 import { PANEL_PASSWORD_MAX, panelPasswordProblem } from '@/services/passwordService'
 import type { ManagerSettings, SettingsChange } from '@/types/design'
@@ -138,6 +139,24 @@ onMounted(async () => {
     peopleError.value = e instanceof Error ? e.message : 'No se pudo cargar la lista de personas.'
   }
 })
+// Recordatorios por WhatsApp (solo quien administra): el tope se guarda al salir del campo.
+const capDraft = ref('')
+watch(
+  () => props.settings?.whatsapp_cap,
+  (cap) => {
+    capDraft.value = cap === undefined ? '' : String(cap)
+  },
+  { immediate: true },
+)
+function saveCap(): void {
+  const n = Number(capDraft.value)
+  if (!Number.isInteger(n) || n < 1 || n > 5000) {
+    capDraft.value = String(props.settings?.whatsapp_cap ?? '')
+    return
+  }
+  if (n !== props.settings?.whatsapp_cap) emit('settings', { whatsapp_cap: n })
+}
+
 function assign(username: string, on: boolean): void {
   const next = new Set(assigned.value)
   if (on) next.add(username)
@@ -334,6 +353,48 @@ function assign(username: string, on: boolean): void {
             </div>
           </template>
         </template>
+      </section>
+
+      <section v-if="settings && !settings.template && isAdmin" class="g-group">
+        <h3 class="g-group__title">Recordatorios por WhatsApp</h3>
+        <p class="g-help">
+          Se les escribe a los invitados que no han respondido. El cliente los enciende en su panel;
+          aquí se autoriza y se pone el tope de mensajes.
+        </p>
+        <label class="g-switch">
+          <input
+            type="checkbox"
+            :checked="!!settings.whatsapp_reminders"
+            @change="
+              emit('settings', { whatsapp_reminders: ($event.target as HTMLInputElement).checked })
+            "
+          />
+          <span class="g-switch__track" />
+          <span>
+            <strong>Activar recordatorios en esta invitación</strong>
+            <small class="general__sub">Cambia al instante.</small>
+          </span>
+        </label>
+        <label class="general__changes" for="whatsapp-cap">
+          <span>Tope de mensajes</span>
+          <input
+            id="whatsapp-cap"
+            v-model="capDraft"
+            class="g-input"
+            type="number"
+            min="1"
+            max="5000"
+            inputmode="numeric"
+            @change="saveCap"
+            @keydown.enter.prevent="saveCap"
+          />
+        </label>
+        <p class="g-help">
+          Enviados: {{ settings.whatsapp_used ?? 0 }} (≈ ${{
+            reminderCost(settings.whatsapp_used ?? 0)
+          }}
+          MXN)
+        </p>
       </section>
 
       <section v-if="settings && !settings.template" class="g-group">

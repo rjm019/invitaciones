@@ -14,7 +14,8 @@ eventos/<slug>/
 │   └── originales/        ← PNG/JPG tal como salen de Canva; `media:optimizar` los pasa a WebP
 ├── ajustes.csv            ← lo que aplica al instante: clave del panel, si se ve, si es plantilla o muestra (`demo`), quién la edita en el gestor, fecha límite del cliente
 ├── ajustes-historial.csv  ← cada cambio de ajustes y quién lo hizo (la clave sale como "(cambiada)", nunca escrita)
-├── invitaciones.csv       ← cada enlace generado en el panel: id, token, invitados, para, creada, eliminada
+├── invitaciones.csv       ← cada enlace generado en el panel: id, token, invitados, para, creada, eliminada, telefono (WhatsApp para los recordatorios; solo dígitos con lada, p. ej. 525512345678)
+├── recordatorios.csv      ← cada recordatorio por WhatsApp y su estado (solo crece): fecha, invitacion, wamid, estado, detalle
 ├── respuestas.csv         ← un renglón por persona: invitacion, para, lugar, nombre, asistira, respondida, mesa
 ├── respuestas-historial.csv ← cada envío, en orden (solo crece; es el respaldo fino)
 ├── aperturas.csv          ← cada vez que se abre una invitación
@@ -278,6 +279,8 @@ Lo que aplica **al instante**, sin pasar por "Publicar". Lo escribe la API (desd
 | `publicado` | `SI`/`NO`: si los invitados pueden abrir la invitación. Una invitación nueva nace en `NO` |
 | `plantilla` | `SI`: es una plantilla. Nunca es pública (`/e/<slug>` responde 404) y no tiene panel |
 | `rsvp_limite`, `rsvp_limite_cambios` | La fecha límite que el cliente movió desde su panel y cuántas veces (máximo 3). Gana sobre la de la invitación. Si publicas otra fecha, el gestor pregunta cuál dejar |
+| `whatsapp_recordatorios`, `whatsapp_tope` | `SI`: el panel muestra los teléfonos y los recordatorios por WhatsApp (fase 12). Tope de mensajes del evento (300 si está vacío). Solo quien administra, en "Datos generales" |
+| `recordatorio_cada_dias`, `recordatorio_permiso` | Los elige el cliente en su panel: cada cuántos días (0 = apagado; 2, 3, 5 o 7) y cuándo marcó que tiene permiso de sus invitados. Sin permiso no se manda nada |
 
 El diseño nunca lleva la clave: descargar, copiar o hacer plantilla una invitación no la incluye.
 

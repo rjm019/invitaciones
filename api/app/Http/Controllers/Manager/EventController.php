@@ -89,11 +89,12 @@ class EventController extends Controller
     }
 
     /**
-     * PUT /api/manager/events/{slug}/settings — { panel_password?, published?, people?, owner_deadline?, deadline_changes? }
+     * PUT /api/manager/events/{slug}/settings — { panel_password?, published?, people?, owner_deadline?, deadline_changes?, whatsapp_reminders?, whatsapp_cap? }
      * Aplica al instante (no pasa por "Publicar"). panel_password null quita la clave (el
      * panel se apaga). Solo quien administra cambia people (quién la ve en el gestor) y lo
      * que movió el cliente desde su panel: owner_deadline null quita su fecha límite (vuelve
-     * la de la invitación) y deadline_changes dice cuántos de sus cambios ya usó.
+     * la de la invitación) y deadline_changes dice cuántos de sus cambios ya usó. Los recordatorios por
+     * WhatsApp (whatsapp_reminders y su tope whatsapp_cap) también son solo de quien administra.
      */
     public function settings(Request $request, string $slug, EventRepository $events, EventSettings $settings, DesignPayload $payload, ManagerUsers $users): JsonResponse
     {
@@ -108,17 +109,24 @@ class EventController extends Controller
             'people.*' => ['string', 'max:60'],
             'owner_deadline' => ['sometimes', 'nullable'],
             'deadline_changes' => ['sometimes', 'integer', 'min:0', 'max:'.EventSettings::MAX_DEADLINE_CHANGES],
+            'whatsapp_reminders' => ['sometimes', 'boolean'],
+            'whatsapp_cap' => ['sometimes', 'integer', 'min:1', 'max:5000'],
         ], [
             'panel_password.min' => 'La clave del panel lleva al menos '.InvitationConfigBuilder::MIN_PANEL_PASSWORD.' caracteres.',
             'panel_password.regex' => 'La clave del panel no lleva espacios ni acentos: solo letras, números y símbolos.',
             'panel_password.*' => 'La clave del panel lleva de '.InvitationConfigBuilder::MIN_PANEL_PASSWORD.' a 64 caracteres, sin espacios.',
             'published.*' => 'Elige si la invitación se ve.',
             'people.*' => 'Elige a las personas de la lista.',
+            'whatsapp_reminders.*' => 'Elige si los recordatorios por WhatsApp están activos.',
+            'whatsapp_cap.*' => 'El tope de mensajes va de 1 a 5000.',
             'deadline_changes.*' => 'Los cambios de fecha del cliente van de 0 a '.EventSettings::MAX_DEADLINE_CHANGES.'.',
         ]);
         $me = $request->attributes->get(ManagerAuth::ATTRIBUTE);
         if (array_key_exists('people', $data) && ($me['rol'] ?? '') !== 'admin') {
             return response()->json(['message' => 'Solo quien administra el gestor asigna las invitaciones.'], 403);
+        }
+        if ((array_key_exists('whatsapp_reminders', $data) || array_key_exists('whatsapp_cap', $data)) && ($me['rol'] ?? '') !== 'admin') {
+            return response()->json(['message' => 'Solo quien administra el gestor maneja los recordatorios por WhatsApp.'], 403);
         }
         if ((array_key_exists('owner_deadline', $data) || array_key_exists('deadline_changes', $data)) && ($me['rol'] ?? '') !== 'admin') {
             return response()->json(['message' => 'Solo quien administra el gestor cambia lo que el cliente movió en su panel.'], 403);
@@ -158,6 +166,12 @@ class EventController extends Controller
         }
         if (array_key_exists('deadline_changes', $data)) {
             $changes['rsvp_limite_cambios'] = $data['deadline_changes'] > 0 ? (string) $data['deadline_changes'] : null;
+        }
+        if (array_key_exists('whatsapp_reminders', $data)) {
+            $changes['whatsapp_recordatorios'] = $data['whatsapp_reminders'] ? 'SI' : null;
+        }
+        if (array_key_exists('whatsapp_cap', $data)) {
+            $changes['whatsapp_tope'] = (string) $data['whatsapp_cap'];
         }
         if (array_key_exists('published', $data)) {
             $changes['publicado'] = $data['published'] ? 'SI' : 'NO';

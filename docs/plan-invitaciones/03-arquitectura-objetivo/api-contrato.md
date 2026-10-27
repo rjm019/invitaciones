@@ -140,9 +140,19 @@ Se entra con `clave_panel` (mínimo 8 caracteres): en `ajustes.csv`, donde la po
 | DELETE | `/admin/events/{slug}/invitations/{id}` | Elimina la invitación con sus invitados y su dedicatoria → el panel actualizado. `404` si no existe o ya se eliminó. El enlace deja de abrir |
 | PUT | `/admin/events/{slug}/deadline` | `{ deadline: AAAA-MM-DD }` → `{ rsvp }`. Entre hoy y el día del evento; **máximo 3 cambios** (`409` después) |
 | GET | `/admin/events/{slug}/version` | `{ version }`: huella de los archivos del evento. El panel la consulta cada 5 s y recarga solo si cambió (en vivo sin base de datos) |
+| PUT | `/admin/events/{slug}/invitations/{id}/phone` | `{ phone: string \| null }` → el panel actualizado. `403` si la invitación no tiene recordatorios · `422` teléfono inválido (campo `phone`). `POST …/invitations` también acepta `phone` |
+| PUT | `/admin/events/{slug}/reminders` | `{ every_days: 0\|2\|3\|5\|7, consent: bool }` → el panel actualizado. `422` (campo `consent`) si se encienden sin permiso. Con los recordatorios encendidos, el panel trae `reminders: { every_days, options, consent_at, cap, used, per_link_max, with_phone, pending_with_phone, pending_without_phone, next_run, active, stopped_reason }` y en cada invitación `phone` y `reminder: { status, sent, last_sent_at, next_at }`; apagados, todo eso es `null` |
 | PUT | `/admin/events/{slug}/tables` | `{ assignments: [{ invitation, slot, table: 1…999 \| null }] }` → el panel actualizado. Todo o nada; `422` si el lugar está vacío o la persona no asistirá |
 
 Sin sesión válida: `401` "Tu sesión terminó. Entra de nuevo."
+
+## Recordatorios por WhatsApp (fase 12)
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/internal/reminders/run` | Lo llama el cron externo con `X-Reminders-Key: <RECORDATORIOS_CLAVE>`. Manda lo que toca hoy (idempotente) → `{ sent, failed, skipped, events, stopped }`. `503` sin clave configurada · `401` clave incorrecta |
+| GET | `/webhooks/whatsapp` | Verificación de Meta: `hub.mode=subscribe` + `hub.verify_token` → `hub.challenge`; si no, `403` |
+| POST | `/webhooks/whatsapp` | Avisos de Meta, firmados con `X-Hub-Signature-256` (`401` si no cuadra): estados (entregado, leído, fallido) a `recordatorios.csv`; «Ya no recibir» o «BAJA» a `_gestor/whatsapp/bajas.csv` |
 
 ## Gestor (`/api/manager`)
 

@@ -71,6 +71,7 @@ fly volumes snapshots list <id-del-volumen>                            # respald
 ## Pendiente
 
 - ~~**Una sola vez, antes del próximo `subir-evento.sh`:** mover la carpeta del evento a `nat`.~~ *Hecho: revisado en el disco el 16-oct.*
+- **Recordatorios por WhatsApp (fase 12):** `WHATSAPP_DRIVER=meta`, `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_TEMPLATE` (por omisión `recordatorio_rsvp`) y `RECORDATORIOS_CLAVE` con `fly secrets set`. Sin ellos no se manda nada (en local, `WHATSAPP_DRIVER=log` solo escribe en el log). Después, un cron externo (cron-job.org o GitHub Actions), cada hora de 10:00 a 19:00 hora del centro: `curl -X POST -H "X-Reminders-Key: …" https://invitaciones-jiro.fly.dev/api/internal/reminders/run` (despierta la máquina suspendida). Pasos de Meta en `04-fases/fase-12-recordatorios-whatsapp.md`.
 - Los secretos del correo de las cotizaciones (`MAIL_*` y `COTIZACIONES_CORREO`): la landing ya está publicada y sin ellos el aviso solo llega al gestor.
 
 - Vista previa de WhatsApp (Open Graph). Como Laravel ya sirve `app.html`, se puede inyectar el título y la imagen de cada evento ahí.

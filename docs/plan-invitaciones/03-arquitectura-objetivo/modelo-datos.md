@@ -12,7 +12,8 @@ eventos/<slug>/
 ├── borrador/invitacion.csv  lo que se edita en el gestor (solo con cambios sin publicar)
 ├── layout.xlsx              formato anterior (deprecado): solo se lee si no hay invitacion.csv
 ├── media/                   fotos, decoraciones y audio
-├── invitaciones.csv         un renglón por enlace generado en el panel
+├── invitaciones.csv         un renglón por enlace generado en el panel (con `telefono` para los recordatorios)
+├── recordatorios.csv        cada recordatorio por WhatsApp y su estado (solo crece; fase 12)
 ├── respuestas.csv           un renglón por persona registrada
 ├── respuestas-historial.csv cada envío, en orden (solo crece)
 ├── aperturas.csv            cada vez que se abre un enlace (solo crece)
@@ -134,6 +135,7 @@ erDiagram
 | Plantilla (`plantilla=SI`): `404` en todo lo público y sin panel | `EventRepository` |
 | Eliminar desde el gestor: solo quien administra. La carpeta no se borra: pasa entera a `_gestor/papelera/` (con fecha en el nombre) y queda anotado quién y qué tenía. Una invitación (o muestra) visible, con enlaces o con respuestas solo se elimina escribiendo su dirección (`confirm`); después, sus enlaces, su panel y su media dan `404` | `EventTrash` + `Manager\EventController::destroy` |
 | Eliminar una invitación (panel): se marca `eliminada` en `invitaciones.csv` (el número nunca se reutiliza, así sus aperturas e historial no pasan a otra) y el enlace da `404`; sus personas y su dedicatoria pasan a `*-eliminadas.csv`. Un envío que llega justo después ya no escribe nada (`404`): `ResponseStore::add` y `DedicationStore::add` revisan dentro de su candado que la invitación siga activa | `PanelService::deleteInvitation` + `InvitationStore::delete` |
+| Recordatorios por WhatsApp (fase 12): solo con `whatsapp_recordatorios=SI`, cada N días y permiso del cliente; nunca a un enlace con respuestas, sin teléfono, dado de baja (`_gestor/whatsapp/bajas.csv`) o sin WhatsApp (131026); máximo 5 por enlace, el tope del evento y 200 al día; ni después de la fecha límite ni a menos de 2 días del evento. El teléfono nunca sale en lo público | `ReminderPlanner` + `ReminderRunner` |
 | Media: jpg, png, webp o gif (≤ 15 MB, revisado con `finfo`; nunca SVG ni HTML) → WebP; mp3 o m4a (≤ 20 MB); no se borra lo que la invitación usa (publicada o borrador) | `MediaLibrary` + `ImageOptimizer` |
 
 ## Escritura segura (`CsvFile`)

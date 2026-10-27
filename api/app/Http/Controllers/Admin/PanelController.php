@@ -7,14 +7,18 @@ use App\Services\Invitations\InvitationStore;
 use App\Services\Invitations\ResponseStore;
 use App\Services\Layout\LayoutException;
 use App\Services\Panel\PanelService;
+use App\Services\Reminders\ReminderPlanner;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 /**
  * Panel del dueño (con sesión): lista de invitaciones, generar y eliminar enlaces y cambiar la fecha límite.
  */
 class PanelController extends Controller
 {
+    private const PHONE_MESSAGE = 'Escribe un teléfono de 10 dígitos o con lada internacional (+…).';
+
     /** GET /api/admin/events/{slug} */
     public function show(string $slug, PanelService $panel): JsonResponse
     {
@@ -59,21 +63,23 @@ class PanelController extends Controller
         return response()->json($panel->assignTables($slug, $assignments));
     }
 
-    /** POST /api/admin/events/{slug}/invitations — { passes, label? } */
+    /** POST /api/admin/events/{slug}/invitations — { passes, label?, phone? } */
     public function storeInvitation(Request $request, string $slug, PanelService $panel): JsonResponse
     {
         $max = InvitationStore::MAX_PASSES;
         $data = $request->validate([
             'passes' => ['required', 'integer', 'min:1', "max:{$max}"],
             'label' => ['nullable', 'string', 'max:80'],
+            'phone' => ['nullable', 'string', 'max:40'],
         ], [
             'passes.*' => "Escribe para cuántos invitados es (de 1 a {$max}).",
             'label.*' => 'El nombre puede tener hasta 80 letras.',
+            'phone.*' => self::PHONE_MESSAGE,
         ]);
 
         $label = trim((string) preg_replace('/\s+/u', ' ', (string) ($data['label'] ?? '')));
 
-        return response()->json(['invitation' => $panel->createInvitation($slug, (int) $data['passes'], $label)], 201);
+        return response()->json(['invitation' => $panel->createInvitation($slug, (int) $data['passes'], $label, $data['phone'] ?? null)], 201);
     }
 
     /**
@@ -93,5 +99,27 @@ class PanelController extends Controller
         ]);
 
         return response()->json(['rsvp' => $panel->changeDeadline($slug, $data['deadline'])]);
+    }
+
+    /** PUT /api/admin/events/{slug}/invitations/{id}/phone — { phone: string|null } (vacío lo quita). Devuelve el panel. */
+    public function updatePhone(Request $request, string $slug, string $id, PanelService $panel): JsonResponse
+    {
+        $data = $request->validate(['phone' => ['nullable', 'string', 'max:40']], ['phone.*' => self::PHONE_MESSAGE]);
+
+        return response()->json($panel->updatePhone($slug, $id, $data['phone'] ?? null));
+    }
+
+    /** PUT /api/admin/events/{slug}/reminders — { every_days: 0|2|3|5|7, consent: boolean }. Devuelve el panel. */
+    public function updateReminders(Request $request, string $slug, PanelService $panel): JsonResponse
+    {
+        $data = $request->validate([
+            'every_days' => ['required', 'integer', Rule::in([0, ...ReminderPlanner::OPTIONS])],
+            'consent' => ['required', 'boolean'],
+        ], [
+            'every_days.*' => 'Elige cada cuántos días recordar.',
+            'consent.*' => 'Confirma que tienes permiso de tus invitados para escribirles por WhatsApp.',
+        ]);
+
+        return response()->json($panel->updateReminders($slug, (int) $data['every_days'], (bool) $data['consent']));
     }
 }

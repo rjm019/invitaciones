@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\PanelController;
 use App\Http\Controllers\Admin\PanelSessionController;
+use App\Http\Controllers\Internal\ReminderRunController;
 use App\Http\Controllers\Manager\CatalogController;
 use App\Http\Controllers\Manager\DesignController;
 use App\Http\Controllers\Manager\EventController as ManagerEventController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Public\QuoteController;
 use App\Http\Controllers\Public\RsvpController;
 use App\Http\Controllers\Public\VisitController;
 use App\Http\Controllers\Public\WeatherController;
+use App\Http\Controllers\Webhooks\WhatsAppController;
 use Illuminate\Support\Facades\Route;
 
 // Público: la invitación se arma desde el layout del evento (eventos/<slug>/).
@@ -52,8 +54,17 @@ Route::prefix('admin/events/{slug}')->where(['slug' => '[a-z0-9-]+'])->group(fun
         Route::post('/invitations', [PanelController::class, 'storeInvitation']);
         Route::delete('/invitations/{id}', [PanelController::class, 'destroyInvitation'])->where('id', '[0-9]+');
         Route::put('/deadline', [PanelController::class, 'updateDeadline']);
+        // Recordatorios por WhatsApp (solo con la función encendida por el gestor).
+        Route::put('/invitations/{id}/phone', [PanelController::class, 'updatePhone'])->where('id', '[0-9]+');
+        Route::put('/reminders', [PanelController::class, 'updateReminders']);
     });
 });
+
+// Recordatorios por WhatsApp: el cron (con clave) y el webhook de Meta (con firma). Sin
+// throttle: lo llaman máquinas, y cada uno se protege con su propio secreto.
+Route::post('/internal/reminders/run', [ReminderRunController::class, 'run']);
+Route::get('/webhooks/whatsapp', [WhatsAppController::class, 'verify']);
+Route::post('/webhooks/whatsapp', [WhatsAppController::class, 'receive']);
 
 // Gestor de invitaciones (/gestor): crea y diseña invitaciones. Cada persona entra con su
 // usuario; GESTOR_CLAVE lo enciende y crea la primera cuenta.

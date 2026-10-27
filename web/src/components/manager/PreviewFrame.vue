@@ -217,6 +217,8 @@ defineExpose({ frame })
   border: 0;
   background: #fff;
   transform-origin: 0 0;
+  /* Su propia capa: Safari no deja zonas sin pintar al desplazar con capas fijas dentro. */
+  will-change: transform;
 }
 .preview__loading {
   position: absolute;

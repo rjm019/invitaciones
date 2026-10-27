@@ -42,13 +42,44 @@ export async function createInvitation(
   token: string,
   passes: number,
   label: string,
+  phone: string | null = null,
 ): Promise<PanelInvitation> {
   const { data } = await http.post<{ invitation: PanelInvitation }>(
     `${base(slug)}/invitations`,
-    { passes, label: label.trim() || null },
+    { passes, label: label.trim() || null, ...(phone ? { phone } : {}) },
     auth(token),
   )
   return data.invitation
+}
+
+/** Guarda (o quita, con null) el WhatsApp de una invitación; devuelve el panel ya actualizado. */
+export async function updateInvitationPhone(
+  slug: string,
+  token: string,
+  id: string,
+  phone: string | null,
+): Promise<PanelOverview> {
+  const { data } = await http.put<PanelOverview>(
+    `${base(slug)}/invitations/${encodeURIComponent(id)}/phone`,
+    { phone },
+    auth(token),
+  )
+  return data
+}
+
+/** Cada cuántos días se recuerda (0 = apagado) y si hay permiso; devuelve el panel actualizado. */
+export async function updateReminders(
+  slug: string,
+  token: string,
+  everyDays: number,
+  consent: boolean,
+): Promise<PanelOverview> {
+  const { data } = await http.put<PanelOverview>(
+    `${base(slug)}/reminders`,
+    { every_days: everyDays, consent },
+    auth(token),
+  )
+  return data
 }
 
 /** Elimina una invitación con sus invitados y su dedicatoria; devuelve el panel ya actualizado. */

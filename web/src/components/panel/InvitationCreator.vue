@@ -11,7 +11,9 @@ import type { PanelInvitation } from '@/types/panel'
  */
 const props = defineProps<{
   maxPasses: number
-  create: (passes: number, label: string) => Promise<PanelInvitation>
+  create: (passes: number, label: string, phone: string | null) => Promise<PanelInvitation>
+  /** Los recordatorios por WhatsApp están encendidos: se puede capturar el teléfono. */
+  reminders?: boolean
 }>()
 const emit = defineEmits<{
   created: [invitation: PanelInvitation]
@@ -20,6 +22,7 @@ const emit = defineEmits<{
 
 const passes = ref(1)
 const label = ref('')
+const phone = ref('')
 const errors = ref<Record<string, string>>({})
 const sending = ref(false)
 const created = ref<PanelInvitation | null>(null)
@@ -41,9 +44,14 @@ async function submit() {
   }
   sending.value = true
   try {
-    created.value = await props.create(passes.value, label.value)
+    created.value = await props.create(
+      passes.value,
+      label.value,
+      props.reminders ? phone.value.trim() || null : null,
+    )
     emit('created', created.value)
     label.value = ''
+    phone.value = ''
   } catch (e) {
     const fields = e instanceof ApiError && !Array.isArray(e.errors) ? e.errors : {}
     errors.value = Object.keys(fields).length
@@ -106,6 +114,21 @@ async function submit() {
         />
         <p class="p-hint">Aparece en el sobre. Déjalo vacío si no quieres nombre.</p>
         <p v-if="errors.label" class="p-error">{{ errors.label }}</p>
+      </div>
+
+      <div v-if="reminders" class="creator__field">
+        <label for="creator-phone">WhatsApp (para recordatorios) <small>(opcional)</small></label>
+        <input
+          id="creator-phone"
+          v-model="phone"
+          type="tel"
+          inputmode="tel"
+          autocomplete="off"
+          maxlength="20"
+          placeholder="55 1234 5678"
+          :aria-invalid="!!errors.phone"
+        />
+        <p v-if="errors.phone" class="p-error">{{ errors.phone }}</p>
       </div>
 
       <button type="submit" class="p-button" :disabled="sending">

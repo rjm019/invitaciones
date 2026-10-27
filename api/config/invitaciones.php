@@ -63,4 +63,35 @@ return [
 
     'cotizaciones_correo' => (string) env('COTIZACIONES_CORREO', ''),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Recordatorios del RSVP por WhatsApp (fase 12)
+    |--------------------------------------------------------------------------
+    |
+    | driver: "log" (local y pruebas: solo escribe en el log) o "meta" (WhatsApp Cloud
+    | API). token, phone_number_id, app_secret y verify_token vienen de Meta y van como
+    | secretos de Fly. run_key es la clave con la que el cron llama a
+    | POST /api/internal/reminders/run; vacía, ese endpoint no responde.
+    | daily_limit: máximo de mensajes al día entre todos los eventos (el límite de Meta);
+    | per_link_max: recordatorios por invitación; default_cap: tope de un evento si el
+    | gestor no pone otro; hours: ventana de envío (hora local del evento).
+    |
+    */
+
+    'whatsapp' => [
+        'driver' => (string) env('WHATSAPP_DRIVER', 'log'),
+        'token' => (string) env('WHATSAPP_TOKEN', ''),
+        'phone_number_id' => (string) env('WHATSAPP_PHONE_NUMBER_ID', ''),
+        'app_secret' => (string) env('WHATSAPP_APP_SECRET', ''),
+        'verify_token' => (string) env('WHATSAPP_VERIFY_TOKEN', ''),
+        'template' => (string) env('WHATSAPP_TEMPLATE', 'recordatorio_rsvp'),
+        'template_lang' => (string) env('WHATSAPP_TEMPLATE_LANG', 'es_MX'),
+        'graph_version' => (string) env('WHATSAPP_GRAPH_VERSION', 'v23.0'),
+        'daily_limit' => (int) env('WHATSAPP_LIMITE_DIARIO', 200),
+        'per_link_max' => 5,
+        'default_cap' => 300,
+        'run_key' => (string) env('RECORDATORIOS_CLAVE', ''),
+        'hours' => '10-20',
+    ],
+
 ];

@@ -154,3 +154,13 @@ Salieron durante la implementación y se juntaron para el final. Al responder un
 
 62. **Quién cambia la clave del panel:** quien administra cambia todas las claves y los ajustes; quien edita sigue pudiendo crear, cambiar o quitar la clave del panel de las invitaciones que tiene asignadas (como antes), pero no lo que movió el cliente ni las cuentas. ¿Lo dejo así, o la clave del panel también es solo de quien administra?
 63. **Fecha límite del cliente:** quien administra puede quitar la fecha que movió el cliente (vuelve la de la invitación) y cambiar cuántos de sus 3 cambios usó. Una fecha nueva se pone en "Confirmaciones" y se publica, para que pase por las mismas revisiones (antes del evento, etc.). ¿Te sirve así, o quieres poner una fecha del cliente directo desde el gestor?
+
+**Recordatorios por WhatsApp (26-oct, fase 12)**
+
+64. **Quién paga los mensajes:** cada recordatorio cuesta ≈0.16 MXN (≈0.73 si Meta clasifica la plantilla como *marketing*) y se cobra a la cuenta de Meta de Jiro. ¿Se cobra al cliente como extra (precio fijo por evento, o por paquete de mensajes), o va incluido? En NAT, ¿va por cuenta de Jiro?
+65. **El número:** ¿coexistencia con el WhatsApp Business actual de Jiro (el mismo número sigue en la app, si Meta lo deja elegible) o un chip nuevo solo para los recordatorios? Con coexistencia, las respuestas de los invitados llegan a tu app y las tendrías que atender tú.
+66. **El texto de la plantilla:** propuesta en `04-fases/fase-12-recordatorios-whatsapp.md`. Una vez aprobada, cambiarla tarda otra revisión de Meta. Su botón queda fijo en `invitaciones-jiro.fly.dev`; con un dominio propio (pregunta 50, en la rama de Google Cloud) hay que crear otra plantilla.
+67. **La hora de envío:** el plan manda entre las 10:00 y las 19:00, hora del centro, en la primera corrida del día que le toque a cada evento. ¿Te sirve, o prefieres una hora fija (por ejemplo, 11:00)?
+68. **Los topes:** 5 recordatorios por enlace como máximo, 300 mensajes por evento (cambiable en el gestor) y 200 al día en total (por el límite de Meta sin verificar). ¿Te sirven?
+69. **Lo que contesten los invitados:** si alguien responde al recordatorio con texto («sí vamos»), ese mensaje no confirma nada: hay que entrar con el botón. ¿Mando una respuesta automática que lo diga (cuesta lo mismo que un mensaje desde el 1-oct-2026), o lo dejamos sin respuesta?
+70. **Aviso de privacidad:** hay que agregar que se tratan teléfonos de invitados que entrega el cliente, para los recordatorios del RSVP, por medio de WhatsApp (Meta), y que se borran 30 días después del evento. ¿Lo redacto yo y lo revisa un abogado, o ya tienes un texto?

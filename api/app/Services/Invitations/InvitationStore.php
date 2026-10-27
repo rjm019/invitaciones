@@ -10,7 +10,8 @@ use Illuminate\Support\Str;
 /**
  * eventos/<slug>/invitaciones.csv: cada enlace que genera el dueño desde el panel.
  * id, token, invitados (para cuántas personas), para (nombre opcional en la invitación), creada
- * y eliminada (cuándo la borró el dueño; vacío = activa). Un token nunca cambia: es el enlace
+ * eliminada (cuándo la borró el dueño; vacío = activa) y telefono (solo dígitos, para los
+ * recordatorios por WhatsApp; nunca sale en la invitación pública). Un token nunca cambia: es el enlace
  * que ya se mandó. Una invitación eliminada se queda en el archivo para que su número no se
  * vuelva a usar (sus aperturas y su historial no pasan a otra), pero ya no abre ni se lista.
  */
@@ -18,7 +19,7 @@ final class InvitationStore
 {
     public const FILE = 'invitaciones.csv';
 
-    public const HEADERS = ['id', 'token', 'invitados', 'para', 'creada', 'eliminada'];
+    public const HEADERS = ['id', 'token', 'invitados', 'para', 'creada', 'eliminada', 'telefono'];
 
     /** 12 caracteres [A-Za-z0-9]: ~71 bits, imposible de adivinar. */
     public const PATTERN = '/^[A-Za-z0-9]{12}$/';
@@ -33,7 +34,7 @@ final class InvitationStore
     /**
      * Invitaciones activas del evento por id, en el orden en que se crearon.
      *
-     * @return array<string, array{id: string, token: string, passes: int, label: string, created_at: string}>
+     * @return array<string, array{id: string, token: string, passes: int, label: string, created_at: string, phone: string}>
      */
     public function all(string $slug): array
     {
@@ -55,6 +56,7 @@ final class InvitationStore
                 'passes' => $passes,
                 'label' => $row['para'] ?? '',
                 'created_at' => $row['creada'] ?? '',
+                'phone' => $row['telefono'] ?? '',
             ];
         }
 
@@ -85,13 +87,13 @@ final class InvitationStore
     /**
      * Genera una invitación nueva con un token que no existe en ningún evento.
      *
-     * @return array{id: string, token: string, passes: int, label: string, created_at: string}
+     * @return array{id: string, token: string, passes: int, label: string, created_at: string, phone: string}
      */
-    public function create(string $slug, int $passes, string $label, CarbonImmutable $now): array
+    public function create(string $slug, int $passes, string $label, CarbonImmutable $now, string $phone = ''): array
     {
         $path = $this->events->path($slug).'/'.self::FILE;
 
-        return $this->csv->locked($path, function () use ($passes, $label, $now, $path) {
+        return $this->csv->locked($path, function () use ($passes, $label, $now, $path, $phone) {
             $rows = $this->csv->read($path);
             $taken = array_flip($this->allTokens());
             do {
@@ -105,13 +107,14 @@ final class InvitationStore
                 'invitados' => $passes,
                 'para' => CsvFile::safe($label),
                 'creada' => $now->format('Y-m-d H:i'),
+                'telefono' => $phone,
             ];
             $rows[] = $row;
 
             $this->csv->backupDaily($path, $now);
             $this->csv->write($path, self::HEADERS, $rows);
 
-            return ['id' => $id, 'token' => $token, 'passes' => $passes, 'label' => $label, 'created_at' => $row['creada']];
+            return ['id' => $id, 'token' => $token, 'passes' => $passes, 'label' => $label, 'created_at' => $row['creada'], 'phone' => $phone];
         });
     }
 
@@ -120,7 +123,7 @@ final class InvitationStore
      *
      * null si no existe o ya estaba eliminada.
      *
-     * @return array{id: string, token: string, passes: int, label: string, created_at: string}|null
+     * @return array{id: string, token: string, passes: int, label: string, created_at: string, phone: string}|null
      */
     public function delete(string $slug, string $id, CarbonImmutable $now): ?array
     {
@@ -140,6 +143,36 @@ final class InvitationStore
             $this->csv->write($path, self::HEADERS, $rows);
 
             return $record;
+        });
+    }
+
+    /**
+     * Guarda (o con '' quita) el teléfono de una invitación activa; ya viene normalizado.
+     *
+     * null si no existe o está eliminada.
+     *
+     * @return array{id: string, token: string, passes: int, label: string, created_at: string, phone: string}|null
+     */
+    public function setPhone(string $slug, string $id, string $phone, CarbonImmutable $now): ?array
+    {
+        $path = $this->events->path($slug).'/'.self::FILE;
+
+        return $this->csv->locked($path, function () use ($slug, $id, $phone, $now, $path) {
+            if (! isset($this->all($slug)[$id])) {
+                return null;
+            }
+            $rows = array_map(function ($r) use ($id, $phone) {
+                if (($r['id'] ?? '') === $id) {
+                    $r['telefono'] = $phone;
+                }
+
+                return $r;
+            }, $this->csv->read($path));
+
+            $this->csv->backupDaily($path, $now);
+            $this->csv->write($path, self::HEADERS, $rows);
+
+            return $this->all($slug)[$id];
         });
     }
 

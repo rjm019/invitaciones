@@ -10,6 +10,8 @@ use App\Services\Design\LegacyMigrator;
 use App\Services\Design\Normalizer;
 use App\Services\Layout\EventRepository;
 use App\Services\Panel\PanelService;
+use App\Services\Reminders\ReminderLog;
+use App\Services\Reminders\ReminderPlanner;
 
 /**
  * Lo que el editor del gestor recibe de una invitación: lo que tiene enfrente (borrador,
@@ -26,6 +28,8 @@ final class DesignPayload
         private readonly PanelService $panel,
         private readonly LegacyMigrator $migrator,
         private readonly ManagerUsers $users,
+        private readonly ReminderLog $reminderLog,
+        private readonly ReminderPlanner $reminders,
     ) {}
 
     /** @return array<string, mixed> */
@@ -125,6 +129,10 @@ final class DesignPayload
             'panel_password' => $template ? null : ($settings['clave_panel'] ?? $this->events->eventValue($slug, 'clave_panel')),
             'owner_deadline' => ($settings['rsvp_limite'] ?? '') ?: null,
             'deadline_changes' => (int) ($settings['rsvp_limite_cambios'] ?? 0),
+            // Recordatorios por WhatsApp: el interruptor y el tope los pone quien administra.
+            'whatsapp_reminders' => Normalizer::yes($settings['whatsapp_recordatorios'] ?? ''),
+            'whatsapp_cap' => $this->reminders->settings($slug)['cap'],
+            'whatsapp_used' => $this->reminderLog->sentCount($slug),
             // Quién la ve en el gestor, además de quien administra.
             'people' => array_map(function (string $username) use (&$users) {
                 $users ??= array_column($this->users->all(), null, 'usuario');

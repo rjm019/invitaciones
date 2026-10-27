@@ -12,6 +12,8 @@ use App\Services\Invitations\WhatsAppLink;
 use App\Services\Layout\EventRepository;
 use App\Services\Layout\LayoutException;
 use App\Services\Layout\LayoutReader;
+use App\Services\Quotes\QuoteStore;
+use App\Services\Reminders\ReminderPlanner;
 use Carbon\CarbonImmutable;
 use Throwable;
 
@@ -28,6 +30,7 @@ final class PanelService
         private readonly ResponseStore $responses,
         private readonly EventSettings $settings,
         private readonly DedicationStore $dedications,
+        private readonly ReminderPlanner $reminders,
     ) {}
 
     /**
@@ -42,6 +45,7 @@ final class PanelService
         $opens = $this->responses->opens($slug);
 
         $records = $this->invitations->all($slug);
+        $plan = $this->reminders->evaluate($slug, $event, CarbonImmutable::now($event['timezone']));
         $list = [];
         $totals = ['invitations' => 0, 'seats' => 0, 'attending' => 0, 'declined' => 0, 'empty' => 0];
         foreach ($records as $id => $record) {
@@ -52,7 +56,7 @@ final class PanelService
             $totals['attending'] += $attending;
             $totals['declined'] += count($mine) - $attending;
             $totals['empty'] += max(0, $record['passes'] - count($mine));
-            $list[] = $this->present($slug, $event, $record, $mine, $opens[$id]['count'] ?? 0);
+            $list[] = $this->present($slug, $event, $record, $mine, $opens[$id]['count'] ?? 0, $plan['reminders'] !== null, $plan['links'][$id] ?? null);
         }
 
         return [
@@ -67,6 +71,7 @@ final class PanelService
                 'published' => $event['published'],
             ],
             'rsvp' => $this->rsvp($slug, $event),
+            'reminders' => $plan['reminders'],
             'summary' => $totals,
             'invitations' => $list,
             'dedications' => $this->dedicationList($slug, $records, $event['timezone']),
@@ -186,12 +191,89 @@ final class PanelService
     /**
      * @return array<string, mixed>
      */
-    public function createInvitation(string $slug, int $passes, string $label): array
+    public function createInvitation(string $slug, int $passes, string $label, ?string $phone = null): array
     {
         $event = $this->event($slug);
-        $record = $this->invitations->create($slug, $passes, $label, CarbonImmutable::now($event['timezone']));
+        $now = CarbonImmutable::now($event['timezone']);
+        // Sin la función encendida el teléfono se ignora; con ella, uno inválido se rechaza.
+        $enabled = $this->reminders->enabled($slug);
+        $record = $this->invitations->create($slug, $passes, $label, $now, $enabled ? $this->normalizePhone($phone) : '');
+        $link = $this->reminders->evaluate($slug, $event, $now)['links'][$record['id']] ?? null;
 
-        return $this->present($slug, $event, $record, [], 0);
+        return $this->present($slug, $event, $record, [], 0, $enabled, $link);
+    }
+
+    /**
+     * Guarda (o quita) el teléfono de una invitación y devuelve el panel actualizado.
+     *
+     * @return array<string, mixed>
+     *
+     * @throws RsvpException 403 función apagada · 404 no existe · 422 teléfono inválido
+     */
+    public function updatePhone(string $slug, string $id, ?string $phone): array
+    {
+        $event = $this->event($slug);
+        $this->requireReminders($slug);
+        $normalized = $this->normalizePhone($phone);
+        if ($this->invitations->setPhone($slug, $id, $normalized, CarbonImmutable::now($event['timezone'])) === null) {
+            throw new RsvpException("La invitación #{$id} no existe o ya se eliminó.", 404);
+        }
+
+        return $this->overview($slug);
+    }
+
+    /**
+     * Cada cuántos días se recuerda y el permiso del dueño. Quitar el permiso apaga los
+     * recordatorios.
+     *
+     * @return array<string, mixed>
+     *
+     * @throws RsvpException 403 función apagada · 422 sin permiso
+     */
+    public function updateReminders(string $slug, int $everyDays, bool $consent): array
+    {
+        $event = $this->event($slug);
+        $this->requireReminders($slug);
+        if ($everyDays > 0 && ! $consent) {
+            throw new RsvpException('Confirma que tienes permiso de tus invitados para escribirles por WhatsApp.', 422, 'consent');
+        }
+
+        $now = CarbonImmutable::now($event['timezone']);
+        $current = $this->reminders->settings($slug);
+        $this->settings->put($this->events->path($slug), [
+            'recordatorio_cada_dias' => $consent && $everyDays > 0 ? (string) $everyDays : null,
+            // La fecha del permiso es la primera vez; se borra al quitarlo.
+            'recordatorio_permiso' => $consent ? ($current['consent_at'] ?? $now->format('Y-m-d H:i:s')) : null,
+        ], $now, EventSettings::OWNER);
+        $this->events->forget($slug);
+
+        return $this->overview($slug);
+    }
+
+    /** @throws RsvpException 403 si el gestor no encendió los recordatorios */
+    private function requireReminders(string $slug): void
+    {
+        if (! $this->reminders->enabled($slug)) {
+            throw new RsvpException('Los recordatorios por WhatsApp no están activos en esta invitación.', 403);
+        }
+    }
+
+    /**
+     * "55 1234 5678" → "525512345678" (solo dígitos, con lada de país); vacío o null → ''.
+     *
+     * @throws RsvpException 422 si no es un teléfono
+     */
+    private function normalizePhone(?string $phone): string
+    {
+        if (trim((string) $phone) === '') {
+            return '';
+        }
+        $normalized = QuoteStore::normalizePhone((string) $phone);
+        if ($normalized === null) {
+            throw new RsvpException('Escribe un teléfono de 10 dígitos o con lada internacional (+…).', 422, 'phone');
+        }
+
+        return ltrim($normalized, '+');
     }
 
     /**
@@ -298,11 +380,12 @@ final class PanelService
     }
 
     /**
-     * @param  array{id: string, token: string, passes: int, label: string, created_at: string}  $record
+     * @param  array{id: string, token: string, passes: int, label: string, created_at: string, phone: string}  $record
      * @param  list<array{slot: int, name: string, attending: bool, responded_at: string}>  $guests
+     * @param  array{status: string, sent: int, last_sent_at: ?string, next_at: ?string}|null  $reminder
      * @return array<string, mixed>
      */
-    private function present(string $slug, array $event, array $record, array $guests, int $opens): array
+    private function present(string $slug, array $event, array $record, array $guests, int $opens, bool $remindersOn, ?array $reminder): array
     {
         $url = rtrim((string) config('invitaciones.frontend_url'), '/').'/i/'.$record['token'];
         $template = $this->events->eventValue($slug, 'mensaje_whatsapp') ?? WhatsAppLink::DEFAULT_MESSAGE;
@@ -316,7 +399,10 @@ final class PanelService
             'url' => $url,
             // El texto que acompaña a la imagen de la invitación (lleva el enlace).
             'message' => $message,
-            'whatsapp_url' => WhatsAppLink::url('', $message),
+            'whatsapp_url' => WhatsAppLink::url($remindersOn ? $record['phone'] : '', $message),
+            // El teléfono solo sale aquí, en el panel del dueño; nunca en la invitación pública.
+            'phone' => $remindersOn && $record['phone'] !== '' ? $record['phone'] : null,
+            'reminder' => $remindersOn ? $reminder : null,
             'guests' => array_map(fn ($g) => [
                 'slot' => $g['slot'],
                 'full_name' => $g['name'],

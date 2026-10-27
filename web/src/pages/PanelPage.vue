@@ -6,6 +6,7 @@ import GuestList from '@/components/panel/GuestList.vue'
 import InvitationCreator from '@/components/panel/InvitationCreator.vue'
 import InvitationList from '@/components/panel/InvitationList.vue'
 import PanelLogin from '@/components/panel/PanelLogin.vue'
+import ReminderCard from '@/components/panel/ReminderCard.vue'
 import ShareDialog from '@/components/panel/ShareDialog.vue'
 import { usePanel } from '@/composables/usePanel'
 import { usePanelTheme } from '@/composables/usePanelTheme'
@@ -159,10 +160,15 @@ onMounted(() => {
             <InvitationCreator
               :max-passes="overview.max_passes"
               :create="panel.create"
+              :reminders="!!overview.reminders"
               @created="onCreated"
               @send="sending = $event"
             />
-            <DeadlineCard :rsvp="overview.rsvp" :bounds="bounds" :change="panel.changeDeadline" />
+            <div v-if="overview.reminders" class="panel__side">
+              <DeadlineCard :rsvp="overview.rsvp" :bounds="bounds" :change="panel.changeDeadline" />
+              <ReminderCard :reminders="overview.reminders" :change="panel.changeReminders" />
+            </div>
+            <DeadlineCard v-else :rsvp="overview.rsvp" :bounds="bounds" :change="panel.changeDeadline" />
           </div>
           <InvitationList
             :invitations="overview.invitations"
@@ -170,6 +176,8 @@ onMounted(() => {
             :dedications="overview.dedications"
             :assign="panel.assignTables"
             :remove="panel.remove"
+            :reminders="overview.reminders ?? null"
+            :change-phone="panel.changePhone"
             @send="sending = $event"
           />
         </div>
@@ -259,6 +267,7 @@ onMounted(() => {
 .panel input[type='text'],
 .panel input[type='search'],
 .panel input[type='number'],
+.panel input[type='tel'],
 .panel input[type='password'],
 .panel input[type='date'],
 .panel input:not([type]) {
@@ -548,6 +557,11 @@ onMounted(() => {
 .panel .list {
   max-width: 70rem;
   margin: 0 auto;
+}
+/* Con los recordatorios, la fecha límite y su tarjeta van una bajo la otra. */
+.panel__side {
+  display: grid;
+  gap: 1rem;
 }
 /* Computadora: generador y fecha lado a lado. */
 @media (min-width: 52rem) {

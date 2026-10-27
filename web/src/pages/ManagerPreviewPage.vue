@@ -174,6 +174,29 @@ function onPick(e: Event): void {
   measure()
 }
 
+/**
+ * Safari deja sin pintar zonas de un iframe reducido con `transform` cuando tiene capas
+ * `fixed` (capa de imagen, fondo fijo) y la página se desplaza: queda el blanco del iframe.
+ * Al terminar de desplazarse se les cambia la opacidad un cuadro y se repintan.
+ */
+let nudgeTimer: ReturnType<typeof setTimeout> | undefined
+let nudgeFrame = 0
+function nudgePaint(): void {
+  clearTimeout(nudgeTimer)
+  nudgeTimer = setTimeout(() => {
+    const els = document.querySelectorAll<HTMLElement>(
+      '.section__layer-photo, .section--sticky-bg .section__bg',
+    )
+    els.forEach((el) => (el.style.opacity = '0.999'))
+    cancelAnimationFrame(nudgeFrame)
+    nudgeFrame = requestAnimationFrame(() => els.forEach((el) => (el.style.opacity = '')))
+  }, 120)
+}
+function onScroll(): void {
+  measure()
+  nudgePaint()
+}
+
 let frame = 0
 function measure(): void {
   cancelAnimationFrame(frame)
@@ -243,7 +266,7 @@ onMounted(() => {
   for (const type of ['click', 'pointerdown', 'mousedown', 'submit']) {
     document.addEventListener(type, onPick, true)
   }
-  window.addEventListener('scroll', measure, { passive: true })
+  window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('resize', measure)
   observer?.observe(document.body, {
     childList: true,
@@ -262,10 +285,12 @@ onBeforeUnmount(() => {
   for (const type of ['click', 'pointerdown', 'mousedown', 'submit']) {
     document.removeEventListener(type, onPick, true)
   }
-  window.removeEventListener('scroll', measure)
+  window.removeEventListener('scroll', onScroll)
   window.removeEventListener('resize', measure)
   observer?.disconnect()
   cancelAnimationFrame(frame)
+  cancelAnimationFrame(nudgeFrame)
+  clearTimeout(nudgeTimer)
   cancelAnimationFrame(patchFrame)
   clearTimeout(renderTimer)
   document.documentElement.classList.remove('is-picking')
