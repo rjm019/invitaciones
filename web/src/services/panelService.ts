@@ -95,6 +95,15 @@ export async function deleteInvitation(
   return data
 }
 
+/** El ranking de la trivia como CSV (UTF-8 con BOM, para Excel). */
+export async function exportTrivia(slug: string, token: string): Promise<Blob> {
+  const { data } = await http.get<Blob>(`${base(slug)}/trivia.csv`, {
+    ...auth(token),
+    responseType: 'blob',
+  })
+  return data
+}
+
 /** "Se borrarán también sus 2 invitados y su dedicatoria." (o nada si no tiene). */
 export function deletionWarning(invitation: PanelInvitation, hasDedication: boolean): string {
   const n = invitation.guests.length

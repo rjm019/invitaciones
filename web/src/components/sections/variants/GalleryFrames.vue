@@ -45,6 +45,8 @@ const opened = ref<number | null>(null)
         >
           <img
             :src="photo.src"
+            :srcset="photo.srcset"
+            :sizes="photo.srcset ? (photo.wide ? '(min-width: 34rem) 34rem, 100vw' : '(min-width: 34rem) 17rem, 50vw') : undefined"
             :alt="photo.caption"
             class="ny-wall__img"
             :style="{ aspectRatio: photo.ratio }"

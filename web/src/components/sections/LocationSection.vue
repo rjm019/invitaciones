@@ -4,6 +4,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import TypewriterText from '@/components/ui/TypewriterText.vue'
 import { useEvent } from '@/composables/useEvent'
 import { time12h } from '@/services/dateFormatService'
+import { placeCalendarUrl } from '@/services/locationService'
 import type { ResolvedSection } from '@/types/event'
 
 /**
@@ -17,9 +18,17 @@ const { event } = useEvent()
 const title = computed(() => props.section.title ?? 'Ubicación')
 const button = computed(() => props.section.button ?? 'Ver en Maps')
 
+// Los lugares de esta sección (si es otra ubicación, los suyos) o, si no, los del evento.
+const sourcePlaces = computed(() => props.section.places ?? event.value.locations)
+const calendarText = computed(() => props.section.calendar ?? false)
+
 const places = computed(() =>
-  event.value.locations.length
-    ? event.value.locations.map((l) => ({ ...l, time: l.time ? time12h(l.time) : null }))
+  sourcePlaces.value.length
+    ? sourcePlaces.value.map((l) => ({
+        ...l,
+        time: l.time ? time12h(l.time) : null,
+        calendarUrl: calendarText.value ? placeCalendarUrl(l, event.value.title) : null,
+      }))
     : [
         {
           label: '',
@@ -28,13 +37,15 @@ const places = computed(() =>
           address: event.value.venue.address,
           maps_url: event.value.venue.maps_url,
           photo: event.value.venue.photo,
+          icon: undefined as string | undefined,
+          calendarUrl: null as string | null,
         },
       ],
 )
 </script>
 
 <template>
-  <div class="location">
+  <div class="location" :class="{ 'location--side': section.layout === 'side' }">
     <h2 class="location__title" data-text="title">
       <TypewriterText
         :text="title"
@@ -45,6 +56,7 @@ const places = computed(() =>
     <AppIcon name="location-dot" class="location__pin" />
 
     <article v-for="(place, i) in places" :key="i" class="location__place">
+      <AppIcon v-if="place.icon" :name="place.icon" class="location__kind" />
       <p v-if="place.label" class="location__label" data-text="label">{{ place.label }}</p>
       <h3 class="location__name" data-text="place">{{ place.name }}</h3>
       <p v-if="place.time || place.address" class="location__detail" data-text="detail">
@@ -61,6 +73,17 @@ const places = computed(() =>
         :aria-label="`${button}: ${place.name}`"
       >
         {{ button }}
+      </a>
+      <a
+        v-if="place.calendarUrl"
+        :href="place.calendarUrl"
+        class="location__button location__calendar inv-btn"
+        data-text="button"
+        target="_blank"
+        rel="noopener"
+        :aria-label="`Agregar al calendario: ${place.name}`"
+      >
+        Agregar al calendario
       </a>
       <div v-if="place.photo" class="location__frame fx-photo">
         <img
@@ -105,6 +128,27 @@ const places = computed(() =>
 }
 .location__place + .location__place {
   margin-top: var(--space-4);
+}
+/* Lado a lado: columnas que se apilan solas cuando no caben (celular). */
+.location--side {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  align-items: start;
+  column-gap: var(--space-3);
+  max-width: 56rem;
+}
+.location--side .location__title,
+.location--side .location__pin {
+  grid-column: 1 / -1;
+}
+.location--side .location__place + .location__place {
+  margin-top: 0.4rem;
+}
+.location__kind {
+  font-size: 1.1rem;
+  color: var(--color-primary-strong);
+}
+.location__calendar {
+  margin-top: -0.2rem;
 }
 .location__label {
   margin: 0;

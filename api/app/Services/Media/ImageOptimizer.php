@@ -55,6 +55,66 @@ final class ImageOptimizer
         return ['width' => imagesx($image), 'height' => imagesy($image)];
     }
 
+    /** Lado mayor de la miniatura de las fotos (la galería la usa en `srcset`). */
+    public const THUMB_SIDE = 480;
+
+    /** "foto-ab12.webp" → "foto-ab12-480.webp". */
+    public static function thumbName(string $name): string
+    {
+        return preg_replace('/\.webp$/i', '', $name).'-'.self::THUMB_SIDE.'.webp';
+    }
+
+    /** ¿El nombre es de una miniatura ("…-480.webp")? No es un archivo de la biblioteca. */
+    public static function isThumbName(string $name): bool
+    {
+        return (bool) preg_match('/-'.self::THUMB_SIDE.'\.webp$/i', $name);
+    }
+
+    /**
+     * Miniatura WebP de una foto ya guardada: lado mayor de 480 px, calidad 72, sin EXIF.
+     * Una foto de 480 px o menos no la necesita (devuelve null y no escribe nada). Se escribe
+     * en un temporal y se renombra: nunca queda una miniatura a medias.
+     *
+     * @return array{width: int, height: int}|null
+     *
+     * @throws RuntimeException si la foto no se puede leer
+     */
+    public function makeThumbnail(string $source, string $target): ?array
+    {
+        $size = @getimagesize($source);
+        if ($size === false) {
+            throw new RuntimeException('El archivo no es una imagen que se pueda leer.');
+        }
+        if (max($size[0], $size[1]) <= self::THUMB_SIDE) {
+            return null;
+        }
+        if ($size[0] * $size[1] > self::MAX_PIXELS) {
+            throw new RuntimeException('La imagen es demasiado grande para sacarle miniatura.');
+        }
+        $this->ensureMemory();
+        $image = $this->load($source, (int) $size[2]);
+        if ($image === null) {
+            throw new RuntimeException('El archivo no es una imagen que se pueda leer.');
+        }
+        $ratio = self::THUMB_SIDE / max($size[0], $size[1]);
+        $width = max(1, (int) round($size[0] * $ratio));
+        $height = max(1, (int) round($size[1] * $ratio));
+        $scaled = imagescale($image, $width, $height, IMG_BICUBIC);
+        if ($scaled !== false) {
+            $image = $scaled;
+        }
+        imagealphablending($image, false);
+        imagesavealpha($image, true);
+        $tmp = $target.'.tmp'.bin2hex(random_bytes(3));
+        if (! imagewebp($image, $tmp, 72)) {
+            @unlink($tmp);
+            throw new RuntimeException('No se pudo guardar la miniatura.');
+        }
+        rename($tmp, $target);
+
+        return ['width' => imagesx($image), 'height' => imagesy($image)];
+    }
+
     /** PNG, JPEG, WebP o GIF → GdImage en color verdadero, ya derecha. */
     public function load(string $path, ?int $type = null): ?GdImage
     {

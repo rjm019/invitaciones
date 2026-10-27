@@ -39,6 +39,7 @@ class PublicInvitationTest extends TestCase
             'closed_message' => null,
             'deadline' => '2026-11-06',
             'dedication' => null,
+            'trivia' => null,
         ], $response->json('invitation'));
 
         $response->assertJsonMissingPath('invitation.token')->assertJsonMissingPath('invitation.id');

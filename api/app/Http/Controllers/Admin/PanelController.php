@@ -10,6 +10,7 @@ use App\Services\Panel\PanelService;
 use App\Services\Reminders\ReminderPlanner;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 
 /**
@@ -34,6 +35,15 @@ class PanelController extends Controller
     public function version(string $slug, PanelService $panel): JsonResponse
     {
         return response()->json(['version' => $panel->version($slug)]);
+    }
+
+    /** GET /api/admin/events/{slug}/trivia.csv — el ranking de la trivia (UTF-8 con BOM, para Excel). */
+    public function triviaCsv(string $slug, PanelService $panel): Response
+    {
+        return response($panel->triviaCsv($slug), 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="trivia-'.$slug.'.csv"',
+        ]);
     }
 
     /**

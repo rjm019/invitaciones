@@ -12,7 +12,7 @@ use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 use RuntimeException;
 
-/** Imágenes y audio del evento (eventos/<slug>/media/). */
+/** Imágenes, audio y video del evento (eventos/<slug>/media/). */
 class MediaController extends Controller
 {
     public function __construct(
@@ -31,7 +31,7 @@ class MediaController extends Controller
     }
 
     /**
-     * POST /api/manager/events/{slug}/media — multipart { file, purpose?: fondo|foto|adorno, trim? }
+     * POST /api/manager/events/{slug}/media — multipart { file, purpose?: fondo|foto|adorno|video, trim? }
      * 201 { file } · 422 tipo o tamaño · 413 demasiado grande para el servidor.
      */
     public function store(Request $request, string $slug): JsonResponse
@@ -40,13 +40,13 @@ class MediaController extends Controller
             return response()->json(['message' => 'Evento no encontrado.'], 404);
         }
         $data = $request->validate([
-            'file' => ['required', 'file', 'max:'.(20 * 1024)],
-            'purpose' => ['sometimes', Rule::in(['fondo', 'foto', 'adorno'])],
+            'file' => ['required', 'file', 'max:'.(40 * 1024)],
+            'purpose' => ['sometimes', Rule::in(['fondo', 'foto', 'adorno', 'video'])],
             'trim' => ['sometimes', 'boolean'],
         ], [
             'file.required' => 'Elige un archivo.',
             'file.uploaded' => 'El archivo no se pudo subir (quizá pesa demasiado).',
-            'file.max' => 'El archivo pesa más de 20 MB.',
+            'file.max' => 'El archivo pesa más de 40 MB.',
             'file.*' => 'Elige un archivo.',
         ]);
 

@@ -128,6 +128,8 @@ export interface PanelOverview {
   invitations: PanelInvitation[]
   /** La más reciente primero. */
   dedications: PanelDedication[]
+  /** Ranking de la trivia; null si el evento no tiene. */
+  trivia?: PanelTrivia | null
   max_passes: number
   reminders?: PanelReminders | null
 }
@@ -139,5 +141,23 @@ export interface PanelDedication {
   label: string | null
   name: string
   message: string
+  sent_at: string | null
+}
+
+/** Trivia del evento en el panel: ranking por aciertos y, en empate, por menos segundos. */
+export interface PanelTrivia {
+  total: number
+  closes_at: string | null
+  ranking: PanelTriviaEntry[]
+}
+
+export interface PanelTriviaEntry {
+  rank: number
+  invitation: string
+  label: string | null
+  name: string
+  correct: number
+  total: number
+  seconds: number
   sent_at: string | null
 }

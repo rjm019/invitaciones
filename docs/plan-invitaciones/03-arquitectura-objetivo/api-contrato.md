@@ -36,12 +36,13 @@ Devuelve el evento y la invitación (para cuántas personas es y quiénes ya est
     "open": true,
     "closed_message": null,
     "deadline": "2026-11-06",
-    "dedication": { "name": "Ana Pérez", "message": "¡Felicidades!", "sent_at": "2026-10-13T12:00:00-06:00" }
+    "dedication": { "name": "Ana Pérez", "message": "¡Felicidades!", "sent_at": "2026-10-13T12:00:00-06:00" },
+    "trivia": { "open": true, "closed_message": null, "result": null }
   }
 }
 ```
 
-`dedication` es `null` mientras ese enlace no deje su dedicatoria.
+`dedication` es `null` mientras ese enlace no deje su dedicatoria. `trivia` es `null` si el evento no tiene trivia; si la tiene, `open` dice si ese enlace aún puede participar y `result` trae `{ name, correct, total, seconds }` cuando ya respondió (nunca las respuestas correctas).
 
 **Errores:** `404` si el token no existe o el evento no está publicado.
 
@@ -74,6 +75,18 @@ Devuelve el evento y la invitación (para cuántas personas es y quiénes ya est
 **Validación (en el servidor):** `name` requerido, máximo 80 (en una línea); `message` requerido, máximo 600 (conserva renglones, máximo una línea en blanco seguida). Si después de limpiar caracteres de control queda vacío → `422`. Si el enlace ya dejó una → `409` "Ya enviaste tu dedicatoria. ¡Gracias!". Se guarda en `dedicatorias.csv`, protegida contra fórmulas de Excel.
 
 **Respuesta `200`:** `{ "invitation": … }` con `dedication` ya lleno.
+
+### `POST /public/invitations/{token}/trivia/start`
+
+Abre la trivia: el servidor anota el inicio (abrirla otra vez no reinicia el reloj; así mide los segundos). Sin cuerpo. **Throttle:** 10/min por IP e invitación. `404` si el token no existe o el evento no tiene trivia · `409` "La trivia ya cerró." o "Ya respondiste la trivia. ¡Gracias por participar!". **Respuesta `200`:** `{ "total": 10, "started_at": "…" }`. En una muestra no escribe nada.
+
+### `POST /public/invitations/{token}/trivia`
+
+```json
+{ "name": "Ana Pérez", "answers": [2, 1, 3] }
+```
+
+`answers` trae el número de la opción elegida (desde 1) de cada pregunta, en orden. **Validación (en el servidor):** `name` requerido (máx. 80, una línea); una respuesta por pregunta y dentro de sus opciones (`422`); `409` si ya respondió o ya cerró (`cierra` o el inicio del evento). Se guarda en `trivia.csv`, protegida contra fórmulas de Excel; los segundos van desde `trivia/start`. **Throttle:** 10/min por IP e invitación. **Respuesta `200`:** `{ "result": { name, correct, total, seconds }, "invitation": … }`; las respuestas correctas no se revelan. En una muestra califica pero no guarda.
 
 ### `GET /public/events/{slug}` (modo abierto, sin pases)
 
@@ -135,10 +148,11 @@ Se entra con `clave_panel` (mínimo 8 caracteres): en `ajustes.csv`, donde la po
 |---|---|---|
 | GET | `/admin/events/{slug}/brand` | Sin sesión, para la entrada: `{ brand: { title, theme, palette, fonts } }`. `title` es `titulo_panel` del layout o, en unos XV, "XV de {festejada_corto}". Sin fotos ni datos del evento. `404` evento desconocido · throttle 60/min |
 | POST | `/admin/events/{slug}/session` | `{ password }` → `{ token, expires_at }`. `422` clave incorrecta · `403` evento sin clave · throttle 5/min |
-| GET | `/admin/events/{slug}` | `{ version, brand: { title, theme, palette, fonts, subtitle, celebrant, starts_at, timezone, venue: { name, city }, assets, card: { background, phrase, text } }, event, rsvp: { deadline, open, changes_used, changes_left, max_changes }, summary: { invitations, seats, attending, declined, empty }, invitations: [{ id, label, passes, url, message, whatsapp_url, guests: [{ slot, full_name, attending, table, responded_at }], opens, created_at }], dedications: [{ invitation, label, name, message, sent_at }], max_passes }` (dedicatorias: la más reciente primero). `message` es el texto de `mensaje_whatsapp` ya armado; el panel lo manda sin el enlace junto al PDF de la invitación. `brand.card` sale de `tarjeta_fondo`, `tarjeta_frase` y `tarjeta_texto` del layout (`null` si no están) |
+| GET | `/admin/events/{slug}` | `{ version, brand: { title, theme, palette, fonts, subtitle, celebrant, starts_at, timezone, venue: { name, city }, assets, card: { background, phrase, text } }, event, rsvp: { deadline, open, changes_used, changes_left, max_changes }, summary: { invitations, seats, attending, declined, empty }, invitations: [{ id, label, passes, url, message, whatsapp_url, guests: [{ slot, full_name, attending, table, responded_at }], opens, created_at }], dedications: [{ invitation, label, name, message, sent_at }], trivia: { total, closes_at, ranking: [{ rank, invitation, label, name, correct, total, seconds, sent_at }] } \| null, max_passes }` (dedicatorias: la más reciente primero; `trivia`: por aciertos y, en empate, menos segundos; `null` si no hay). `message` es el texto de `mensaje_whatsapp` ya armado; el panel lo manda sin el enlace junto al PDF de la invitación. `brand.card` sale de `tarjeta_fondo`, `tarjeta_frase` y `tarjeta_texto` del layout (`null` si no están) |
 | POST | `/admin/events/{slug}/invitations` | `{ passes: 1…30, label? }` → `201 { invitation }` |
 | DELETE | `/admin/events/{slug}/invitations/{id}` | Elimina la invitación con sus invitados y su dedicatoria → el panel actualizado. `404` si no existe o ya se eliminó. El enlace deja de abrir |
 | PUT | `/admin/events/{slug}/deadline` | `{ deadline: AAAA-MM-DD }` → `{ rsvp }`. Entre hoy y el día del evento; **máximo 3 cambios** (`409` después) |
+| GET | `/admin/events/{slug}/trivia.csv` | El ranking de la trivia en CSV (UTF-8 con BOM): `lugar, nombre, invitacion, aciertos, total, segundos, fecha`. `404` si el evento no tiene trivia |
 | GET | `/admin/events/{slug}/version` | `{ version }`: huella de los archivos del evento. El panel la consulta cada 5 s y recarga solo si cambió (en vivo sin base de datos) |
 | PUT | `/admin/events/{slug}/invitations/{id}/phone` | `{ phone: string \| null }` → el panel actualizado. `403` si la invitación no tiene recordatorios · `422` teléfono inválido (campo `phone`). `POST …/invitations` también acepta `phone` |
 | PUT | `/admin/events/{slug}/reminders` | `{ every_days: 0\|2\|3\|5\|7, consent: bool }` → el panel actualizado. `422` (campo `consent`) si se encienden sin permiso. Con los recordatorios encendidos, el panel trae `reminders: { every_days, options, consent_at, cap, used, per_link_max, with_phone, pending_with_phone, pending_without_phone, next_run, active, stopped_reason }` y en cada invitación `phone` y `reminder: { status, sent, last_sent_at, next_at }`; apagados, todo eso es `null` |

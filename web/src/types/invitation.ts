@@ -29,6 +29,30 @@ export interface Invitation {
   deadline: string | null
   /** La dedicatoria que ya dejó este enlace (una por invitación), o null. */
   dedication: InvitationDedication | null
+  /** Estado de la trivia de este enlace; null si el evento no tiene. */
+  trivia?: InvitationTrivia | null
+}
+
+/** Lo que el invitado sabe de su trivia: si puede participar y su resultado (nunca las correctas). */
+export interface InvitationTrivia {
+  /** Todavía puede responder (no cerró y no ha respondido). */
+  open: boolean
+  closed_message: string | null
+  result: TriviaResult | null
+}
+
+export interface TriviaResult {
+  name: string
+  correct: number
+  total: number
+  /** Lo que tardó, medido por el servidor. */
+  seconds: number
+}
+
+/** Respuestas: el número de la opción elegida (desde 1) de cada pregunta, en orden. */
+export interface TriviaPayload {
+  name: string
+  answers: number[]
 }
 
 export interface InvitationDedication {

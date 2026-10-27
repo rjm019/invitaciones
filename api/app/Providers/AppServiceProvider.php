@@ -31,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('dedication', fn (Request $request) => Limit::perMinute(5)
             ->by($request->ip().'|'.$request->route('token')));
 
+        // Trivia: abrir y responder; 10 por minuto por IP y enlace alcanzan para reintentar.
+        RateLimiter::for('trivia', fn (Request $request) => Limit::perMinute(10)
+            ->by($request->ip().'|trivia|'.$request->route('token')));
+
         // Cotizaciones de la landing: 5 por hora por IP (una persona cotiza una o dos veces).
         RateLimiter::for('quote', fn (Request $request) => Limit::perHour(5)->by('quote|'.$request->ip()));
 

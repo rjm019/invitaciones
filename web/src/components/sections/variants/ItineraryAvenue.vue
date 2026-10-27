@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import LiveItineraryBanner from '@/components/ui/LiveItineraryBanner.vue'
 import { useEvent } from '@/composables/useEvent'
+import { useLiveItinerary } from '@/composables/useLiveItinerary'
 import { useReducedMotion } from '@/composables/useReducedMotion'
 import { useTimelineProgress } from '@/composables/useTimelineProgress'
 import { time12h } from '@/services/dateFormatService'
@@ -22,6 +24,14 @@ const reduced = useReducedMotion()
 
 const items = computed(() => event.value.itinerary)
 const title = computed(() => props.section.title ?? 'Itinerario')
+
+// En vivo: el día del evento resalta "Ahora" y "Sigue" y atenúa lo pasado.
+const { live } = useLiveItinerary(
+  () => items.value,
+  () => event.value.starts_at,
+  () => event.value.timezone,
+  () => !!props.section.live,
+)
 // La palabra más larga de los letreros manda en el tamaño de la letra: así ninguna se parte.
 const longest = computed(() =>
   Math.max(6, ...items.value.flatMap((i) => i.label.split(/\s+/).map((w) => w.length))),
@@ -50,6 +60,7 @@ const mask = (url: string | null | undefined) =>
 <template>
   <div class="ny-itin">
     <h2 class="ny-itin__title" data-text="title">{{ title }}</h2>
+    <LiveItineraryBanner :state="live" :moments="items" />
 
     <ol ref="track" class="ny-itin__street" :style="{ '--ny-chars': longest }">
       <span class="ny-itin__pole" aria-hidden="true">
@@ -60,7 +71,10 @@ const mask = (url: string | null | undefined) =>
         v-for="(item, i) in items"
         :key="`${item.time}-${item.label}`"
         class="ny-itin__stop"
-        :class="i % 2 === 0 ? 'is-left' : 'is-right'"
+        :class="[
+          i % 2 === 0 ? 'is-left' : 'is-right',
+          { 'is-past': live?.past[i], 'is-now': live?.current === i },
+        ]"
       >
         <span class="ny-itin__sign">
           <time class="ny-itin__time" data-text="time" :datetime="item.time">{{
@@ -192,6 +206,22 @@ const mask = (url: string | null | undefined) =>
   }
 }
 
+/* En vivo: lo pasado se atenúa y el momento actual pulsa (solo opacity). */
+.ny-itin__stop.is-past {
+  opacity: 0.45;
+}
+.ny-itin__stop.is-now {
+  animation: ny-itin-now calc(2.4s * var(--motion-scale)) ease-in-out infinite;
+}
+@keyframes ny-itin-now {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
 .ny-itin__stop {
   grid-column: 1 / -1;
   display: grid;
@@ -346,7 +376,8 @@ const mask = (url: string | null | undefined) =>
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ny-itin__pole::before {
+  .ny-itin__pole::before,
+  .ny-itin__stop.is-now {
     animation: none;
   }
 }

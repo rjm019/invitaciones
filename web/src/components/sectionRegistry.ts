@@ -20,6 +20,7 @@ import GiftsSection from './sections/GiftsSection.vue'
 import EnvelopeRainSection from './sections/EnvelopeRainSection.vue'
 import LayerSection from './sections/LayerSection.vue'
 import GallerySection from './sections/GallerySection.vue'
+import TriviaSection from './sections/TriviaSection.vue'
 
 /**
  * Tipo de sección (columna "seccion" del layout) → componente. Van todas en el mismo
@@ -49,4 +50,5 @@ export const sectionRegistry: Record<string, Component> = {
   dedications: DedicationsSection,
   closing: ClosingSection,
   gifts: GiftsSection,
+  trivia: TriviaSection,
 }

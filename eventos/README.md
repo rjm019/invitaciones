@@ -12,6 +12,7 @@ eventos/<slug>/
 │   └── invitacion.csv     ← lo que se edita en el gestor (solo si hay cambios sin publicar)
 ├── media/                 ← fotos, fondos, adornos y audio (WebP/PNG/JPG/MP3)
 │   └── originales/        ← PNG/JPG tal como salen de Canva; `media:optimizar` los pasa a WebP
+│   (`<foto>-480.webp`: miniatura de la galería, la crea el gestor al subir o `media:miniaturas`; no se edita ni aparece en la biblioteca)
 ├── ajustes.csv            ← lo que aplica al instante: clave del panel, si se ve, si es plantilla o muestra (`demo`), quién la edita en el gestor, fecha límite del cliente
 ├── ajustes-historial.csv  ← cada cambio de ajustes y quién lo hizo (la clave sale como "(cambiada)", nunca escrita)
 ├── invitaciones.csv       ← cada enlace generado en el panel: id, token, invitados, para, creada, eliminada, telefono (WhatsApp para los recordatorios; solo dígitos con lada, p. ej. 525512345678)
@@ -20,6 +21,7 @@ eventos/<slug>/
 ├── respuestas-historial.csv ← cada envío, en orden (solo crece; es el respaldo fino)
 ├── aperturas.csv          ← cada vez que se abre una invitación
 ├── dedicatorias.csv       ← una dedicatoria por enlace: invitacion, para, nombre, dedicatoria, fecha
+├── trivia.csv             ← una participación por enlace: invitacion, para, nombre, respuestas, aciertos, segundos, fecha (más trivia-inicios.csv y trivia-eliminadas.csv)
 ├── respuestas-eliminadas.csv, dedicatorias-eliminadas.csv ← las personas y dedicatorias de las invitaciones eliminadas, con la fecha
 ├── resumen.csv            ← detalle por invitación (lo rehace `invitaciones:resumen`)
 └── respaldos/             ← copia del día de cada archivo antes de cambiarlo, y además:
@@ -156,9 +158,9 @@ Los tipos, en el orden de la invitación de NAT. Solo `foto`, `frase` y `cierre`
 | `bendicion` | `texto`, `subtitulo` | `rol`, `nombres` (uno por línea): "Mis papás", "Mis padrinos" | — | `arco`, `hojas`, `divisor`, `lazo` | `rol`, `nombres` |
 | `fecha` | `titulo` | — | `inicia`, `zona_horaria` (el calendario sale de ahí) | `destellos` | `fecha`, `calendario` |
 | `foto` | `imagen` (recortada sin fondo), `titulo` (unas iniciales o un apodo en la esquina) | — | — | `marco`, `estrellas`, `mariposas` | — |
-| `ubicacion` | `titulo`, `boton` | Varias ubicaciones (misa y recepción): `etiqueta`, `lugar`, `hora`, `direccion`, `maps`, `foto` | El salón: `salon`, `salon_nombre_visible`, `salon_ciudad`, `salon_direccion`, `salon_maps`, `salon_foto` | — | `etiqueta`, `lugar`, `detalle` |
+| `ubicacion` (repetible: una sección por lugar o varios lugares en una) | `titulo`, `boton`, `variante`, `acomodo` (`lado a lado`, que en el celular se apila, o `uno debajo del otro`), `calendario` (`SI`/`NO`: botón «Agregar al calendario» en cada lugar con `hora`, el día del evento) | Varias ubicaciones (misa y recepción): `tipo` (`ceremonia religiosa`, `ceremonia civil`, `recepcion`, `ceremonia y recepcion`, `otro`: pone etiqueta e ícono por defecto; `etiqueta` gana si se escribe), `etiqueta`, `lugar`, `hora`, `direccion`, `maps`, `foto` | El salón: `salon`, `salon_nombre_visible`, `salon_ciudad`, `salon_direccion`, `salon_maps`, `salon_foto` | — | `etiqueta`, `lugar`, `detalle` |
 | `frase` | `texto` | — | — | `divisor` | — |
-| `itinerario` | `titulo`, `variante` | `hora` (`17:00` o `5:00 pm`), `actividad`, `icono` | — | `marco`, `estatua`, `puente` | `hora`, `actividad` |
+| `itinerario` | `titulo`, `variante`, `en_vivo` (`SI`: el día del evento, en su zona horaria, resalta «Ahora» y «Sigue» y atenúa lo pasado; una hora menor que la anterior cuenta como del día siguiente) | `hora` (`17:00` o `5:00 pm`), `actividad`, `icono` | — | `marco`, `estatua`, `puente` | `hora`, `actividad` |
 | `vestimenta` | `titulo`, `subtitulo`, `texto`, `colores` (de 1 a 4 hex, separados por espacio) | — | — | `lacre`, `tarjeta`, `mujer`, `hombre` | — |
 | `sin_ninos` | `titulo`, `subtitulo` (la etiqueta "Solo adultos"), `texto` | — | — | `lazo` | — |
 | `clima` | `titulo`, `texto` | — | `salon_ciudad`, `clima_coordenadas` | — | `lugar`, `datos` |
@@ -168,6 +170,7 @@ Los tipos, en el orden de la invitación de NAT. Solo `foto`, `frase` y `cierre`
 | `cuenta_regresiva` | `titulo`, `texto` | — | `inicia` | `corona`, `mariposa` | `numeros`, `unidades` |
 | `confirmacion` | `titulo`, `subtitulo`, `boton` | — | `rsvp_modo`, `rsvp_limite`, `rsvp_whatsapp` | `tarjeta`, `flores` | `fecha_limite` |
 | `dedicatoria` | `titulo`, `texto`, `boton` | — | — | `divisor` | `mensaje`, `autor` |
+| `trivia` | `titulo`, `texto`, `boton`, `cierra` | `pregunta`, `opcion_1` a `opcion_4`, `correcta` | — | `divisor` | `pregunta`, `opcion`, `resultado` |
 | `cierre` | `titulo`, `texto` | — | — | `flores`, `corona` | — |
 
 **Íconos del itinerario** (`icono`): un archivo de `media/` (`copas.webp`) o un nombre: `utensils`, `church`, `crown`, `music`, `heart`, `ring`, `dove`, `gift`, `cake-candles`, `graduation-cap`, `door-open`, `champagne-glasses`, `location-dot`, y los de Nueva York: `statue-of-liberty`, `brooklyn-bridge`, `empire-state`, `disco-ball`, `taxi`, `martini-glass-citrus`, `city`.
@@ -268,6 +271,8 @@ Sin `musica_fuente`: se usa el MP3 si hay; si no hay MP3 pero sí playlist, Spot
 **Clima** (`clima`): el clima del día del evento en la ciudad del salón (`salon_ciudad`, por ejemplo "Pachuca, Hidalgo"; o `clima_coordenadas` como `20.1170, -98.7333` para más precisión). Mientras faltan más de 16 días muestra el clima típico de esa fecha (promedio de 10 años); desde 16 días antes, el pronóstico real, que se renueva cada 30 minutos. Incluye la temperatura en las horas de la fiesta y un consejo (abrigo, paraguas). Se quita sola un día después del evento. Datos de Open-Meteo. En la vista previa del gestor sale un ejemplo hasta que la invitación se publica.
 
 **Dedicatoria** (`dedicatoria`): nombre y mensaje (`titulo`, `texto` y `boton` cambian los textos). **Una por enlace**: ya enviada se ve fija y no se puede cambiar; se guarda en `dedicatorias.csv` y la ves en el panel. No depende de la fecha límite. En la invitación general (`/e/<slug>`) pide abrir el enlace personal.
+
+**Trivia** (`trivia`): hasta **10 preguntas**; cada una lleva `pregunta`, de 2 a 4 opciones (`opcion_1` a `opcion_4`, en orden y sin huecos) y `correcta`, el **número** de la opción correcta (1 a 4). `cierra` (fecha, o fecha y hora; una fecha sola cierra al terminar ese día) es opcional: sin ella cierra cuando empieza el evento. **La respuesta correcta nunca sale en la invitación**: el servidor califica. Cada enlace responde **una vez** con su nombre; se guarda en `trivia.csv` (`respuestas` son los números elegidos separados por `;`) y los `segundos` los mide el servidor desde que se abrió la trivia (`trivia-inicios.csv`). Ya respondida o cerrada, el enlace da `409`. En una muestra (`demo=SI`) califica pero no guarda nada. En el panel, la pestaña **Trivia** muestra el ranking (más aciertos y, en empate, menos segundos) y lo descarga en CSV.
 
 ## `ajustes.csv`
 

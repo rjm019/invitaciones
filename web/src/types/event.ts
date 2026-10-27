@@ -94,6 +94,18 @@ export interface SectionConfig {
   layers?: string[]
   /** Fotos de una galería (puede haber varias galerías, cada una con las suyas). */
   photos?: GalleryPhoto[]
+  /** Preguntas de la trivia (sin la respuesta correcta: esa solo la tiene el servidor). */
+  questions?: TriviaQuestion[]
+  /** Cuándo cierra la trivia (ISO con offset). */
+  closes_at?: string
+  /** Ubicación: lugares propios de esta sección (si no vienen, los de `locations`). */
+  places?: EventLocation[]
+  /** Ubicación: botón "Agregar al calendario" en cada lugar. */
+  calendar?: boolean
+  /** Ubicación: lugares lado a lado (se apilan en el celular) o uno debajo del otro. */
+  layout?: 'side' | 'stack'
+  /** Itinerario: resalta el momento actual el día del evento. */
+  live?: boolean
   /** Forma de sus orillas, si es franja (si no, la de la página o la del tema). */
   edge?: EdgeStyle
 }
@@ -111,6 +123,12 @@ export interface EventLocation {
   address: string
   maps_url: string
   photo: string | null
+  /** Con `tipo`: religious, civil, reception, both u other. */
+  kind?: string
+  /** Ícono por defecto del tipo. */
+  icon?: string
+  /** Con "calendario": el día del evento a la hora de este lugar (ISO con offset). */
+  starts_at?: string
 }
 
 /** Una tienda de la mesa de regalos. */
@@ -150,6 +168,12 @@ export interface EventGifts {
   envelope: GiftEnvelope | null
 }
 
+/** Una pregunta de la trivia: 2 a 4 opciones; se responde con el número de la opción (desde 1). */
+export interface TriviaQuestion {
+  text: string
+  options: string[]
+}
+
 /** Una foto de la galería, con su pie opcional. */
 export interface GalleryPhoto {
   photo: string
@@ -157,6 +181,9 @@ export interface GalleryPhoto {
   /** Medidas de la foto (si está en media/): para acomodarla según su forma sin recortarla. */
   width?: number
   height?: number
+  /** Miniatura de 480 px (solo si existe) y su ancho real, para `srcset`. */
+  thumb?: string
+  thumb_width?: number
 }
 
 /** Hotel recomendado (pestaña "hoteles" del layout). */

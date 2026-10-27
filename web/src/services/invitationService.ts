@@ -3,6 +3,8 @@ import type {
   Invitation,
   InvitationResponse,
   RsvpPayload,
+  TriviaPayload,
+  TriviaResult,
 } from '@/types/invitation'
 import { takeBoot } from './bootService'
 import { http } from './http'
@@ -30,4 +32,21 @@ export async function sendDedication(
 ): Promise<Invitation> {
   const { data } = await http.post<{ invitation: Invitation }>(`${path(token)}/dedication`, payload)
   return data.invitation
+}
+
+/** Abre la trivia: el servidor anota el inicio (los segundos se miden allá). */
+export async function startTrivia(token: string): Promise<void> {
+  await http.post(`${path(token)}/trivia/start`)
+}
+
+/** Envía las respuestas; el servidor califica (una vez por enlace: la segunda da 409). */
+export async function sendTrivia(
+  token: string,
+  payload: TriviaPayload,
+): Promise<{ result: TriviaResult; invitation: Invitation }> {
+  const { data } = await http.post<{ result: TriviaResult; invitation: Invitation }>(
+    `${path(token)}/trivia`,
+    payload,
+  )
+  return data
 }

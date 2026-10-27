@@ -77,7 +77,15 @@ function go(index: number) {
           :aria-label="photo.caption || `Ver foto ${i + 1}`"
           @click="opened = i"
         >
-          <img :src="photo.src" :alt="photo.caption" class="ny-reel__img" loading="lazy" decoding="async" />
+          <img
+            :src="photo.src"
+            :srcset="photo.srcset"
+            :sizes="photo.srcset ? '(min-width: 34rem) 28rem, 80vw' : undefined"
+            :alt="photo.caption"
+            class="ny-reel__img"
+            loading="lazy"
+            decoding="async"
+          />
         </button>
         <figcaption v-if="photo.caption" class="ny-reel__caption" data-text="caption">
           {{ photo.caption }}

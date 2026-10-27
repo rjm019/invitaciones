@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import DeadlineCard from '@/components/panel/DeadlineCard.vue'
 import DedicationList from '@/components/panel/DedicationList.vue'
+import TriviaList from '@/components/panel/TriviaList.vue'
 import GuestList from '@/components/panel/GuestList.vue'
 import InvitationCreator from '@/components/panel/InvitationCreator.vue'
 import InvitationList from '@/components/panel/InvitationList.vue'
@@ -33,7 +34,7 @@ usePolling(
   () => !!token.value && !!overview.value,
 )
 
-const tab = ref<'invitations' | 'guests' | 'dedications'>('invitations')
+const tab = ref<'invitations' | 'guests' | 'dedications' | 'trivia'>('invitations')
 const highlight = ref<string | null>(null)
 const sending = ref<PanelInvitation | null>(null)
 const bounds = computed(() =>
@@ -148,6 +149,18 @@ onMounted(() => {
           >
             Dedicatorias ({{ overview.dedications.length }})
           </button>
+          <button
+            v-if="overview.trivia"
+            id="tab-trivia"
+            type="button"
+            role="tab"
+            class="panel__tab"
+            :aria-selected="tab === 'trivia'"
+            aria-controls="view-trivia"
+            @click="tab = 'trivia'"
+          >
+            Trivia ({{ overview.trivia.ranking.length }})
+          </button>
         </div>
 
         <div
@@ -198,6 +211,21 @@ onMounted(() => {
           aria-labelledby="tab-dedications"
         >
           <DedicationList :dedications="overview.dedications" :timezone="overview.event.timezone" />
+        </div>
+
+        <div
+          v-if="overview.trivia"
+          v-show="tab === 'trivia'"
+          id="view-trivia"
+          role="tabpanel"
+          aria-labelledby="tab-trivia"
+        >
+          <TriviaList
+            :trivia="overview.trivia"
+            :timezone="overview.event.timezone"
+            :slug="slug"
+            :download="panel.downloadTrivia"
+          />
         </div>
 
         <ShareDialog

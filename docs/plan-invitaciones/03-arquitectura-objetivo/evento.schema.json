@@ -112,7 +112,7 @@
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["hero-envelope", "music-player", "blessing", "save-the-date", "photo-arch", "location", "quote", "itinerary", "dress-code", "no-kids", "countdown", "hotels", "weather", "spotify", "rsvp", "dedications", "closing", "gifts", "gallery", "envelope-rain", "layer"]
+        "enum": ["hero-envelope", "music-player", "blessing", "save-the-date", "photo-arch", "location", "quote", "itinerary", "dress-code", "no-kids", "countdown", "hotels", "weather", "spotify", "rsvp", "dedications", "closing", "gifts", "gallery", "envelope-rain", "layer", "trivia"]
       }
     }
   }

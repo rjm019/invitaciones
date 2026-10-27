@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import LiveItineraryBanner from '@/components/ui/LiveItineraryBanner.vue'
 import { useEvent } from '@/composables/useEvent'
+import { useLiveItinerary } from '@/composables/useLiveItinerary'
 import { useReducedMotion } from '@/composables/useReducedMotion'
 import { useTimelineProgress } from '@/composables/useTimelineProgress'
 import { time12h } from '@/services/dateFormatService'
@@ -13,6 +15,14 @@ const reduced = useReducedMotion()
 
 const items = computed(() => event.value.itinerary)
 const title = computed(() => props.section.title ?? 'Itinerario')
+
+// En vivo: el día del evento resalta "Ahora" y "Sigue" y atenúa lo pasado.
+const { live } = useLiveItinerary(
+  () => items.value,
+  () => event.value.starts_at,
+  () => event.value.timezone,
+  () => !!props.section.live,
+)
 
 // Línea que se llena con el scroll (efecto "linea" en el layout).
 const track = ref<HTMLElement | null>(null)
@@ -36,6 +46,7 @@ const frameStyle = computed(() =>
       :style="frameStyle"
     >
       <h2 class="itinerary__title" data-text="title">{{ title }}</h2>
+      <LiveItineraryBanner :state="live" :moments="items" />
 
       <ol
         ref="track"
@@ -51,7 +62,10 @@ const frameStyle = computed(() =>
           v-for="(item, i) in items"
           :key="`${item.time}-${item.label}`"
           class="itinerary__item"
-          :class="i % 2 === 0 ? 'itinerary__item--left' : 'itinerary__item--right'"
+          :class="[
+            i % 2 === 0 ? 'itinerary__item--left' : 'itinerary__item--right',
+            { 'is-past': live?.past[i], 'is-now': live?.current === i },
+          ]"
           :style="{ gridRow: i + 1 }"
         >
           <span class="itinerary__what">
@@ -162,6 +176,30 @@ const frameStyle = computed(() =>
 /* En zigzag el ícono y la actividad se apilan con la hora, como si no hubiera envoltura. */
 .itinerary__what {
   display: contents;
+}
+/* En vivo: lo pasado se atenúa y el momento actual pulsa (solo opacity). */
+.itinerary__item {
+  transition: opacity calc(0.4s * var(--motion-scale)) ease;
+}
+.itinerary__item.is-past {
+  opacity: 0.45;
+}
+.itinerary__item.is-now {
+  animation: itinerary-now calc(2.4s * var(--motion-scale)) ease-in-out infinite;
+}
+@keyframes itinerary-now {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .itinerary__item.is-now {
+    animation: none;
+  }
 }
 .itinerary__item--left {
   grid-column: 1;

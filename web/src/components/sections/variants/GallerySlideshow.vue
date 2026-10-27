@@ -71,7 +71,15 @@ onBeforeUnmount(() => clearInterval(timer))
         aria-hidden="true"
       >
         <span class="ny-screen__blur" :style="{ backgroundImage: `url(&quot;${photo.src}&quot;)` }" />
-        <img :src="photo.src" alt="" class="ny-screen__photo" loading="lazy" decoding="async" />
+        <img
+          :src="photo.src"
+          :srcset="photo.srcset"
+          :sizes="photo.srcset ? '(min-width: 34rem) 34rem, 100vw' : undefined"
+          alt=""
+          class="ny-screen__photo"
+          loading="lazy"
+          decoding="async"
+        />
       </span>
     </button>
 

@@ -3,6 +3,8 @@
 namespace App\Services\Design;
 
 use App\Services\Layout\EventRepository;
+use App\Services\Media\ImageOptimizer;
+use App\Services\Media\SocialEmbed;
 use App\Services\Weather\VenueLocator;
 use Carbon\CarbonImmutable;
 
@@ -36,6 +38,29 @@ final class InvitationConfigBuilder
     /** El evento que se está armando (las fotos de la galería se miden en su media/). */
     private string $slug = '';
 
+    /** Zona y arranque del evento que se está armando (la trivia cierra por defecto al empezar). */
+    private string $timezone = 'America/Mexico_City';
+
+    private ?CarbonImmutable $startsAt = null;
+
+    /** Id de la primera sección de ubicación: sus lugares van también en `locations`. */
+    private ?string $firstLocationId = null;
+
+    /** Acomodo de los lugares de una ubicación: valor del CSV → valor del contrato. */
+    private const LOCATION_LAYOUTS = [
+        'lado_a_lado' => ['value' => 'side'],
+        'uno_debajo_del_otro' => ['value' => 'stack'],
+    ];
+
+    /** Tipo de lugar: etiqueta e ícono por defecto. */
+    private const LOCATION_KINDS = [
+        'ceremonia_religiosa' => ['value' => 'religious', 'label' => 'Ceremonia religiosa', 'icon' => 'church'],
+        'ceremonia_civil' => ['value' => 'civil', 'label' => 'Ceremonia civil', 'icon' => 'ring'],
+        'recepcion' => ['value' => 'reception', 'label' => 'Recepción', 'icon' => 'champagne-glasses'],
+        'ceremonia_y_recepcion' => ['value' => 'both', 'label' => 'Ceremonia y recepción', 'icon' => 'heart'],
+        'otro' => ['value' => 'other', 'label' => '', 'icon' => 'location-dot'],
+    ];
+
     /**
      * @param  array<string, string>  $media  archivo en media/ → URL pública
      * @param  array<string, string>  $settings  ajustes.csv (rsvp_limite, publicado, plantilla…)
@@ -56,6 +81,9 @@ final class InvitationConfigBuilder
             $timezone = 'America/Mexico_City';
         }
         $startsAt = $this->startsAt($e['inicia'] ?? '', $timezone);
+        $this->timezone = $timezone;
+        $this->startsAt = $startsAt;
+        $this->firstLocationId = null;
         $deadline = $this->deadline($e['rsvp_limite'] ?? '');
         $mode = strtolower($e['rsvp_modo'] ?? 'token');
 
@@ -378,9 +406,224 @@ final class InvitationConfigBuilder
             }
         }
 
+        // Ubicación (repetible): cada sección con sus lugares (la primera además va en `locations`).
+        if ($kind === 'ubicacion') {
+            if ($this->firstLocationId === null) {
+                $this->firstLocationId = $id;
+            } elseif ($this->firstLocationId !== $id) {
+                $entry['places'] = $this->locations($section, $media);
+            }
+            if (Normalizer::yes($f['calendario'] ?? '')) {
+                $entry['calendar'] = true;
+            }
+            $layout = $this->choice($f['acomodo'] ?? '', self::LOCATION_LAYOUTS, $id, 'acomodo');
+            if ($layout !== null) {
+                $entry['layout'] = $layout;
+            }
+        }
+        // Itinerario en vivo: el día del evento resalta el momento actual (lo calcula la web).
+        if ($kind === 'itinerario' && Normalizer::yes($f['en_vivo'] ?? '')) {
+            $entry['live'] = true;
+        }
+
+        // Trivia: las preguntas sin la respuesta correcta (esa solo la conoce el servidor).
+        if ($kind === 'trivia') {
+            $entry['questions'] = $this->trivia($section);
+            $closes = TriviaQuiz::closesAt($section, $this->timezone) ?? $this->startsAt;
+            if ($closes !== null) {
+                $entry['closes_at'] = $closes->toIso8601String();
+            }
+        }
+
+        // Video y publicación de redes: solo enlaces ya validados (SocialEmbed) o archivos de la biblioteca.
+        if ($kind === 'video') {
+            $video = $this->video($section, $media);
+            if ($video !== null) {
+                $entry['video'] = $video;
+            }
+        }
+        if ($kind === 'publicacion') {
+            $post = $this->socialPost($section, $media);
+            if ($post !== null) {
+                $entry['post'] = $post;
+            }
+        }
+
         $this->unknownKeys($id, $f, Catalog::fieldOrder($kind), section: true);
 
         return $entry;
+    }
+
+    /**
+     * El video de una sección: YouTube, Instagram o Facebook (enlace validado) o un MP4 de la
+     * biblioteca. Un enlace que no sirve se reporta y la sección queda sin video (se oculta).
+     *
+     * @param  array<string, string>  $media
+     * @return array<string, mixed>|null
+     */
+    private function video(DesignSection $section, array $media): ?array
+    {
+        $id = $section->id;
+        $f = $section->fields;
+        $link = trim($f['enlace'] ?? '');
+        $file = trim($f['archivo'] ?? '');
+        $source = Normalizer::key($f['fuente'] ?? '');
+        if (str_starts_with($source, 'archivo')) {
+            $source = 'archivo';
+        }
+        if ($source === '') {
+            $source = $link !== '' ? (SocialEmbed::parse($link)['network'] ?? 'youtube') : ($file !== '' ? 'archivo' : '');
+        } elseif (! in_array($source, ['archivo', ...SocialEmbed::NETWORKS], true)) {
+            $this->error($id, null, 'fuente', "'{$source}' no existe (usa youtube, archivo, instagram o facebook)");
+
+            return null;
+        }
+        if ($source === '') {
+            return null;
+        }
+
+        $video = ['source' => $source, 'format' => $this->videoFormat($f['formato'] ?? '', $id)];
+        if ($source === 'archivo') {
+            if ($file === '') {
+                return null;
+            }
+            if (! isset($media[$file]) || ! preg_match('/\.mp4$/i', $file)) {
+                $this->error($id, null, 'archivo', "'{$file}' no es un MP4 de la biblioteca de archivos");
+
+                return null;
+            }
+            $video['file'] = $media[$file];
+        } else {
+            if ($link === '') {
+                return null;
+            }
+            $parsed = SocialEmbed::parse($link, $source);
+            if ($parsed === null) {
+                $this->error($id, null, 'enlace', 'no es un enlace https de '.SocialEmbed::networkName($source)." que se pueda mostrar: '{$link}'");
+
+                return null;
+            }
+            $video += array_filter($parsed, fn ($v) => $v !== null);
+        }
+        $poster = $this->poster($f['poster'] ?? '', $media, $id);
+        if ($poster !== null) {
+            $video['poster'] = $poster;
+        }
+
+        return $video;
+    }
+
+    /**
+     * La publicación de una red: `red` + `enlace` validados.
+     *
+     * @param  array<string, string>  $media
+     * @return array<string, mixed>|null
+     */
+    private function socialPost(DesignSection $section, array $media): ?array
+    {
+        $id = $section->id;
+        $f = $section->fields;
+        $link = trim($f['enlace'] ?? '');
+        $network = Normalizer::key($f['red'] ?? '');
+        if ($network !== '' && ! in_array($network, SocialEmbed::NETWORKS, true)) {
+            $this->error($id, null, 'red', "'{$network}' no existe (usa instagram, facebook o youtube)");
+
+            return null;
+        }
+        if ($link === '') {
+            return null;
+        }
+        $parsed = SocialEmbed::parse($link, $network === '' ? null : $network);
+        if ($parsed === null) {
+            $this->error($id, null, 'enlace', 'no es un enlace https de '.($network === '' ? 'YouTube, Instagram o Facebook' : SocialEmbed::networkName($network))." que se pueda mostrar: '{$link}'");
+
+            return null;
+        }
+        $post = array_filter($parsed, fn ($v) => $v !== null);
+        $poster = $this->poster($f['poster'] ?? '', $media, $id);
+        if ($poster !== null) {
+            $post['poster'] = $poster;
+        }
+
+        return $post;
+    }
+
+    /** `horizontal` (16:9) o `vertical` (9:16); lo demás se avisa y queda horizontal. */
+    private function videoFormat(string $value, string $block): string
+    {
+        $key = Normalizer::key($value);
+        if ($key !== '' && ! in_array($key, ['horizontal', 'vertical'], true)) {
+            $this->warning($block, null, 'formato', "'{$key}' no existe (usa horizontal o vertical); se usó horizontal");
+        }
+
+        return $key === 'vertical' ? 'vertical' : 'horizontal';
+    }
+
+    /**
+     * La portada: solo un archivo de la biblioteca del evento. Una URL de afuera (o un archivo
+     * que no existe) se avisa y se ignora: la fachada no puede pedir nada a terceros.
+     *
+     * @param  array<string, string>  $media
+     */
+    private function poster(string $value, array $media, string $block): ?string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+        if (! isset($media[$value])) {
+            $this->warning($block, null, 'poster', "'{$value}' no está en la biblioteca de archivos; se ignoró la portada");
+
+            return null;
+        }
+
+        return $media[$value];
+    }
+
+    /**
+     * Las preguntas de la trivia para el config público: texto y opciones, NUNCA `correcta`.
+     * Cada fila con problemas se reporta (y no entra).
+     *
+     * @return list<array{text: string, options: list<string>}>
+     */
+    private function trivia(DesignSection $section): array
+    {
+        $id = $section->id;
+        $filled = 0;
+        foreach ($section->items as $i => $item) {
+            $text = trim($item['pregunta'] ?? '');
+            $options = TriviaQuiz::options($item);
+            if ($text === '' && $options === [] && trim($item['correcta'] ?? '') === '') {
+                continue;
+            }
+            $n = $i + 1;
+            if (++$filled > TriviaQuiz::MAX_QUESTIONS) {
+                $this->error($id, $n, null, 'la trivia admite hasta '.TriviaQuiz::MAX_QUESTIONS.' preguntas');
+
+                continue;
+            }
+            if ($text === '') {
+                $this->error($id, $n, 'pregunta', 'escribe la pregunta');
+            }
+            if (count($options) < TriviaQuiz::MIN_OPTIONS) {
+                $this->error($id, $n, 'opcion_2', 'cada pregunta necesita al menos 2 opciones');
+            } elseif (in_array('', $options, true)) {
+                $this->error($id, $n, 'opcion_1', 'llena las opciones en orden, sin dejar huecos');
+            }
+            $correct = TriviaQuiz::correct($item);
+            if ($correct === null || $correct > max(1, count($options))) {
+                $this->error($id, $n, 'correcta', 'elige cuál opción es la correcta (el número de la opción)');
+            }
+        }
+        $closes = $section->field('cierra');
+        if ($closes !== null && TriviaQuiz::closesAt($section, $this->timezone) === null) {
+            $this->error($id, null, 'cierra', "'{$closes}' no es una fecha válida (AAAA-MM-DD HH:MM)");
+        }
+
+        return array_map(
+            fn (array $q) => ['text' => $q['text'], 'options' => $q['options']],
+            TriviaQuiz::questions($section),
+        );
     }
 
     /**
@@ -627,14 +870,31 @@ final class InvitationConfigBuilder
             if ($name === '') {
                 continue;
             }
-            $out[] = [
+            $time = trim($item['hora'] ?? '') === '' ? null : $this->time($item['hora'], $section->id, $i + 1, 'hora');
+            $place = [
                 'label' => trim($item['etiqueta'] ?? ''),
                 'name' => $name,
-                'time' => trim($item['hora'] ?? '') === '' ? null : $this->time($item['hora'], $section->id, $i + 1, 'hora'),
+                'time' => $time,
                 'address' => trim($item['direccion'] ?? ''),
                 'maps_url' => $this->webUrl($item['maps'] ?? '', $section->id, $i + 1, 'maps'),
                 'photo' => $this->media($item['foto'] ?? '', $media),
             ];
+            // Con tipo: ícono y etiqueta por defecto (la etiqueta escrita gana). Sin tipo, como antes.
+            $kind = $this->choice($item['tipo'] ?? '', self::LOCATION_KINDS, $section->id, 'tipo');
+            if ($kind !== null) {
+                $def = self::LOCATION_KINDS[Normalizer::key($item['tipo'])];
+                $place['kind'] = $kind;
+                $place['icon'] = $def['icon'];
+                if ($place['label'] === '') {
+                    $place['label'] = $def['label'];
+                }
+            }
+            // Agregar al calendario: el día del evento a la hora de este punto.
+            if ($time !== null && $time !== '' && Normalizer::yes($section->fields['calendario'] ?? '') && $this->startsAt !== null) {
+                [$h, $m] = array_map('intval', explode(':', $time));
+                $place['starts_at'] = $this->startsAt->setTime($h, $m)->toIso8601String();
+            }
+            $out[] = $place;
         }
 
         return $out;
@@ -671,7 +931,7 @@ final class InvitationConfigBuilder
      * recortarlas) y les aparta el lugar antes de que carguen.
      *
      * @param  array<string, string>  $media
-     * @return list<array{photo: string, caption: string, width?: int, height?: int}>
+     * @return list<array{photo: string, caption: string, width?: int, height?: int, thumb?: string, thumb_width?: int}>
      */
     private function gallery(DesignSection $section, array $media): array
     {
@@ -689,6 +949,13 @@ final class InvitationConfigBuilder
             if ($size !== false && $size[0] > 0 && $size[1] > 0) {
                 $entry['width'] = (int) $size[0];
                 $entry['height'] = (int) $size[1];
+            }
+            // La miniatura (480 px) solo se ofrece si existe; sin ella la foto se ve como siempre.
+            $thumb = $path === null ? null : dirname($path).'/'.ImageOptimizer::thumbName($file);
+            $thumbSize = $thumb !== null && is_file($thumb) ? @getimagesize($thumb) : false;
+            if ($thumbSize !== false && isset($entry['width'])) {
+                $entry['thumb'] = preg_replace('#[^/]+$#', ImageOptimizer::thumbName($file), $photo);
+                $entry['thumb_width'] = (int) $thumbSize[0];
             }
             $out[] = $entry;
         }

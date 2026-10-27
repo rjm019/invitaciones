@@ -26,6 +26,9 @@ final class MediaLibrary
 
     public const MAX_AUDIO_BYTES = 20 * 1024 * 1024;
 
+    /** Un MP4 (H.264) sube tal cual: no se re-codifica. Lo sirve Apache con `Range`. */
+    public const MAX_VIDEO_BYTES = 40 * 1024 * 1024;
+
     private const IMAGES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
     private const AUDIO = ['audio/mpeg' => 'mp3', 'audio/mp3' => 'mp3', 'audio/mp4' => 'm4a', 'audio/x-m4a' => 'm4a', 'video/mp4' => 'm4a'];
@@ -49,7 +52,7 @@ final class MediaLibrary
         $files = [];
         $total = 0;
         foreach (scandir($dir) ?: [] as $name) {
-            if (! EventRepository::isMediaName($name) || ! is_file("{$dir}/{$name}")) {
+            if (! EventRepository::isMediaName($name) || ImageOptimizer::isThumbName($name) || ! is_file("{$dir}/{$name}")) {
                 continue;
             }
             $files[] = $this->describe($slug, $name, $usage[$name] ?? []);
@@ -61,7 +64,7 @@ final class MediaLibrary
     }
 
     /**
-     * @param  string  $purpose  fondo, foto o adorno (para el ancho máximo); audio sube tal cual
+     * @param  string  $purpose  fondo, foto o adorno (para el ancho máximo); video: un MP4 tal cual; el audio sube tal cual
      * @return array<string, mixed> el archivo ya guardado
      *
      * @throws RuntimeException con el motivo en español
@@ -76,7 +79,18 @@ final class MediaLibrary
         $mime = (string) (new \finfo(FILEINFO_MIME_TYPE))->file($path);
         $base = $this->baseName($file->getClientOriginalName());
 
-        if (in_array($mime, self::IMAGES, true)) {
+        if ($purpose === 'video') {
+            // Con el propósito "video" solo entra un MP4 (el finfo de un M4A también dice video/mp4,
+            // por eso sin este propósito sigue siendo audio).
+            if ($mime !== 'video/mp4') {
+                throw new RuntimeException('El video debe ser un archivo MP4 (H.264).');
+            }
+            if ($file->getSize() > self::MAX_VIDEO_BYTES) {
+                throw new RuntimeException('El video pesa más de 40 MB. Comprímelo (MP4 H.264) y vuelve a subirlo.');
+            }
+            $name = $this->freeName($dir, $base, 'mp4');
+            copy($path, "{$dir}/{$name}");
+        } elseif (in_array($mime, self::IMAGES, true)) {
             if ($file->getSize() > self::MAX_IMAGE_BYTES) {
                 throw new RuntimeException('La imagen pesa más de 15 MB.');
             }
@@ -87,6 +101,13 @@ final class MediaLibrary
             } else {
                 $name = $this->freeName($dir, $base, 'webp');
                 $this->optimizer->toWebp($path, "{$dir}/{$name}", self::WIDTH[$purpose] ?? self::WIDTH['foto'], 82, $trim);
+                if ($purpose === 'foto') {
+                    // La miniatura es un extra: si falla, la foto se queda sin ella.
+                    try {
+                        $this->optimizer->makeThumbnail("{$dir}/{$name}", "{$dir}/".ImageOptimizer::thumbName($name));
+                    } catch (Throwable) {
+                    }
+                }
             }
         } elseif (isset(self::AUDIO[$mime])) {
             if ($file->getSize() > self::MAX_AUDIO_BYTES) {
@@ -95,7 +116,7 @@ final class MediaLibrary
             $name = $this->freeName($dir, $base, self::AUDIO[$mime]);
             copy($path, "{$dir}/{$name}");
         } else {
-            throw new RuntimeException('Ese tipo de archivo no se puede usar. Sube una imagen (JPG, PNG, WebP o GIF) o una canción (MP3 o M4A).');
+            throw new RuntimeException('Ese tipo de archivo no se puede usar. Sube una imagen (JPG, PNG, WebP o GIF), una canción (MP3 o M4A) o un video (MP4).');
         }
 
         return $this->describe($slug, $name, []);
@@ -112,6 +133,11 @@ final class MediaLibrary
             throw new MediaInUse($usage);
         }
         unlink($path);
+        // La miniatura se va con su foto.
+        $thumb = dirname($path).'/'.ImageOptimizer::thumbName($name);
+        if (is_file($thumb)) {
+            unlink($thumb);
+        }
     }
 
     /**
@@ -176,7 +202,11 @@ final class MediaLibrary
     private function describe(string $slug, string $name, array $usage): array
     {
         $path = $this->dir($slug).'/media/'.$name;
-        $kind = preg_match('/\.(mp3|m4a|ogg)$/i', $name) ? 'audio' : 'image';
+        $kind = match (true) {
+            (bool) preg_match('/\.mp4$/i', $name) => 'video',
+            (bool) preg_match('/\.(mp3|m4a|ogg)$/i', $name) => 'audio',
+            default => 'image',
+        };
         $size = $kind === 'image' ? @getimagesize($path) : false;
 
         return [

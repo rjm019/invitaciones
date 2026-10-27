@@ -204,6 +204,15 @@ describe('withContent', () => {
     expect(types(withContent(list, event(null), before))).toEqual(['quote'])
   })
 
+  it('la trivia aparece solo si trae preguntas', () => {
+    const list = [
+      section({ type: 'trivia', questions: [{ text: '¿Color?', options: ['Rojo', 'Azul'] }] }),
+      section({ type: 'trivia', questions: [] }),
+      section({ type: 'trivia' }),
+    ]
+    expect(types(withContent(list, event(null), before))).toEqual(['trivia'])
+  })
+
   it('cada galería aparece solo si trae alguna foto', () => {
     const list = [
       section({ type: 'gallery', photos: [{ photo: 'a.webp', caption: '' }] }),

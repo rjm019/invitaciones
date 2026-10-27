@@ -2,12 +2,15 @@
 
 namespace App\Services\Panel;
 
+use App\Services\Csv\CsvFile;
+use App\Services\Design\TriviaQuiz;
 use App\Services\Invitations\DedicationStore;
 use App\Services\Invitations\EventSettings;
 use App\Services\Invitations\InvitationService;
 use App\Services\Invitations\InvitationStore;
 use App\Services\Invitations\ResponseStore;
 use App\Services\Invitations\RsvpException;
+use App\Services\Invitations\TriviaStore;
 use App\Services\Invitations\WhatsAppLink;
 use App\Services\Layout\EventRepository;
 use App\Services\Layout\LayoutException;
@@ -30,6 +33,7 @@ final class PanelService
         private readonly ResponseStore $responses,
         private readonly EventSettings $settings,
         private readonly DedicationStore $dedications,
+        private readonly TriviaStore $trivia,
         private readonly ReminderPlanner $reminders,
     ) {}
 
@@ -75,6 +79,7 @@ final class PanelService
             'summary' => $totals,
             'invitations' => $list,
             'dedications' => $this->dedicationList($slug, $records, $event['timezone']),
+            'trivia' => $this->triviaPanel($slug, $event, $records),
             'max_passes' => InvitationStore::MAX_PASSES,
         ];
     }
@@ -189,6 +194,77 @@ final class PanelService
     }
 
     /**
+     * La trivia del evento: cuántas preguntas tiene, cuándo cierra y el ranking (más
+     * aciertos primero y, en empate, menos segundos). null si el evento no tiene trivia.
+     *
+     * @param  array<string, array{label: string}>  $records
+     * @return array{total: int, closes_at: ?string, ranking: list<array<string, mixed>>}|null
+     */
+    private function triviaPanel(string $slug, array $event, array $records): ?array
+    {
+        $section = $this->events->design($slug)?->first('trivia');
+        $total = count(TriviaQuiz::questions($section));
+        if ($section === null || ! $section->visible() || $total === 0) {
+            return null;
+        }
+        $closes = TriviaQuiz::closesAt($section, $event['timezone']) ?? ($event['starts_at'] ? CarbonImmutable::parse($event['starts_at']) : null);
+
+        $ranking = [];
+        foreach ($this->trivia->all($slug) as $id => $t) {
+            $label = $records[$id]['label'] ?? '';
+            $ranking[] = [
+                'invitation' => (string) $id,
+                'label' => $label !== '' ? $label : null,
+                'name' => $t['name'],
+                'correct' => $t['correct'],
+                'total' => $total,
+                'seconds' => $t['seconds'],
+                'sent_at' => $this->iso($t['sent_at'], $event['timezone']),
+            ];
+        }
+        usort($ranking, fn ($a, $b) => [$b['correct'], $a['seconds'], (string) $a['sent_at']] <=> [$a['correct'], $b['seconds'], (string) $b['sent_at']]);
+        foreach ($ranking as $i => &$row) {
+            $row = ['rank' => $i + 1] + $row;
+        }
+        unset($row);
+
+        return ['total' => $total, 'closes_at' => $closes?->setTimezone($event['timezone'])->toIso8601String(), 'ranking' => $ranking];
+    }
+
+    /**
+     * El ranking de la trivia como CSV para Excel (UTF-8 con BOM, CRLF).
+     *
+     * @throws RsvpException 404 si el evento no tiene trivia
+     */
+    public function triviaCsv(string $slug): string
+    {
+        $event = $this->event($slug);
+        $trivia = $this->triviaPanel($slug, $event, $this->invitations->all($slug))
+            ?? throw new RsvpException('Este evento no tiene trivia.', 404);
+
+        $handle = fopen('php://temp', 'w+b');
+        fwrite($handle, "\xEF\xBB\xBF");
+        $put = fn (array $cells) => fputcsv($handle, $cells, ',', '"', '', "\r\n");
+        $put(['lugar', 'nombre', 'invitacion', 'aciertos', 'total', 'segundos', 'fecha']);
+        foreach ($trivia['ranking'] as $r) {
+            $put(array_map(CsvFile::safe(...), [
+                (string) $r['rank'],
+                $r['name'],
+                $r['label'] ?? '#'.$r['invitation'],
+                (string) $r['correct'],
+                (string) $r['total'],
+                (string) $r['seconds'],
+                $r['sent_at'] ? CarbonImmutable::parse($r['sent_at'])->format('Y-m-d H:i:s') : '',
+            ]));
+        }
+        rewind($handle);
+        $csv = (string) stream_get_contents($handle);
+        fclose($handle);
+
+        return $csv;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function createInvitation(string $slug, int $passes, string $label, ?string $phone = null): array
@@ -295,6 +371,7 @@ final class PanelService
         }
         $this->responses->removeInvitation($slug, $id, $now);
         $this->dedications->removeInvitation($slug, $id, $now);
+        $this->trivia->removeInvitation($slug, $id, $now);
 
         return $this->overview($slug);
     }

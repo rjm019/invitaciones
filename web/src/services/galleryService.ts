@@ -35,6 +35,19 @@ export interface GalleryItem {
   ratio: number
   /** Horizontal: va a todo el ancho. */
   wide: boolean
+  /** `srcset` con la miniatura y la foto; solo si hay miniatura (si no, la foto se ve como siempre). */
+  srcset?: string
+}
+
+/** "miniatura 480w, foto 920w": null si falta la miniatura o alguna medida. */
+export function gallerySrcset(
+  src: string,
+  width: number | undefined,
+  thumb: string | null | undefined,
+  thumbWidth: number | undefined,
+): string | null {
+  if (!thumb || !thumbWidth || !width || thumbWidth >= width) return null
+  return `${thumb} ${thumbWidth}w, ${src} ${width}w`
 }
 
 /**
@@ -51,6 +64,10 @@ export function galleryItems(
     if (!src) return []
     const known = p.width && p.height ? p.width / p.height : null
     const wide = list.length === 1 || (known === null ? i % 3 === 0 : known >= WIDE_RATIO)
-    return [{ src, caption: p.caption, wide, ratio: known ?? (wide ? 4 / 3 : 3 / 4) }]
+    const item: GalleryItem = { src, caption: p.caption, wide, ratio: known ?? (wide ? 4 / 3 : 3 / 4) }
+    const thumb = p.thumb ? resolve(p.thumb) ?? p.thumb : null
+    const srcset = gallerySrcset(src, p.width, thumb, p.thumb_width)
+    if (srcset) item.srcset = srcset
+    return [item]
   })
 }

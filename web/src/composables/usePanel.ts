@@ -113,6 +113,11 @@ export function usePanel(slug: string) {
     overview.value = await withSession((t) => panelService.assignTables(slug, t, assignments))
   }
 
+  /** El ranking de la trivia en CSV, listo para guardarse. */
+  function downloadTrivia(): Promise<Blob> {
+    return withSession((t) => panelService.exportTrivia(slug, t))
+  }
+
   /** Colores y título de la entrada; si no llegan, el panel se ve con sus colores de siempre. */
   async function loadBrand(): Promise<void> {
     if (brand.value) return
@@ -158,5 +163,6 @@ export function usePanel(slug: string) {
     assignTables,
     changePhone,
     changeReminders,
+    downloadTrivia,
   }
 }

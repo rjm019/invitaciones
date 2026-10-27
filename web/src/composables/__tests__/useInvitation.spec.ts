@@ -2,11 +2,18 @@ import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 
-const { sendRsvp, sendDedication } = vi.hoisted(() => ({
+const { sendRsvp, sendDedication, startTrivia, sendTrivia } = vi.hoisted(() => ({
   sendRsvp: vi.fn(),
   sendDedication: vi.fn(),
+  startTrivia: vi.fn(),
+  sendTrivia: vi.fn(),
 }))
-vi.mock('@/services/invitationService', () => ({ sendRsvp, sendDedication }))
+vi.mock('@/services/invitationService', () => ({
+  sendRsvp,
+  sendDedication,
+  startTrivia,
+  sendTrivia,
+}))
 
 import {
   createInvitationContext,
@@ -31,6 +38,23 @@ describe('useInvitation', () => {
 
     expect(sendRsvp).toHaveBeenCalledWith('Abc123Def456', payload)
     expect(ctx.invitation.value).toEqual({ status: 'confirmed' })
+    expect(ctx.sending.value).toBe(false)
+  })
+
+  it('la trivia abre en el servidor, devuelve el resultado y actualiza la invitación', async () => {
+    const result = { name: 'Ana', correct: 7, total: 10, seconds: 30 }
+    const invitation = { trivia: { open: false, closed_message: null, result } }
+    startTrivia.mockResolvedValue(undefined)
+    sendTrivia.mockResolvedValue({ result, invitation })
+    const ctx = createInvitationContext('Abc123Def456')
+
+    await ctx.startTrivia()
+    const got = await ctx.answerTrivia({ name: 'Ana', answers: [1, 2] })
+
+    expect(startTrivia).toHaveBeenCalledWith('Abc123Def456')
+    expect(sendTrivia).toHaveBeenCalledWith('Abc123Def456', { name: 'Ana', answers: [1, 2] })
+    expect(got).toEqual(result)
+    expect(ctx.invitation.value).toEqual(invitation)
     expect(ctx.sending.value).toBe(false)
   })
 

@@ -7,11 +7,11 @@
 
 ## Avance
 
-- [ ] 1. Ubicación (ceremonia, recepción o ambas) · Itinerario en vivo · ~~Mesa de regalos y lluvia de sobres~~ (hecha el 16-oct, ver §2)
-- [ ] 2. Galería: hecha el 21-oct sin miniaturas (`galeria`, visor, `marcos`); faltan `<nombre>-480.webp` y `srcset`
+- [x] 1. Ubicación (ceremonia, recepción o ambas; 27-oct, sin publicar) · Itinerario en vivo (27-oct, sin publicar) · ~~Mesa de regalos y lluvia de sobres~~ (hecha el 16-oct, ver §2)
+- [x] 2. Galería: `galeria`, visor, `marcos` (21-oct) y miniaturas `<nombre>-480.webp` con `srcset` (27-oct)
 - [x] 2b. Lluvia de sobres como sección propia (`lluvia_sobres`, 21-oct)
 - [ ] 3. Video · Publicación de redes
-- [ ] 4. Trivia
+- [x] 4. Trivia (27-oct; sin publicar)
 - [ ] 5. Álbum de los invitados (ciclo de 5 a 20 días)
 
 ## Contexto
@@ -89,7 +89,7 @@ El usuario además eligió dos ideas nuevas: **Trivia de la festejada** e **Itin
   - el foco queda atrapado mientras está abierto y se devuelve al cerrar;
   - solo anima `transform` y `opacity`, y respeta `prefers-reduced-motion`.
 - El álbum (§6) también lo usa.
-- **Miniaturas:** `MediaLibrary` genera además `<nombre>-480.webp` al subir y la sección usa `srcset` (480/920). Para las fotos que ya existen, `media:optimizar` las genera.
+- **Miniaturas:** `MediaLibrary` genera además `<nombre>-480.webp` al subir y la sección usa `srcset` (480/920). Una foto de 480 px o menos no la lleva; la miniatura se va con su foto y no sale en la biblioteca. Para las fotos que ya existen, `php artisan media:miniaturas [slug] [--probar]` las genera (idempotente; sin slug recorre todos los eventos; `media:optimizar` sigue siendo el de `originales/`). La config trae `thumb` y `thumb_width` solo si la miniatura existe; la web arma `srcset` y el visor sigue cargando la original.
 
 ## 4. Video (`video`, tipo `video`)
 

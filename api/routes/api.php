@@ -17,6 +17,7 @@ use App\Http\Controllers\Public\EventController;
 use App\Http\Controllers\Public\InvitationController;
 use App\Http\Controllers\Public\QuoteController;
 use App\Http\Controllers\Public\RsvpController;
+use App\Http\Controllers\Public\TriviaController;
 use App\Http\Controllers\Public\VisitController;
 use App\Http\Controllers\Public\WeatherController;
 use App\Http\Controllers\Webhooks\WhatsAppController;
@@ -33,6 +34,9 @@ Route::prefix('public')->group(function () {
     Route::post('/invitations/{token}/rsvp', [RsvpController::class, 'store'])->middleware('throttle:rsvp');
     // Una dedicatoria por enlace.
     Route::post('/invitations/{token}/dedication', [DedicationController::class, 'store'])->middleware('throttle:dedication');
+    // Trivia: abrirla marca el inicio; responder la califica (una vez por enlace).
+    Route::post('/invitations/{token}/trivia/start', [TriviaController::class, 'start'])->middleware('throttle:trivia');
+    Route::post('/invitations/{token}/trivia', [TriviaController::class, 'store'])->middleware('throttle:trivia');
 
     // Cotizaciones de la landing.
     Route::post('/quotes', [QuoteController::class, 'store'])->middleware('throttle:quote');
@@ -50,6 +54,7 @@ Route::prefix('admin/events/{slug}')->where(['slug' => '[a-z0-9-]+'])->group(fun
     Route::middleware(['panel', 'throttle:120,1'])->group(function () {
         Route::get('/', [PanelController::class, 'show']);
         Route::get('/version', [PanelController::class, 'version']);
+        Route::get('/trivia.csv', [PanelController::class, 'triviaCsv']);
         Route::put('/tables', [PanelController::class, 'updateTables']);
         Route::post('/invitations', [PanelController::class, 'storeInvitation']);
         Route::delete('/invitations/{id}', [PanelController::class, 'destroyInvitation'])->where('id', '[0-9]+');

@@ -36,7 +36,15 @@ const opened = ref<number | null>(null)
         :aria-label="photo.caption || `Ver foto ${i + 1}`"
         @click="opened = i"
       >
-        <img :src="photo.src" :alt="photo.caption" class="gallery__img" loading="lazy" decoding="async" />
+        <img
+          :src="photo.src"
+          :srcset="photo.srcset"
+          :sizes="photo.srcset ? '(min-width: 34rem) 9rem, 33vw' : undefined"
+          :alt="photo.caption"
+          class="gallery__img"
+          loading="lazy"
+          decoding="async"
+        />
       </button>
     </div>
     <PhotoViewer v-model:index="opened" :photos="photos" @close="opened = null" />

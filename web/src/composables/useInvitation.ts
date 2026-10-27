@@ -1,7 +1,13 @@
 import { inject, provide, ref, type InjectionKey, type Ref } from 'vue'
-import { sendDedication, sendRsvp } from '@/services/invitationService'
+import { sendDedication, sendRsvp, sendTrivia, startTrivia } from '@/services/invitationService'
 import { previewRespond } from '@/services/previewService'
-import type { DedicationPayload, Invitation, RsvpPayload } from '@/types/invitation'
+import type {
+  DedicationPayload,
+  Invitation,
+  RsvpPayload,
+  TriviaPayload,
+  TriviaResult,
+} from '@/types/invitation'
 
 export interface InvitationContext {
   token: string
@@ -12,6 +18,10 @@ export interface InvitationContext {
   submit: (payload: RsvpPayload) => Promise<Invitation>
   /** Deja la dedicatoria del enlace; si la API la rechaza, lanza ApiError. */
   dedicate: (payload: DedicationPayload) => Promise<Invitation>
+  /** Abre la trivia (el servidor anota el inicio); si la API la rechaza, lanza ApiError. */
+  startTrivia: () => Promise<void>
+  /** Envía las respuestas y devuelve el resultado; si la API las rechaza, lanza ApiError. */
+  answerTrivia: (payload: TriviaPayload) => Promise<TriviaResult>
 }
 
 const KEY: InjectionKey<InvitationContext> = Symbol('invitation')
@@ -37,6 +47,17 @@ export function createInvitationContext(token: string): InvitationContext {
     sending,
     submit: (payload) => send(sendRsvp(token, payload)),
     dedicate: (payload) => send(sendDedication(token, payload)),
+    startTrivia: () => startTrivia(token),
+    async answerTrivia(payload) {
+      sending.value = true
+      try {
+        const { result, invitation: updated } = await sendTrivia(token, payload)
+        invitation.value = updated
+        return result
+      } finally {
+        sending.value = false
+      }
+    },
   }
 }
 
@@ -79,6 +100,17 @@ export function createPreviewInvitationContext(start: Invitation): InvitationCon
         dedication: { ...payload, sent_at: new Date().toISOString() },
       }
       return invitation.value
+    },
+    async startTrivia() {},
+    async answerTrivia(payload) {
+      // Sin respuestas correctas en el navegador: la vista previa solo muestra cómo se ve el resultado.
+      const total = payload.answers.length
+      const result = { name: payload.name, correct: total, total, seconds: 0 }
+      invitation.value = {
+        ...(invitation.value ?? start),
+        trivia: { open: false, closed_message: null, result },
+      }
+      return result
     },
   }
 }

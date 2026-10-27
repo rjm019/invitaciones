@@ -19,6 +19,7 @@ final class InvitationService
         private readonly InvitationStore $invitations,
         private readonly ResponseStore $responses,
         private readonly DedicationStore $dedications,
+        private readonly TriviaService $trivia,
     ) {}
 
     /** null si el token no existe o el evento no está publicado. */
@@ -114,6 +115,33 @@ final class InvitationService
         return $this->present($invitation);
     }
 
+    /** Abre la trivia del enlace (marca el inicio en el servidor). */
+    public function startTrivia(Invitation $invitation): array
+    {
+        return $this->trivia->start($invitation);
+    }
+
+    /**
+     * Califica y guarda la trivia del enlace (una por invitación).
+     *
+     * @param  list<int>  $answers
+     * @return array<string, mixed> el resultado (aciertos y total) y la invitación
+     *
+     * @throws RsvpException 409 si ya respondió o ya cerró · 422 si falta el nombre o una respuesta
+     */
+    public function answerTrivia(Invitation $invitation, string $name, array $answers): array
+    {
+        $result = $this->trivia->submit($invitation, $name, $answers);
+        $present = $this->present($invitation);
+        if (self::isDemo($invitation) && $present['trivia'] !== null) {
+            // Una muestra no guarda: el resultado se ve igual, pero cada visita empieza de cero.
+            $present['trivia']['result'] = $result;
+            $present['trivia']['open'] = false;
+        }
+
+        return ['result' => $result, 'invitation' => $present];
+    }
+
     /** Anota la apertura. Nunca debe tumbar la invitación: si falla, solo se reporta. */
     public function recordOpen(Invitation $invitation): void
     {
@@ -157,6 +185,7 @@ final class InvitationService
                 'message' => $dedication['message'],
                 'sent_at' => CarbonImmutable::parse($dedication['sent_at'], $timezone)->toIso8601String(),
             ],
+            'trivia' => $this->trivia->present($invitation),
         ];
     }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { galleryItems, stepIndex, swipeAction } from '../galleryService'
+import { galleryItems, gallerySrcset, stepIndex, swipeAction } from '../galleryService'
 
 describe('stepIndex', () => {
   it('avanza y retrocede', () => {
@@ -65,5 +65,31 @@ describe('galleryItems', () => {
   it('se salta las fotos que no existen', () => {
     expect(galleryItems([{ photo: 'falta.webp', caption: '' }], resolve)).toEqual([])
     expect(galleryItems(undefined, resolve)).toEqual([])
+  })
+})
+
+describe('gallerySrcset', () => {
+  it('une la miniatura y la foto con sus anchos reales', () => {
+    expect(gallerySrcset('/f.webp', 920, '/f-480.webp', 480)).toBe('/f-480.webp 480w, /f.webp 920w')
+  })
+
+  it('sin miniatura o sin medidas no hay srcset', () => {
+    expect(gallerySrcset('/f.webp', 920, undefined, undefined)).toBeNull()
+    expect(gallerySrcset('/f.webp', undefined, '/f-480.webp', 480)).toBeNull()
+    expect(gallerySrcset('/f.webp', 400, '/f-480.webp', 480)).toBeNull()
+  })
+
+  it('galleryItems solo agrega srcset si hay miniatura', () => {
+    const resolve = (f: string) => `/m/${f}`
+    const [plain, thumbed] = galleryItems(
+      [
+        { photo: 'a.webp', caption: '', width: 900, height: 600 },
+        { photo: 'b.webp', caption: '', width: 900, height: 600, thumb: 'b-480.webp', thumb_width: 480 },
+      ],
+      resolve,
+    )
+    expect(plain).not.toHaveProperty('srcset')
+    expect(thumbed.srcset).toBe('/m/b-480.webp 480w, /m/b.webp 900w')
+    expect(thumbed.src).toBe('/m/b.webp')
   })
 })

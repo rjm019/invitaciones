@@ -73,7 +73,7 @@ const WEATHER_AFTER_MS = 24 * 60 * 60 * 1000
 
 /**
  * Quita las secciones que no tendrían nada que mostrar: la playlist sin un enlace de
- * Spotify válido, el hospedaje sin hoteles, la mesa de regalos sin tiendas ni sobres, la galería sin fotos y el
+ * Spotify válido, el hospedaje sin hoteles, la mesa de regalos sin tiendas ni sobres, la galería sin fotos, la trivia sin preguntas y el
  * clima cuando el evento ya pasó. Así no queda un hueco en la página.
  */
 export function withContent<T extends SectionConfig>(
@@ -87,6 +87,7 @@ export function withContent<T extends SectionConfig>(
     if (s.type === 'gifts') return hasGifts(event.gifts)
     if (s.type === 'envelope-rain') return !!event.envelope
     if (s.type === 'gallery') return (s.photos?.length ?? 0) > 0
+    if (s.type === 'trivia') return (s.questions?.length ?? 0) > 0
     if (s.type === 'weather') {
       const start = event.starts_at ? Date.parse(event.starts_at) : NaN
       return Number.isFinite(start) && now < start + WEATHER_AFTER_MS

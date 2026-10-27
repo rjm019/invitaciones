@@ -7,6 +7,7 @@ use App\Services\Design\DesignFile;
 use App\Services\Design\InvitationConfigBuilder;
 use App\Services\Design\Normalizer;
 use App\Services\Invitations\EventSettings;
+use App\Services\Media\ImageOptimizer;
 use RuntimeException;
 
 /**
@@ -22,7 +23,7 @@ final class EventRepository
 {
     private const SLUG = '/^[a-z0-9][a-z0-9-]{1,59}$/';
 
-    private const MEDIA_FILE = '/^[A-Za-z0-9][A-Za-z0-9._-]*\.(webp|png|jpe?g|svg|gif|avif|mp3|m4a|ogg)$/i';
+    private const MEDIA_FILE = '/^[A-Za-z0-9][A-Za-z0-9._-]*\.(webp|png|jpe?g|svg|gif|avif|mp3|m4a|ogg|mp4)$/i';
 
     /** @var array<string, array<string, list<array<string, string>>>> pestañas ya leídas en esta petición */
     private array $sheets = [];
@@ -256,7 +257,7 @@ final class EventRepository
         $out = [];
         $base = url("/media/{$slug}");
         foreach (scandir($dir.'/media') ?: [] as $file) {
-            if (preg_match(self::MEDIA_FILE, $file) && is_file($dir.'/media/'.$file)) {
+            if (preg_match(self::MEDIA_FILE, $file) && ! ImageOptimizer::isThumbName($file) && is_file($dir.'/media/'.$file)) {
                 $out[$file] = "{$base}/{$file}";
             }
         }

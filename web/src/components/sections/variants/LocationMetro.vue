@@ -4,6 +4,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import TypewriterText from '@/components/ui/TypewriterText.vue'
 import { useEvent } from '@/composables/useEvent'
 import { hourMinute, time12h } from '@/services/dateFormatService'
+import { placeCalendarUrl } from '@/services/locationService'
 import type { ResolvedSection } from '@/types/event'
 
 /**
@@ -21,12 +22,16 @@ const startTime = computed(() =>
   event.value.starts_at ? time12h(hourMinute(event.value.starts_at, event.value.timezone)) : null,
 )
 
+// Los lugares de esta sección (si es otra ubicación, los suyos) o, si no, los del evento.
+const sourcePlaces = computed(() => props.section.places ?? event.value.locations)
+
 const places = computed(() =>
-  event.value.locations.length
-    ? event.value.locations.map((l) => ({
+  sourcePlaces.value.length
+    ? sourcePlaces.value.map((l) => ({
         ...l,
         city: '',
         time: l.time ? time12h(l.time) : null,
+        calendarUrl: props.section.calendar ? placeCalendarUrl(l, event.value.title) : null,
       }))
     : [
         {
@@ -37,6 +42,8 @@ const places = computed(() =>
           address: event.value.venue.address,
           maps_url: event.value.venue.maps_url,
           photo: event.value.venue.photo,
+          icon: undefined as string | undefined,
+          calendarUrl: null as string | null,
         },
       ],
 )
@@ -45,7 +52,7 @@ const bullet = (time: string) => time.replace(':00', '').toUpperCase()
 </script>
 
 <template>
-  <div class="ny-metro">
+  <div class="ny-metro" :class="{ 'ny-metro--side': section.layout === 'side' }">
     <h2 class="ny-metro__title" data-text="title">
       <TypewriterText
         :text="title"
@@ -62,7 +69,7 @@ const bullet = (time: string) => time.replace(':00', '').toUpperCase()
           <span v-if="place.time" class="ny-metro__bullet ny-metro__bullet--time">{{
             bullet(place.time)
           }}</span>
-          <span class="ny-metro__bullet"><AppIcon name="location-dot" /></span>
+          <span class="ny-metro__bullet"><AppIcon :name="place.icon ?? 'location-dot'" /></span>
           <p v-if="place.city || place.address" class="ny-metro__detail" data-text="detail">
             <span v-if="place.city">{{ place.city }}</span>
             <span v-if="place.address">{{ place.address }}</span>
@@ -80,6 +87,18 @@ const bullet = (time: string) => time.replace(':00', '').toUpperCase()
         :aria-label="`${button}: ${place.name}`"
       >
         <AppIcon name="location-dot" /> {{ button }}
+      </a>
+
+      <a
+        v-if="place.calendarUrl"
+        :href="place.calendarUrl"
+        class="ny-metro__button inv-btn"
+        data-text="button"
+        target="_blank"
+        rel="noopener"
+        :aria-label="`Agregar al calendario: ${place.name}`"
+      >
+        <AppIcon name="calendar-plus" /> Agregar al calendario
       </a>
 
       <div v-if="place.photo" class="ny-metro__mount">
@@ -107,6 +126,15 @@ const bullet = (time: string) => time.replace(':00', '').toUpperCase()
   gap: var(--space-2);
   max-width: 28rem;
   margin: 0 auto;
+}
+/* Lado a lado: columnas que se apilan solas cuando no caben (celular). */
+.ny-metro--side {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  align-items: start;
+  max-width: 56rem;
+}
+.ny-metro--side .ny-metro__title {
+  grid-column: 1 / -1;
 }
 .ny-metro__title {
   margin: 0;

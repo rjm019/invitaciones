@@ -70,6 +70,38 @@ class MediaTest extends TestCase
         $this->assertSame('audio', $file['kind']);
     }
 
+    private function mp4(string $name = 'Baile Final.mp4', int $extraBytes = 2048): UploadedFile
+    {
+        $path = tempnam(sys_get_temp_dir(), 'mp4');
+        file_put_contents($path, "\x00\x00\x00\x18ftypmp42\x00\x00\x00\x00mp42isom".str_repeat("\x00", $extraBytes));
+
+        return new UploadedFile($path, $name, 'video/mp4', null, true);
+    }
+
+    public function test_a_video_is_kept_as_it_is_only_with_the_video_purpose(): void
+    {
+        $file = $this->upload($this->mp4(), ['purpose' => 'video'])->assertCreated()->json('file');
+
+        $this->assertMatchesRegularExpression('/^baile-final-[0-9a-f]{4}\.mp4$/', $file['name']);
+        $this->assertSame('video', $file['kind']);
+        $this->assertNull($file['width']);
+        $this->assertSame(filesize($this->mp4()->getRealPath()), $file['bytes']);
+        $this->get("/media/nueva/{$file['name']}")->assertOk()->assertHeader('X-Content-Type-Options', 'nosniff');
+        // El mismo MP4 sin el propósito sigue siendo audio (así llega un M4A).
+        $this->assertSame('audio', $this->upload($this->mp4())->assertCreated()->json('file.kind'));
+        // Con el propósito "video", ni una imagen ni una canción entran.
+        $this->upload($this->png(100, 100), ['purpose' => 'video'])->assertStatus(422)->assertJsonPath('message', 'El video debe ser un archivo MP4 (H.264).');
+    }
+
+    public function test_a_video_over_40_mb_is_rejected(): void
+    {
+        $this->upload($this->mp4('grande.mp4', 41 * 1024 * 1024), ['purpose' => 'video'])
+            ->assertStatus(422)
+            ->assertJsonPath('message', 'El archivo pesa más de 40 MB.');
+        $this->upload($this->mp4('justo.mp4', 39 * 1024 * 1024), ['purpose' => 'video'])->assertCreated();
+        $this->assertSame(['salon.webp'], array_values(array_filter(array_diff(scandir("{$this->eventos}/nueva/media"), ['.', '..']), fn ($f) => ! str_starts_with($f, 'justo'))));
+    }
+
     public function test_svg_html_and_disguised_files_are_rejected(): void
     {
         foreach ([
@@ -81,7 +113,7 @@ class MediaTest extends TestCase
             file_put_contents($path, $content);
             $this->upload(new UploadedFile($path, $name, null, null, true))
                 ->assertStatus(422)
-                ->assertJsonPath('message', 'Ese tipo de archivo no se puede usar. Sube una imagen (JPG, PNG, WebP o GIF) o una canción (MP3 o M4A).');
+                ->assertJsonPath('message', 'Ese tipo de archivo no se puede usar. Sube una imagen (JPG, PNG, WebP o GIF), una canción (MP3 o M4A) o un video (MP4).');
         }
         $this->assertSame(['salon.webp'], array_values(array_diff(scandir("{$this->eventos}/nueva/media"), ['.', '..'])));
     }

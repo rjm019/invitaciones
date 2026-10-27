@@ -18,6 +18,9 @@ eventos/<slug>/
 ├── respuestas-historial.csv cada envío, en orden (solo crece)
 ├── aperturas.csv            cada vez que se abre un enlace (solo crece)
 ├── dedicatorias.csv         una dedicatoria por enlace: invitacion, para, nombre, dedicatoria, fecha
+├── trivia.csv               una participación por enlace: invitacion, para, nombre, respuestas (números de opción separados por ;), aciertos, segundos, fecha
+├── trivia-inicios.csv       cuándo abrió cada enlace la trivia: invitacion, inicio (la primera vez gana; de ahí salen los segundos)
+├── trivia-eliminadas.csv    participaciones de invitaciones eliminadas
 ├── respuestas-eliminadas.csv   personas de invitaciones eliminadas: eliminada + columnas de respuestas
 ├── dedicatorias-eliminadas.csv dedicatorias de invitaciones eliminadas: eliminada + columnas de dedicatorias
 ├── ajustes.csv              clave_panel, publicado, plantilla, demo (muestra: no guarda nada), personas_gestor y la fecha límite del cliente
@@ -121,6 +124,8 @@ erDiagram
 | Cada apertura se registra en `aperturas.csv` | `InvitationController` |
 | Dedicatoria: **una por enlace** (la segunda → `409`, revisado dentro del `flock`); nombre ≤ 80 y mensaje ≤ 600; no depende de la fecha límite | `DedicationController` + `InvitationService::dedicate` + `DedicationStore::add` |
 | Throttle de dedicatorias: 5/min por IP y token | `AppServiceProvider` |
+| Trivia: **una participación por enlace** (la segunda → `409`, revisado dentro del `flock`); `409` también si ya cerró (`cierra` o el inicio del evento); los segundos y la calificación salen del servidor; `correcta` nunca va en el `config` público ni en `/e/`; una muestra califica y no escribe | `TriviaController` + `TriviaService` + `TriviaStore` + `TriviaQuiz` |
+| Throttle de la trivia: 10/min por IP y token | `AppServiceProvider` |
 | Gestor: sin `GESTOR_CLAVE` de 16+ caracteres → `403`; cada persona con su usuario y su clave (10+ caracteres, hash bcrypt); la clave maestra solo crea la primera cuenta; login 5/min por IP; el resto 240/min | `ManagerAuth` + `EnsureManagerSession` + `routes/api.php` |
 | Quién ve qué: quien edita solo ve las invitaciones que creó o le asignaron (`ajustes.csv` → `personas_gestor`: "ana, beto") y todas las plantillas; quien administra ve todas y es quien asigna. En otra invitación todo responde `403` | `ManagerAccess` + `EnsureManagerEventAccess` + `ManagerEvents::list` |
 | Cuentas: solo quien administra agrega, cambia o quita el acceso; nadie se quita el acceso ni el rol a sí mismo y siempre queda alguien activo que administra; nadie se borra (el historial guarda su nombre); una clave temporal se cambia al entrar | `ManagerUsers` + `UserController` + `EnsureManagerAdmin` |
