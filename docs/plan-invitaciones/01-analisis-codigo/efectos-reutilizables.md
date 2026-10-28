@@ -228,8 +228,8 @@ Todo global; el tema solo lo pide en su manifest. Componentes en `components/sec
 
 | Sección | Variante | Pieza |
 |---|---|---|
-| portada | `sobre-lacre` | `HeroSealedEnvelope.vue`: escenario de 100 × 165 en %; posiciones de base = la papelería abierta, cerrado y abriendo son transforms. Profundidad con `preserve-3d` + `translateZ` (la solapa pasa detrás de la tarjeta al girar; la tarjeta pasa al frente con `translateZ` a media subida). Damasco en relieve: el mismo dibujo como máscara tres veces (sombra, luz y cara), sin filtros. Todo lo de la tarjeta en `cqi` de la tarjeta |
-| música | `lacre` | `MusicSeal.vue` (el reproductor de Spotify queda presente pero invisible) |
+| portada | `sobre-lacre` | `HeroSealedEnvelope.vue`: sobre apaisado (k·W × 0.66·k·W; k = 1 en celular y 1.3 en pantallas anchas, por container query) sobre un escenario del tamaño de la tarjeta (W × 1.4 W). Fases `closed → opening → presenting → open`. **Sin 3D compartido** (así nada queda flotando): la solapa son dos piezas planas con su propia `perspective()`: la de afuera gira 0→90° (de canto) y la de adentro, parada detrás de la tarjeta, −90→0°. La tarjeta viaja a escala 0.39·k dentro del sobre, sube detrás de la bolsa y, en `presenting`, pasa al frente (orden del DOM + `z-index` por clase, no animado) y crece mientras el sobre baja y se desvanece; en `open` el sobre ya no está en el DOM y la tarjeta se acomoda con un FLIP (`--lh-settle`, solo transform). Candado de scroll estricto mientras abre. Damasco en relieve: el mismo dibujo como máscara tres veces (sombra, luz y cara). Todo lo de la tarjeta en `cqi` de la tarjeta |
+| música | `lacre` | `MusicSeal.vue`: el lacre es el botón (`WaxSeal icon="play"\|"pause"`: el signo hundido como el monograma); sonando, el lacre late (`ms-beat`, scale) y un anillo de puntos gira; en pausa, brillo de pan de oro. El reproductor de Spotify queda presente pero invisible |
 | bendición | `editorial` | `BlessingEditorial.vue` (lee `useEvent().sections` para no repetir a los papás) |
 | historia | `editorial` | `StoryEditorial.vue` |
 | fecha | `editorial` | `SaveTheDateEditorial.vue` (pieza interna `paper-notched` con `data-fillet`; la sombra va en el contenedor porque la máscara la recortaría) |
@@ -253,3 +253,17 @@ Todo global; el tema solo lo pide en su manifest. Componentes en `components/sec
 
 Con "menos movimiento": el título ya firme, sin luz y sin entrada. CSS en `effects/paper.css`. Adornos nuevos compartidos: `iglesia`, `filigrana`, `damasco`, `piedra`, `camara`. Botón `fino` en `effects/buttons.css`. Ayudas puras en `services/stationeryService.ts` (nombres de la pareja, papás y padrinos, fecha impresa, romanos).
 
+### Efectos de texto (`FxText`) y piezas del lacre
+
+`components/ui/FxText.vue` va dentro de un título (hereda su letra) y pinta el efecto de texto de la sección (`services/textEffectService.ts` elige uno: `textEffect(effects, allow?)`; CSS en `effects/text.css`). El texto real siempre está: los efectos por letra llevan el texto completo en `.fxt__read` (solo lector de pantalla) y las letras `aria-hidden`; con "menos movimiento" FxText ni parte el texto. Arranca con la sección (`.fx-reveal-target.is-visible`, `SectionShell` los cuenta como `REVEALS_QUIET`) o con `active` (`data-play="wait|go"`, la portada). Solo transform y opacity, con `--motion-scale` (los retrasos por letra son `calc(var(--i) * var(--fxt-step) * var(--motion-scale))`; sin `steps()`, que con tiempos cortos deja letras en su primer cuadro).
+
+| CSV (`efectos`) | Id | Técnica |
+|---|---|---|
+| `maquina_escribir` | `typewriter-title` | opacity escalonada por letra; el cursor es el `::after` de cada letra, visible solo mientras es la última escrita (parpadea al final) |
+| `sello_estampado` | `stamp` | cada letra cae grande y girada y rebota a su lugar |
+| `tinta_seca` | `ink-dry` | la letra aparece con una copia encima en el acento (`::before` con `attr(data-c)`) que se desvanece |
+| `caligrafia` | `calligraphy` | ventana que avanza (`translateX(-101% → 0)`) con su contenido retrocediendo lo mismo: el texto se descubre de izquierda a derecha sin animar máscaras ni `clip-path` |
+| `pan_de_oro` | `gold-leaf` | la misma técnica con una banda (35 % del ancho, orillas suaves por máscara fija) que cruza el texto con su copia en oro claro; en `WaxSeal`, una banda recortada a la orilla del lacre (`shine` o `.fx-gold-leaf`) |
+| `letterpress` | `letterpress` | el título baja apenas y se asienta (scale + translate); solo CSS sobre `[data-text='title']`, sirve en cualquier sección |
+
+Otras piezas: `WaxSeal` con `icon` (play/pausa hundidos) y `shine`; `useScrollLock(locked, { strict: true })` (además del overflow, impide `touchmove` y las teclas de desplazamiento; los candados se cuentan, así un visor cerrado no suelta el del sobre); el mini-reproductor como lacre borgoña en `themes/lacre/theme.css`; `capa` con velo cálido y letra marfil en el tema.
