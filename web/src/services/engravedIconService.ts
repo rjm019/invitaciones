@@ -7,7 +7,18 @@
  */
 
 export type EngravedIconKey =
-  'copa' | 'anillos' | 'plato' | 'pastel' | 'musica' | 'iglesia' | 'camara' | 'corazon' | 'flor'
+  | 'copa'
+  | 'anillos'
+  | 'plato'
+  | 'pastel'
+  | 'musica'
+  | 'iglesia'
+  | 'camara'
+  | 'corazon'
+  | 'flor'
+  | 'pareja'
+  | 'luna'
+  | 'auto'
 
 export const ENGRAVED_ICONS: Record<EngravedIconKey, string> = {
   copa:
@@ -40,6 +51,20 @@ export const ENGRAVED_ICONS: Record<EngravedIconKey, string> = {
   flor:
     '<g transform="translate(24 19)"><ellipse rx="4" ry="8" cy="-6"/><ellipse rx="4" ry="8" cy="-6" transform="rotate(72)"/><ellipse rx="4" ry="8" cy="-6" transform="rotate(144)"/><ellipse rx="4" ry="8" cy="-6" transform="rotate(216)"/><ellipse rx="4" ry="8" cy="-6" transform="rotate(288)"/><circle r="2.500"/></g>' +
     '<path d="M24 28v15"/><path d="M24 38c-6-1-9-4-10-8c6 0 9 3 10 8Z"/>',
+  // Los de momentDrawing (itinerario `sello`): la pareja que baila, la luna con fuegos y el auto.
+  pareja:
+    '<circle cx="18" cy="9" r="3.4"/><circle cx="30" cy="8" r="3.4"/>' +
+    '<path d="M30 12v14M30 26l-3.500 15M30 26l3.500 15"/><path d="M30 15l-6 5"/>' +
+    '<path d="M18 13l-1 9"/><path d="M17 22c-4 6-7 12-8 19h17c-2-6-5-12-9-19Z"/>' +
+    '<path d="M18 15l6 5M18 15.500l-5-5.500"/><path d="M6 12q-2 3 0 6M42 13q2 3 0 6" stroke-width="0.9"/>',
+  luna:
+    '<path d="M30 5A17 17 0 1 0 43 31A13 13 0 1 1 30 5Z"/>' +
+    '<path d="M11 8l1 3 3 1-3 1-1 3-1-3-3-1 3-1Z" stroke-width="0.9"/>' +
+    '<path d="M40 11l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7Z" stroke-width="0.8"/>' +
+    '<path d="M13 37v-3M13 41v3M9 39H6M17 39h3M10.200 36.200l-2-2M15.800 41.800l2 2M15.800 36.200l2-2M10.200 41.800l-2 2" stroke-width="1"/>',
+  auto:
+    '<path d="M5 32h38v-6l-5-2-4-8H17l-5 8-7 2Z"/><path d="M18 17.500v6.500h6v-7M27 17.500v6.500h6l-3.500-6.500" stroke-width="1"/>' +
+    '<circle cx="14" cy="33" r="4"/><circle cx="34" cy="33" r="4"/><path d="M2 40h44" stroke-width="0.9"/>',
 }
 
 /** Nombres de Font Awesome (los del editor) → dibujo de grabado. */
@@ -111,4 +136,42 @@ export function engravedIcon(icon: string | undefined | null, label = ''): Engra
     if (pattern.test(words)) return key
   }
   return 'corazon'
+}
+
+/** Íconos del editor que solo entiende momentDrawing (el grabado de siempre no los cambia). */
+const MOMENT_BY_ICON: Record<string, EngravedIconKey> = {
+  car: 'auto',
+  'car-side': 'auto',
+  bus: 'auto',
+  'van-shuttle': 'auto',
+  'shuttle-van': 'auto',
+  moon: 'luna',
+  star: 'luna',
+  'wand-magic-sparkles': 'luna',
+  'people-pulling': 'pareja',
+  'person-dress': 'pareja',
+}
+
+/** Palabras que momentDrawing revisa antes que las del grabado: el baile, la noche y el traslado. */
+const MOMENT_BY_WORD: [RegExp, EngravedIconKey][] = [
+  [/baile|vals|bailar/, 'pareja'],
+  [/tornaboda|fuegos|pirotecnia|despedida|luna/, 'luna'],
+  [/traslado|transporte|camion|autobus|auto\b|coche|salida|llegada/, 'auto'],
+]
+
+/**
+ * El dibujo de un momento con el repertorio completo (el del itinerario `sello`): además de
+ * los del grabado, la pareja que baila (primer baile, vals), la luna con fuegos (tornaboda,
+ * fin de la noche) y el auto (traslado). El ícono elegido gana; luego las palabras nuevas y
+ * al final las del grabado. `engravedIcon` no cambia: los itinerarios en grabado se ven igual.
+ */
+export function momentDrawing(icon: string | undefined | null, label = ''): EngravedIconKey {
+  const key = icon?.trim().toLowerCase() ?? ''
+  if (key && BY_ICON[key]) return BY_ICON[key]
+  if (key && MOMENT_BY_ICON[key]) return MOMENT_BY_ICON[key]
+  const words = plain(label)
+  for (const [pattern, drawing] of MOMENT_BY_WORD) {
+    if (pattern.test(words)) return drawing
+  }
+  return engravedIcon(null, label)
 }

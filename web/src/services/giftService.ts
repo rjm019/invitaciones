@@ -15,6 +15,14 @@ export function storeMonogram(store: Pick<GiftStore, 'name'>): string {
   return Array.from(word)[0]?.toLocaleUpperCase('es-MX') ?? ''
 }
 
+/**
+ * Cómo se llama el número de una tienda: Amazon da un número de lista; Liverpool, Palacio
+ * y las demás, un número de evento.
+ */
+export function storeNumberLabel(store: Pick<GiftStore, 'store'>): string {
+  return store.store === 'amazon' ? 'Número de lista' : 'Número de evento'
+}
+
 /** ¿Hay algo que mostrar? Sin tiendas ni lluvia de sobres, la sección no se pinta. */
 export function hasGifts(gifts: EventGifts | null | undefined): boolean {
   return !!gifts && (gifts.stores.length > 0 || gifts.envelope !== null)

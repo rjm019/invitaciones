@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import LivingLandmark from '@/components/ui/LivingLandmark.vue'
 import { useEvent } from '@/composables/useEvent'
 import { decorOr } from '@/services/decorService'
 import { hourMinute, time12h } from '@/services/dateFormatService'
@@ -12,7 +13,9 @@ import type { ResolvedSection } from '@/types/event'
  * (la iglesia para una ceremonia religiosa y la hacienda para lo demás; ranuras `iglesia` y
  * `hacienda`, pintadas con máscara en la tinta), el nombre, la hora, la dirección y los
  * botones finos "Ver ubicación" y, con `calendario`, "Agregar al calendario". Con
- * `acomodo` lado a lado van en dos columnas (se apilan solas si no caben).
+ * `acomodo` lado a lado van en dos columnas (se apilan solas si no caben). Con el efecto
+ * `dibujo_vivo`, los dibujos de siempre (no uno subido a la ranura) se dibujan trazo a trazo
+ * al entrar y cobran vida (LivingLandmark: campanas, árboles, aves, ventanas encendidas).
  */
 const props = defineProps<{ section: ResolvedSection }>()
 const { event, resolveAsset } = useEvent()
@@ -26,6 +29,9 @@ const church = computed(() =>
 const estate = computed(() =>
   decorOr(props.section.decor, 'estate', resolveAsset.value('hacienda.svg')),
 )
+const defaultChurch = computed(() => resolveAsset.value('iglesia.svg'))
+const defaultEstate = computed(() => resolveAsset.value('hacienda.svg'))
+const living = computed(() => props.section.effects.includes('living-drawing'))
 const maskUrl = (url: string | null) => (url ? `url("${url.replace(/"/g, '%22')}")` : null)
 
 const places = computed(() => {
@@ -53,10 +59,18 @@ const places = computed(() => {
           calendarUrl: null as string | null,
         },
       ]
-  return list.map((p) => ({
-    ...p,
-    drawing: maskUrl(p.kind === 'religious' ? church.value : estate.value),
-  }))
+  return list.map((p) => {
+    const religious = p.kind === 'religious'
+    const url = religious ? church.value : estate.value
+    // Vivo solo si el dibujo es el de siempre: uno subido a la ranura se pinta quieto.
+    const alive =
+      living.value && !!url && url === (religious ? defaultChurch.value : defaultEstate.value)
+    return {
+      ...p,
+      drawing: maskUrl(url),
+      landmark: alive ? (religious ? ('church' as const) : ('estate' as const)) : null,
+    }
+  })
 })
 </script>
 
@@ -67,8 +81,11 @@ const places = computed(() => {
     <div class="ls__cards">
       <article v-for="(place, i) in places" :key="i" class="ls__card">
         <p v-if="place.label" class="ls__label" data-text="label">{{ place.label }}</p>
+        <span v-if="place.landmark" class="ls__drawing ls__drawing--alive">
+          <LivingLandmark :kind="place.landmark" />
+        </span>
         <span
-          v-if="place.drawing"
+          v-else-if="place.drawing"
           class="ls__drawing"
           aria-hidden="true"
           :style="{ '--ls-drawing': place.drawing }"
@@ -169,6 +186,14 @@ const places = computed(() => {
   mask: var(--ls-drawing) center / contain no-repeat;
   opacity: 0.85;
 }
+/* El dibujo vivo es SVG en línea: sin máscara ni fondo, la tinta es su color. */
+.ls__drawing--alive {
+  display: block;
+  background: none;
+  color: var(--ink);
+  -webkit-mask: none;
+  mask: none;
+}
 .ls__name {
   margin: 0;
   font-family: var(--t-place-font, var(--font-caps));
@@ -227,6 +252,37 @@ const places = computed(() => {
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
   text-decoration-color: color-mix(in srgb, var(--ink) 45%, transparent);
+}
+/*
+ * Lado a lado pero sin espacio para dos columnas (el celular): cada tarjetita se acuesta,
+ * con el dibujo a la izquierda y los datos a la derecha. Ocupa la mitad de alto.
+ */
+@container (max-width: 26rem) {
+  .ls--side .ls__card {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    justify-items: start;
+    column-gap: 0.9rem;
+    row-gap: 0.3rem;
+    padding: 1.05rem 0.95rem 1rem;
+    text-align: start;
+  }
+  .ls--side .ls__card > * {
+    grid-column: 2;
+  }
+  .ls--side .ls__drawing {
+    grid-column: 1;
+    grid-row: 1 / span 6;
+    align-self: center;
+    width: 100%;
+    margin: 0;
+  }
+  .ls--side .ls__label {
+    margin-right: 0;
+  }
+  .ls--side .ls__buttons {
+    justify-items: start;
+    margin-top: 0.3rem;
+  }
 }
 .ls__button:focus-visible,
 .ls__link:focus-visible {

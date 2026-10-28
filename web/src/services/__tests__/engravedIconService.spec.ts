@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { ENGRAVED_ICONS, engravedIcon, type EngravedIconKey } from '../engravedIconService'
+import {
+  ENGRAVED_ICONS,
+  engravedIcon,
+  momentDrawing,
+  type EngravedIconKey,
+} from '../engravedIconService'
 
 describe('engravedIcon', () => {
   it('elige el dibujo por el ícono del editor', () => {
@@ -50,5 +55,24 @@ describe('engravedIcon', () => {
       // Constantes del código: ningún script ni manejador de eventos.
       expect(drawing, key).not.toMatch(/<script|on\w+=/i)
     }
+  })
+})
+
+describe('momentDrawing', () => {
+  it('agrega la pareja, la luna y el auto sin cambiar el grabado', () => {
+    expect(momentDrawing(undefined, 'Primer baile')).toBe('pareja')
+    expect(momentDrawing(undefined, 'Tornaboda')).toBe('luna')
+    expect(momentDrawing(undefined, 'Traslado a la hacienda')).toBe('auto')
+    // El grabado de siempre sigue igual con las mismas palabras.
+    expect(engravedIcon(undefined, 'Primer baile')).toBe('musica')
+  })
+
+  it('el ícono elegido gana; si no, usa las palabras del grabado', () => {
+    expect(momentDrawing('music', 'Primer baile')).toBe('musica')
+    expect(momentDrawing('car', 'Cena')).toBe('auto')
+    expect(momentDrawing(undefined, 'Cena')).toBe('plato')
+    expect(momentDrawing(undefined, 'Ceremonia religiosa')).toBe('iglesia')
+    expect(momentDrawing(undefined, 'Pastel')).toBe('pastel')
+    expect(momentDrawing(undefined, 'Algo raro')).toBe('corazon')
   })
 })

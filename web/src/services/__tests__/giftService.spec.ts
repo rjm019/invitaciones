@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import type { EventConfig, GiftEnvelope } from '@/types/event'
-import { forGeneralLink, groupDigits, hasGifts, storeMonogram } from '../giftService'
+import {
+  forGeneralLink,
+  groupDigits,
+  hasGifts,
+  storeMonogram,
+  storeNumberLabel,
+} from '../giftService'
 
 const envelope: GiftEnvelope = {
   title: '',
@@ -56,5 +62,11 @@ describe('giftService', () => {
     expect(own.envelope?.account).toBe('012180001234567891')
     const none = { slug: 'ana' } as unknown as EventConfig
     expect(forGeneralLink(none)).toBe(none)
+  })
+
+  it('nombra el número de cada tienda', () => {
+    expect(storeNumberLabel({ store: 'liverpool' })).toBe('Número de evento')
+    expect(storeNumberLabel({ store: 'amazon' })).toBe('Número de lista')
+    expect(storeNumberLabel({ store: 'other' })).toBe('Número de evento')
   })
 })

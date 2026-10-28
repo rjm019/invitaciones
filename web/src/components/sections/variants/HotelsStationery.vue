@@ -6,10 +6,11 @@ import type { ResolvedSection } from '@/types/event'
 
 /**
  * Hospedaje de papelería ("papeleria"): cada hotel es una ficha de papel, como la tarjeta
- * de un hotel antiguo: su número en romanos, el nombre en mayúsculas espaciadas, la nota en
- * itálica y, entre filetes, lo que el invitado necesita (distancia, tarifa, dirección,
- * teléfono). Abajo, "Reservar" (si hay enlace de reserva) y "Ver mapa". La foto, si la hay,
- * va arriba con un margen de papel. Solo se ve lo que se llenó.
+ * de un hotel antiguo: una llave de línea, su número en romanos, el nombre en mayúsculas
+ * espaciadas, la nota en itálica y, entre filetes, la dirección. Abajo, siempre que el hotel
+ * tenga teléfono, "Llamar" (tel:) y "Ver mapa"; "Reservar" solo si hay enlace de reserva.
+ * No enseña tarifas ni distancias (cambian y no dependen de la invitación). Las fichas se
+ * reparten a lo ancho; la foto, si la hay, va arriba con un margen de papel.
  */
 const props = defineProps<{ section: ResolvedSection }>()
 const { event, resolveAsset } = useEvent()
@@ -42,32 +43,46 @@ const hotels = computed(() =>
           loading="lazy"
           decoding="async"
         />
-        <p class="hs__number" aria-hidden="true">N.º {{ hotel.number }}</p>
+        <p class="hs__number" aria-hidden="true">
+          <svg class="hs__key" viewBox="0 0 64 24" aria-hidden="true" focusable="false">
+            <circle cx="9" cy="12" r="6.5" />
+            <circle cx="9" cy="12" r="2.6" />
+            <path d="M15.5 12H44M36 12v5M40 12v4" />
+            <path d="M44 7.5h15l3 4.5-3 4.5H44Z" />
+          </svg>
+          N.º {{ hotel.number }}
+        </p>
         <h3 class="hs__name" data-text="name">{{ hotel.name }}</h3>
         <p v-if="hotel.note" class="hs__note" data-text="note">{{ hotel.note }}</p>
-        <dl v-if="hotel.distance || hotel.price || hotel.address || hotel.phone" class="hs__facts">
-          <div v-if="hotel.distance" class="hs__fact">
-            <dt>Distancia</dt>
-            <dd>{{ hotel.distance }}</dd>
-          </div>
-          <div v-if="hotel.price" class="hs__fact">
-            <dt>Tarifa</dt>
-            <dd>{{ hotel.price }}</dd>
-          </div>
-          <div v-if="hotel.address" class="hs__fact">
-            <dt>Dirección</dt>
-            <dd data-text="address">{{ hotel.address }}</dd>
-          </div>
-          <div v-if="hotel.tel" class="hs__fact">
-            <dt>Teléfono</dt>
-            <dd><a :href="hotel.tel" class="hs__tel">{{ hotel.phone }}</a></dd>
-          </div>
-        </dl>
-        <div v-if="hotel.booking_url || hotel.maps_url" class="hs__actions">
+        <p v-if="hotel.address" class="hs__address" data-text="address">{{ hotel.address }}</p>
+        <div v-if="hotel.tel || hotel.maps_url || hotel.booking_url" class="hs__actions">
+          <a
+            v-if="hotel.tel"
+            :href="hotel.tel"
+            class="hs__button inv-btn"
+            :aria-label="`Llamar a ${hotel.name}: ${hotel.phone}`"
+          >
+            <svg class="hs__phone" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path
+                d="M6.6 3.5h3l1.5 4.2-2 1.4a12 12 0 0 0 5.8 5.8l1.4-2 4.2 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2Z"
+              />
+            </svg>
+            Llamar
+          </a>
+          <a
+            v-if="hotel.maps_url"
+            :href="hotel.maps_url"
+            class="hs__button hs__button--quiet inv-btn"
+            target="_blank"
+            rel="noopener"
+            :aria-label="`Ver mapa: ${hotel.name}`"
+          >
+            Ver mapa
+          </a>
           <a
             v-if="hotel.booking_url"
             :href="hotel.booking_url"
-            class="hs__button inv-btn"
+            class="hs__map"
             data-text="button"
             target="_blank"
             rel="noopener"
@@ -75,17 +90,8 @@ const hotels = computed(() =>
           >
             {{ button }}
           </a>
-          <a
-            v-if="hotel.maps_url"
-            :href="hotel.maps_url"
-            class="hs__map"
-            target="_blank"
-            rel="noopener"
-            :aria-label="`Ver mapa: ${hotel.name}`"
-          >
-            Ver mapa
-          </a>
         </div>
+        <p v-if="hotel.phone" class="hs__tel" aria-hidden="true">{{ hotel.phone }}</p>
       </article>
     </div>
   </div>
@@ -96,8 +102,8 @@ const hotels = computed(() =>
   container-type: inline-size;
   display: grid;
   justify-items: center;
-  gap: 0.9rem;
-  max-width: 60rem;
+  gap: 0.8rem;
+  max-width: 74rem;
   margin: 0 auto;
   text-align: center;
 }
@@ -121,7 +127,7 @@ const hotels = computed(() =>
   color: var(--t-subtitle-color, var(--color-accent));
 }
 .hs__text {
-  max-width: 34ch;
+  max-width: 52ch;
   margin: 0;
   font-family: var(--t-text-font, var(--font-serif));
   font-style: italic;
@@ -131,8 +137,8 @@ const hotels = computed(() =>
 }
 .hs__cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-2) clamp(1rem, 2.4cqi, 1.75rem);
   width: 100%;
   margin-top: var(--space-1);
 }
@@ -143,7 +149,7 @@ const hotels = computed(() =>
   justify-items: center;
   align-content: start;
   gap: 0.4rem;
-  padding: 1.4rem 1.2rem 1.3rem;
+  padding: 1.5rem 1.3rem 1.3rem;
   color: var(--ink);
   background:
     url('../../../effects/assets/textura-algodon.svg') 0 0 / 320px,
@@ -161,6 +167,9 @@ const hotels = computed(() =>
   margin-bottom: 0.4rem;
 }
 .hs__number {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   margin: 0;
   font-family: var(--font-caps);
   font-weight: 600;
@@ -185,37 +194,33 @@ const hotels = computed(() =>
   font-size: calc(1.02rem * var(--t-note-size, 1));
   color: var(--t-note-color, color-mix(in srgb, var(--ink) 80%, transparent));
 }
-.hs__facts {
-  display: grid;
-  gap: 0.35rem;
+.hs__key {
+  width: 2.4rem;
+  height: auto;
+  fill: none;
+  stroke: var(--color-oro, currentColor);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.hs__address {
   width: 100%;
-  margin: 0.5rem 0 0;
-  padding: 0.7rem 0;
-  border-block: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
-}
-.hs__fact {
-  display: grid;
-  grid-template-columns: 5.6rem 1fr;
-  gap: 0.6rem;
-  align-items: baseline;
-  text-align: left;
-}
-.hs__fact dt {
-  font-family: var(--font-caps);
-  font-weight: 600;
-  font-size: 0.66rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--ink) 62%, transparent);
-}
-.hs__fact dd {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  line-height: 1.3;
+  margin: 0.35rem 0 0;
+  padding: 0.6rem 0 0;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+  font-family: var(--t-address-font, var(--font-serif));
+  font-size: calc(1rem * var(--t-address-size, 1));
+  line-height: 1.35;
+  color: var(--t-address-color, var(--ink));
 }
 .hs__tel {
-  color: inherit;
+  margin: 0;
+  font-family: var(--font-caps);
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--ink) 62%, transparent);
 }
 .hs__actions {
   display: flex;
@@ -226,7 +231,9 @@ const hotels = computed(() =>
   margin-top: 0.5rem;
 }
 .hs__button {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   padding: 0.5rem 1rem;
   border: var(--btn-border, 1px solid currentColor);
   border-radius: var(--btn-radius, 2px);
@@ -241,6 +248,17 @@ const hotels = computed(() =>
   box-shadow: var(--btn-shadow, none);
   clip-path: var(--btn-clip, none);
 }
+.hs__button--quiet {
+  border-color: color-mix(in srgb, var(--ink) 40%, transparent);
+}
+.hs__phone {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
 .hs__map {
   font-family: var(--font-serif);
   font-style: italic;
@@ -252,8 +270,7 @@ const hotels = computed(() =>
   text-decoration-color: color-mix(in srgb, var(--ink) 45%, transparent);
 }
 .hs__button:focus-visible,
-.hs__map:focus-visible,
-.hs__tel:focus-visible {
+.hs__map:focus-visible {
   outline: 1px solid currentColor;
   outline-offset: 3px;
 }

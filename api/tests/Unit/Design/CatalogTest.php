@@ -22,6 +22,7 @@ class CatalogTest extends TestCase
         'lace-spin', 'lace-wave', 'lace-draw', 'spotlight', 'spotlight-travel', 'pearl-glint', 'satin-sweep',
         'drape-sway', 'pearl-strands', 'petals', 'light-dust', 'tulle-breathe', 'stitch-in', 'breathe',
         'ink', 'raking-light', 'paper-in',
+        'living-drawing',
     ];
 
     public function test_every_effect_maps_to_an_effect_the_web_paints(): void

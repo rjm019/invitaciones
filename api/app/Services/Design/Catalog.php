@@ -104,6 +104,7 @@ final class Catalog
         'luz_rasante' => ['effect' => 'raking-light', 'label' => 'Luz rasante', 'help' => 'De vez en cuando una luz cálida y baja cruza la sección despacio y hace notar el relieve del papel.'],
         'papel_entra' => ['effect' => 'paper-in', 'label' => 'Papel que entra', 'help' => 'La tarjeta entra como si la sacaran de un sobre: sube y se endereza.'],
         'respira' => ['effect' => 'breathe', 'label' => 'Respirar', 'help' => 'El panel crece y se encoge apenas, como si respirara.'],
+        'dibujo_vivo' => ['effect' => 'living-drawing', 'label' => 'Dibujo vivo', 'help' => 'Los dibujos de línea de la ubicación (iglesia y hacienda) se dibujan trazo a trazo al llegar y cobran vida: campanas que se mecen, árboles con brisa, aves y ventanas que se encienden.'],
     ];
 
     /** Otros nombres de efectos que ya aceptaba el Excel. */
@@ -576,6 +577,7 @@ final class Catalog
                     ['value' => 'avenida', 'label' => 'Letreros de calle'],
                     ['value' => 'grabado', 'label' => 'Grabado con íconos de línea'],
                     ['value' => 'minuto', 'label' => 'Minuta editorial (hora en versalitas)'],
+                    ['value' => 'sello', 'label' => 'Hilo con un lacre que baja y dibujos de línea'],
                 ]],
             ],
             'list' => ['key' => 'momentos', 'label' => 'Momentos', 'item_label' => 'Momento', 'max' => 12, 'fields' => [
@@ -683,6 +685,7 @@ final class Catalog
                     ['value' => 'bolsas', 'label' => 'Bolsas de la Quinta Avenida'],
                     ['value' => 'etiqueta', 'label' => 'Etiquetas de papel rasgado'],
                     ['value' => 'sobre', 'label' => 'Sobre entreabierto'],
+                    ['value' => 'volteo', 'label' => 'Tarjetas que se voltean para ver los datos'],
                 ]],
                 ['key' => 'sobres_titulo', 'label' => '(Antiguo) Título de la lluvia de sobres', 'input' => 'text', 'placeholder' => 'Lluvia de sobres', 'max_length' => 60],
                 ['key' => 'sobres_texto', 'label' => '(Antiguo) Texto de la lluvia de sobres', 'input' => 'textarea', 'max_length' => 400],
@@ -815,7 +818,7 @@ final class Catalog
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Nuestra historia', 'max_length' => 80],
                 ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'max_length' => 120],
                 ['key' => 'texto', 'label' => 'Mensaje de bienvenida', 'input' => 'textarea', 'max_length' => 1200],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'editorial', 'label' => 'Editorial (capitular y foto con marco)']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'editorial', 'label' => 'Editorial (capitular y foto con marco)'], ['value' => 'cronologia', 'label' => 'Línea de tiempo con los años como pestañas']]],
             ],
             'list' => ['key' => 'momentos', 'label' => 'Momentos', 'item_label' => 'Momento', 'max' => 8, 'fields' => [
                 ['key' => 'anio', 'label' => 'Año o fecha', 'input' => 'text', 'placeholder' => '2019', 'max_length' => 20],

@@ -25,7 +25,9 @@ const SLOTS = ['hero', 'small', 'small', 'mid', 'mid'] as const
 <template>
   <div class="ge">
     <header v-if="title || section.subtitle" class="ge__head">
-      <p v-if="section.subtitle" class="ge__subtitle" data-text="subtitle">{{ section.subtitle }}</p>
+      <p v-if="section.subtitle" class="ge__subtitle" data-text="subtitle">
+        {{ section.subtitle }}
+      </p>
       <h2 v-if="title" class="ge__title" data-text="title">{{ title }}</h2>
     </header>
     <div class="ge__grid">
@@ -66,7 +68,7 @@ const SLOTS = ['hero', 'small', 'small', 'mid', 'mid'] as const
   container-type: inline-size;
   display: grid;
   gap: var(--space-3);
-  max-width: 64rem;
+  max-width: 56rem;
   margin: 0 auto;
 }
 .ge__head {
@@ -180,8 +182,9 @@ const SLOTS = ['hero', 'small', 'small', 'mid', 'mid'] as const
   .ge__piece--mid:nth-child(5n) {
     margin-top: 3rem;
   }
+  /* Cuadrada: así mide lo mismo que las dos chicas de al lado y no alarga la página. */
   .ge__piece--hero .ge__img {
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 1;
   }
   .ge__piece--small .ge__img {
     aspect-ratio: 1;

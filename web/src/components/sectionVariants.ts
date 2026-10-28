@@ -45,6 +45,7 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     avenida: () => import('./sections/variants/ItineraryAvenue.vue'),
     grabado: () => import('./sections/variants/ItineraryEngraving.vue'),
     minuto: () => import('./sections/variants/ItineraryMinute.vue'),
+    sello: () => import('./sections/variants/ItinerarySeal.vue'),
   },
   'dress-code': {
     vitrinas: () => import('./sections/variants/DressCodeWindows.vue'),
@@ -73,8 +74,12 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     bolsas: () => import('./sections/variants/GiftsBags.vue'),
     etiqueta: () => import('./sections/variants/GiftsTags.vue'),
     sobre: () => import('./sections/variants/GiftsEnvelope.vue'),
+    volteo: () => import('./sections/variants/GiftsFlip.vue'),
   },
-  story: { editorial: () => import('./sections/variants/StoryEditorial.vue') },
+  story: {
+    editorial: () => import('./sections/variants/StoryEditorial.vue'),
+    cronologia: () => import('./sections/variants/StoryTimeline.vue'),
+  },
   rsvp: { 'tarjeta-rsvp': () => import('./sections/variants/RsvpReplyCard.vue') },
   'guest-album': { papeleria: () => import('./sections/variants/AlbumStationery.vue') },
   closing: {
