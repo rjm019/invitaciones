@@ -1,10 +1,16 @@
 import { inject, provide, type ComputedRef, type InjectionKey } from 'vue'
 import type { AssetResolver } from '@/services/assetService'
-import type { EventConfig } from '@/types/event'
+import type { EventConfig, ResolvedSection } from '@/types/event'
 
 export interface EventContext {
   event: ComputedRef<EventConfig>
   resolveAsset: ComputedRef<AssetResolver>
+  /**
+   * Las secciones ya resueltas (con el diseño y los adornos del tema), para el diseño que
+   * necesita saber de otra sección (la bendición editorial no repite a los papás si la
+   * portada ya los trae). Fuera de la invitación puede faltar.
+   */
+  sections?: ComputedRef<ResolvedSection[]>
 }
 
 const KEY: InjectionKey<EventContext> = Symbol('event')

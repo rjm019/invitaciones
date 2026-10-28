@@ -71,9 +71,18 @@ const ambience = computed(() => props.section.effects.some((e) => AMBIENCE.inclu
 // luz que se enciende) arranca cuando la sección se ve por primera vez.
 const fabric = computed(() => props.section.effects.some((e) => FABRIC.includes(e)))
 // cascada: los elementos de la sección entran uno tras otro; necesita saber cuándo se ve.
-const REVEALS = ['reveal', 'reveal-zoom', 'reveal-slide', 'reveal-tilt', 'cascade', 'stitch-in']
-// Estos dos solo necesitan saber cuándo se ve la sección: el bloque no se desvanece por ellos.
-const REVEALS_QUIET = ['cascade', 'stitch-in']
+const REVEALS = [
+  'reveal',
+  'reveal-zoom',
+  'reveal-slide',
+  'reveal-tilt',
+  'cascade',
+  'stitch-in',
+  'ink',
+  'paper-in',
+]
+// Estos solo necesitan saber cuándo se ve la sección: el bloque no se desvanece por ellos.
+const REVEALS_QUIET = ['cascade', 'stitch-in', 'ink']
 const reveals = computed(() => props.section.effects.some((e) => REVEALS.includes(e)))
 
 // Lejos de la pantalla, sus animaciones se pausan y su ambiente no se pinta: con muchas
@@ -172,6 +181,8 @@ const classes = computed(() => [
     >
       <slot />
     </div>
+    <!-- luz rasante: una luz baja que cruza despacio y hace notar el relieve (effects/paper.css) -->
+    <div v-if="section.effects.includes('raking-light')" class="section__raking" aria-hidden="true" />
     <!-- reflejo plateado: encima del contenido, solo aclara lo claro (letras y filos) -->
     <div v-if="section.effects.includes('sheen')" class="section__sheen" aria-hidden="true" />
   </section>

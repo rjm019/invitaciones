@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="28" viewBox="0 0 240 28" fill="none" stroke="#8b7d68" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Filigrana divisoria de una línea: dos trazos que se afinan hacia las orillas, volutas y un rombo al centro. Neutra: como máscara toma el color que se le ponga. -->
+  <path d="M8 14H86" stroke-width="0.7" opacity="0.8"/>
+  <path d="M154 14H232" stroke-width="0.7" opacity="0.8"/>
+  <path d="M86 14C94 14 98 8 104 8C109 8 111 12 108 14C105 16 101 13 104 11"/>
+  <path d="M154 14C146 14 142 8 136 8C131 8 129 12 132 14C135 16 139 13 136 11"/>
+  <path d="M86 14C94 14 98 20 104 20C109 20 111 16 108 14" stroke-width="0.8"/>
+  <path d="M154 14C146 14 142 20 136 20C131 20 129 16 132 14" stroke-width="0.8"/>
+  <path d="M112 14L120 6L128 14L120 22Z"/>
+  <path d="M116.5 14L120 10.5L123.5 14L120 17.5Z" fill="#8b7d68" stroke="none"/>
+  <circle cx="4" cy="14" r="1" fill="#8b7d68" stroke="none"/>
+  <circle cx="236" cy="14" r="1" fill="#8b7d68" stroke="none"/>
+</svg>

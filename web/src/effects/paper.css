@@ -1,0 +1,114 @@
+/*
+ * Efectos de papelería (tema `lacre`, pero de todos): sobrios, uno por sección, solo
+ * transform y opacity, con la velocidad de la invitación (--motion-scale). Cualquier tema los
+ * pide por nombre en `efectos` (o en su manifest).
+ *
+ * - tinta (ink): el título aparece como tinta que se asienta: de transparente a firme, con un
+ *   desplazamiento mínimo. Solo necesita saber cuándo se ve la sección (SectionShell).
+ * - luz_rasante (raking-light): una luz cálida y baja cruza la sección muy despacio, cada
+ *   tantos segundos, y hace notar el relieve del papel (SectionShell pinta la capa).
+ * - papel_entra (paper-in): la tarjeta entra como sacada de un sobre: sube desde un poco más
+ *   abajo, apenas inclinada, y se endereza.
+ */
+
+/* tinta */
+.fx-ink .fx-reveal-target:not(.is-visible) [data-text='title'] {
+  opacity: 0;
+  transform: translateY(0.18em);
+}
+.fx-ink .fx-reveal-target.is-visible [data-text='title'] {
+  animation: fx-ink calc(1.6s * var(--motion-scale)) cubic-bezier(0.3, 0.1, 0.2, 1) both;
+}
+@keyframes fx-ink {
+  0% {
+    opacity: 0;
+    transform: translateY(0.18em);
+  }
+  45% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* luz rasante: la capa (.section__raking) la pone SectionShell; el haz es su ::before */
+.section.fx-raking-light {
+  overflow: clip;
+}
+.section__raking {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.section__raking::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgb(255 248 232 / 0.08) 35%,
+    rgb(255 248 232 / 0.22) 50%,
+    rgb(255 248 232 / 0.08) 65%,
+    transparent 100%
+  );
+  mix-blend-mode: soft-light;
+  transform: translateX(-110%) skewX(-12deg);
+  animation: fx-raking calc(11s * var(--motion-scale)) ease-in-out infinite;
+}
+@keyframes fx-raking {
+  0%,
+  35% {
+    transform: translateX(-110%) skewX(-12deg);
+    opacity: 0;
+  }
+  45% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  90%,
+  100% {
+    transform: translateX(260%) skewX(-12deg);
+    opacity: 0;
+  }
+}
+.section.is-idle .section__raking::before {
+  animation-play-state: paused;
+}
+
+/* papel que entra */
+.fx-paper-in .fx-reveal-target:not(.is-visible) {
+  transform: translateY(2.2rem) rotate(-1.2deg) scale(0.985);
+}
+.fx-paper-in .fx-reveal-target {
+  transition:
+    opacity calc(0.9s * var(--motion-scale)) var(--ease-out),
+    transform calc(1.2s * var(--motion-scale)) cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-ink .fx-reveal-target [data-text='title'],
+  .fx-ink .fx-reveal-target:not(.is-visible) [data-text='title'] {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .section__raking::before {
+    animation: none;
+    opacity: 0;
+  }
+  .fx-paper-in .fx-reveal-target,
+  .fx-paper-in .fx-reveal-target:not(.is-visible) {
+    transform: none;
+    transition: none;
+  }
+}

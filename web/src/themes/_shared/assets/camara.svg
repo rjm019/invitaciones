@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="110" viewBox="0 0 160 110" fill="none" stroke="#3b342e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Cámara de fuelle antigua dibujada a línea (grabado): cuerpo, lente, visor y correa. Neutra: se pinta con el color que se le ponga (máscara). -->
+  <path d="M20 38H140V96H20Z"/>
+  <path d="M20 46H140" stroke-width="0.9"/>
+  <path d="M54 38L60 26H100L106 38"/>
+  <path d="M66 26V20H94V26" stroke-width="1.2"/>
+  <path d="M30 32H44V38" stroke-width="1.2"/>
+  <circle cx="80" cy="68" r="22"/>
+  <circle cx="80" cy="68" r="15" stroke-width="1.1"/>
+  <circle cx="80" cy="68" r="7" stroke-width="0.9"/>
+  <path d="M74 62a8 8 0 0 1 6-3" stroke-width="0.8"/>
+  <circle cx="124" cy="56" r="4" stroke-width="1.1"/>
+  <path d="M28 56H44M28 62H40" stroke-width="0.8"/>
+  <path d="M20 52C8 52 6 70 12 84M140 52C152 52 154 70 148 84" stroke-width="0.9" opacity="0.7"/>
+  <path d="M30 104H130" stroke-width="0.8" opacity="0.6"/>
+</svg>

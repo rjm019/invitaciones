@@ -39,7 +39,7 @@ import {
 } from '@/services/themeService'
 import { loadTheme, themeAssets } from '@/themes'
 import type { ThemeManifest } from '@/themes/types'
-import type { EventConfig, SectionBackground } from '@/types/event'
+import type { EventConfig, ResolvedSection, SectionBackground } from '@/types/event'
 
 /**
  * Arma la invitación: tema + paleta + fuentes del layout, y cada sección en su orden.
@@ -61,7 +61,12 @@ let revert: (() => void) | null = null
 const resolveAsset = computed(() =>
   createAssetResolver(props.event.assets, themeAssets(props.event.theme)),
 )
-provideEvent({ event: computed(() => props.event), resolveAsset })
+provideEvent({
+  event: computed(() => props.event),
+  resolveAsset,
+  // perezosa: `sections` se arma más abajo
+  sections: computed<ResolvedSection[]>(() => sections.value),
+})
 // Una sola canción para toda la invitación (la inicia el sobre; la controlan los reproductores).
 // Con la música en Spotify suena la playlist, en la sección de playlist o, si no hay, en la
 // del reproductor.

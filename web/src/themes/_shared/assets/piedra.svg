@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1600" viewBox="0 0 1200 1600" preserveAspectRatio="xMidYMid slice">
+  <!-- Piedra beige para el fondo de toda la página (no es mosaico: se estira a la pantalla). Manchas grandes y suaves, vetas claras y un grano fino. Neutra: se mezcla con el color de la página. -->
+  <filter id="m" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.0022 0.003" numOctaves="4" seed="31"/>
+    <feColorMatrix values="0 0 0 0 0.45  0 0 0 0 0.38  0 0 0 0 0.3  0 0 0 1.5 -0.55"/>
+  </filter>
+  <filter id="l" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.004 0.0026" numOctaves="3" seed="7"/>
+    <feColorMatrix values="0 0 0 0 1  0 0 0 0 0.98  0 0 0 0 0.95  0 0 0 1.4 -0.62"/>
+  </filter>
+  <filter id="g" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="4"/>
+    <feColorMatrix values="0 0 0 0 0.32  0 0 0 0 0.27  0 0 0 0 0.22  0.45 0 0 0 -0.1"/>
+  </filter>
+  <rect width="1200" height="1600" filter="url(#m)" opacity="0.5"/>
+  <rect width="1200" height="1600" filter="url(#l)" opacity="0.55"/>
+  <rect width="1200" height="1600" filter="url(#g)" opacity="0.45"/>
+</svg>

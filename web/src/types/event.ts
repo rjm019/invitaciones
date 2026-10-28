@@ -48,12 +48,24 @@ export type EffectName =
   | 'tulle-breathe'
   | 'stitch-in'
   | 'breathe'
+  | 'ink'
+  | 'raking-light'
+  | 'paper-in'
 
 /** Forma de las orillas de una franja (sección difuminada con fondo). */
 export type EdgeStyle = 'fade' | 'torn' | 'city' | 'wave' | 'scallop' | 'straight' | 'lace'
 
 /** Estilo de todos los botones de la invitación (bloque "pagina"). */
-export type ButtonStyle = 'gradient' | 'solid' | 'outline' | 'deco' | 'ticket' | 'neon' | 'link' | 'ribbon'
+export type ButtonStyle =
+  | 'gradient'
+  | 'solid'
+  | 'outline'
+  | 'deco'
+  | 'ticket'
+  | 'neon'
+  | 'link'
+  | 'ribbon'
+  | 'fine'
 
 /** Esquinas de los paneles. */
 export type CornerStyle = 'deco' | 'lace' | 'none'

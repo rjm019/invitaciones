@@ -137,3 +137,21 @@
   --btn-clip: polygon(0 0, 100% 0, calc(100% - 0.7rem) 50%, 100% 100%, 0 100%, 0.7rem 50%);
   --btn-glow: none;
 }
+
+/*
+ * Contorno fino (papelería): un filo de 1 px casi recto, mayúsculas pequeñas muy espaciadas,
+ * sin fondo ni sombra (como "VER UBICACIÓN" en una tarjeta impresa). Toma la tinta de su
+ * sección. Al pasar o enfocar, el fondo se tiñe apenas.
+ */
+.invitation[data-buttons='fine'] .inv-btn {
+  --btn-bg: transparent;
+  --btn-color: var(--color-text);
+  --btn-border: 1px solid color-mix(in srgb, currentColor 70%, transparent);
+  --btn-radius: 2px;
+  --btn-shadow: none;
+  --btn-case: uppercase;
+  --btn-tracking: 0.22em;
+  --btn-decoration: none;
+  --btn-clip: none;
+  --btn-glow: none;
+}
