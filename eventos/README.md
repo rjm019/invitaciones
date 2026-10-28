@@ -140,7 +140,7 @@ frase-2,,visible,NO
 
 | Grupo | Campos |
 |---|---|
-| Evento | `tipo` (`xv`, `boda`, `graduacion`, `bautizo`, `cumple`, `otro`), `tema` (`jardin-azul`, `marfil` o `nueva-york`), `festejada`, `festejada_corto` (el nombre del sobre), `monograma` (las iniciales del sello y del monograma, de una a tres letras: `I M`; vacío, salen del nombre corto: "Isabella & Mateo" → I M), `pareja`, `subtitulo` ("mis xv años"), `titulo` (el de la pestaña del navegador), `inicia` (AAAA-MM-DD HH:MM) y `zona_horaria` |
+| Evento | `tipo` (`xv`, `boda`, `graduacion`, `bautizo`, `cumple`, `otro`), `tema` (`jardin-azul`, `marfil`, `nueva-york`, `encaje` o `lacre`), `festejada`, `festejada_corto` (el nombre del sobre), `monograma` (las iniciales del sello y del monograma, de una a tres letras: `I M`; vacío, salen del nombre corto: "Isabella & Mateo" → I M), `pareja`, `subtitulo` ("mis xv años"), `titulo` (el de la pestaña del navegador), `inicia` (AAAA-MM-DD HH:MM) y `zona_horaria` |
 | Salón | `salon`, `salon_nombre_visible`, `salon_ciudad` (también la usa el clima), `salon_direccion`, `salon_maps` (`https://…`), `salon_foto` y `clima_coordenadas` |
 | Confirmaciones | `rsvp_modo`, `rsvp_limite`, `rsvp_whatsapp`, `rsvp_pedir_cancion` y `rsvp_pedir_mensaje` |
 | Música | `musica_fuente`, `musica_audio` y `spotify` |
@@ -464,3 +464,31 @@ Opciones reutilizables de cualquier tema (el tema solo pone sus valores en el ma
 | `evento,,monograma` | iniciales del monograma y del lacre (ver arriba) |
 
 La silueta y el filete aplican a los paneles (no a las secciones difuminadas ni a la portada).
+
+## Diseños de papelería fina (tema `lacre`; sirven en cualquier tema)
+
+El tema `lacre` los pone por defecto; cualquier invitación los pide con `variante`:
+
+| Sección | `variante` | Diseño |
+|---|---|---|
+| `portada` | `sobre-lacre` | Sobre de color (`--color-olivo`) con forro de damasco en relieve y lacre dorado con el monograma. Al tocar: el lacre se levanta, la solapa abre y la tarjeta sube; queda la tarjeta al frente con el sobre abierto detrás y un sello ovalado borgoña. La tarjeta lleva `titulo` («Con todo el corazón»), los grupos de papás de `bendicion`, los nombres (de `festejada`, partidos por «&»), `texto` (la frase antes de la fecha), la fecha y la ciudad. Adorno `imagen_forro` (el damasco) |
+| `musica` | `lacre` | Lacre como botón de play (gira despacio mientras suena) y una línea de avance fina. Con Spotify, su reproductor suena sin verse y queda un enlace a la lista |
+| `bendicion` | `editorial` | Mensaje en itálica entre filigranas y los grupos en columnas; si la portada es `sobre-lacre`, no repite a los papás |
+| `historia` | `editorial` | Texto con capitular, la primera foto de los momentos en un marco de papel y los momentos en columnas |
+| `fecha` | `editorial` | Tarjeta con muescas y filete: día de la semana, número grande, mes y año entre filetes, hora y «Agregar al calendario» |
+| `ubicacion` | `papeleria` | Tarjetitas de papel por lugar con dibujo de línea (iglesia si el `tipo` es ceremonia religiosa, hacienda si no; `imagen_iglesia`, `imagen_hacienda`) y botones finos |
+| `cuenta_regresiva` | `banda` | Franja de lado a lado con números en serif fina y el monograma tenue detrás |
+| `itinerario` | `minuto` | Minuta: hora en versalitas, puntos y actividad; con `en_vivo` marca «Ahora» |
+| `vestimenta` | `editorial` | Página de revista: el `subtitulo` como titular, paleta en muestras de papel, `restricciones` y `referencias` en marcos |
+| `hospedaje` | `papeleria` | Fichas de hotel numeradas en romanos con distancia, tarifa, dirección, teléfono, «Reservar» y «Ver mapa» |
+| `galeria` | `editorial` | Composición asimétrica (una grande, dos chicas, dos medianas) con marcos finos y pies numerados; abre el visor |
+| `mesa_regalos` | `sobre` | Tarjeta que asoma de un sobre con las tiendas y la transferencia (misma privacidad) |
+| `informacion` | `editorial` | Preguntas numeradas entre filetes |
+| `confirmacion` | `tarjeta-rsvp` | Tarjeta de respuesta con muescas, filete y lacre pequeño; campos como renglones |
+| `dedicatoria` | `muro` | Formulario en papel y las dedicatorias (con `muro,SI`) como notas en dos columnas |
+| `trivia` | `papeleria` | Cartas de papel con filete |
+| `album` | `papeleria` | Tarjeta con muescas y una cámara de línea (`imagen_marco` la cambia) |
+| `cierre` | `lacre` | Lacre grande borgoña con el monograma, mensaje, nombres y fecha |
+
+Opciones nuevas: `pagina,,botones` = `fino` (contorno de un pelo, mayúsculas espaciadas); `efectos` = `tinta` (el título se asienta como tinta), `luz_rasante` (una luz baja cruza despacio) y `papel_entra` (la tarjeta entra como sacada de un sobre).
+

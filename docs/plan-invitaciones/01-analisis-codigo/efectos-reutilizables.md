@@ -220,3 +220,36 @@ Piezas globales (etapa A del tema `lacre`): ninguna cambia lo que ya se ve; se e
 | Relieve | `pagina,,relieve` = `SI`\|`NO` | `data-relief` en `.invitation`: letterpress estático (`text-shadow` de luz y sombra, `--relief-light`/`--relief-dark`) en `title`, `name` y `date`; no aplica con `metalico` |
 
 Datos nuevos de secciones (en `eventos/README.md`): `hospedaje` (`distancia`, `precio`, `reserva`), `vestimenta` (`restricciones`, `referencias`), secciones `historia` (`story`) e `informacion` (`faq`, acordeón accesible) y `dedicatoria` con `muro`. El tema pone sus valores en el manifest (`silhouette`, `fillet`, `relief`, `texture`).
+
+
+## Tema `lacre`: diseños de papelería fina y tres efectos
+
+Todo global; el tema solo lo pide en su manifest. Componentes en `components/sections/variants/` (o pieles en `skins.css`), registrados en `sectionVariants.ts`.
+
+| Sección | Variante | Pieza |
+|---|---|---|
+| portada | `sobre-lacre` | `HeroSealedEnvelope.vue`: escenario de 100 × 165 en %; posiciones de base = la papelería abierta, cerrado y abriendo son transforms. Profundidad con `preserve-3d` + `translateZ` (la solapa pasa detrás de la tarjeta al girar; la tarjeta pasa al frente con `translateZ` a media subida). Damasco en relieve: el mismo dibujo como máscara tres veces (sombra, luz y cara), sin filtros. Todo lo de la tarjeta en `cqi` de la tarjeta |
+| música | `lacre` | `MusicSeal.vue` (el reproductor de Spotify queda presente pero invisible) |
+| bendición | `editorial` | `BlessingEditorial.vue` (lee `useEvent().sections` para no repetir a los papás) |
+| historia | `editorial` | `StoryEditorial.vue` |
+| fecha | `editorial` | `SaveTheDateEditorial.vue` (pieza interna `paper-notched` con `data-fillet`; la sombra va en el contenedor porque la máscara la recortaría) |
+| ubicación | `papeleria` | `LocationStationery.vue` (tinta de la página, `--root-text`, aunque el panel sea oscuro) |
+| cuenta regresiva | `banda` | `CountdownBand.vue` (con `difuminar` y orilla recta es una franja de lado a lado) |
+| itinerario | `minuto` | `ItineraryMinute.vue` |
+| vestimenta | `editorial` | `DressCodeEditorial.vue` |
+| hospedaje | `papeleria` | `HotelsStationery.vue` |
+| galería | `editorial` | `GalleryEditorial.vue` |
+| mesa de regalos | `sobre` | `GiftsEnvelope.vue` |
+| confirmación | `tarjeta-rsvp` | `RsvpReplyCard.vue`: envuelve a `RsvpSection` (misma lógica) |
+| álbum | `papeleria` | `AlbumStationery.vue`: envuelve a `AlbumSection` |
+| cierre | `lacre` | `ClosingSeal.vue` |
+| información, dedicatorias, trivia | `editorial`, `muro`, `papeleria` | Pieles en `skins.css` |
+
+| CSV (`efectos`) | Id | Qué hace |
+|---|---|---|
+| `tinta` | `ink` | el título pasa de transparente a firme con un desplazamiento mínimo (solo avisa cuándo se ve la sección) |
+| `luz_rasante` | `raking-light` | `SectionShell` pinta `.section__raking`; un haz cálido cruza cada ~11 s con `mix-blend-mode: soft-light` |
+| `papel_entra` | `paper-in` | la sección entra desde abajo, apenas girada, como sacada de un sobre |
+
+Con "menos movimiento": el título ya firme, sin luz y sin entrada. CSS en `effects/paper.css`. Adornos nuevos compartidos: `iglesia`, `filigrana`, `damasco`, `piedra`, `camara`. Botón `fino` en `effects/buttons.css`. Ayudas puras en `services/stationeryService.ts` (nombres de la pareja, papás y padrinos, fecha impresa, romanos).
+
