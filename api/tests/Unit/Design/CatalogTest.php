@@ -21,6 +21,7 @@ class CatalogTest extends TestCase
         'blend', 'disco-ball', 'disco-lights', 'city-icons', 'taxi', 'icon-strip', 'reveal-zoom', 'reveal-slide', 'reveal-tilt', 'veil',
         'lace-spin', 'lace-wave', 'lace-draw', 'spotlight', 'spotlight-travel', 'pearl-glint', 'satin-sweep',
         'drape-sway', 'pearl-strands', 'petals', 'light-dust', 'tulle-breathe', 'stitch-in', 'breathe',
+        'ink', 'raking-light', 'paper-in',
     ];
 
     public function test_every_effect_maps_to_an_effect_the_web_paints(): void
@@ -73,6 +74,36 @@ class CatalogTest extends TestCase
         $keys = array_column(Catalog::section('vestimenta')['fields'], 'key');
         $this->assertContains('enlace', $keys);
         $this->assertContains('boton', $keys);
+    }
+
+    public function test_stationery_theme_variants_effects_and_slots_are_offered_by_the_editor(): void
+    {
+        $options = fn (string $section) => array_column(
+            collect(Catalog::section($section)['fields'])->firstWhere('key', 'variante')['options'],
+            'value',
+        );
+
+        foreach ([
+            'portada' => 'sobre-lacre', 'musica' => 'lacre', 'bendicion' => 'editorial', 'historia' => 'editorial',
+            'fecha' => 'editorial', 'ubicacion' => 'papeleria', 'cuenta_regresiva' => 'banda', 'itinerario' => 'minuto',
+            'vestimenta' => 'editorial', 'hospedaje' => 'papeleria', 'galeria' => 'editorial', 'mesa_regalos' => 'sobre',
+            'informacion' => 'editorial', 'confirmacion' => 'tarjeta-rsvp', 'dedicatoria' => 'muro', 'trivia' => 'papeleria',
+            'album' => 'papeleria', 'cierre' => 'lacre',
+        ] as $section => $variant) {
+            $this->assertContains($variant, $options($section), $section);
+        }
+
+        $this->assertSame('ink', Catalog::EFFECTS['tinta']['effect']);
+        $this->assertSame('raking-light', Catalog::EFFECTS['luz_rasante']['effect']);
+        $this->assertSame('paper-in', Catalog::EFFECTS['papel_entra']['effect']);
+        $this->assertSame('fine', Catalog::BUTTONS['fino']['value']);
+        $this->assertSame('church', Catalog::slots('ubicacion')['iglesia']['slot']);
+        $this->assertSame('lining', Catalog::slots('portada')['forro']['slot']);
+        // La tarjeta de la portada se edita por bloques: encabezado, papás, fecha.
+        $blocks = array_column(Catalog::textBlocks('portada'), 'block');
+        foreach (['title', 'text', 'date', 'role', 'names'] as $block) {
+            $this->assertContains($block, $blocks);
+        }
     }
 
     public function test_the_editor_gets_the_whole_catalog(): void
