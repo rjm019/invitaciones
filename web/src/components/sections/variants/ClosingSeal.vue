@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import FxText from '@/components/ui/FxText.vue'
 import WaxSeal from '@/components/ui/WaxSeal.vue'
 import { useEvent } from '@/composables/useEvent'
 import { dateParts } from '@/services/dateFormatService'
@@ -33,7 +34,7 @@ const dividerStyle = computed(() =>
 <template>
   <div class="cs" :style="dividerStyle">
     <WaxSeal class="cs__seal" tone="burgundy" size="min(11rem, 46cqi)" seed="cierre" />
-    <h2 v-if="section.title" class="cs__title" data-text="title">{{ section.title }}</h2>
+    <h2 v-if="section.title" class="cs__title" data-text="title"><FxText :text="section.title" :effects="section.effects" /></h2>
     <p v-if="section.text" class="cs__text" data-text="text">{{ section.text }}</p>
     <span v-if="divider" class="cs__divider" aria-hidden="true" />
     <p class="cs__names" data-text="signature">

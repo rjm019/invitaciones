@@ -38,12 +38,16 @@ const theme: ThemeManifest = {
   // Sin rotación: cada sección dice su fondo (papel, lino olivo, banda o piedra).
   panels: [{ color: 'paper' }],
   sections: {
-    'hero-envelope': { panel: false, variant: 'sobre-lacre' },
-    'music-player': { panel: false, variant: 'lacre', effects: ['reveal'] },
+    'hero-envelope': {
+      panel: false,
+      variant: 'sobre-lacre',
+      effects: ['typewriter-title', 'stamp', 'calligraphy'],
+    },
+    'music-player': { panel: false, variant: 'lacre', effects: ['reveal', 'gold-leaf'] },
     blessing: {
       variant: 'editorial',
       background: { color: 'paper' },
-      effects: ['ink'],
+      effects: ['paper-in', 'ink-dry'],
       decor: { divider: 'filigrana.svg' },
     },
     story: { panel: false, variant: 'cronologia', effects: ['reveal'] },
@@ -51,7 +55,7 @@ const theme: ThemeManifest = {
       panel: false,
       desktop: 'half',
       variant: 'editorial',
-      effects: ['paper-in'],
+      effects: ['paper-in', 'stamp'],
     },
     location: {
       desktop: 'half',
@@ -63,35 +67,35 @@ const theme: ThemeManifest = {
     countdown: {
       variant: 'banda',
       background: { color: 'borgona' },
-      effects: ['blend', 'reveal'],
+      effects: ['blend', 'reveal', 'typewriter-title'],
     },
     itinerary: { panel: false, desktop: 'half', variant: 'sello', effects: ['timeline-fill'] },
     'dress-code': {
       desktop: 'half',
       variant: 'editorial',
       background: { color: 'paper' },
-      effects: ['ink'],
+      effects: ['reveal-tilt', 'ink-dry'],
     },
     hotels: {
       variant: 'papeleria',
       background: { color: 'olivo' },
       effects: ['cascade'],
     },
-    gallery: { panel: false, variant: 'editorial', effects: ['reveal'] },
-    gifts: { panel: false, desktop: 'half', variant: 'volteo', effects: ['reveal'] },
+    gallery: { panel: false, variant: 'editorial', effects: ['reveal', 'calligraphy'] },
+    gifts: { panel: false, desktop: 'half', variant: 'volteo', effects: ['paper-in'] },
     faq: {
       desktop: 'half',
       variant: 'editorial',
       background: { color: 'paper' },
-      effects: ['reveal'],
+      effects: ['reveal', 'letterpress'],
       decor: { divider: 'filigrana.svg' },
     },
     trivia: {
       variant: 'papeleria',
       background: { color: 'olivo' },
-      effects: ['reveal'],
+      effects: ['reveal-zoom', 'letterpress'],
     },
-    rsvp: { panel: false, desktop: 'half', variant: 'tarjeta-rsvp', effects: ['paper-in'] },
+    rsvp: { panel: false, desktop: 'half', variant: 'tarjeta-rsvp', effects: ['paper-in', 'letterpress'] },
     dedications: {
       panel: false,
       desktop: 'half',
@@ -99,8 +103,8 @@ const theme: ThemeManifest = {
       effects: ['ink'],
       decor: { divider: 'filigrana.svg' },
     },
-    'guest-album': { panel: false, variant: 'papeleria', effects: ['reveal'] },
-    closing: { panel: false, variant: 'lacre', effects: ['raking-light'] },
+    'guest-album': { panel: false, variant: 'papeleria', effects: ['reveal', 'letterpress'] },
+    closing: { panel: false, variant: 'lacre', effects: ['raking-light', 'gold-leaf'] },
     // Las que el tema no usa en su boda de ejemplo también se ven de papel.
     quote: { panel: false, effects: ['ink'], decor: { divider: 'filigrana.svg' } },
     'photo-arch': { background: { color: 'paper' }, effects: ['reveal'] },
@@ -110,7 +114,7 @@ const theme: ThemeManifest = {
     'envelope-rain': { background: { color: 'paper' }, effects: ['reveal'] },
     video: { background: { color: 'paper' }, effects: ['reveal'] },
     'social-post': { background: { color: 'paper' }, effects: ['reveal'] },
-    layer: { panel: false },
+    layer: { panel: false, effects: ['ink-dry'] },
   },
 }
 

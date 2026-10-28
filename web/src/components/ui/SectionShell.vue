@@ -7,6 +7,7 @@ import { useInView } from '@/composables/useInView'
 import { vReveal } from '@/directives/reveal'
 import { backgroundVars } from '@/services/backgroundService'
 import { FABRIC_EFFECTS, motionTime, seededRandom, sparkles } from '@/services/effectsService'
+import { TEXT_EFFECTS } from '@/services/textEffectService'
 import { sectionStyleVars } from '@/services/themeService'
 import type { ResolvedSection } from '@/types/event'
 
@@ -80,9 +81,10 @@ const REVEALS = [
   'stitch-in',
   'ink',
   'paper-in',
+  ...TEXT_EFFECTS,
 ]
 // Estos solo necesitan saber cuándo se ve la sección: el bloque no se desvanece por ellos.
-const REVEALS_QUIET = ['cascade', 'stitch-in', 'ink']
+const REVEALS_QUIET = ['cascade', 'stitch-in', 'ink', ...TEXT_EFFECTS]
 const reveals = computed(() => props.section.effects.some((e) => REVEALS.includes(e)))
 
 // Lejos de la pantalla, sus animaciones se pausan y su ambiente no se pinta: con muchas

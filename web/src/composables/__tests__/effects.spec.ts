@@ -74,6 +74,48 @@ describe('useScrollLock', () => {
   })
 })
 
+describe('useScrollLock con varios', () => {
+  it('un candado abierto (un visor cerrado) no suelta el de otro (el sobre)', async () => {
+    const has = () => document.documentElement.classList.contains('is-scroll-locked')
+    const envelope = ref(true)
+    const a = mount(defineComponent({ setup: () => (useScrollLock(() => envelope.value), () => null) }))
+    const b = mount(defineComponent({ setup: () => (useScrollLock(() => false), () => null) }))
+    expect(has()).toBe(true)
+    b.unmount()
+    expect(has()).toBe(true)
+    envelope.value = false
+    await nextTick()
+    expect(has()).toBe(false)
+    a.unmount()
+  })
+})
+
+describe('useScrollLock estricto', () => {
+  it('impide el touchmove y las teclas de desplazamiento solo mientras está cerrado', async () => {
+    const locked = ref(true)
+    const wrapper = mount(
+      defineComponent({
+        setup: () => (useScrollLock(() => locked.value, { strict: true }), () => null),
+      }),
+    )
+    const key = (k: string) => {
+      const e = new KeyboardEvent('keydown', { key: k, cancelable: true })
+      window.dispatchEvent(e)
+      return e.defaultPrevented
+    }
+    expect(key('PageDown')).toBe(true)
+    expect(key('ArrowDown')).toBe(true)
+    expect(key('a')).toBe(false)
+    locked.value = false
+    await nextTick()
+    expect(key('PageDown')).toBe(false)
+    locked.value = true
+    await nextTick()
+    wrapper.unmount()
+    expect(key('PageDown')).toBe(false)
+  })
+})
+
 describe('useParallax', () => {
   it('mide al entrar a la pantalla y deja de escuchar el scroll al desmontar', () => {
     vi.stubGlobal('IntersectionObserver', FakeObserver)

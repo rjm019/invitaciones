@@ -130,3 +130,49 @@
   --color-text: #3b342e;
   --color-bg: var(--color-paper);
 }
+
+/*
+ * Capas de fotos: la letra es marfil sobre un velo cálido en el centro de la primera
+ * ventana (las fotos se quedan quietas y la página pasa encima: profundidad sin perder la
+ * lectura).
+ */
+:root[data-theme='lacre'] .section--layer {
+  --color-primary-strong: #f5f0e6;
+  --color-text: #f5f0e6;
+}
+:root[data-theme='lacre'] .section--layer .layer__title {
+  font-family: var(--t-title-font, var(--font-display));
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: calc(clamp(1.9rem, 9cqi, 3rem) * var(--t-title-size, 1));
+  margin-right: -0.12em;
+}
+:root[data-theme='lacre'] .section--layer .layer__text {
+  max-width: 26rem;
+  font-family: var(--t-text-font, var(--font-serif));
+}
+:root[data-theme='lacre'] .section--layer .layer__window:first-child::after {
+  content: '';
+  position: absolute;
+  inset: 18% 0;
+  background: radial-gradient(60% 55% at 50% 50%, rgb(40 32 26 / 0.5), transparent 75%);
+  pointer-events: none;
+}
+:root[data-theme='lacre'] .section--layer .layer__window:first-child > * {
+  z-index: 1;
+}
+
+/* El botón flotante de la música, como un lacre borgoña pequeño. */
+:root[data-theme='lacre'] .mini-player {
+  background:
+    radial-gradient(circle at 34% 28%, rgb(255 255 255 / 0.22), transparent 45%),
+    radial-gradient(circle at 50% 50%, #7d2a37 0%, #6e1f2c 55%, #4a121c 100%);
+  color: #f5f0e6;
+  box-shadow:
+    0 0 0 3px rgb(176 141 87 / 0.55),
+    0 6px 12px -4px rgb(40 20 20 / 0.5);
+}
+:root[data-theme='lacre'] .mini-player::before,
+:root[data-theme='lacre'] .mini-player::after {
+  border-color: rgb(176 141 87 / 0.7);
+}

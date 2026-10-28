@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
+import FxText from '@/components/ui/FxText.vue'
 import WaxSeal from '@/components/ui/WaxSeal.vue'
 import { useEvent } from '@/composables/useEvent'
 import { useInvitation } from '@/composables/useInvitation'
@@ -14,21 +15,31 @@ import { coupleNames, formalDate, parentGroups } from '@/services/stationeryServ
 import type { ResolvedSection } from '@/types/event'
 
 /**
- * Portada "sobre con lacre" (`sobre-lacre`): un sobre de papel de color (el olivo del
- * tema, `--color-olivo`) cerrado con un lacre dorado con el monograma. Al tocar empieza la
- * música, el lacre se levanta, la solapa abre sobre su bisagra de arriba (rotateX) y deja ver
- * el forro de damasco en relieve; la tarjeta sube desde adentro mientras el sobre baja, pasa
- * al frente y todo se acomoda como una papelería sobre la mesa: el sobre abierto detrás, la
- * tarjeta al frente con su lacre y un sello ovalado borgoña al costado.
+ * Portada "sobre con lacre" (`sobre-lacre`): un sobre tradicional, apaisado, de papel de
+ * color (el olivo del tema, `--color-olivo`) con la solapa triangular arriba, cerrada con un
+ * lacre dorado con el monograma. Al tocar empieza la música y:
  *
- * La tarjeta es la portada: el encabezado (`titulo`, "Con todo el corazón"), los papás (los
- * grupos de papás de la bendición), los nombres en mayúsculas espaciadas con el "&"
- * caligráfico, la frase (`texto`), la fecha y la ciudad. Todo con transform y opacity; la
- * profundidad (qué va delante) también es un transform (translateZ con preserve-3d).
- * Mientras está cerrado la página no hace scroll. Con "menos movimiento" ya aparece abierto;
- * en el gestor se ve abierto, salvo en "Ver como invitado". Sirve en cualquier tema: los
- * colores salen de la paleta (`--color-olivo`, `--color-paper`, `--color-borgona`…) y el
- * damasco del forro es una ranura (`forro`).
+ * 1. el lacre se levanta y se va;
+ * 2. la solapa abre sobre su bisagra de arriba: la de afuera gira hacia quien mira hasta
+ *    quedar de canto y la de adentro (el forro de damasco) sigue el giro hasta quedar
+ *    parada detrás de la tarjeta (dos piezas planas, sin 3D compartido: nada queda
+ *    flotando ni se cruza);
+ * 3. la tarjeta sube desde adentro del sobre hasta salir;
+ * 4. la tarjeta pasa al frente y crece a su lugar mientras el sobre entero (con su solapa)
+ *    baja y se desvanece: queda solo la tarjeta, con su lacre arriba y el sello ovalado
+ *    borgoña al costado;
+ * 5. al final, si la portada ya no ocupa la pantalla, la tarjeta se acomoda arriba con un
+ *    deslizamiento (FLIP, solo transform).
+ *
+ * La tarjeta es la portada: el encabezado (`titulo`), los papás (los grupos de la
+ * bendición), los nombres en mayúsculas espaciadas con el "&" caligráfico, la frase
+ * (`texto`), la fecha y la ciudad. Los efectos de texto de la sección (FxText) arrancan
+ * cuando la tarjeta llega: máquina de escribir en el encabezado, letras estampadas, tinta o
+ * letterpress en los nombres y caligrafía en el "&".
+ *
+ * Mientras está cerrado la página no se mueve (ni con el dedo ni con las teclas). Con "menos
+ * movimiento" ya aparece abierta; en el gestor se ve abierta, salvo en "Ver como invitado".
+ * Sirve en cualquier tema: los colores salen de la paleta y el damasco es una ranura (`forro`).
  */
 const props = defineProps<{ section: ResolvedSection }>()
 const { event, resolveAsset } = useEvent()
@@ -37,24 +48,23 @@ const invitation = useInvitation()
 const reduced = useReducedMotion()
 const preview = usePreview()
 
-const phase = ref<'closed' | 'opening' | 'open'>(
+type Phase = 'closed' | 'opening' | 'presenting' | 'open'
+const phase = ref<Phase>(
   !reduced.value || !!preview.value ? (preview.value?.envelopeOpen ? 'open' : 'closed') : 'open',
 )
-useScrollLock(() => phase.value === 'closed')
+useScrollLock(() => phase.value === 'closed' || phase.value === 'opening', { strict: true })
 
 const root = ref<HTMLElement | null>(null)
 const stage = ref<HTMLElement | null>(null)
-const lift = ref<number | null>(null)
-const heroStyle = computed(() =>
-  lift.value === null ? undefined : { '--hero-lift': `${lift.value}px` },
-)
+const settle = ref<number | null>(null)
 
 const lining = computed(() =>
   decorOr(props.section.decor, 'lining', resolveAsset.value('damasco.svg')),
 )
-const stageStyle = computed(() =>
-  lining.value ? { '--lh-lining': `url("${lining.value.replace(/"/g, '%22')}")` } : undefined,
-)
+const stageStyle = computed(() => ({
+  ...(lining.value ? { '--lh-lining': `url("${lining.value.replace(/"/g, '%22')}")` } : {}),
+  ...(settle.value !== null ? { '--lh-settle': `${settle.value}px` } : {}),
+}))
 
 const names = computed(() =>
   coupleNames(event.value.celebrant.full_name || event.value.celebrant.short_name || event.value.title),
@@ -69,60 +79,59 @@ const family = computed(() => invitation?.invitation.value?.label ?? null)
 const longest = computed(() =>
   Math.max(6, ...names.value.flatMap((n) => n.split(/\s+/)).map((w) => Array.from(w).length)),
 )
+// Los efectos de texto arrancan cuando la tarjeta ya llegó a su lugar.
+const textOn = computed(() => phase.value === 'open')
+const fx = computed(() => props.section.effects)
 
-let timer: ReturnType<typeof setTimeout> | undefined
+const timers: ReturnType<typeof setTimeout>[] = []
+const later = (ms: number, fn: () => void) => timers.push(setTimeout(fn, ms * motionScale()))
+
+async function finish() {
+  if (phase.value === 'open') return
+  const before = stage.value?.getBoundingClientRect().top ?? 0
+  phase.value = 'open'
+  await nextTick()
+  const after = stage.value?.getBoundingClientRect().top ?? 0
+  // La portada deja de ocupar la pantalla: la tarjeta sube a su lugar deslizándose.
+  if (Math.abs(before - after) > 2 && !reduced.value) {
+    settle.value = Math.round(before - after)
+    later(1200, () => (settle.value = null))
+  }
+}
+
 function open() {
   if (phase.value !== 'closed') return
-  if (root.value && stage.value) {
-    lift.value = Math.max(
-      0,
-      stage.value.getBoundingClientRect().top - root.value.getBoundingClientRect().top,
-    )
-  }
   void music?.play() // dentro del toque: así iOS sí deja sonar
   if (reduced.value) {
     phase.value = 'open'
     return
   }
   phase.value = 'opening'
-  // por si animationend no llega (todo dura ~3.4 s a velocidad 1)
-  timer = setTimeout(() => (phase.value = 'open'), 3700 * motionScale())
+  later(2300, () => (phase.value = 'presenting'))
+  // por si animationend no llega (todo dura ~3.6 s a velocidad 1)
+  later(3800, () => void finish())
 }
 function onCardEnd(e: AnimationEvent) {
-  if (e.animationName.includes('lh-card')) phase.value = 'open'
+  if (e.animationName.includes('lh-present')) void finish()
 }
-onBeforeUnmount(() => clearTimeout(timer))
+onBeforeUnmount(() => timers.forEach(clearTimeout))
 </script>
 
 <template>
-  <div
-    ref="root"
-    class="lh"
-    :class="[`lh--${phase}`, { 'lh--pinned': lift !== null }]"
-    :style="heroStyle"
-  >
+  <div ref="root" class="lh" :class="`lh--${phase}`">
     <div
       ref="stage"
       class="lh__stage"
+      :class="{ 'is-settling': settle !== null }"
       :style="stageStyle"
       :data-open="phase === 'closed' ? '' : undefined"
       @click="open"
     >
-      <!-- El sobre: el fondo con el forro, la tarjeta adentro, la bolsa y la solapa. -->
-      <div class="lh__envelope" aria-hidden="true">
-        <div class="lh__inside"><span class="lh__damask" /></div>
-        <div class="lh__pocket">
-          <svg class="lh__seams" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <path d="M0 100L44 62M100 100L56 62M0 20L44 62H56L100 20" />
-          </svg>
-          <p v-if="family" class="lh__to" data-text="to">{{ family }}</p>
-        </div>
-        <div class="lh__flap">
-          <span class="lh__flap-face lh__flap-face--out" />
-          <span class="lh__flap-face lh__flap-face--in"><span class="lh__damask" /></span>
-        </div>
+      <!-- El sobre (apaisado): fondo con forro, solapa de adentro, tarjeta, bolsa y solapa de afuera. -->
+      <div v-if="phase !== 'open'" class="lh__envelope" aria-hidden="true">
+        <div class="lh__back"><span class="lh__damask" /></div>
+        <div class="lh__flap-in"><span class="lh__damask" /></div>
       </div>
-      <WaxSeal class="lh__seal" tone="gold" size="18%" seed="sobre-lacre" />
 
       <!-- La tarjeta: la portada. -->
       <div class="lh__card" @animationend="onCardEnd">
@@ -131,7 +140,14 @@ onBeforeUnmount(() => clearTimeout(timer))
           data-fillet="burgundy"
           :style="{ '--lh-chars': String(longest) }"
         >
-          <p v-if="section.title" class="lh__kicker" data-text="title">{{ section.title }}</p>
+          <p v-if="section.title" class="lh__kicker" data-text="title">
+            <FxText
+              :text="section.title"
+              :effects="fx"
+              :allow="['typewriter-title', 'gold-leaf']"
+              :active="textOn"
+            />
+          </p>
           <div v-if="parents.length" class="lh__parents" :class="{ 'lh__parents--one': parents.length === 1 }">
             <div v-for="(group, i) in parents" :key="i" class="lh__parent">
               <p class="lh__role" data-text="role">{{ group.role }}</p>
@@ -142,9 +158,23 @@ onBeforeUnmount(() => clearTimeout(timer))
           </div>
           <h1 class="lh__names" data-text="name">
             <template v-if="names.length === 2">
-              <span class="lh__name">{{ names[0] }}</span>
-              <span class="lh__amp" aria-label="y">&amp;</span>
-              <span class="lh__name">{{ names[1] }}</span>
+              <span class="lh__name"
+                ><FxText
+                  :text="names[0]!"
+                  :effects="fx"
+                  :allow="['stamp', 'ink-dry', 'letterpress']"
+                  :active="textOn"
+              /></span>
+              <span class="lh__amp" aria-label="y"
+                ><FxText text="&" :effects="fx" :allow="['calligraphy']" :active="textOn"
+              /></span>
+              <span class="lh__name"
+                ><FxText
+                  :text="names[1]!"
+                  :effects="fx"
+                  :allow="['stamp', 'ink-dry', 'letterpress']"
+                  :active="textOn"
+              /></span>
             </template>
             <span v-else class="lh__name">{{ names[0] }}</span>
           </h1>
@@ -152,90 +182,134 @@ onBeforeUnmount(() => clearTimeout(timer))
           <p v-if="date" class="lh__date" data-text="date">{{ date }}</p>
           <p v-if="place" class="lh__place" data-text="place">{{ place }}</p>
         </div>
-        <WaxSeal class="lh__card-seal" tone="gold" size="18%" seed="tarjeta" />
+        <WaxSeal class="lh__card-seal" tone="gold" size="18%" seed="tarjeta" :shine="phase === 'open'" />
       </div>
-      <WaxSeal class="lh__oval" shape="oval" tone="burgundy" size="27%" seed="ovalado" />
-    </div>
+      <WaxSeal class="lh__oval" shape="oval" tone="burgundy" size="24%" seed="ovalado" />
 
-    <button v-if="phase === 'closed'" type="button" class="lh__open" data-text="button" @click="open">
-      {{ section.button ?? 'Toca para abrir' }}
-    </button>
+      <div v-if="phase !== 'open'" class="lh__front" aria-hidden="true">
+        <div class="lh__pocket">
+          <svg class="lh__seams" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M0 100L41 52M100 100L59 52M0 0L50 42L100 0" />
+          </svg>
+          <p v-if="family" class="lh__to" data-text="to">{{ family }}</p>
+        </div>
+        <div class="lh__flap-out" />
+        <WaxSeal class="lh__seal" tone="gold" size="17%" seed="sobre-lacre" :shine="phase === 'closed'" />
+      </div>
+
+      <button
+        v-if="phase === 'closed'"
+        type="button"
+        class="lh__open"
+        data-text="button"
+        @click.stop="open"
+      >
+        {{ section.button ?? 'Toca para abrir' }}
+      </button>
+    </div>
   </div>
 </template>
 
 <style scoped>
 /*
- * El escenario mide 100 × 165 (en % de su ancho): todo va en % para que escale igual en un
- * celular que en una computadora. Las posiciones de base son las del final (abierto); cerrado
- * y abriendo son transforms sobre ellas.
- *   sobre:   x 0–86, y 46–166 (girado -3°)       cerrado: centrado
- *   tarjeta: x 12–94, y 40–155                    cerrado: dentro del sobre
- *   óvalo:   x 66–94, y 128–163
+ * Medidas: el escenario es la tarjeta (ancho W = 100cqi del escenario, alto 1.4 W). El sobre
+ * mide k·W de ancho y 0.66·k·W de alto, centrado en el escenario (k = 1 en el celular y 1.3
+ * en pantallas anchas). Adentro del sobre, la tarjeta va a escala 0.39·k; al subir, su
+ * centro llega a 0.45·k·W arriba del centro: su pie ya pasó la orilla en V de la bolsa.
  */
 .lh {
+  container-type: inline-size;
   display: grid;
   place-content: start center;
   justify-items: center;
-  gap: var(--space-2);
+  /* lugar para el lacre que corona la tarjeta */
+  padding-top: 1.4rem;
 }
-.lh--closed {
+.lh__stage {
+  --lh-k: 1;
+}
+@container (min-width: 560px) {
+  .lh__stage {
+    --lh-k: 1.3;
+  }
+}
+.lh--closed,
+.lh--opening,
+.lh--presenting {
   place-content: center;
   min-height: calc(100svh - 2 * var(--section-gap));
-}
-.lh--opening {
-  min-height: calc(100svh - 2 * var(--section-gap));
-}
-.lh--pinned {
-  padding-top: var(--hero-lift);
 }
 .lh__stage {
   --lh-ink: var(--color-text);
   --lh-olive: var(--color-olivo, var(--color-primary));
   --lh-paper: var(--color-paper, var(--color-surface));
-  --lh-T: calc(3.4s * var(--motion-scale));
+  container-type: inline-size;
   position: relative;
-  /* cabe a lo alto de la pantalla, cerrado o abierto */
-  width: min(100cqi, 31rem, calc((100svh - 6rem) / 1.65));
-  aspect-ratio: 100 / 165;
-  perspective: 1400px;
-  transform-style: preserve-3d;
+  /* la tarjeta cabe a lo alto de la pantalla */
+  width: min(100cqi, 27rem, calc((100svh - 7rem) / 1.4));
+  aspect-ratio: 100 / 140;
 }
 .lh--closed .lh__stage {
   cursor: pointer;
 }
+.lh__stage.is-settling {
+  animation: lh-settle calc(1s * var(--motion-scale)) cubic-bezier(0.25, 0.8, 0.25, 1) both;
+}
+@keyframes lh-settle {
+  from {
+    transform: translateY(var(--lh-settle, 0));
+  }
+  to {
+    transform: none;
+  }
+}
 
 /* ------------------------------------------------------------------ el sobre */
-.lh__envelope {
+.lh__envelope,
+.lh__front {
   position: absolute;
-  left: 0;
-  top: 27.88%;
-  width: 86%;
-  height: 72.73%;
-  transform-style: preserve-3d;
-  transform: rotate(-3deg);
-  transform-origin: 50% 60%;
+  left: calc(50% - var(--lh-k) * 50cqi);
+  top: calc(50% - var(--lh-k) * 33cqi);
+  width: calc(var(--lh-k) * 100cqi);
+  height: calc(var(--lh-k) * 66cqi);
+  pointer-events: none;
 }
-.lh__inside,
-.lh__pocket {
+.lh__envelope {
+  filter: drop-shadow(0 14px 18px rgb(40 30 20 / 0.28));
+}
+/* El fondo del sobre por dentro: olivo oscuro con el forro de damasco arriba. */
+.lh__back {
   position: absolute;
   inset: 0;
+  background: color-mix(in srgb, var(--lh-olive) 80%, #000);
 }
-/* El fondo del sobre por dentro: el forro de damasco (se ve por la abertura en V). */
-.lh__inside {
-  transform: translateZ(-3px);
-  background: color-mix(in srgb, var(--lh-olive) 82%, #000);
+.lh__back .lh__damask {
+  inset: 1.2% 1.2% 50%;
 }
-.lh__inside .lh__damask {
-  inset: 3% 3% 45%;
+/* La solapa abierta (por dentro: el forro), parada sobre la orilla de arriba. */
+.lh__flap-in {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  width: 100%;
+  height: 52%;
+  transform-origin: 50% 100%;
+  transform: perspective(900px) rotateX(-90deg);
+  opacity: 0;
+}
+.lh__flap-in .lh__damask {
+  inset: 0;
+  clip-path: polygon(0 100%, 46% 5%, 50% 0, 54% 5%, 100% 100%);
 }
 /* La bolsa: el papel de color con su trama, las costuras y la abertura en V arriba. */
 .lh__pocket {
+  position: absolute;
+  inset: 0;
   background:
     url('../../../effects/assets/textura-lino.svg') 0 0 / 180px,
     linear-gradient(180deg, rgb(255 255 255 / 0.06), transparent 40%, rgb(0 0 0 / 0.14)),
     var(--lh-olive);
-  clip-path: polygon(0 0, 50% 34%, 100% 0, 100% 100%, 0 100%);
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
+  clip-path: polygon(0 0, 50% 42%, 100% 0, 100% 100%, 0 100%);
 }
 .lh__seams {
   position: absolute;
@@ -243,9 +317,8 @@ onBeforeUnmount(() => clearTimeout(timer))
   width: 100%;
   height: 100%;
   fill: none;
-  stroke: rgb(0 0 0 / 0.22);
+  stroke: rgb(0 0 0 / 0.24);
   stroke-width: 1;
-  vector-effect: non-scaling-stroke;
 }
 .lh__seams path {
   vector-effect: non-scaling-stroke;
@@ -254,44 +327,30 @@ onBeforeUnmount(() => clearTimeout(timer))
   position: absolute;
   left: 8%;
   right: 8%;
-  bottom: 9%;
+  bottom: 12%;
   margin: 0;
   text-align: center;
   font-family: var(--t-to-font, var(--font-script));
-  font-size: calc(clamp(1.05rem, 6cqi, 1.7rem) * var(--t-to-size, 1));
+  font-size: calc(clamp(1.05rem, 6cqi, 1.9rem) * var(--t-to-size, 1));
   line-height: 1.1;
   color: var(--t-to-color, var(--lh-paper));
   opacity: 0.92;
 }
-/* La solapa: un triángulo con bisagra arriba; por fuera el papel de color, por dentro el forro. */
-.lh__flap {
+/* La solapa cerrada: el triángulo de afuera, con la bisagra en la orilla de arriba. */
+.lh__flap-out {
   position: absolute;
   left: 0;
   top: 0;
   width: 100%;
-  height: 42%;
+  height: 54%;
   transform-origin: 50% 0;
-  transform-style: preserve-3d;
-  transform: rotateX(180deg) translateZ(2px);
-}
-.lh__flap-face {
-  position: absolute;
-  inset: 0;
-  clip-path: polygon(0 0, 100% 0, 54% 95%, 50% 100%, 46% 95%);
-  backface-visibility: hidden;
-}
-.lh__flap-face--out {
+  transform: perspective(900px) rotateX(0deg);
   background:
     url('../../../effects/assets/textura-lino.svg') 0 0 / 180px,
-    linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(0 0 0 / 0.1)),
+    linear-gradient(180deg, rgb(255 255 255 / 0.05), rgb(0 0 0 / 0.12)),
     color-mix(in srgb, var(--lh-olive) 92%, #fff);
-}
-.lh__flap-face--in {
-  transform: rotateX(180deg);
-  background: var(--lh-paper);
-}
-.lh__flap-face--in .lh__damask {
-  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 53.5% 94%, 50% 100%, 46.5% 94%);
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.25));
 }
 
 /*
@@ -321,19 +380,35 @@ onBeforeUnmount(() => clearTimeout(timer))
 }
 
 /* ------------------------------------------------------------------ lacres */
+/* El lacre que cierra: en la punta de la solapa. */
 .lh__seal {
   position: absolute;
-  left: 41%;
-  top: 38.7%;
-  width: 18%;
-  transform: translateZ(4px);
-  filter: drop-shadow(0 2px 2px rgb(40 30 20 / 0.35));
+  left: 41.5%;
+  top: 41%;
+  width: 17%;
+  filter: drop-shadow(0 3px 3px rgb(40 30 20 / 0.4));
+}
+.lh--closed .lh__seal {
+  animation: lh-seal-hint calc(3.2s * var(--motion-scale)) ease-in-out infinite;
+}
+@keyframes lh-seal-hint {
+  0%,
+  70%,
+  100% {
+    transform: none;
+  }
+  80% {
+    transform: scale(1.06) rotate(-3deg);
+  }
+  90% {
+    transform: scale(0.98) rotate(1deg);
+  }
 }
 .lh__oval {
   position: absolute;
-  left: 71%;
+  left: 77%;
   top: 80%;
-  width: 27%;
+  z-index: 3;
   filter: drop-shadow(0 6px 8px rgb(40 20 20 / 0.35));
 }
 
@@ -342,18 +417,13 @@ onBeforeUnmount(() => clearTimeout(timer))
   /* todo lo de la tarjeta se mide contra su ancho (cqi) */
   container-type: inline-size;
   position: absolute;
-  left: 12%;
-  top: 24.24%;
-  width: 82%;
-  height: 69.7%;
-  transform-style: preserve-3d;
-  filter: drop-shadow(0 1px 1px rgb(59 52 46 / 0.18)) drop-shadow(0 10px 14px rgb(59 52 46 / 0.22));
+  inset: 0;
+  filter: drop-shadow(0 1px 1px rgb(59 52 46 / 0.18)) drop-shadow(0 12px 16px rgb(59 52 46 / 0.24));
 }
 .lh__card-seal {
   position: absolute;
   left: 41%;
-  top: -6.5%;
-  width: 18%;
+  top: -6%;
 }
 .lh__paper {
   /* paper-notched la deja en position: relative: llena la tarjeta con su alto */
@@ -363,7 +433,7 @@ onBeforeUnmount(() => clearTimeout(timer))
   align-items: center;
   justify-content: center;
   gap: 3.2cqi;
-  padding: 11cqi 9cqi 18cqi;
+  padding: 11cqi 9cqi 14cqi;
   text-align: center;
   color: var(--lh-ink);
   background:
@@ -466,24 +536,15 @@ onBeforeUnmount(() => clearTimeout(timer))
 }
 
 /* ------------------------------------------------------------------ cerrado */
-.lh--closed .lh__envelope {
-  transform: translate(8.14%, -19.58%);
-}
-.lh--closed .lh__flap {
-  transform: rotateX(0deg) translateZ(2px);
-}
-.lh--closed .lh__card {
-  transform: translate(-3.66%, -11.74%) translateZ(-1px);
+/* Adentro del sobre: chica, un poco abajo del centro (asoma por la V cuando abre). */
+.lh--closed .lh__card,
+.lh--opening .lh__card {
+  transform: translateY(calc(var(--lh-k) * 3cqi)) scale(calc(0.39 * var(--lh-k)));
 }
 .lh--closed .lh__card-seal,
-.lh--closed .lh__oval {
-  opacity: 0;
-}
-/* Abierto: sin profundidad (lo de adelante es lo que va después). El lacre ya no está. */
-.lh--open .lh__stage {
-  transform-style: flat;
-}
-.lh--open .lh__seal {
+.lh--closed .lh__oval,
+.lh--opening .lh__card-seal,
+.lh--opening .lh__oval {
   opacity: 0;
 }
 
@@ -491,77 +552,109 @@ onBeforeUnmount(() => clearTimeout(timer))
 .lh--opening .lh__seal {
   animation: lh-seal-lift calc(0.7s * var(--motion-scale)) var(--ease-out) forwards;
 }
-.lh--opening .lh__flap {
-  animation: lh-flap calc(1.05s * var(--motion-scale)) cubic-bezier(0.45, 0, 0.25, 1)
-    calc(0.35s * var(--motion-scale)) both;
+.lh--opening .lh__flap-out {
+  animation: lh-flap-out calc(0.55s * var(--motion-scale)) cubic-bezier(0.5, 0, 0.9, 0.6)
+    calc(0.35s * var(--motion-scale)) forwards;
 }
-.lh--opening .lh__envelope {
-  animation: lh-envelope var(--lh-T) var(--ease-out) both;
+.lh--opening .lh__flap-in {
+  animation: lh-flap-in calc(0.5s * var(--motion-scale)) cubic-bezier(0.1, 0.4, 0.4, 1)
+    calc(0.9s * var(--motion-scale)) forwards;
 }
 .lh--opening .lh__card {
-  animation: lh-card var(--lh-T) var(--ease-out) both;
-}
-.lh--opening .lh__card-seal {
-  animation: lh-appear calc(0.6s * var(--motion-scale)) var(--ease-out)
-    calc(2.75s * var(--motion-scale)) both;
-}
-.lh--opening .lh__oval {
-  animation: lh-oval calc(0.8s * var(--motion-scale)) var(--ease-out)
-    calc(2.6s * var(--motion-scale)) both;
+  animation: lh-rise calc(1s * var(--motion-scale)) cubic-bezier(0.4, 0, 0.2, 1)
+    calc(1.3s * var(--motion-scale)) both;
 }
 @keyframes lh-seal-lift {
   0% {
-    transform: translateZ(4px);
+    transform: none;
     opacity: 1;
   }
-  45% {
-    transform: translateZ(4px) translateY(-14%) scale(1.06);
+  40% {
+    transform: translateY(-12%) scale(1.1) rotate(-6deg);
     opacity: 1;
   }
   100% {
-    transform: translateZ(4px) translateY(-40%) scale(1.12);
+    transform: translateY(-60%) scale(1.25) rotate(8deg);
     opacity: 0;
   }
 }
-@keyframes lh-flap {
+@keyframes lh-flap-out {
   from {
-    transform: rotateX(0deg) translateZ(2px);
+    transform: perspective(900px) rotateX(0deg);
   }
   to {
-    transform: rotateX(180deg) translateZ(2px);
+    transform: perspective(900px) rotateX(90deg);
   }
 }
-@keyframes lh-envelope {
-  0%,
-  40% {
-    transform: translate(8.14%, -19.58%);
-  }
-  68% {
-    transform: translate(8.14%, 38.75%);
+@keyframes lh-flap-in {
+  0% {
+    transform: perspective(900px) rotateX(-90deg);
+    opacity: 1;
   }
   100% {
-    transform: rotate(-3deg);
+    transform: perspective(900px) rotateX(0deg);
+    opacity: 1;
   }
 }
-@keyframes lh-card {
-  0%,
-  40% {
-    transform: translate(-3.66%, -11.74%) translateZ(-1px);
+@keyframes lh-rise {
+  from {
+    transform: translateY(calc(var(--lh-k) * 3cqi)) scale(calc(0.39 * var(--lh-k)));
   }
-  68% {
-    transform: translate(-3.66%, -55.2%) translateZ(-1px);
+  to {
+    transform: translateY(calc(var(--lh-k) * -45cqi)) scale(calc(0.39 * var(--lh-k)));
   }
-  70% {
-    transform: translate(-3.66%, -55.2%) translateZ(6px);
+}
+
+/* ------------------------------------------------------------------ la tarjeta al frente */
+/* La solapa quedó abierta (parada) y la de afuera de canto: así siguen hasta irse. */
+.lh--presenting .lh__seal,
+.lh--presenting .lh__flap-out {
+  opacity: 0;
+}
+.lh--presenting .lh__flap-in {
+  transform: perspective(900px) rotateX(0deg);
+  opacity: 1;
+}
+/* La tarjeta pasa adelante de la bolsa (va después en el orden) y crece a su lugar. */
+.lh--presenting .lh__card {
+  z-index: 2;
+  animation: lh-present calc(1.25s * var(--motion-scale)) cubic-bezier(0.3, 0.1, 0.2, 1) both;
+}
+/* El sobre entero baja y se desvanece: no queda nada de él. */
+.lh--presenting .lh__envelope,
+.lh--presenting .lh__front {
+  animation: lh-leave calc(0.85s * var(--motion-scale)) cubic-bezier(0.5, 0, 0.75, 0.2) forwards;
+}
+.lh--presenting .lh__card-seal {
+  animation: lh-appear calc(0.6s * var(--motion-scale)) var(--ease-out)
+    calc(0.75s * var(--motion-scale)) both;
+}
+.lh--presenting .lh__oval {
+  animation: lh-oval calc(0.7s * var(--motion-scale)) var(--ease-out)
+    calc(0.85s * var(--motion-scale)) both;
+}
+@keyframes lh-present {
+  from {
+    transform: translateY(calc(var(--lh-k) * -45cqi)) scale(calc(0.39 * var(--lh-k)));
   }
-  100% {
-    transform: translateZ(6px);
+  to {
+    transform: none;
+  }
+}
+@keyframes lh-leave {
+  from {
+    transform: none;
+    opacity: 1;
+  }
+  to {
+    transform: translateY(45%) scale(0.96);
+    opacity: 0;
   }
 }
 @keyframes lh-appear {
   from {
     opacity: 0;
-    transform: translateY(-30%) scale(1.2);
+    transform: translateY(-40%) scale(1.25);
   }
   to {
     opacity: 1;
@@ -571,7 +664,7 @@ onBeforeUnmount(() => clearTimeout(timer))
 @keyframes lh-oval {
   from {
     opacity: 0;
-    transform: translate(18%, 14%) rotate(8deg);
+    transform: translate(16%, 12%) rotate(10deg) scale(1.1);
   }
   to {
     opacity: 1;
@@ -579,7 +672,12 @@ onBeforeUnmount(() => clearTimeout(timer))
   }
 }
 
+/* ------------------------------------------------------------------ el botón */
 .lh__open {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + var(--lh-k) * 33cqi + 1.1rem);
+  translate: -50% 0;
   padding: 0.5rem 1.2rem;
   border: 0;
   background: none;
@@ -587,6 +685,7 @@ onBeforeUnmount(() => clearTimeout(timer))
   font-weight: 600;
   font-size: calc(0.78rem * var(--t-button-size, 1));
   letter-spacing: 0.3em;
+  white-space: nowrap;
   text-transform: uppercase;
   color: var(--t-button-color, var(--color-text));
   cursor: pointer;
@@ -606,7 +705,8 @@ onBeforeUnmount(() => clearTimeout(timer))
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .lh__open {
+  .lh__open,
+  .lh--closed .lh__seal {
     animation: none;
   }
 }

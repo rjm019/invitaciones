@@ -52,6 +52,12 @@ export type EffectName =
   | 'raking-light'
   | 'paper-in'
   | 'living-drawing'
+  | 'typewriter-title'
+  | 'ink-dry'
+  | 'calligraphy'
+  | 'stamp'
+  | 'gold-leaf'
+  | 'letterpress'
 
 /** Forma de las orillas de una franja (sección difuminada con fondo). */
 export type EdgeStyle = 'fade' | 'torn' | 'city' | 'wave' | 'scallop' | 'straight' | 'lace'

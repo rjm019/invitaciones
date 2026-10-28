@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import FxText from '@/components/ui/FxText.vue'
 import PhotoViewer from '@/components/ui/PhotoViewer.vue'
 import { useEvent } from '@/composables/useEvent'
 import { galleryItems } from '@/services/galleryService'
@@ -28,7 +29,7 @@ const SLOTS = ['hero', 'small', 'small', 'mid', 'mid'] as const
       <p v-if="section.subtitle" class="ge__subtitle" data-text="subtitle">
         {{ section.subtitle }}
       </p>
-      <h2 v-if="title" class="ge__title" data-text="title">{{ title }}</h2>
+            <h2 v-if="title" class="ge__title" data-text="title"><FxText :text="title" :effects="section.effects" /></h2>
     </header>
     <div class="ge__grid">
       <figure

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import FxText from '@/components/ui/FxText.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useEvent } from '@/composables/useEvent'
 import { googleCalendarUrl } from '@/services/calendarService'
@@ -38,7 +39,7 @@ const calendarUrl = computed(() =>
 <template>
   <div class="de">
     <div class="de__card paper-notched" data-fillet="burgundy">
-      <h2 class="de__title" data-text="title">{{ title }}</h2>
+      <h2 class="de__title" data-text="title"><FxText :text="title" :effects="section.effects" /></h2>
       <template v-if="parts">
         <p class="de__weekday" data-text="date">{{ parts.weekday }}</p>
         <p class="de__row" :aria-label="`${parts.day} de ${parts.month} de ${parts.year}`">

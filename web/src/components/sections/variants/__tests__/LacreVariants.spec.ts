@@ -127,6 +127,35 @@ describe('diseños de papelería (tema lacre)', () => {
     expect(calm.find('.lh__open').exists()).toBe(false)
   })
 
+  it('sobre-lacre: la tarjeta pasa al frente y al final no queda nada del sobre', async () => {
+    vi.useFakeTimers()
+    reduceMotion(false)
+    const wrapper = render(HeroSealedEnvelope, {
+      title: 'Con todo el corazón',
+      effects: ['typewriter-title', 'stamp', 'calligraphy'],
+    })
+    const locked = () => document.documentElement.classList.contains('is-scroll-locked')
+    expect(locked()).toBe(true)
+    // Cerrado: el sobre apaisado con sus dos solapas y el lacre que lo cierra.
+    expect(wrapper.find('.lh__flap-out').exists()).toBe(true)
+    expect(wrapper.find('.lh__flap-in').exists()).toBe(true)
+    expect(wrapper.find('.lh__kicker .fxt').attributes('data-play')).toBe('wait')
+    await wrapper.find('.lh__stage').trigger('click')
+    vi.advanceTimersByTime(2300 * 1.2)
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.lh').classes()).toContain('lh--presenting')
+    vi.advanceTimersByTime(2000)
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.lh').classes()).toContain('lh--open')
+    expect(wrapper.findAll('.lh__envelope, .lh__front, .lh__flap-in, .lh__flap-out')).toHaveLength(0)
+    expect(wrapper.find('.lh__kicker .fxt').attributes('data-play')).toBe('go')
+    expect(wrapper.find('.lh__amp .fxt').classes()).toContain('fxt--calligraphy')
+    expect(wrapper.find('.lh__name .fxt').classes()).toContain('fxt--stamp')
+    wrapper.unmount()
+    vi.useRealTimers()
+  })
+
   it('bendición editorial: sin repetir a los papás si la portada ya los trae', () => {
     const alone = render(BlessingEditorial, { text: 'Con la bendición de Dios' })
     expect(alone.findAll('.be__role')).toHaveLength(3)

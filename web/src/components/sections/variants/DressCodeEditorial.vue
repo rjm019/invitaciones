@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import FxText from '@/components/ui/FxText.vue'
 import { useEvent } from '@/composables/useEvent'
 import type { ResolvedSection } from '@/types/event'
 
@@ -26,7 +27,7 @@ const references = computed(() =>
 
 <template>
   <div class="dr">
-    <p class="dr__kicker" data-text="title">{{ title }}</p>
+    <p class="dr__kicker" data-text="title"><FxText :text="title" :effects="section.effects" /></p>
     <h2 v-if="section.subtitle" class="dr__headline" data-text="subtitle">{{ section.subtitle }}</h2>
     <span class="dr__rule" aria-hidden="true" />
     <p v-if="section.text" class="dr__text" data-text="text">{{ section.text }}</p>

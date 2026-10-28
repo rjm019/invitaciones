@@ -267,6 +267,13 @@ Cada texto de la invitación es un **bloque**: los cuatro comunes (`titulo`, `su
   - `tul_respira`: velos de tul en las orillas que respiran.
   - `bordado_aparece` (o `bordado`): el título aparece de a poco y se cose una línea de puntadas debajo.
   - `respira`: el panel crece y se encoge apenas.
+- Los de texto (tema `lacre`; sirven en cualquier tema). Animan el título de la sección (en la portada `sobre-lacre`: el encabezado, los nombres y el "&"); el texto real siempre está en la página para los lectores de pantalla y con "reducir movimiento" sale completo:
+  - `maquina_escribir`: el título se escribe letra por letra con un cursor de tinta (en la portada, el encabezado).
+  - `sello_estampado`: las letras caen una tras otra y se asientan como un sello (en la portada, los nombres).
+  - `tinta_seca`: las letras aparecen húmedas, en el color de acento, y se secan en la tinta.
+  - `caligrafia`: el título se descubre de izquierda a derecha como si lo escribiera una pluma (en la portada, el "&").
+  - `pan_de_oro`: un brillo dorado recorre el título, el monograma y los lacres de la sección cada tanto.
+  - `letterpress`: el título se imprime al llegar, como presionado contra el papel (sirve en cualquier sección, aunque su diseño no tenga los demás).
 - `difuminar` (o `sin_cortes`, `integrar`): la sección deja de ser tarjeta (ver abajo).
 - `ninguno` apaga los que el tema trae por defecto (no quita `difuminar` si la página lo pide).
 
@@ -471,8 +478,8 @@ El tema `lacre` los pone por defecto; cualquier invitación los pide con `varian
 
 | Sección | `variante` | Diseño |
 |---|---|---|
-| `portada` | `sobre-lacre` | Sobre de color (`--color-olivo`) con forro de damasco en relieve y lacre dorado con el monograma. Al tocar: el lacre se levanta, la solapa abre y la tarjeta sube; queda la tarjeta al frente con el sobre abierto detrás y un sello ovalado borgoña. La tarjeta lleva `titulo` («Con todo el corazón»), los grupos de papás de `bendicion`, los nombres (de `festejada`, partidos por «&»), `texto` (la frase antes de la fecha), la fecha y la ciudad. Adorno `imagen_forro` (el damasco) |
-| `musica` | `lacre` | Lacre como botón de play (gira despacio mientras suena) y una línea de avance fina. Con Spotify, su reproductor suena sin verse y queda un enlace a la lista |
+| `portada` | `sobre-lacre` | Sobre tradicional apaisado, de color (`--color-olivo`), con solapa triangular arriba, forro de damasco en relieve y lacre dorado con el monograma (con su brillo de pan de oro). Mientras está cerrado la página no se mueve (dedo, rueda ni teclas). Al tocar: el lacre se levanta, la solapa abre sobre su bisagra y queda parada detrás, la tarjeta sale del sobre, pasa al frente y crece mientras el sobre baja y se desvanece; queda solo la tarjeta con su lacre y un sello ovalado borgoña. Sus efectos de texto (`maquina_escribir`, `sello_estampado`, `caligrafia`) arrancan cuando la tarjeta llega. La tarjeta lleva `titulo` («Con todo el corazón»), los grupos de papás de `bendicion`, los nombres (de `festejada`, partidos por «&»), `texto` (la frase antes de la fecha), la fecha y la ciudad. Adorno `imagen_forro` (el damasco) |
+| `musica` | `lacre` | Centrado: el lacre ES el botón, con el signo de play o pausa hundido en la cera; mientras suena late apenas y un anillo de puntos gira alrededor, y una línea de avance fina. Con Spotify, su reproductor suena sin verse y queda un enlace a la lista |
 | `bendicion` | `editorial` | Mensaje en itálica entre filigranas y los grupos en columnas; si la portada es `sobre-lacre`, no repite a los papás |
 | `historia` | `editorial` | Texto con capitular, la primera foto de los momentos en un marco de papel y los momentos en columnas |
 | `historia` | `cronologia` | Compacta e interactiva (la del tema `lacre`): el mensaje con capitular y una línea de tiempo con los años como pestañas; un lacre pequeño viaja al año elegido y las tarjetas apiladas (foto, año, título y texto de cada momento) se cambian con un toque, con las flechas del teclado o deslizando el dedo. Sin foto, el momento lleva un sello |

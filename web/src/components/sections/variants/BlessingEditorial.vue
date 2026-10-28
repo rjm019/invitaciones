@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import FxText from '@/components/ui/FxText.vue'
 import { useEvent } from '@/composables/useEvent'
 import { decorOr } from '@/services/decorService'
 import { otherGroups } from '@/services/stationeryService'
@@ -33,7 +34,7 @@ const dividerStyle = computed(() =>
   <div class="be" :style="dividerStyle">
     <span v-if="divider" class="be__divider" aria-hidden="true" />
     <p v-if="section.subtitle" class="be__subtitle" data-text="subtitle">{{ section.subtitle }}</p>
-    <h2 v-if="section.title" class="be__title" data-text="title">{{ section.title }}</h2>
+    <h2 v-if="section.title" class="be__title" data-text="title"><FxText :text="section.title" :effects="section.effects" /></h2>
     <p v-if="section.text" class="be__text" data-text="text">{{ section.text }}</p>
 
     <div v-if="groups.length" class="be__groups">

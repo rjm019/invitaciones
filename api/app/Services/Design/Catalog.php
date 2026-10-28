@@ -105,6 +105,12 @@ final class Catalog
         'papel_entra' => ['effect' => 'paper-in', 'label' => 'Papel que entra', 'help' => 'La tarjeta entra como si la sacaran de un sobre: sube y se endereza.'],
         'respira' => ['effect' => 'breathe', 'label' => 'Respirar', 'help' => 'El panel crece y se encoge apenas, como si respirara.'],
         'dibujo_vivo' => ['effect' => 'living-drawing', 'label' => 'Dibujo vivo', 'help' => 'Los dibujos de línea de la ubicación (iglesia y hacienda) se dibujan trazo a trazo al llegar y cobran vida: campanas que se mecen, árboles con brisa, aves y ventanas que se encienden.'],
+        'maquina_escribir' => ['effect' => 'typewriter-title', 'label' => 'Título a máquina de escribir', 'help' => 'Al llegar a la sección, el título (y los nombres de la portada) se escriben letra por letra con un cursor de tinta. El texto completo siempre está ahí para los lectores de pantalla.'],
+        'tinta_seca' => ['effect' => 'ink-dry', 'label' => 'Tinta que se seca', 'help' => 'Las letras del título aparecen húmedas, en el color de acento, y se asientan en la tinta de la página de izquierda a derecha.'],
+        'caligrafia' => ['effect' => 'calligraphy', 'label' => 'Caligrafía que se traza', 'help' => 'El título (o el "&" de los nombres) se va descubriendo de izquierda a derecha, como si una pluma lo escribiera.'],
+        'sello_estampado' => ['effect' => 'stamp', 'label' => 'Letras estampadas', 'help' => 'Las letras del título caen una tras otra y se asientan como un sello que se estampa en el papel.'],
+        'pan_de_oro' => ['effect' => 'gold-leaf', 'label' => 'Brillo de pan de oro', 'help' => 'De vez en cuando un brillo dorado recorre el título, el monograma y los lacres de la sección.'],
+        'letterpress' => ['effect' => 'letterpress', 'label' => 'Prensa (letterpress)', 'help' => 'El título se imprime al llegar: baja apenas, como presionado contra el papel, y queda en bajorrelieve.'],
     ];
 
     /** Otros nombres de efectos que ya aceptaba el Excel. */
