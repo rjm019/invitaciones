@@ -22,6 +22,7 @@ class CatalogTest extends TestCase
         'lace-spin', 'lace-wave', 'lace-draw', 'spotlight', 'spotlight-travel', 'pearl-glint', 'satin-sweep',
         'drape-sway', 'pearl-strands', 'petals', 'light-dust', 'tulle-breathe', 'stitch-in', 'breathe',
         'ink', 'raking-light', 'paper-in',
+        'typewriter-title', 'ink-dry', 'calligraphy', 'stamp', 'gold-leaf', 'letterpress',
     ];
 
     public function test_every_effect_maps_to_an_effect_the_web_paints(): void
@@ -96,6 +97,8 @@ class CatalogTest extends TestCase
         $this->assertSame('ink', Catalog::EFFECTS['tinta']['effect']);
         $this->assertSame('raking-light', Catalog::EFFECTS['luz_rasante']['effect']);
         $this->assertSame('paper-in', Catalog::EFFECTS['papel_entra']['effect']);
+        $this->assertSame('typewriter-title', Catalog::EFFECTS['maquina_escribir']['effect']);
+        $this->assertSame('gold-leaf', Catalog::EFFECTS['pan_de_oro']['effect']);
         $this->assertSame('fine', Catalog::BUTTONS['fino']['value']);
         $this->assertSame('church', Catalog::slots('ubicacion')['iglesia']['slot']);
         $this->assertSame('lining', Catalog::slots('portada')['forro']['slot']);
