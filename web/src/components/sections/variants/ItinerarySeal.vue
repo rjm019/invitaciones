@@ -377,7 +377,7 @@ const sealStyle = computed(() => ({ transform: `rotate(${(fill.value - 0.5) * 28
 }
 
 /* Ancho (media fila en computadora): más aire entre momentos y dibujos más grandes. */
-@container (min-width: 30rem) {
+@container (min-width: 26rem) {
   .isl__list {
     row-gap: 1rem;
   }
