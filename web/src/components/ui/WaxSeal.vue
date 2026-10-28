@@ -3,7 +3,13 @@ import { computed, ref, useId } from 'vue'
 import { useElementWidth } from '@/composables/useElementWidth'
 import { useMonogram } from '@/composables/useMonogram'
 import { seededRandom } from '@/services/effectsService'
-import { cartouchePaths, monogramLayout, sealDetail, waxBlobPath } from '@/services/monogramService'
+import {
+  cartouchePaths,
+  monogramLayout,
+  sealDetail,
+  sealMonogramPaths,
+  waxBlobPath,
+} from '@/services/monogramService'
 
 /**
  * Lacre de cera en SVG, quieto y con relieve de verdad. `shape`: redondo u ovalado (más
@@ -28,7 +34,7 @@ import { cartouchePaths, monogramLayout, sealDetail, waxBlobPath } from '@/servi
  *   el lacre es el botón de la música; el estado se lee solo en el signo.
  *
  * Colores por token, con respaldo: `--seal-gold` (si no, `--color-oro`, #b08d57),
- * `--seal-burgundy` (si no, `--color-borgona`, #6e1f2c); `--seal-light` tiñe el brillo.
+ * `--seal-burgundy` (si no, `--color-borgona`, #5e1a24); `--seal-light` tiñe el brillo.
  * Letras: `--seal-font` (si no, `--font-script`, luego `--font-serif`). Cada lacre tiene sus
  * propios ids (useId): caben varios en la página.
  */
@@ -104,6 +110,13 @@ const iconPath = computed(() => {
     return `M${x - 7.5} ${y - 8.5}h5.4v17h-5.4ZM${x + 2.1} ${y - 8.5}h5.4v17h-5.4Z`
   return ''
 })
+// Los glifos de las letras (null si alguna no tiene: entonces va el texto).
+const glyphs = computed(() => sealMonogramPaths(chars.value))
+const glyphTransform = computed(() => {
+  const k = oval.value ? 0.32 : 0.35
+  const { wellX, wellY } = geometry.value
+  return `translate(${wellX - 50 * k} ${wellY - 50 * k}) scale(${k})`
+})
 const label = computed(() => `Sello con las iniciales ${chars.value.join(' ')}`)
 // El monograma, grande, en el centro de la cartela.
 const letterTransform = computed(() => {
@@ -115,7 +128,7 @@ const letterTransform = computed(() => {
 })
 // El oro brilla más (casi metálico); la cera borgoña, un satinado suave.
 const spec = computed(() =>
-  props.tone === 'gold' ? { constant: 1.0, exponent: 9 } : { constant: 0.62, exponent: 11 },
+  props.tone === 'gold' ? { constant: 1.0, exponent: 9 } : { constant: 0.5, exponent: 16 },
 )
 const region = computed(() => ({ x: -16, y: -16, width: box.value.w + 32, height: box.value.h + 36 }))
 </script>
@@ -149,24 +162,27 @@ const region = computed(() => ({ x: -16, y: -16, width: box.value.w + 32, height
         <!-- El fondo hundido (verde: su altura; el signo grabado va más abajo). -->
         <feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0" result="floorRaw" />
         <feGaussianBlur in="floorRaw" stdDeviation="0.45" result="floor" />
-        <!-- El relieve (azul): trazo nítido. -->
+        <!-- El relieve (azul): orilla nítida y lomo redondo, como un cojín por trazo. -->
         <feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0" result="raisedRaw" />
-        <feGaussianBlur in="raisedRaw" stdDeviation="0.24" result="raised" />
+        <feGaussianBlur in="raisedRaw" stdDeviation="0.2" result="raisedSharp" />
+        <feGaussianBlur in="raisedRaw" stdDeviation="0.7" result="raisedBlur" />
+        <feComposite in="raisedBlur" in2="raisedSharp" operator="in" result="raisedDome" />
+        <feComposite in="raisedSharp" in2="raisedDome" operator="arithmetic" k2="0.5" k3="0.6" result="raised" />
         <!-- Grano muy fino, solo en el fondo. -->
         <feTurbulence type="fractalNoise" baseFrequency="1.15" numOctaves="2" :seed="geometry.grain" result="noise" />
         <feColorMatrix in="noise" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0" result="grainAll" />
         <feComposite in="grainAll" in2="floor" operator="in" result="grain" />
         <feComposite in="cord" in2="floor" operator="arithmetic" k2="1" k3="0.32" result="h1" />
-        <feComposite in="h1" in2="raised" operator="arithmetic" k2="1" k3="0.24" result="h2" />
+        <feComposite in="h1" in2="raised" operator="arithmetic" k2="1" k3="0.3" result="h2" />
         <feComposite in="h2" in2="grain" operator="arithmetic" k2="1" k3="0.03" result="height" />
         <!-- La luz: difusa desde arriba a la izquierda y un brillo satinado largo. -->
-        <feDiffuseLighting in="height" surfaceScale="8.5" diffuseConstant="1" lighting-color="#fff" result="shade">
-          <feDistantLight azimuth="225" elevation="46" />
+        <feDiffuseLighting in="height" surfaceScale="9" diffuseConstant="1" lighting-color="#fff" result="shade">
+          <feDistantLight azimuth="225" elevation="42" />
         </feDiffuseLighting>
         <feSpecularLighting
           in="height"
           class="seal__spec"
-          surfaceScale="8.5"
+          surfaceScale="9"
           :specularConstant="spec.constant"
           :specularExponent="spec.exponent"
           result="gloss"
@@ -210,20 +226,56 @@ const region = computed(() => ({ x: -16, y: -16, width: box.value.w + 32, height
       />
       <g
         class="seal__relief"
-        fill="rgb(0 179 196)"
-        stroke="rgb(0 179 196)"
+        fill="rgb(0 179 210)"
+        stroke="rgb(0 179 210)"
         stroke-linecap="round"
         stroke-linejoin="round"
       >
         <path v-if="cartouche.beads" :transform="beadsTransform" :d="cartouche.beads" stroke="none" />
         <g :transform="frameTransform">
-          <path class="seal__cartouche" :d="cartouche.heavy" fill="none" stroke-width="2.3" />
+          <path
+            class="seal__cartouche"
+            :d="cartouche.heavy"
+            fill="none"
+            stroke="rgb(0 179 255)"
+            stroke-width="2.3"
+          />
+          <!-- El surco al centro del trazo grueso: el doble contorno de la cartela. -->
+          <path :d="cartouche.heavy" fill="none" stroke="rgb(0 179 110)" stroke-width="0.7" />
           <path :d="cartouche.medium" fill="none" stroke-width="1.35" />
-          <path v-if="cartouche.fine" :d="cartouche.fine" fill="none" stroke-width="0.75" />
+          <path
+            v-if="cartouche.fine"
+            :d="cartouche.fine"
+            fill="none"
+            stroke="rgb(0 179 160)"
+            stroke-width="0.75"
+          />
           <path class="seal__cartouche-fill" :d="cartouche.fill" stroke="none" />
         </g>
+        <!-- El monograma en paths: la segunda letra pasa por encima (su contorno ancho en el
+             verde del fondo, y luego ella en azul). -->
+        <g v-if="!icon && glyphs" :transform="glyphTransform" class="seal__letters">
+          <g v-for="(glyph, i) in glyphs" :key="i">
+            <path
+              v-if="i > 0"
+              :d="glyph.d"
+              :transform="glyph.transform"
+              fill="rgb(0 179 0)"
+              stroke="rgb(0 179 0)"
+              :stroke-width="glyph.outline"
+            />
+            <path
+              class="seal__glyph"
+              :d="glyph.d"
+              :transform="glyph.transform"
+              fill="rgb(0 179 255)"
+              stroke="rgb(0 179 255)"
+              :stroke-width="glyph.hairline"
+            />
+          </g>
+        </g>
         <g
-          v-if="!icon"
+          v-else-if="!icon"
           :transform="letterTransform"
           class="seal__letters"
           fill="rgb(0 179 255)"
@@ -258,8 +310,8 @@ const region = computed(() => ({ x: -16, y: -16, width: box.value.w + 32, height
   overflow: visible;
 }
 .seal--burgundy {
-  --seal-base: var(--seal-burgundy, var(--color-borgona, #6e1f2c));
-  --seal-gloss: var(--seal-light, #ffe1dc);
+  --seal-base: var(--seal-burgundy, var(--color-borgona, #5e1a24));
+  --seal-gloss: var(--seal-light, #f3d2c8);
 }
 .seal__tint {
   flood-color: var(--seal-base);

@@ -95,11 +95,16 @@ const dividerStyle = computed(() =>
   text-wrap: balance;
 }
 .be__groups {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1.4rem 1.2rem;
   width: 100%;
   margin-top: 0.4rem;
+}
+/* El grupo que queda solo en su fila crece a todo el ancho y se centra bajo los demás. */
+.be__group {
+  flex: 1 1 min(100%, 9.5rem);
 }
 .be__role {
   margin: 0 0 0.35rem;

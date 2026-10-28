@@ -3,6 +3,8 @@
  * WaxSeal). Lógica pura, sin Vue ni DOM.
  */
 
+import { SEAL_GLYPHS } from './sealGlyphs'
+
 export const MAX_MONOGRAM_LETTERS = 3
 
 /** Separadores entre los dos nombres de una pareja: "&", "+", " y ", " e ", " and ". */
@@ -91,6 +93,54 @@ export function monogramLayout(chars: string[], withAmpersand = false): Monogram
   const ampersand =
     withAmpersand && list.length === 2 ? { char: '&', x: 50, y: 94, size: 22 } : null
   return { width: 100, height: 100, letters: glyphs, ampersand }
+}
+
+export interface SealGlyphPlacement {
+  /** Contorno de la letra (Pinyon Script), en su propio cuadro de 100 de alto. */
+  d: string
+  /** `translate` y `scale` que la llevan a la caja de 100 × 100 del monograma. */
+  transform: string
+  /** Grosor del contorno ancho (en unidades de la letra) para "pasar por encima" de la anterior. */
+  outline: number
+  /** Contorno finísimo (en unidades de la letra) para cerrar la orilla del relleno. */
+  hairline: number
+}
+
+/**
+ * Coloca las letras del lacre como paths (el relleno da el grosor variable de la caligrafía),
+ * centradas en una caja de 100 × 100: una grande; dos cruzadas; tres con la del centro más
+ * grande. Devuelve `null` si alguna letra no tiene glifo: el componente cae entonces al
+ * `<text>`. Pura: las mismas letras dan siempre lo mismo.
+ */
+export function sealMonogramPaths(chars: string[]): SealGlyphPlacement[] | null {
+  const list = chars.slice(0, MAX_MONOGRAM_LETTERS)
+  if (list.length === 0) return null
+  const glyphs = list.map((c) => SEAL_GLYPHS[c.toLocaleUpperCase('es-MX')])
+  if (glyphs.some((g) => !g)) return null
+  const heights = list.length === 1 ? [80] : list.length === 2 ? [66, 66] : [48, 62, 48]
+  // Cuánto de su ancho se encima cada letra sobre la anterior.
+  const overlap = 0.34
+  const widths = glyphs.map((g, i) => (g.w * heights[i]) / 100)
+  const total = widths.reduce((sum, w, i) => sum + (i === widths.length - 1 ? w : w * (1 - overlap)), 0)
+  // Si no cabe a lo ancho de la caja, todo se achica parejo.
+  const fit = Math.min(1, 118 / total)
+  let x = 50 - (total * fit) / 2
+  return glyphs.map((g, i) => {
+    const s = (heights[i] * fit) / 100
+    const w = g.w * s
+    const placement = {
+      d: g.d,
+      transform: `translate(${round2(x)} ${round2(50 - (g.h * s) / 2)}) scale(${round2(s * 1000) / 1000})`,
+      outline: round2(4 / s),
+      hairline: round2(0.9 / s),
+    }
+    x += w * (1 - overlap)
+    return placement
+  })
+}
+
+function round2(n: number): number {
+  return Math.round(n * 100) / 100
 }
 
 /**
@@ -220,19 +270,27 @@ const dot = (c: Point, r: number) =>
   `M${fmt2(c[0] - r)} ${fmt2(c[1])}a${r} ${r} 0 1 0 ${fmt2(2 * r)} 0a${r} ${r} 0 1 0 ${fmt2(-2 * r)} 0Z`
 
 /** Hoja lanceolada (punta fina, panza al tercio) de `len` que nace en `base` hacia `dir`. */
-function leafPath(base: Point, dir: Point, len: number, width = 0.36): string {
+function leafPath(base: Point, dir: Point, len: number, width = 0.36, bend = 0): string {
   const m = Math.hypot(dir[0], dir[1]) || 1
   const u: Point = [dir[0] / m, dir[1] / m]
   const n: Point = [-u[1], u[0]]
   const at = (t: number, s: number): Point => [
-    base[0] + u[0] * len * t + n[0] * len * s,
-    base[1] + u[1] * len * t + n[1] * len * s,
+    base[0] + u[0] * len * t + n[0] * len * (s + bend * t * t),
+    base[1] + u[1] * len * t + n[1] * len * (s + bend * t * t),
   ]
   const w = width / 2
   return (
     `M${pt(base)}C${pt(at(0.2, w))} ${pt(at(0.6, w * 0.9))} ${pt(at(1, 0))}` +
     `C${pt(at(0.6, -w * 0.9))} ${pt(at(0.2, -w))} ${pt(base)}Z`
   )
+}
+
+/** El largo de una hoja recortado para que su punta no pase del radio `maxR` del hueco. */
+function fitLen(base: Point, dir: Point, len: number, maxR = 39): number {
+  const m = Math.hypot(dir[0], dir[1]) || 1
+  let l = len
+  while (l > 1.5 && Math.hypot(base[0] + (dir[0] / m) * l, base[1] + (dir[1] / m) * l) > maxR) l *= 0.94
+  return l
 }
 
 /** Espiral (voluta) de centro `c`, del radio `r0` al `r1`, desde `a0`° girando `sweep`°. */
@@ -263,8 +321,13 @@ export function cartouchePaths(detail: SealDetail = 'full'): CartouchePaths {
   let fill = ''
   let beads = ''
   const both = (pts: Point[]) => smoothOpenPath(pts) + smoothOpenPath(pts.map(mirror))
-  const leafBoth = (base: Point, dir: Point, len: number, width?: number) =>
-    leafPath(base, dir, len, width) + leafPath(mirror(base), [-dir[0], dir[1]], len, width)
+  // Hojas que no pasan del radio 39 (el anillo de perlas queda libre); `bend` las curva.
+  const leafBoth = (base: Point, dir: Point, len: number, width?: number, bend = 0) => {
+    const l = fitLen(base, dir, len)
+    return (
+      leafPath(base, dir, l, width, bend) + leafPath(mirror(base), [-dir[0], dir[1]], l, width, -bend)
+    )
+  }
   const dotBoth = (c: Point, r: number) => dot(c, r) + dot(mirror(c), r)
 
   // Volutas grandes de arriba: del centro suben, pasan por encima y se enroscan hacia adentro.
@@ -285,48 +348,61 @@ export function cartouchePaths(detail: SealDetail = 'full'): CartouchePaths {
   const lowScroll = spiral([14.4, 21.6], 6.6, 1.9, -24, 305)
   heavy += both(lowScroll)
   fill += dotBoth(lowScroll[lowScroll.length - 1], 1.35)
-  // De la voluta de abajo a la punta del escudo, con un remate enroscado y su colgante.
+  // De la voluta de abajo a la punta del escudo, con un remate de voluta doble y su colgante.
   medium += both([
     [14.2, 28.2],
     [9, 30.6],
     [4, 33.4],
-    [0, 35.2],
+    [0, 35],
   ])
-  medium += both(spiral([4.2, 37], 3, 0.8, 200, -290))
-  fill += leafPath([0, 36.4], [0, 1], 4.4, 0.5)
-  // El florón de arriba: hoja central, dos que se abren y una perla debajo.
-  fill += leafPath([0, -30.5], [0, -1], 9.4, 0.44)
-  fill += leafBoth([0.6, -31.5], [0.8, -1], 7, 0.42)
-  fill += dot([0, -28.6], 1.5)
-  // Hojas de acanto pegadas a cada voluta grande, hacia afuera.
-  fill += leafBoth([17.8, -32.4], [0.75, -0.75], 7.4, 0.46)
-  fill += leafBoth([21.2, -29.4], [1, -0.15], 6, 0.46)
+  medium += both(spiral([4.4, 35.6], 3, 0.8, 200, -290))
+  fill += leafPath([0, 34.6], [0, 1], 4.4, 0.5)
+  // El florón de arriba: cinco hojas (centro, dos que se abren y dos tendidas) y una perla.
+  fill += leafPath([0, -30.5], [0, -1], 9, 0.44, 0)
+  fill += leafBoth([0.6, -31], [0.5, -1], 7.4, 0.42, 0.12)
+  fill += leafBoth([1, -31.4], [1, -0.55], 5.2, 0.4, 0.2)
+  fill += dot([0, -28.2], 1.5)
 
   if (detail !== 'low') {
+    // Lóbulos de acanto a lo largo de la espiral de cada voluta grande (hojas curvas).
+    for (const i of [3, 6, 9, 12]) {
+      const p = topScroll[i]
+      const d: Point = [p[0] - 12, p[1] + 26]
+      fill += leafBoth(p, d, 4.5 + Math.hypot(d[0], d[1]) * 0.7, 0.72, 0.4)
+    }
+    // Voluta secundaria chica que sale de la grande, hacia afuera.
+    const small = spiral([27, -29.5], 3.4, 0.9, 120, -300)
+    medium += both(small)
+    fill += dotBoth(small[small.length - 1], 0.8)
+    medium += both([
+      [21, -31],
+      [24, -33.4],
+      [26.6, -32.6],
+    ])
     // Ramitas que salen del florón sobre las volutas.
     medium += both([
       [2.6, -34],
-      [6.6, -37.8],
-      [11.6, -39.4],
+      [6.6, -36.6],
+      [11.6, -37.4],
     ])
-    fill += leafBoth([5.6, -37.2], [-0.1, -1], 4.6, 0.5)
-    fill += leafBoth([8.8, -38.8], [0.45, -1], 4.4, 0.5)
-    fill += leafBoth([11.4, -39.4], [1, -0.25], 4.2, 0.5)
-    // Ramas que suben por fuera del marco con hojas pareadas y bayas.
+    fill += leafBoth([5.6, -36], [-0.1, -1], 3.4, 0.5)
+    fill += leafBoth([8.8, -37], [0.45, -1], 3.2, 0.5)
+    // Ramas que suben por fuera del marco: 13 pares de hojas, bayas en racimos.
     const stem: Point[] = [
       [18.6, 28.4],
-      [25.6, 23],
-      [30.2, 13.5],
-      [32.3, 2],
-      [31.8, -9],
-      [28.8, -18.6],
+      [24.6, 22.6],
+      [28.6, 13.5],
+      [30.4, 2],
+      [30, -9],
+      [27.6, -18.6],
     ]
     medium += both(stem)
     // la punta de la rama: una hoja que sigue el tallo
-    fill += leafBoth([28.8, -18.6], [-0.35, -1], 6, 0.5)
+    fill += leafBoth([27.6, -18.6], [-0.35, -1], 6.4, 0.66, 0.15)
+    const total = 13
     const every = detail === 'full' ? 1 : 2
-    for (let i = 0; i < 9; i += every) {
-      const t = 0.45 + i * 0.52
+    for (let i = 0; i < total; i += every) {
+      const t = 0.3 + i * (4.5 / total)
       const j = Math.min(stem.length - 2, Math.floor(t))
       const f = t - j
       const p: Point = [
@@ -338,15 +414,23 @@ export function cartouchePaths(detail: SealDetail = 'full'): CartouchePaths {
       const u: Point = [tan[0] / m, tan[1] / m]
       const out: Point = [-u[1], u[0]] // a la derecha del avance = hacia afuera
       const rot = (s: number): Point => [u[0] * 0.7 + out[0] * s, u[1] * 0.7 + out[1] * s]
-      const len = 9.4 - i * 0.42
-      fill += leafBoth(p, rot(0.85), len, 0.52)
-      if (i % 3 !== 2) fill += leafBoth(p, rot(-0.45), len * 0.7, 0.52)
+      const len = 8.2 - i * 0.22
+      const dir = rot(0.85)
+      fill += leafBoth(p, dir, len, 0.62, 0.12)
+      if (detail === 'full') {
+        // nervadura: sube por el centro de la hoja (en el trazo fino)
+        const l = fitLen(p, dir, len)
+        const k = (l * 0.85) / Math.hypot(dir[0], dir[1])
+        fine += both([p, [p[0] + dir[0] * k, p[1] + dir[1] * k]])
+      }
+      if (i % 3 !== 2) fill += leafBoth(p, rot(-0.45), len * 0.6, 0.6, -0.1)
       if (detail === 'full' && i % 3 === 2) {
-        const twig: Point = [p[0] + out[0] * 3 + u[0] * 2.4, p[1] + out[1] * 3 + u[1] * 2.4]
+        // racimo de 3 bayas en su ramita
+        const twig: Point = [p[0] + out[0] * 2.2 + u[0] * 1.8, p[1] + out[1] * 2.2 + u[1] * 1.8]
         medium += both([p, twig])
-        fill += dotBoth([twig[0] + out[0] * 1.1, twig[1] + out[1] * 1.1], 1.2)
-        fill += dotBoth([twig[0] + u[0] * 1.7, twig[1] + u[1] * 1.7], 0.95)
-        fill += dotBoth([twig[0] - out[0] * 0.6 + u[0] * 2.6, twig[1] - out[1] * 0.6 + u[1] * 2.6], 0.75)
+        fill += dotBoth([twig[0] + out[0] * 0.9, twig[1] + out[1] * 0.9], 1.05)
+        fill += dotBoth([twig[0] + u[0] * 1.5, twig[1] + u[1] * 1.5], 0.9)
+        fill += dotBoth([twig[0] - out[0] * 0.5 + u[0] * 2.4, twig[1] - out[1] * 0.5 + u[1] * 2.4], 0.75)
       }
     }
   }

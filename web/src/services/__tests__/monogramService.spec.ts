@@ -7,6 +7,7 @@ import {
   waxEdgePath,
   cartouchePaths,
   sealDetail,
+  sealMonogramPaths,
 } from '../monogramService'
 
 describe('monogramInitials', () => {
@@ -95,7 +96,10 @@ describe('cartouchePaths', () => {
     expect(Math.max(...xs)).toBeCloseTo(-Math.min(...xs), 1)
     // todo cabe en el fondo (radio 50, contando los puntos de control)
     const all = [...(full.fill + full.heavy).matchAll(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g)]
-    expect(Math.max(...all.map((m) => Math.hypot(Number(m[1]), Number(m[2]))))).toBeLessThan(45)
+    expect(Math.max(...all.map((m) => Math.hypot(Number(m[1]), Number(m[2]))))).toBeLessThan(43)
+    // la rama lleva 13 pares de hojas, con nervadura (fine) y racimos de bayas
+    expect(full.fine.split('M').length - 1).toBeGreaterThan(26)
+    expect(full.fill.split('M').length - 1).toBeGreaterThan(80)
   })
 
   it('en lacres chicos se simplifica: sin perlas, filete ni ramas', () => {
@@ -105,7 +109,28 @@ describe('cartouchePaths', () => {
     expect(mid.beads).toBe('')
     expect(mid.fine).toBe('')
     expect(mid.fill.length).toBeLessThan(full.fill.length)
+    expect(full.medium.length).toBeGreaterThan(mid.medium.length)
     expect(low.fill.length).toBeLessThan(mid.fill.length)
     expect(low.heavy).toBe(full.heavy)
+  })
+})
+
+describe('sealMonogramPaths', () => {
+  it('es determinista y da un path por letra, centrado en la caja de 100', () => {
+    const paths = sealMonogramPaths(['I', 'M'])
+    expect(paths).toEqual(sealMonogramPaths(['I', 'M']))
+    expect(paths).toHaveLength(2)
+    for (const p of paths ?? []) {
+      expect(p.d).toMatch(/^M/)
+      expect(p.transform).toMatch(/^translate\(.+\) scale\(.+\)$/)
+      expect(p.outline).toBeGreaterThan(p.hairline)
+    }
+    expect(sealMonogramPaths(['n'])).toHaveLength(1)
+    expect(sealMonogramPaths(['Ñ'])).toHaveLength(1)
+  })
+
+  it('cae a texto (null) con un carácter sin glifo o sin letras', () => {
+    expect(sealMonogramPaths(['I', '#'])).toBeNull()
+    expect(sealMonogramPaths([])).toBeNull()
   })
 })

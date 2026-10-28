@@ -62,7 +62,9 @@ describe('WaxSeal', () => {
     expect(wrapper.find('.seal__well').exists()).toBe(true)
     expect(wrapper.find('.seal__cartouche').attributes('d')).toMatch(/^M/)
     expect(wrapper.find('.seal__cartouche-fill').attributes('d')).toMatch(/Z$/)
-    expect(wrapper.findAll('.seal__letter').map((l) => l.text())).toEqual(['I', 'M'])
+    // el monograma son paths (uno por letra), no texto
+    expect(wrapper.findAll('.seal__glyph')).toHaveLength(2)
+    expect(wrapper.find('.seal__letter').exists()).toBe(false)
     expect(wrapper.classes()).toContain('seal--gold')
     // un filtro por lacre (relieve con luz y sombra), con id propio
     const filter = wrapper.find('filter')
@@ -98,6 +100,12 @@ describe('WaxSeal', () => {
 
   it('usa las iniciales de la invitación si no se le dan', () => {
     const wrapper = inInvitation({ short_name: 'Isabella & Mateo' }, h(WaxSeal))
-    expect(wrapper.findAll('.seal__letter').map((l) => l.text())).toEqual(['I', 'M'])
+    expect(wrapper.findAll('.seal__glyph')).toHaveLength(2)
+  })
+
+  it('una letra sin glifo cae al texto', () => {
+    const wrapper = mount(WaxSeal, { props: { initials: 'Ø' } })
+    expect(wrapper.find('.seal__glyph').exists()).toBe(false)
+    expect(wrapper.findAll('.seal__letter').map((l) => l.text())).toEqual(['Ø'])
   })
 })
