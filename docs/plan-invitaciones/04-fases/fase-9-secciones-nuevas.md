@@ -12,7 +12,7 @@
 - [x] 2b. Lluvia de sobres como sección propia (`lluvia_sobres`, 21-oct)
 - [x] 3. Video · Publicación de redes (27-oct, sin publicar; sin variante propia de `nueva-york` todavía)
 - [x] 4. Trivia (27-oct; sin publicar)
-- [x] 5b. Muestra `demo-boda-encaje` con todas las secciones y el tema `encaje` (27-oct; sin anunciar en la landing)
+- [x] 5b. Boda `boda-isabella-mateo-encaje` con todas las secciones y el tema `encaje` (27-oct; era la muestra `demo-boda-encaje`, ahora invitación regular en `deploy/bodas-ejemplo/`)
 - [x] 5. Álbum de los invitados (ciclo de 5 a 20 días; 27-oct, sin publicar: falta probarlo con una foto HEIC de 12 MP en un celular real y el deploy con el `AliasMatch` de `media/album/`)
 
 ## Contexto

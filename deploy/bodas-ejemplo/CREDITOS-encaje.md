@@ -1,4 +1,4 @@
-# Créditos de las fotos de la muestra demo-boda-encaje
+# Créditos de las fotos de la boda de ejemplo boda-isabella-mateo-encaje
 
 Todas se descargaron de Wikimedia Commons (`commons.wikimedia.org`), con licencia CC0 / dominio público (sin atribución obligatoria; se anotan por cortesía). Se recortaron y convirtieron a WebP (máx. 1600 px). `terciopelo.webp` es un degradado generado, sin fuente externa.
 

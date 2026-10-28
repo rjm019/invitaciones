@@ -4,7 +4,7 @@
 set -eu
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/../.." && pwd)"
-for slug in demo-boda demo-xv demo-graduacion demo-boda-encaje; do
+for slug in demo-boda demo-xv demo-graduacion; do
   rm -rf "$root/eventos/$slug"
   cp -R "$here/$slug" "$root/eventos/$slug"
   echo "eventos/$slug listo"

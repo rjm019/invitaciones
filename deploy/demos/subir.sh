@@ -6,7 +6,7 @@ set -eu
 here="$(cd "$(dirname "$0")" && pwd)"
 config="$here/../../fly.toml"
 fly --config "$config" machine start >/dev/null 2>&1 || true   # por si estaba apagada
-for slug in demo-boda demo-xv demo-graduacion demo-boda-encaje; do
+for slug in demo-boda demo-xv demo-graduacion; do
   tmp="$(mktemp -t demo)"
   (cd "$here/$slug" && COPYFILE_DISABLE=1 tar -czf "$tmp" --exclude '.DS_Store' .)
   remote="/data/eventos/$slug"

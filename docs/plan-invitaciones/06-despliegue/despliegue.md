@@ -143,6 +143,14 @@ Después, en el gestor de producción: revisar, *Publicar*, *Visible* y la clave
 
 Otra forma, sin el gestor: `deploy/subir-evento.sh <slug> --forzar` sube la media y reemplaza `invitacion.csv`. Necesita una carpeta local con ese mismo nombre y nunca sube `ajustes.csv`.
 
+## Bodas de ejemplo (`boda-isabella-mateo` y `boda-isabella-mateo-encaje`)
+
+Son invitaciones regulares (sin `demo`, con panel y clave). Su clave del panel y sus tokens se generan al azar con `python3 deploy/bodas-ejemplo/armar.py` y **no se versionan**; el generador respeta los que ya existan en `eventos/<slug>`.
+
+- **Subirlas completas solo si el slug no existe en Fly.** Revisa antes: `fly ssh console -C "ls /data/eventos"`. Si no está, `deploy/subir-evento.sh <slug> --forzar` sube la media y su `invitacion.csv`; los `ajustes.csv` e `invitaciones.csv` (con la clave y los tokens locales) se dan de alta con el gestor (*Nueva*, *Importar* el zip, *Publicar*, clave en *Datos generales*) o copiándolos a mano una sola vez.
+- **Si el slug ya existe allá, no se toca:** podría tener claves, enlaces entregados y respuestas. Solo se actualiza con `--forzar` sabiendo que reemplaza el diseño (respalda antes el del servidor) y nunca sus CSV.
+- Solo cuando el usuario lo pida. Nunca subir `ajustes.csv`, `invitaciones.csv` ni respuestas de local.
+
 ## Checklist de cada publicación
 
 - [ ] `docker compose exec api php artisan test`, `docker compose exec web npm run test` y `docker compose exec web npm run build` en verde.
