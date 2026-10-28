@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useCelebration } from '@/composables/useCelebration'
+import { useDedicationWall } from '@/composables/useDedicationWall'
+import { useOptionalEvent } from '@/composables/useEvent'
 import { useInvitation } from '@/composables/useInvitation'
 import {
   MAX_DEDICATION_MESSAGE,
@@ -22,6 +24,21 @@ const props = defineProps<{ section: ResolvedSection }>()
 const context = useInvitation()
 const celebration = useCelebration()
 const sent = computed(() => context?.invitation.value?.dedication ?? null)
+
+// Muro (opción `muro` de la sección): las dedicatorias recibidas, nombre y mensaje. Se
+// vuelven a pedir cuando este enlace envía la suya.
+const eventContext = useOptionalEvent()
+const { entries: wall, load: loadWall } = useDedicationWall(
+  () => eventContext?.event.value.slug ?? '',
+  () => context?.token,
+)
+const showWall = computed(() => props.section.wall === true && !!eventContext)
+onMounted(() => {
+  if (showWall.value) loadWall()
+})
+watch(sent, () => {
+  if (showWall.value) loadWall()
+})
 
 const title = computed(() => props.section.title ?? 'Dedicatoria')
 const text = computed(
@@ -126,10 +143,35 @@ async function send() {
         Para enviar tu dedicatoria, abre el enlace personal que te enviamos por WhatsApp.
       </p>
     </form>
+
+    <!-- Muro: lo que ya dejaron los invitados (las más recientes primero). -->
+    <ul v-if="showWall && wall.length" class="dedication__wall" aria-label="Dedicatorias recibidas">
+      <li v-for="(entry, i) in wall" :key="i" class="dedication__note-card">
+        <blockquote class="dedication__quote" data-text="message">{{ entry.message }}</blockquote>
+        <p class="dedication__author" data-text="author">{{ entry.name }}</p>
+      </li>
+    </ul>
   </div>
 </template>
 
 <style scoped>
+.dedication__wall {
+  display: grid;
+  gap: 0.9rem;
+  width: 100%;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.dedication__note-card {
+  padding: 0.9rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
+  background: var(--color-surface);
+  text-align: left;
+}
+.dedication__note-card .dedication__quote {
+  white-space: pre-line;
+}
 .dedication {
   display: grid;
   justify-items: center;

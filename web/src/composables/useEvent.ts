@@ -19,3 +19,8 @@ export function useEvent(): EventContext {
   if (!context) throw new Error('useEvent() se usó fuera de InvitationRenderer')
   return context
 }
+
+/** Lo mismo que useEvent, pero devuelve null fuera de InvitationRenderer (piezas reutilizables). */
+export function useOptionalEvent(): EventContext | null {
+  return inject(KEY, null)
+}

@@ -139,7 +139,7 @@ Todo es global: el tema `encaje` solo les pone valor en su manifest.
 | `orilla` (página y sección) | `encaje` (`lace`) | `effects/assets/encaje-arriba.svg` y `encaje-abajo.svg` (repiten sin costura); `.section--edge-lace` en `SectionShell.vue` |
 | `esquinas` | `encaje` (`lace`) | `effects/assets/encaje-esquina-{tl,tr,bl,br}.svg`; reglas en `effects/options.css` |
 | `botones` | `liston` (`ribbon`) | `effects/buttons.css`: cinta de satén con puntas en V |
-| `textura` | `terciopelo`, `satin`, `gasa`, `lino`, `papel`, `ninguna` | `effects/options.css` (`data-texture`); mosaicos neutros en `effects/assets/textura-*.svg` |
+| `textura` | `terciopelo`, `satin`, `gasa`, `lino`, `papel`, `piedra`, `algodon`, `ninguna` | `effects/options.css` (`data-texture`); mosaicos neutros en `effects/assets/textura-*.svg` |
 
 **Efecto `velo`** (`fx-veil`): tul marfil que ondea sobre la sección (solo `::after`, transform y opacity).
 
@@ -204,3 +204,19 @@ Alias: `polvo`/`luciernagas` → `polvo_luz`, `bordado` → `bordado_aparece`, `
 - **Adornos nuevos:** ninguno en archivo; la flor que se dibuja es SVG en línea (data de `laceStrokes()`), el resto reusa `encaje.svg`, `cortinaje.svg` y `encaje-arriba/abajo.svg`.
 - **Nota sobre "dibujado":** no usa `stroke-dashoffset` (repinta) sino trazos que aparecen escalonados con opacity + scale, para respetar la regla de solo transform y opacity.
 - **Prueba:** `effectsService.spec.ts` (funciones), `SectionShell.spec.ts` (capas, orden y velocidad), `HeroCenterEnvelope.spec.ts`, `encaje.spec.ts` y `CatalogTest`/`EventEffectsTest` (nombres en español).
+
+
+## Papelería fina: monograma, lacre, silueta, filete, texturas y relieve
+
+Piezas globales (etapa A del tema `lacre`): ninguna cambia lo que ya se ve; se encienden por opción de `pagina` o de sección, o se usan desde una variante.
+
+| Pieza | Dónde | Cómo se usa |
+|---|---|---|
+| Monograma | `components/ui/Monogram.vue`, `services/monogramService.ts`, `composables/useMonogram.ts` | `<Monogram initials="I M" ampersand size="8rem" />`. Sin `initials`, usa `celebrant.monogram` (`evento,,monograma`) o las deriva del nombre corto ("Isabella & Mateo" → I M; un nombre + `pareja`; un nombre → su inicial). Dos letras se entrelazan (la segunda recorta a la primera con `--monogram-gap` y la primera vuelve a cruzar por arriba). Tokens: `--monogram-color` (si no `--color-primary`), `--monogram-font` (si no `--font-serif`), `--monogram-amp-font` (si no `--font-script`), `--monogram-gap` (color del papel). Decorativo (`aria-hidden`); con `:decorative="false"` es `role="img"` |
+| Lacre | `components/ui/WaxSeal.vue` | `<WaxSeal initials="I M" shape="round\|oval" tone="gold\|burgundy" size="5rem" seed="portada" />`. Orilla irregular repetible por `seed` (`waxEdgePath`), anillo en alto y monograma en bajorrelieve (capas de luz, sombra y cara; sin filtros). Tokens: `--seal-gold` (si no `--color-oro`, #b08d57), `--seal-burgundy` (si no `--color-borgona`, #6e1f2c), `--seal-light`, `--seal-dark`, `--seal-font`. La ranura `lacre` (imagen) sigue igual: `WaxSeal` se usa donde la variante lo pida |
+| Silueta | `pagina,,silueta` / `<sección>,,silueta` = `muesca`\|`ninguna` | `data-silhouette` en `.invitation` y en la tarjeta (`SectionShell`); máscara de cuatro cuartos en `effects/options.css` (el recorte se lleva la sombra del panel; solo paneles). Radio: `--notch-size` (1.1rem). Clase utilitaria `.paper-notched` para piezas internas de una variante (recorta, no pinta fondo) |
+| Filete | `pagina,,filete` / `<sección>,,filete` = `borgona`\|`oro`\|`ninguno` | Línea fina a `--fillet-inset` (0.5rem) del borde, que sigue las muescas (cuatro arcos y cuatro rectas) o es un marco simple si la tarjeta es recta. Color: `--color-borgona` / `--color-oro` de la paleta. En una pieza interna: `class="paper-notched" data-fillet="borgona"`. Con otro `--notch-size`, ajustar `--notch-a` = sqrt((n+d)² − d²) − d |
+| Texturas | `pagina,,textura` = `piedra`, `algodon` (además de `lino`…) | Mosaicos neutros `effects/assets/textura-piedra.svg` y `textura-algodon.svg`; piedra cae a `--color-stone` (#d8cfc0) y algodón a `--color-cotton` (#f5f0e6) si la sección no trae color |
+| Relieve | `pagina,,relieve` = `SI`\|`NO` | `data-relief` en `.invitation`: letterpress estático (`text-shadow` de luz y sombra, `--relief-light`/`--relief-dark`) en `title`, `name` y `date`; no aplica con `metalico` |
+
+Datos nuevos de secciones (en `eventos/README.md`): `hospedaje` (`distancia`, `precio`, `reserva`), `vestimenta` (`restricciones`, `referencias`), secciones `historia` (`story`) e `informacion` (`faq`, acordeón accesible) y `dedicatoria` con `muro`. El tema pone sus valores en el manifest (`silhouette`, `fillet`, `relief`, `texture`).

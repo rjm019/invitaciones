@@ -25,6 +25,9 @@ final class DedicationStore
 
     public const MAX_MESSAGE = 600;
 
+    /** Cuántas dedicatorias muestra el muro como máximo. */
+    public const WALL_LIMIT = 60;
+
     public function __construct(
         private readonly EventRepository $events,
         private readonly CsvFile $csv,
@@ -89,6 +92,34 @@ final class DedicationStore
             $this->csv->backupDaily($path, $now);
             $this->csv->write($path, self::HEADERS, $rows);
         });
+    }
+
+    /**
+     * Lo que muestra el muro de la invitación: solo nombre y mensaje, las más recientes
+     * primero. Nunca el token, el `para`, el id ni la fecha. Las eliminadas ya no están en
+     * el archivo (pasan a dedicatorias-eliminadas.csv).
+     *
+     * @return list<array{name: string, message: string}>
+     */
+    public function wall(string $slug, int $limit = self::WALL_LIMIT): array
+    {
+        $rows = array_values(array_filter(
+            $this->csv->read($this->path($slug)),
+            fn (array $row) => ($row['invitacion'] ?? '') !== '' && trim($row['dedicatoria'] ?? '') !== '',
+        ));
+        // Más recientes primero; con la misma fecha, la que se escribió después.
+        $order = array_keys($rows);
+        usort($order, fn (int $a, int $b) => [$rows[$b]['fecha'] ?? '', $b] <=> [$rows[$a]['fecha'] ?? '', $a]);
+
+        $out = [];
+        foreach (array_slice($order, 0, $limit) as $i) {
+            $out[] = [
+                'name' => CsvFile::unsafe($rows[$i]['nombre'] ?? ''),
+                'message' => CsvFile::unsafe($rows[$i]['dedicatoria'] ?? ''),
+            ];
+        }
+
+        return $out;
     }
 
     /** Quita la dedicatoria de una invitación eliminada; true si tenía. */

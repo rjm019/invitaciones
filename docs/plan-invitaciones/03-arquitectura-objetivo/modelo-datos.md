@@ -17,7 +17,7 @@ eventos/<slug>/
 ├── respuestas.csv           un renglón por persona registrada
 ├── respuestas-historial.csv cada envío, en orden (solo crece)
 ├── aperturas.csv            cada vez que se abre un enlace (solo crece)
-├── dedicatorias.csv         una dedicatoria por enlace: invitacion, para, nombre, dedicatoria, fecha
+├── dedicatorias.csv         una dedicatoria por enlace: invitacion, para, nombre, dedicatoria, fecha  (con `muro,SI` la invitación muestra nombre y mensaje por `GET /public/events/{slug}/dedications`, sin `para`, token ni fecha)
 ├── trivia.csv               una participación por enlace: invitacion, para, nombre, respuestas (números de opción separados por ;), aciertos, segundos, fecha
 ├── trivia-inicios.csv       cuándo abrió cada enlace la trivia: invitacion, inicio (la primera vez gana; de ahí salen los segundos)
 ├── trivia-eliminadas.csv    participaciones de invitaciones eliminadas

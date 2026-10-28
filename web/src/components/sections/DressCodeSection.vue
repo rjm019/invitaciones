@@ -11,10 +11,17 @@ import type { ResolvedSection } from '@/types/event'
  * los textos en blanco (otra cara encima que aparece y se va: solo opacity).
  */
 const props = defineProps<{ section: ResolvedSection }>()
-const { event } = useEvent()
+const { event, resolveAsset } = useEvent()
 
 const title = computed(() => props.section.title ?? 'Dress Code')
 const colors = computed(() => event.value.dress_code.colors)
+// Fotos de referencia (opcionales, hasta 4): solo las que se pueden resolver.
+const references = computed(() =>
+  (props.section.references ?? []).flatMap((r) => {
+    const photo = resolveAsset.value(r.photo)
+    return photo ? [{ photo, caption: r.caption }] : []
+  }),
+)
 const cardStyle = computed(() =>
   props.section.decor.card ? { backgroundImage: `url("${props.section.decor.card}")` } : {},
 )
@@ -59,6 +66,17 @@ const shown = useInView(root)
         </div>
 
         <p v-if="section.text" class="dress__text" data-text="text">{{ section.text }}</p>
+
+        <ul v-if="section.restrictions?.length" class="dress__avoid" aria-label="Qué evitar">
+          <li v-for="item in section.restrictions" :key="item" data-text="text">{{ item }}</li>
+        </ul>
+
+        <ul v-if="references.length" class="dress__refs" aria-label="Fotos de referencia">
+          <li v-for="(ref, i) in references" :key="i" class="dress__ref">
+            <img :src="ref.photo" :alt="ref.caption || 'Referencia de vestimenta'" loading="lazy" decoding="async" />
+            <span v-if="ref.caption" class="dress__ref-caption">{{ ref.caption }}</span>
+          </li>
+        </ul>
 
         <ul v-if="colors.length" class="dress__colors" aria-label="Colores sugeridos">
           <li
@@ -163,6 +181,48 @@ const shown = useInView(root)
   font-family: var(--t-text-font, var(--font-serif));
   font-size: calc(clamp(1.05rem, 5.6cqi, 1.35rem) * var(--t-text-size, 1));
   line-height: 1.3;
+  color: var(--t-text-color, var(--color-text));
+}
+/* Qué evitar (opcional): lista corta, sobria, con un guion fino. */
+.dress__avoid {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--t-text-font, var(--font-serif));
+  font-size: calc(clamp(0.95rem, 4.6cqi, 1.15rem) * var(--t-text-size, 1));
+  line-height: 1.3;
+  color: var(--t-text-color, var(--color-text));
+}
+.dress__avoid li::before {
+  content: '— ';
+  opacity: 0.6;
+}
+/* Fotos de referencia (opcionales): hasta 4 en dos columnas, con su pie. */
+.dress__refs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  width: 100%;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.dress__ref {
+  display: grid;
+  gap: 0.25rem;
+}
+.dress__ref img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+.dress__ref-caption {
+  font-family: var(--t-text-font, var(--font-serif));
+  font-size: 0.85rem;
+  line-height: 1.25;
   color: var(--t-text-color, var(--color-text));
 }
 .dress__colors {

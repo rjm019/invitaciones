@@ -134,11 +134,16 @@ const designAttrs = computed(() => {
   const buttons = p?.buttons ?? theme.value?.buttons
   const corners = p?.corners ?? theme.value?.corners
   const texture = p?.texture ?? theme.value?.texture
+  const silhouette = p?.silhouette ?? theme.value?.silhouette
+  const fillet = p?.fillet ?? theme.value?.fillet
   return {
     'data-buttons': buttons || undefined,
     'data-metal': (p?.metal ?? theme.value?.metallic) ? '' : undefined,
     'data-corners': corners && corners !== 'none' ? corners : undefined,
     'data-texture': texture && texture !== 'none' ? texture : undefined,
+    'data-silhouette': silhouette && silhouette !== 'none' ? silhouette : undefined,
+    'data-fillet': fillet && fillet !== 'none' ? fillet : undefined,
+    'data-relief': (p?.relief ?? theme.value?.relief) ? '' : undefined,
   }
 })
 const fonts = computed(() =>

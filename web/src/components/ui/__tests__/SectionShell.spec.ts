@@ -216,3 +216,17 @@ describe('SectionShell: efectos de tela y encaje', () => {
     expect(wrapper.find('.fab-strand').attributes('style')).toContain('--motion-scale')
   })
 })
+
+describe('SectionShell: silueta y filete de la tarjeta', () => {
+  it('marca la silueta y el filete de la sección para que el CSS los pinte', () => {
+    const section = render({ silhouette: 'notch', fillet: 'burgundy' }).find('section')
+    expect(section.attributes('data-silhouette')).toBe('notch')
+    expect(section.attributes('data-fillet')).toBe('burgundy')
+  })
+
+  it('sin ellos no marca nada (la tarjeta se ve como siempre)', () => {
+    const section = render({}).find('section')
+    expect(section.attributes('data-silhouette')).toBeUndefined()
+    expect(section.attributes('data-fillet')).toBeUndefined()
+  })
+})

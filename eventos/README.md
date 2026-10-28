@@ -140,7 +140,7 @@ frase-2,,visible,NO
 
 | Grupo | Campos |
 |---|---|
-| Evento | `tipo` (`xv`, `boda`, `graduacion`, `bautizo`, `cumple`, `otro`), `tema` (`jardin-azul`, `marfil` o `nueva-york`), `festejada`, `festejada_corto` (el nombre del sobre), `pareja`, `subtitulo` ("mis xv años"), `titulo` (el de la pestaña del navegador), `inicia` (AAAA-MM-DD HH:MM) y `zona_horaria` |
+| Evento | `tipo` (`xv`, `boda`, `graduacion`, `bautizo`, `cumple`, `otro`), `tema` (`jardin-azul`, `marfil` o `nueva-york`), `festejada`, `festejada_corto` (el nombre del sobre), `monograma` (las iniciales del sello y del monograma, de una a tres letras: `I M`; vacío, salen del nombre corto: "Isabella & Mateo" → I M), `pareja`, `subtitulo` ("mis xv años"), `titulo` (el de la pestaña del navegador), `inicia` (AAAA-MM-DD HH:MM) y `zona_horaria` |
 | Salón | `salon`, `salon_nombre_visible`, `salon_ciudad` (también la usa el clima), `salon_direccion`, `salon_maps` (`https://…`), `salon_foto` y `clima_coordenadas` |
 | Confirmaciones | `rsvp_modo`, `rsvp_limite`, `rsvp_whatsapp`, `rsvp_pedir_cancion` y `rsvp_pedir_mensaje` |
 | Música | `musica_fuente`, `musica_audio` y `spotify` |
@@ -152,7 +152,7 @@ Estos datos van en `evento` porque los usan varias partes: la portada, el calend
 
 ### Secciones
 
-Los tipos, en el orden de la invitación de NAT. Solo `foto`, `frase`, `cierre` y las demás marcadas «repetible» se pueden repetir (`frase-2`, `foto-2`, `video-2`…). Los nombres viejos (`sobre`, `familia`, `hoteles`…) se aceptan al leer y se guardan con su nombre de hoy.
+Los tipos, en el orden de la invitación de NAT (`historia` e `informacion` se agregan donde se quieran). Solo `foto`, `frase`, `cierre` y las demás marcadas «repetible» se pueden repetir (`frase-2`, `foto-2`, `video-2`…). Los nombres viejos (`sobre`, `familia`, `hoteles`…) se aceptan al leer y se guardan con su nombre de hoy.
 
 | Sección | Campos propios | Elementos de su lista | Datos de `evento` que muestra | Adornos (`imagen_…`) | Textos propios |
 |---|---|---|---|---|---|
@@ -164,19 +164,21 @@ Los tipos, en el orden de la invitación de NAT. Solo `foto`, `frase`, `cierre` 
 | `ubicacion` (repetible: una sección por lugar o varios lugares en una) | `titulo`, `boton`, `variante`, `acomodo` (`lado a lado`, que en el celular se apila, o `uno debajo del otro`), `calendario` (`SI`/`NO`: botón «Agregar al calendario» en cada lugar con `hora`, el día del evento) | Varias ubicaciones (misa y recepción): `tipo` (`ceremonia religiosa`, `ceremonia civil`, `recepcion`, `ceremonia y recepcion`, `otro`: pone etiqueta e ícono por defecto; `etiqueta` gana si se escribe), `etiqueta`, `lugar`, `hora`, `direccion`, `maps`, `foto` | El salón: `salon`, `salon_nombre_visible`, `salon_ciudad`, `salon_direccion`, `salon_maps`, `salon_foto` | — | `etiqueta`, `lugar`, `detalle` |
 | `frase` | `texto` | — | — | `divisor` | — |
 | `itinerario` | `titulo`, `variante`, `en_vivo` (`SI`: el día del evento, en su zona horaria, resalta «Ahora» y «Sigue» y atenúa lo pasado; una hora menor que la anterior cuenta como del día siguiente) | `hora` (`17:00` o `5:00 pm`), `actividad`, `icono` | — | `marco`, `estatua`, `puente` | `hora`, `actividad` |
-| `vestimenta` | `titulo`, `subtitulo`, `texto`, `colores` (de 1 a 4 hex, separados por espacio), `variante`, `enlace` (https; es el botón «Ver ejemplos» del `muestrario`: sin enlace, no aparece) y `boton` | — | — | `lacre`, `tarjeta`, `mujer`, `hombre` | — |
+| `vestimenta` | `titulo`, `subtitulo`, `texto`, `restricciones` (qué evitar, una por línea, hasta 6), `colores` (de 1 a 4 hex, separados por espacio), `variante`, `enlace` (https; es el botón «Ver ejemplos» del `muestrario`: sin enlace, no aparece) y `boton` | `referencias`: hasta 4 fotos de `media/` (`foto`, `pie` opcional) | — | `lacre`, `tarjeta`, `mujer`, `hombre` | — |
 | `sin_ninos` | `titulo`, `subtitulo` (la etiqueta "Solo adultos"), `texto` | — | — | `lazo` | — |
 | `clima` | `titulo`, `texto` | — | `salon_ciudad`, `clima_coordenadas` | — | `lugar`, `datos` |
-| `hospedaje` | `titulo`, `subtitulo`, `texto`, `boton` | `nombre` (obligatorio), `nota`, `direccion`, `maps`, `telefono`, `foto` | — | `tarjeta`, `divisor` | `nombre`, `nota`, `direccion` |
+| `hospedaje` | `titulo`, `subtitulo`, `texto`, `boton` | `nombre` (obligatorio), `nota`, `direccion`, `maps`, `telefono`, `foto` y, opcionales, `distancia` ("A 10 min del salón"), `precio` y `reserva` (https; si no lo es se avisa y se quita). Solo se ven si se llenan | — | `tarjeta`, `divisor` | `nombre`, `nota`, `direccion` |
 | `mesa_regalos` | `titulo`, `texto`, `boton` ("Ver mesa"), `variante`; lluvia de sobres: `sobres_titulo`, `sobres_texto`, `banco`, `cuenta` (CLABE o tarjeta), `titular`, `sobre_fisico` (SI: "también habrá caja en el salón") y `solo_con_enlace` | `tienda` (`liverpool`, `amazon`, `palacio`, `sears`, `costco` u `otra`), `nombre` (si es otra), `nota`, `enlace`, `numero_evento` | — | — | `tienda`, `sobres`, `cuenta` |
 | `playlist` | `titulo`, `subtitulo`, `texto`, `boton`, `variante` | — | `spotify` | — | — |
 | `cuenta_regresiva` | `titulo`, `texto` | — | `inicia` | `corona`, `mariposa` | `numeros`, `unidades` |
 | `confirmacion` | `titulo`, `subtitulo`, `boton` | — | `rsvp_modo`, `rsvp_limite`, `rsvp_whatsapp` | `tarjeta`, `flores` | `fecha_limite` |
-| `dedicatoria` | `titulo`, `texto`, `boton` | — | — | `divisor` | `mensaje`, `autor` |
+| `dedicatoria` | `titulo`, `texto`, `boton`, `muro` (`SI`: muestra las dedicatorias recibidas; `NO` por defecto) | — | — | `divisor` | `mensaje`, `autor` |
 | `album` | `titulo`, `texto`, `boton`, `album_dias` (5 a 20, 5 por defecto), `album_max_mb` (300 por defecto) | `foto` (fotos de ejemplo, solo para muestras) | — | `marco`, `divisor` | `titulo`, `texto`, `boton` |
 | `trivia` | `titulo`, `texto`, `boton`, `cierra`, `variante` | `pregunta`, `opcion_1` a `opcion_4`, `correcta` | — | `divisor` | `pregunta`, `opcion`, `resultado` |
 | `video` (repetible) | `titulo`, `texto`, `fuente` (`youtube`, `archivo`, `instagram`, `facebook`), `enlace`, `archivo` (un `.mp4` de `media/`), `poster` (imagen de `media/`), `formato` (`horizontal` 16:9 o `vertical` 9:16), `boton` (texto de "Ver en…"), `variante` (`encaje`: óvalo con perlas) | — | — | `divisor` | `titulo`, `texto` |
 | `publicacion` (repetible) | `titulo`, `texto`, `red` (`instagram`, `facebook`, `youtube`), `enlace`, `poster`, `boton`, `variante` (`encaje`) | — | — | `divisor` | `titulo`, `texto` |
+| `historia` (repetible) | `titulo`, `subtitulo`, `texto` (mensaje de bienvenida), `variante` | `momentos`, hasta 8: `anio`, `titulo` (obligatorio), `texto`, `foto` (opcional) | — | `divisor` | `anio`, `momento`, `detalle` |
+| `informacion` | `titulo`, `subtitulo`, `texto`, `variante` | `preguntas`, hasta 12: `pregunta`, `respuesta` (acordeón accesible) | — | `divisor` | `pregunta`, `respuesta` |
 | `cierre` | `titulo`, `texto` | — | — | `flores`, `corona` | — |
 
 **Íconos del itinerario** (`icono`): un archivo de `media/` (`copas.webp`) o un nombre: `utensils`, `church`, `crown`, `music`, `heart`, `ring`, `dove`, `gift`, `cake-candles`, `graduation-cap`, `door-open`, `champagne-glasses`, `location-dot`, y los de Nueva York: `statue-of-liberty`, `brooklyn-bridge`, `empire-state`, `disco-ball`, `taxi`, `martini-glass-citrus`, `city`.
@@ -291,7 +293,7 @@ Sin `musica_fuente`: se usa el MP3 si hay; si no hay MP3 pero sí playlist, Spot
 
 **Clima** (`clima`): el clima del día del evento en la ciudad del salón (`salon_ciudad`, por ejemplo "Pachuca, Hidalgo"; o `clima_coordenadas` como `20.1170, -98.7333` para más precisión). Mientras faltan más de 16 días muestra el clima típico de esa fecha (promedio de 10 años); desde 16 días antes, el pronóstico real, que se renueva cada 30 minutos. Incluye la temperatura en las horas de la fiesta y un consejo (abrigo, paraguas). Se quita sola un día después del evento. Datos de Open-Meteo. En la vista previa del gestor sale un ejemplo hasta que la invitación se publica.
 
-**Dedicatoria** (`dedicatoria`): nombre y mensaje (`titulo`, `texto` y `boton` cambian los textos). **Una por enlace**: ya enviada se ve fija y no se puede cambiar; se guarda en `dedicatorias.csv` y la ves en el panel. No depende de la fecha límite. En la invitación general (`/e/<slug>`) pide abrir el enlace personal.
+**Dedicatoria** (`dedicatoria`): nombre y mensaje (`titulo`, `texto` y `boton` cambian los textos). **Una por enlace**: ya enviada se ve fija y no se puede cambiar; se guarda en `dedicatorias.csv` y la ves en el panel. No depende de la fecha límite. En la invitación general (`/e/<slug>`) pide abrir el enlace personal. **Muro** (`muro,SI`): debajo del formulario se ven el nombre y el mensaje de las dedicatorias recibidas (las más recientes primero, hasta 60), que la invitación lee de `GET /api/public/events/<slug>/dedications`; nunca salen el enlace, el `para` ni la fecha. Para quitar una, se elimina su invitación desde el panel (pasa a `dedicatorias-eliminadas.csv`). En una muestra (`demo`) el muro va vacío.
 
 **Video y publicación de redes** (`video`, `publicacion`): el `enlace` debe ser `https` y de **YouTube** (`youtube.com`, `youtu.be`, también Shorts), **Instagram** (reel, post o video) o **Facebook** (video, reel o publicación); cualquier otro dominio, `http`, `javascript:` o un enlace con usuario o puerto se reporta como error y la sección no se muestra. El servidor saca el id y arma las direcciones (`SocialEmbed`); lo que se escribió nunca viaja tal cual. Con `fuente = archivo`, `archivo` es un **MP4 (H.264) de la biblioteca**, de **hasta 40 MB**, que se sube tal cual (sin re-codificar) en la pestaña «Videos»; Apache lo sirve con `Range`. La portada (`poster`) debe ser una imagen de la biblioteca: **nunca** se pide la miniatura de YouTube ni ninguna imagen de afuera. **Fachada:** al abrir la invitación no se hace ninguna petición a YouTube, Instagram ni Facebook (ni a sus CDNs); el reproductor (iframe `youtube-nocookie.com`, `blockquote` + `embed.js` de Instagram, plugin de Facebook) se carga solo al tocar play, y ese toque pausa la música de la invitación. Si la red lo bloquea o tarda más de 10 s, queda el botón «Ver en Instagram». En una muestra (`demo=SI`) se ve igual.
 
@@ -449,3 +451,16 @@ Adornos nuevos (`imagen_<adorno>`): `paisaje`, `cortinaje`, `telon`, `pliegues`,
 
 Adorno nuevo: `imagen_hacienda` (en `ubicacion`) cambia o quita el dibujo de la hacienda; `imagen_divisor` (en `itinerario`) el hilo de perlas. En `vestimenta`, `enlace` es el destino del botón de ejemplos y `boton` su texto; la plantilla `deploy/plantillas/encaje/` los trae todos.
 
+## Piezas de papelería fina (silueta, filete, relieve, texturas y monograma)
+
+Opciones reutilizables de cualquier tema (el tema solo pone sus valores en el manifest):
+
+| Fila | Valores |
+|---|---|
+| `pagina,,silueta` / `<sección>,,silueta` | `muesca`: las esquinas de la tarjeta se recortan en cóncavo, como una tarjeta de papelería fina; `ninguna`. En la sección, vacío = la de la página |
+| `pagina,,filete` / `<sección>,,filete` | `borgona`, `oro` o `ninguno`: línea fina por dentro de la tarjeta que sigue la silueta. Toma `--color-borgona` y `--color-oro` de la paleta (si no existen, el acento fuerte y el principal) |
+| `pagina,,relieve` | `SI`/`NO`: títulos, nombres y fechas con letterpress estático (luz y sombra finas, sin animar) |
+| `pagina,,textura` | además de las anteriores: `piedra` (beige con manchas suaves) y `algodon` (papel marfil con fibra) |
+| `evento,,monograma` | iniciales del monograma y del lacre (ver arriba) |
+
+La silueta y el filete aplican a los paneles (no a las secciones difuminadas ni a la portada).

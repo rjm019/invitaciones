@@ -110,6 +110,8 @@ const classes = computed(() => [
     :id="section.id"
     ref="root"
     :data-section-key="section.key"
+    :data-silhouette="section.silhouette"
+    :data-fillet="section.fillet"
     :class="classes"
     :style="style"
   >

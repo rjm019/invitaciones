@@ -24,6 +24,8 @@ import TriviaSection from './sections/TriviaSection.vue'
 import VideoSection from './sections/VideoSection.vue'
 import SocialPostSection from './sections/SocialPostSection.vue'
 import AlbumSection from './sections/AlbumSection.vue'
+import StorySection from './sections/StorySection.vue'
+import FaqSection from './sections/FaqSection.vue'
 
 /**
  * Tipo de sección (columna "seccion" del layout) → componente. Van todas en el mismo
@@ -57,4 +59,6 @@ export const sectionRegistry: Record<string, Component> = {
   video: VideoSection,
   'social-post': SocialPostSection,
   'guest-album': AlbumSection,
+  story: StorySection,
+  faq: FaqSection,
 }

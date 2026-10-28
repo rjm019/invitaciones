@@ -4,7 +4,9 @@ import type {
   DecorSprite,
   DesktopWidth,
   EdgeStyle,
+  FilletStyle,
   SectionBackground,
+  SilhouetteStyle,
   TextureStyle,
 } from '@/types/event'
 
@@ -91,6 +93,10 @@ export interface ThemeManifest {
   corners?: CornerStyle
   /** Textura de tela del fondo de los paneles (terciopelo, satén, gasa, lino, papel). */
   texture?: TextureStyle
+  /** Silueta y filete de las tarjetas, y títulos en relieve (los pone el tema, la invitación los cambia). */
+  silhouette?: SilhouetteStyle
+  fillet?: FilletStyle
+  relief?: boolean
   /**
    * Fondos que se turnan los paneles sin fondo propio (en el layout o en el tema), para
    * que dos secciones seguidas no se vean iguales.

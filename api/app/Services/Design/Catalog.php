@@ -213,7 +213,22 @@ final class Catalog
         'gasa' => ['value' => 'gauze', 'label' => 'Gasa'],
         'lino' => ['value' => 'linen', 'label' => 'Lino'],
         'papel' => ['value' => 'paper', 'label' => 'Papel'],
+        'piedra' => ['value' => 'stone', 'label' => 'Piedra (beige con manchas suaves)'],
+        'algodon' => ['value' => 'cotton', 'label' => 'Algodón (papel marfil con fibra)'],
         'ninguna' => ['value' => 'none', 'label' => 'Sin textura'],
+    ];
+
+    /** Silueta de las tarjetas: esquinas cóncavas recortadas, como papelería fina. */
+    public const SILHOUETTES = [
+        'muesca' => ['value' => 'notch', 'label' => 'Con muescas (esquinas recortadas)'],
+        'ninguna' => ['value' => 'none', 'label' => 'Recta'],
+    ];
+
+    /** Filete fino por dentro de la silueta. */
+    public const FILLETS = [
+        'borgona' => ['value' => 'burgundy', 'label' => 'Borgoña'],
+        'oro' => ['value' => 'gold', 'label' => 'Oro'],
+        'ninguno' => ['value' => 'none', 'label' => 'Sin filete'],
     ];
 
     /** Valor de imagen_<adorno> que quita ese adorno. */
@@ -245,6 +260,15 @@ final class Catalog
             ['value' => 'recta', 'label' => 'Recta'],
             ['value' => 'encaje', 'label' => 'Encaje'],
         ]],
+        ['key' => 'silueta', 'label' => 'Silueta de la tarjeta', 'input' => 'select', 'help' => 'Vacío: la de toda la invitación.', 'options' => [
+            ['value' => 'muesca', 'label' => 'Con muescas (esquinas recortadas)'],
+            ['value' => 'ninguna', 'label' => 'Recta'],
+        ]],
+        ['key' => 'filete', 'label' => 'Filete interior', 'input' => 'select', 'help' => 'Vacío: el de toda la invitación.', 'options' => [
+            ['value' => 'borgona', 'label' => 'Borgoña'],
+            ['value' => 'oro', 'label' => 'Oro'],
+            ['value' => 'ninguno', 'label' => 'Sin filete'],
+        ]],
         ['key' => 'escritorio', 'label' => 'En computadora', 'input' => 'select', 'options' => [
             ['value' => 'completo', 'label' => 'Toda la fila'],
             ['value' => 'mitad', 'label' => 'Media fila (junto a otra)'],
@@ -265,6 +289,7 @@ final class Catalog
             ['key' => 'tema', 'label' => 'Diseño base', 'input' => 'theme', 'required' => true],
             ['key' => 'festejada', 'label' => 'Nombre completo', 'input' => 'text', 'max_length' => 120],
             ['key' => 'festejada_corto', 'label' => 'Nombre corto (el del sobre)', 'input' => 'text', 'max_length' => 40],
+            ['key' => 'monograma', 'label' => 'Monograma (iniciales)', 'input' => 'text', 'placeholder' => 'I M', 'help' => 'Las iniciales del sello y del monograma (de una a tres letras). Vacío: salen del nombre corto ("Isabella & Mateo" → I M).', 'max_length' => 8],
             ['key' => 'pareja', 'label' => 'Nombre de la pareja', 'input' => 'text', 'max_length' => 120],
             ['key' => 'subtitulo', 'label' => 'Frase de la portada', 'input' => 'text', 'placeholder' => 'mis xv años', 'max_length' => 80],
             ['key' => 'titulo', 'label' => 'Título (pestaña del navegador)', 'input' => 'text', 'max_length' => 120],
@@ -352,7 +377,22 @@ final class Catalog
             ['value' => 'gasa', 'label' => 'Gasa'],
             ['value' => 'lino', 'label' => 'Lino'],
             ['value' => 'papel', 'label' => 'Papel'],
+            ['value' => 'piedra', 'label' => 'Piedra (beige con manchas suaves)'],
+            ['value' => 'algodon', 'label' => 'Algodón (papel marfil con fibra)'],
             ['value' => 'ninguna', 'label' => 'Sin textura'],
+        ]],
+        ['key' => 'silueta', 'label' => 'Silueta de las tarjetas', 'input' => 'select', 'help' => 'Con muescas: las esquinas de cada tarjeta se recortan en cóncavo, como una tarjeta de papelería fina.', 'options' => [
+            ['value' => 'muesca', 'label' => 'Con muescas (esquinas recortadas)'],
+            ['value' => 'ninguna', 'label' => 'Recta'],
+        ]],
+        ['key' => 'filete', 'label' => 'Filete interior de la tarjeta', 'input' => 'select', 'help' => 'Una línea fina por dentro que sigue la silueta.', 'options' => [
+            ['value' => 'borgona', 'label' => 'Borgoña'],
+            ['value' => 'oro', 'label' => 'Oro'],
+            ['value' => 'ninguno', 'label' => 'Sin filete'],
+        ]],
+        ['key' => 'relieve', 'label' => 'Títulos en relieve (letterpress)', 'input' => 'select', 'help' => 'Los títulos se ven impresos en el papel: una luz y una sombra finas, sin movimiento.', 'options' => [
+            ['value' => 'SI', 'label' => 'Sí'],
+            ['value' => 'NO', 'label' => 'No'],
         ]],
     ];
 
@@ -544,11 +584,16 @@ final class Catalog
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Dress Code', 'max_length' => 60],
                 ['key' => 'subtitulo', 'label' => 'Tipo de vestimenta', 'input' => 'text', 'placeholder' => 'Formal', 'max_length' => 80],
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'max_length' => 600],
+                ['key' => 'restricciones', 'label' => 'Qué evitar (uno por línea, hasta 6)', 'input' => 'lines', 'placeholder' => "Blanco o marfil\nTacones de aguja en el jardín", 'max_length' => 400],
                 ['key' => 'colores', 'label' => 'Colores sugeridos', 'input' => 'colors', 'help' => 'De 1 a 4.'],
                 ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'vitrinas', 'label' => 'Escaparates de la Quinta Avenida'], ['value' => 'muestrario', 'label' => 'Muestrario de telas']]],
                 ['key' => 'enlace', 'label' => 'Enlace de ejemplos', 'input' => 'url', 'placeholder' => 'https://…', 'help' => 'Un tablero o una galería con ideas de vestimenta. Solo https. Sin enlace, el botón no aparece.'],
                 ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Ver ejemplos', 'max_length' => 40],
             ],
+            'list' => ['key' => 'referencias', 'label' => 'Fotos de referencia (opcional)', 'item_label' => 'Foto', 'max' => 4, 'fields' => [
+                ['key' => 'foto', 'label' => 'Foto', 'input' => 'image', 'required' => true],
+                ['key' => 'pie', 'label' => 'Pie de foto', 'input' => 'text', 'max_length' => 120],
+            ]],
             'slots' => ['lacre', 'tarjeta', 'mujer', 'hombre', 'encaje'],
             'texts' => ['titulo' => 'Título', 'subtitulo' => 'Tipo de vestimenta', 'texto' => 'Texto', 'boton' => 'Botón'],
         ],
@@ -592,6 +637,9 @@ final class Catalog
                 ['key' => 'maps', 'label' => 'Enlace de Google Maps', 'input' => 'url'],
                 ['key' => 'telefono', 'label' => 'Teléfono', 'input' => 'phone'],
                 ['key' => 'foto', 'label' => 'Foto', 'input' => 'image'],
+                ['key' => 'distancia', 'label' => 'Distancia al salón (opcional)', 'input' => 'text', 'placeholder' => 'A 10 min del salón', 'max_length' => 80],
+                ['key' => 'precio', 'label' => 'Precio (opcional)', 'input' => 'text', 'placeholder' => 'Desde $1,800 por noche', 'max_length' => 80],
+                ['key' => 'reserva', 'label' => 'Enlace para reservar (opcional)', 'input' => 'url', 'placeholder' => 'https://…', 'help' => 'Solo https.'],
             ]],
             'slots' => ['tarjeta', 'divisor'],
             'texts' => ['titulo' => 'Título', 'subtitulo' => 'Subtítulo', 'texto' => 'Texto', 'nombre' => ['block' => 'name', 'label' => 'Nombre del hotel'], 'nota' => ['block' => 'note', 'label' => 'Nota'], 'direccion' => ['block' => 'address', 'label' => 'Dirección'], 'boton' => 'Botón'],
@@ -702,10 +750,11 @@ final class Catalog
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Dedicatoria', 'max_length' => 60],
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'placeholder' => 'Escribe unos buenos deseos…', 'max_length' => 400],
                 ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Enviar', 'max_length' => 40],
+                ['key' => 'muro', 'label' => 'Mostrar las dedicatorias recibidas', 'input' => 'select', 'help' => 'Con "Sí", la invitación muestra el nombre y el mensaje de cada dedicatoria (las más recientes primero). Quien administra puede quitar una eliminando su invitación. Sin elegir: no.', 'options' => [['value' => 'SI', 'label' => 'Sí'], ['value' => 'NO', 'label' => 'No']]],
                 ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'postal', 'label' => 'Postal de correo aéreo']]],
             ],
             'slots' => ['divisor'],
-            'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'mensaje' => ['block' => 'message', 'label' => 'Mensaje enviado'], 'autor' => ['block' => 'author', 'label' => 'Quién lo envía'], 'boton' => 'Botón'],
+            'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'mensaje' => ['block' => 'message', 'label' => 'Mensaje enviado y del muro'], 'autor' => ['block' => 'author', 'label' => 'Quién lo envía'], 'boton' => 'Botón'],
         ],
         'trivia' => [
             'type' => 'trivia', 'label' => 'Trivia', 'icon' => 'circle-question',
@@ -747,6 +796,41 @@ final class Catalog
             ]],
             'slots' => ['marco', 'divisor'],
             'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'boton' => 'Botón'],
+        ],
+        'historia' => [
+            'type' => 'story', 'label' => 'Historia', 'icon' => 'book-open', 'repeatable' => true,
+            'description' => 'Un mensaje de bienvenida y, si quieres, los momentos de su historia (año, título, texto y foto).',
+            'fields' => [
+                ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Nuestra historia', 'max_length' => 80],
+                ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'max_length' => 120],
+                ['key' => 'texto', 'label' => 'Mensaje de bienvenida', 'input' => 'textarea', 'max_length' => 1200],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica']]],
+            ],
+            'list' => ['key' => 'momentos', 'label' => 'Momentos', 'item_label' => 'Momento', 'max' => 8, 'fields' => [
+                ['key' => 'anio', 'label' => 'Año o fecha', 'input' => 'text', 'placeholder' => '2019', 'max_length' => 20],
+                ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'required' => true, 'max_length' => 80],
+                ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'max_length' => 500],
+                ['key' => 'foto', 'label' => 'Foto (opcional)', 'input' => 'image'],
+            ]],
+            'slots' => ['divisor'],
+            'texts' => ['titulo' => 'Título', 'subtitulo' => 'Subtítulo', 'texto' => 'Mensaje de bienvenida', 'anio' => ['block' => 'year', 'label' => 'Años'], 'momento' => ['block' => 'moment', 'label' => 'Título de cada momento'], 'detalle' => ['block' => 'detail', 'label' => 'Texto de cada momento']],
+        ],
+        'informacion' => [
+            'type' => 'faq', 'label' => 'Información adicional', 'icon' => 'circle-info',
+            'description' => 'Preguntas y respuestas (transporte, estacionamiento, niños…) en un acordeón.',
+            'fields' => [
+                ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Información adicional', 'max_length' => 80],
+                ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'max_length' => 120],
+                ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'max_length' => 600],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica']]],
+            ],
+            'list' => ['key' => 'preguntas', 'label' => 'Preguntas', 'item_label' => 'Pregunta', 'max' => 12, 'fields' => [
+                ['key' => 'pregunta', 'label' => 'Pregunta', 'input' => 'text', 'required' => true, 'max_length' => 160],
+                ['key' => 'respuesta', 'label' => 'Respuesta', 'input' => 'textarea', 'required' => true, 'max_length' => 600],
+            ]],
+            'slots' => ['divisor'],
+            'texts' => ['titulo' => 'Título', 'subtitulo' => 'Subtítulo', 'texto' => 'Texto', 'pregunta' => ['block' => 'question', 'label' => 'Preguntas'], 'respuesta' => ['block' => 'answer', 'label' => 'Respuestas']],
+            'hidden_without' => 'Agrega al menos una pregunta con su respuesta.',
         ],
         'cierre' => [
             'type' => 'closing', 'label' => 'Cierre', 'icon' => 'heart', 'repeatable' => true,

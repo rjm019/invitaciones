@@ -73,6 +73,7 @@ import fileZipperSvg from '@fortawesome/fontawesome-free/svgs/solid/file-zipper.
 import fileArrowUpSvg from '@fortawesome/fontawesome-free/svgs/solid/file-arrow-up.svg?raw'
 import shareNodesSvg from '@fortawesome/fontawesome-free/svgs/solid/share-nodes.svg?raw'
 import circleQuestionSvg from '@fortawesome/fontawesome-free/svgs/solid/circle-question.svg?raw'
+import bookOpenSvg from '@fortawesome/fontawesome-free/svgs/solid/book-open.svg?raw'
 import pauseSvg from '@fortawesome/fontawesome-free/svgs/solid/pause.svg?raw'
 import crownSvg from '@fortawesome/fontawesome-free/svgs/solid/crown.svg?raw'
 import utensilsSvg from '@fortawesome/fontawesome-free/svgs/solid/utensils.svg?raw'
@@ -176,6 +177,7 @@ const ICONS: Record<string, string> = {
   'file-arrow-up': fileArrowUpSvg,
   'share-nodes': shareNodesSvg,
   'circle-question': circleQuestionSvg,
+  'book-open': bookOpenSvg,
   pause: pauseSvg,
   crown: crownSvg,
   utensils: utensilsSvg,

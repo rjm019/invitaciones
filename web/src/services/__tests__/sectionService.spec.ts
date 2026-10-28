@@ -213,6 +213,17 @@ describe('withContent', () => {
     expect(types(withContent(list, event(null), before))).toEqual(['trivia'])
   })
 
+  it('la historia aparece con mensaje o momentos y la información con preguntas', () => {
+    const list = [
+      section({ type: 'story', text: 'Bienvenidos' }),
+      section({ type: 'story', moments: [{ title: 'Nos conocimos' }] }),
+      section({ type: 'story' }),
+      section({ type: 'faq', items: [{ question: '¿Dónde?', answer: 'Aquí' }] }),
+      section({ type: 'faq', items: [] }),
+    ]
+    expect(types(withContent(list, event(null), before))).toEqual(['story', 'story', 'faq'])
+  })
+
   it('el video y la publicación aparecen solo con un enlace o archivo válido', () => {
     const list = [
       section({ type: 'video', video: { source: 'file', format: 'horizontal', file: 'a.mp4' } }),

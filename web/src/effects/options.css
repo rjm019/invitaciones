@@ -197,3 +197,128 @@
     radial-gradient(120% 85% at 50% 42%, rgb(255 255 255 / 0.14), transparent 72%),
     var(--section-bg-color, transparent);
 }
+.invitation[data-texture='stone'] :is(.section--panel, .section__fill) {
+  background:
+    url('./assets/textura-piedra.svg') 0 0 / 400px,
+    var(--section-bg-color, var(--color-stone, #d8cfc0));
+}
+.invitation[data-texture='cotton'] :is(.section--panel, .section__fill) {
+  background:
+    url('./assets/textura-algodon.svg') 0 0 / 320px,
+    radial-gradient(120% 85% at 50% 40%, rgb(255 255 255 / 0.22), transparent 72%),
+    var(--section-bg-color, var(--color-cotton, #f5f0e6));
+}
+
+/*
+ * Silueta con muesca (silueta="muesca", en la página o en una sección): las cuatro
+ * esquinas de la tarjeta se recortan en cóncavo, como una tarjeta de papelería fina. Es una
+ * máscara de cuatro cuartos (sirve con cualquier fondo, foto o textura) y el recorte
+ * también se lleva la sombra del panel. `--notch-size` cambia el radio (1.1rem).
+ * `.paper-notched` es lo mismo para una pieza interna de una variante (una tarjetita, un
+ * boleto): no pinta fondo, solo recorta. Una sección con `silueta=ninguna` se queda recta.
+ */
+:is(
+    .invitation[data-silhouette='notch'] .section--panel:not([data-silhouette]),
+    .invitation .section--panel[data-silhouette='notch'],
+    .paper-notched
+  ) {
+  --notch: var(--notch-size, 1.1rem);
+  position: relative;
+  border-radius: 0;
+  -webkit-mask:
+    radial-gradient(circle at 0 0, #0000 var(--notch), #000 calc(var(--notch) + 1px)) top left / 51%
+      51% no-repeat,
+    radial-gradient(circle at 100% 0, #0000 var(--notch), #000 calc(var(--notch) + 1px)) top right /
+      51% 51% no-repeat,
+    radial-gradient(circle at 0 100%, #0000 var(--notch), #000 calc(var(--notch) + 1px)) bottom left /
+      51% 51% no-repeat,
+    radial-gradient(circle at 100% 100%, #0000 var(--notch), #000 calc(var(--notch) + 1px)) bottom
+      right / 51% 51% no-repeat;
+  mask:
+    radial-gradient(circle at 0 0, #0000 var(--notch), #000 calc(var(--notch) + 1px)) top left / 51%
+      51% no-repeat,
+    radial-gradient(circle at 100% 0, #0000 var(--notch), #000 calc(var(--notch) + 1px)) top right /
+      51% 51% no-repeat,
+    radial-gradient(circle at 0 100%, #0000 var(--notch), #000 calc(var(--notch) + 1px)) bottom left /
+      51% 51% no-repeat,
+    radial-gradient(circle at 100% 100%, #0000 var(--notch), #000 calc(var(--notch) + 1px)) bottom
+      right / 51% 51% no-repeat;
+}
+
+/*
+ * Filete (filete="borgona" | "oro"): una línea fina por dentro de la tarjeta, a
+ * `--fillet-inset` (0.5rem) del borde. Su color sale de la paleta del tema: `--color-borgona`
+ * y `--color-oro` (si no existen, el acento fuerte y el principal). Con silueta de muesca
+ * la línea sigue las muescas (cuatro arcos y cuatro rectas); recta, es un marco simple.
+ * `--notch-a` es hasta dónde llega cada arco sobre el borde del filete: con otro
+ * `--notch-size`, es sqrt((n + d)² - d²) - d (n = muesca, d = `--fillet-inset`).
+ */
+:is(
+    .invitation[data-fillet='burgundy'] .section--panel:not([data-fillet]),
+    .invitation .section--panel[data-fillet='burgundy'],
+    .paper-notched[data-fillet='burgundy']
+  ) {
+  --fillet-color: var(--color-borgona, var(--color-accent-strong));
+}
+:is(
+    .invitation[data-fillet='gold'] .section--panel:not([data-fillet]),
+    .invitation .section--panel[data-fillet='gold'],
+    .paper-notched[data-fillet='gold']
+  ) {
+  --fillet-color: var(--color-oro, var(--color-primary));
+}
+:is(
+    .invitation[data-fillet] .section--panel:not([data-fillet]),
+    .invitation .section--panel[data-fillet]:not([data-fillet='none']),
+    .paper-notched[data-fillet]:not([data-fillet='none'])
+  )::after {
+  content: '';
+  position: absolute;
+  inset: var(--fillet-inset, 0.5rem);
+  border: 1px solid var(--fillet-color);
+  border-radius: 0;
+  pointer-events: none;
+}
+:is(
+    .invitation[data-silhouette='notch'] .section--panel:not([data-silhouette]),
+    .invitation .section--panel[data-silhouette='notch'],
+    .paper-notched
+  ):is(
+    .invitation[data-fillet] .section--panel:not([data-fillet]),
+    .invitation .section--panel[data-fillet]:not([data-fillet='none']),
+    .paper-notched[data-fillet]:not([data-fillet='none'])
+  )::after {
+  --d: var(--fillet-inset, 0.5rem);
+  --a: var(--notch-a, 1.02rem);
+  --r: calc(var(--notch, 1.1rem) + var(--d));
+  --c: var(--fillet-color);
+  --arc: #0000 calc(var(--r) - 1.5px), var(--c) calc(var(--r) - 1px), var(--c) var(--r),
+    #0000 calc(var(--r) + 0.5px);
+  border: 0;
+  background:
+    radial-gradient(circle at calc(var(--d) * -1) calc(var(--d) * -1), var(--arc)) left top /
+      var(--a) var(--a) no-repeat,
+    radial-gradient(circle at calc(var(--a) + var(--d)) calc(var(--d) * -1), var(--arc)) right top /
+      var(--a) var(--a) no-repeat,
+    radial-gradient(circle at calc(var(--d) * -1) calc(var(--a) + var(--d)), var(--arc)) left bottom /
+      var(--a) var(--a) no-repeat,
+    radial-gradient(circle at calc(var(--a) + var(--d)) calc(var(--a) + var(--d)), var(--arc)) right
+      bottom / var(--a) var(--a) no-repeat,
+    linear-gradient(var(--c), var(--c)) var(--a) top / calc(100% - 2 * var(--a)) 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) var(--a) bottom / calc(100% - 2 * var(--a)) 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) left var(--a) / 1px calc(100% - 2 * var(--a)) no-repeat,
+    linear-gradient(var(--c), var(--c)) right var(--a) / 1px calc(100% - 2 * var(--a)) no-repeat;
+}
+
+/*
+ * Relieve (relieve=SI): los títulos, nombres y fechas se ven impresos en el papel
+ * (letterpress): una luz fina debajo y una sombra fina arriba, fijas, sin animar. Con
+ * brillo de metal (data-metal) no se aplica: el degradado ya les da su volumen.
+ * `--relief-light` y `--relief-dark` las cambian.
+ */
+.invitation[data-relief]:not([data-metal])
+  :is([data-text='title'], [data-text='name'], [data-text='date']) {
+  text-shadow:
+    0 1px 0 var(--relief-light, rgb(255 255 255 / 0.55)),
+    0 -1px 0 var(--relief-dark, rgb(0 0 0 / 0.28));
+}

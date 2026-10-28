@@ -56,7 +56,11 @@ const cardStyle = computed(() =>
         />
         <p v-if="hotel.note" class="hotels__note" data-text="note">{{ hotel.note }}</p>
         <p v-if="hotel.address" class="hotels__address" data-text="address">{{ hotel.address }}</p>
-        <div v-if="hotel.maps_url || hotel.tel" class="hotels__actions">
+        <p v-if="hotel.distance || hotel.price" class="hotels__meta">
+          <span v-if="hotel.distance" data-text="address">{{ hotel.distance }}</span>
+          <span v-if="hotel.price" data-text="address">{{ hotel.price }}</span>
+        </p>
+        <div v-if="hotel.maps_url || hotel.tel || hotel.booking_url" class="hotels__actions">
           <a
             v-if="hotel.maps_url"
             :href="hotel.maps_url"
@@ -67,6 +71,17 @@ const cardStyle = computed(() =>
             :aria-label="`${button}: ${hotel.name}`"
           >
             {{ button }}
+          </a>
+          <a
+            v-if="hotel.booking_url"
+            :href="hotel.booking_url"
+            class="hotels__call"
+            data-text="button"
+            target="_blank"
+            rel="noopener noreferrer"
+            :aria-label="`Reservar en ${hotel.name}`"
+          >
+            Reservar
           </a>
           <a
             v-if="hotel.tel"
@@ -192,6 +207,18 @@ const cardStyle = computed(() =>
   font-size: calc(0.9rem * var(--t-address-size, 1));
   line-height: 1.35;
   opacity: 0.85;
+  font-family: var(--t-address-font);
+  color: var(--t-address-color);
+}
+/* Distancia y precio (opcionales): dos datos sobrios, uno junto al otro o apilados. */
+.hotels__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.15rem 0.9rem;
+  margin: 0;
+  font-size: calc(0.9rem * var(--t-address-size, 1));
+  line-height: 1.35;
   font-family: var(--t-address-font);
   color: var(--t-address-color);
 }

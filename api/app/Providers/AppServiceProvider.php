@@ -31,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('dedication', fn (Request $request) => Limit::perMinute(5)
             ->by($request->ip().'|'.$request->route('token')));
 
+        // Muro de dedicatorias: solo lectura; 30 por minuto por IP y evento (o enlace).
+        RateLimiter::for('dedication-wall', fn (Request $request) => Limit::perMinute(30)
+            ->by($request->ip().'|wall|'.($request->route('slug') ?? $request->route('token'))));
+
         // Trivia: abrir y responder; 10 por minuto por IP y enlace alcanzan para reintentar.
         RateLimiter::for('trivia', fn (Request $request) => Limit::perMinute(10)
             ->by($request->ip().'|trivia|'.$request->route('token')));

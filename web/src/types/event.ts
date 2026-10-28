@@ -59,7 +59,41 @@ export type ButtonStyle = 'gradient' | 'solid' | 'outline' | 'deco' | 'ticket' |
 export type CornerStyle = 'deco' | 'lace' | 'none'
 
 /** Textura de tela del fondo de los paneles. */
-export type TextureStyle = 'velvet' | 'satin' | 'gauze' | 'linen' | 'paper' | 'none'
+export type TextureStyle =
+  | 'velvet'
+  | 'satin'
+  | 'gauze'
+  | 'linen'
+  | 'paper'
+  | 'stone'
+  | 'cotton'
+  | 'none'
+
+/** Silueta de las tarjetas: con muescas (esquinas cóncavas recortadas) o recta. */
+export type SilhouetteStyle = 'notch' | 'none'
+
+/** Filete fino por dentro de la silueta. */
+export type FilletStyle = 'burgundy' | 'gold' | 'none'
+
+/** Un recuerdo de la historia (sección "historia"). */
+export interface StoryMoment {
+  year?: string
+  title: string
+  text?: string
+  photo?: string
+}
+
+/** Pregunta y respuesta de la información adicional (sección "informacion"). */
+export interface FaqItem {
+  question: string
+  answer: string
+}
+
+/** Foto de referencia de la vestimenta, con su pie opcional. */
+export interface DressReference {
+  photo: string
+  caption: string
+}
 
 export interface SectionBackground {
   /** Nombre de archivo (media del evento o assets del tema) o URL. */
@@ -136,6 +170,18 @@ export interface SectionConfig {
   days?: number
   /** Forma de sus orillas, si es franja (si no, la de la página o la del tema). */
   edge?: EdgeStyle
+  /** Silueta y filete de esta tarjeta (si no vienen, los de la página o los del tema). */
+  silhouette?: SilhouetteStyle
+  fillet?: FilletStyle
+  /** Vestimenta: lo que se pide evitar (hasta 6) y fotos de referencia (hasta 4). */
+  restrictions?: string[]
+  references?: DressReference[]
+  /** Historia: sus momentos (hasta 8). */
+  moments?: StoryMoment[]
+  /** Información adicional: preguntas y respuestas del acordeón (hasta 12). */
+  items?: FaqItem[]
+  /** Dedicatorias: muestra el muro con las recibidas (apagado si no viene). */
+  wall?: boolean
 }
 
 export interface ItineraryItem {
@@ -238,6 +284,11 @@ export interface EventHotel {
   maps_url: string
   phone: string
   photo: string | null
+  /** Opcionales: solo vienen si el hotel los llenó. */
+  distance?: string
+  price?: string
+  /** Enlace https para reservar. */
+  booking_url?: string
 }
 
 export interface EventConfig {
@@ -246,7 +297,13 @@ export interface EventConfig {
   theme: string
   title: string
   subtitle: string
-  celebrant: { full_name?: string; short_name?: string; partner_name?: string }
+  celebrant: {
+    full_name?: string
+    short_name?: string
+    partner_name?: string
+    /** Iniciales del monograma ("I M"); sin ellas salen del nombre corto. */
+    monogram?: string
+  }
   /** ISO 8601 siempre con offset (2026-11-28T17:00:00-06:00). */
   starts_at: string | null
   timezone: string
@@ -309,6 +366,10 @@ export interface EventConfig {
     metal?: boolean
     corners?: CornerStyle
     texture?: TextureStyle
+    silhouette?: SilhouetteStyle
+    fillet?: FilletStyle
+    /** Títulos en relieve (letterpress estático). */
+    relief?: boolean
   }
   /** Fuentes que usan los estilos de texto de las secciones (se cargan de Google Fonts). */
   extra_fonts?: string[]

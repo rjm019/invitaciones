@@ -77,6 +77,13 @@ Devuelve el evento y la invitación (para cuántas personas es y quiénes ya est
 
 **Respuesta `200`:** `{ "invitation": … }` con `dedication` ya lleno.
 
+### `GET /public/events/{slug}/dedications` y `GET /public/invitations/{token}/dedications`
+
+El muro de dedicatorias (solo lectura), para la sección `dedicatoria` con `muro,SI` (en el config, `wall: true` en esa sección; apagado, la llave no existe). Throttle `dedication-wall`: 30 por minuto por IP y evento (o enlace).
+
+**Respuesta `200`:** `{ "dedications": [{ "name": "Ana Pérez", "message": "¡Felicidades!" }] }`, las más recientes primero, máximo 60. **Nunca** trae token, `para`, id interno ni fechas. Las dedicatorias de invitaciones eliminadas no están (pasan a `dedicatorias-eliminadas.csv`). En una muestra (`demo`) la lista va vacía.
+**Errores:** `404` si el evento o el token no existen, el evento no está publicado, o ninguna sección de dedicatorias tiene `muro` encendido · `429` por throttle.
+
 ### `POST /public/invitations/{token}/trivia/start`
 
 Abre la trivia: el servidor anota el inicio (abrirla otra vez no reinicia el reloj; así mide los segundos). Sin cuerpo. **Throttle:** 10/min por IP e invitación. `404` si el token no existe o el evento no tiene trivia · `409` "La trivia ya cerró." o "Ya respondiste la trivia. ¡Gracias por participar!". **Respuesta `200`:** `{ "total": 10, "started_at": "…" }`. En una muestra no escribe nada.

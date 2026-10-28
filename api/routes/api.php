@@ -14,6 +14,7 @@ use App\Http\Controllers\Manager\UserController;
 use App\Http\Controllers\Manager\VisitController as ManagerVisitController;
 use App\Http\Controllers\Public\AlbumController;
 use App\Http\Controllers\Public\DedicationController;
+use App\Http\Controllers\Public\DedicationWallController;
 use App\Http\Controllers\Public\EventController;
 use App\Http\Controllers\Public\InvitationController;
 use App\Http\Controllers\Public\QuoteController;
@@ -35,6 +36,9 @@ Route::prefix('public')->group(function () {
     Route::post('/invitations/{token}/rsvp', [RsvpController::class, 'store'])->middleware('throttle:rsvp');
     // Una dedicatoria por enlace.
     Route::post('/invitations/{token}/dedication', [DedicationController::class, 'store'])->middleware('throttle:dedication');
+    // Muro de dedicatorias (solo lectura; solo con `muro` encendido en la sección).
+    Route::get('/events/{slug}/dedications', [DedicationWallController::class, 'byEvent'])->middleware('throttle:dedication-wall');
+    Route::get('/invitations/{token}/dedications', [DedicationWallController::class, 'byInvitation'])->middleware('throttle:dedication-wall');
     // Trivia: abrirla marca el inicio; responder la califica (una vez por enlace).
     Route::post('/invitations/{token}/trivia/start', [TriviaController::class, 'start'])->middleware('throttle:trivia');
     Route::post('/invitations/{token}/trivia', [TriviaController::class, 'store'])->middleware('throttle:trivia');

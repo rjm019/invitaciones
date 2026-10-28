@@ -27,6 +27,15 @@ final class InvitationConfigBuilder
 
     private const BACKGROUND_FIT = ['cubrir' => 'cover', 'cover' => 'cover', 'mosaico' => 'tile', 'tile' => 'tile'];
 
+    /** Límites de las listas nuevas (vestimenta, historia, información). */
+    private const MAX_RESTRICTIONS = 6;
+
+    private const MAX_REFERENCES = 4;
+
+    private const MAX_MOMENTS = 8;
+
+    private const MAX_FAQ = 12;
+
     private const DESKTOP = ['completo' => 'full', 'full' => 'full', 'mitad' => 'half', 'half' => 'half'];
 
     public const DEFAULT_THEME = 'jardin-azul';
@@ -132,6 +141,7 @@ final class InvitationConfigBuilder
                 'full_name' => $e['festejada'] ?? '',
                 'short_name' => $e['festejada_corto'] ?? ($e['festejada'] ?? ''),
                 'partner_name' => $e['pareja'] ?? '',
+                'monogram' => mb_substr($e['monograma'] ?? '', 0, 8),
             ], fn ($v) => $v !== ''),
             'starts_at' => $startsAt?->toIso8601String(),
             'timezone' => $timezone,
@@ -378,6 +388,8 @@ final class InvitationConfigBuilder
             'visible' => true,
             'desktop' => self::DESKTOP[$desktop] ?? null,
             'edge' => $edge,
+            'silhouette' => $this->choice($f['silueta'] ?? '', Catalog::SILHOUETTES, $id, 'silueta'),
+            'fillet' => $this->choice($f['filete'] ?? '', Catalog::FILLETS, $id, 'filete'),
         ], fn ($v) => $v !== null);
 
         $entry['key'] = $id;
@@ -432,6 +444,26 @@ final class InvitationConfigBuilder
             if ($link !== '') {
                 $entry['link'] = $link;
             }
+            $avoid = $this->dressRestrictions($section);
+            if ($avoid !== []) {
+                $entry['restrictions'] = $avoid;
+            }
+            $references = $this->dressReferences($section, $media);
+            if ($references !== []) {
+                $entry['references'] = $references;
+            }
+        }
+        // Historia: sus momentos (año, título, texto y foto opcional).
+        if ($kind === 'historia') {
+            $entry['moments'] = $this->story($section, $media);
+        }
+        // Información adicional: preguntas y respuestas del acordeón.
+        if ($kind === 'informacion') {
+            $entry['items'] = $this->faq($section);
+        }
+        // Dedicatorias: el muro con las recibidas (apagado salvo que se pida).
+        if ($kind === 'dedicatoria' && Normalizer::yes($f['muro'] ?? 'NO')) {
+            $entry['wall'] = true;
         }
         // Itinerario en vivo: el día del evento resalta el momento actual (lo calcula la web).
         if ($kind === 'itinerario' && Normalizer::yes($f['en_vivo'] ?? '')) {
@@ -604,6 +636,111 @@ final class InvitationConfigBuilder
         }
 
         return $media[$value];
+    }
+
+    /**
+     * Lo que se pide evitar en la vestimenta: una línea cada uno, hasta MAX_RESTRICTIONS.
+     *
+     * @return list<string>
+     */
+    private function dressRestrictions(DesignSection $section): array
+    {
+        $lines = array_values(array_filter(array_map('trim', explode("\n", $section->field('restricciones') ?? '')), fn ($l) => $l !== ''));
+        if (count($lines) > self::MAX_RESTRICTIONS) {
+            $this->error($section->id, null, 'restricciones', 'usa hasta '.self::MAX_RESTRICTIONS.' líneas');
+            $lines = array_slice($lines, 0, self::MAX_RESTRICTIONS);
+        }
+
+        return $lines;
+    }
+
+    /**
+     * Fotos de referencia de la vestimenta (hasta MAX_REFERENCES): foto y pie opcional.
+     *
+     * @param  array<string, string>  $media
+     * @return list<array{photo: string, caption: string}>
+     */
+    private function dressReferences(DesignSection $section, array $media): array
+    {
+        $out = [];
+        foreach ($section->items as $i => $item) {
+            $photo = $this->media($item['foto'] ?? '', $media);
+            if ($photo === null) {
+                continue;
+            }
+            if (count($out) >= self::MAX_REFERENCES) {
+                $this->error($section->id, $i + 1, null, 'las referencias admiten hasta '.self::MAX_REFERENCES.' fotos');
+
+                continue;
+            }
+            $out[] = ['photo' => $photo, 'caption' => trim($item['pie'] ?? '')];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Los momentos de una historia (hasta MAX_MOMENTS): título obligatorio.
+     *
+     * @param  array<string, string>  $media
+     * @return list<array<string, string>>
+     */
+    private function story(DesignSection $section, array $media): array
+    {
+        $out = [];
+        foreach ($section->items as $i => $item) {
+            $title = trim($item['titulo'] ?? '');
+            $year = trim($item['anio'] ?? '');
+            $text = trim($item['texto'] ?? '');
+            $photo = $this->media($item['foto'] ?? '', $media);
+            if ($title === '' && $year === '' && $text === '' && $photo === null) {
+                continue;
+            }
+            $n = $i + 1;
+            if (count($out) >= self::MAX_MOMENTS) {
+                $this->error($section->id, $n, null, 'la historia admite hasta '.self::MAX_MOMENTS.' momentos');
+
+                continue;
+            }
+            if ($title === '') {
+                $this->error($section->id, $n, 'titulo', 'escribe el título del momento');
+            }
+            $out[] = array_filter(['year' => $year, 'title' => $title, 'text' => $text, 'photo' => $photo], fn ($v) => $v !== null && $v !== '');
+        }
+
+        return $out;
+    }
+
+    /**
+     * Preguntas y respuestas de la información adicional (hasta MAX_FAQ).
+     *
+     * @return list<array{question: string, answer: string}>
+     */
+    private function faq(DesignSection $section): array
+    {
+        $out = [];
+        foreach ($section->items as $i => $item) {
+            $question = trim($item['pregunta'] ?? '');
+            $answer = trim($item['respuesta'] ?? '');
+            if ($question === '' && $answer === '') {
+                continue;
+            }
+            $n = $i + 1;
+            if (count($out) >= self::MAX_FAQ) {
+                $this->error($section->id, $n, null, 'la información admite hasta '.self::MAX_FAQ.' preguntas');
+
+                continue;
+            }
+            if ($question === '') {
+                $this->error($section->id, $n, 'pregunta', 'escribe la pregunta');
+            }
+            if ($answer === '') {
+                $this->error($section->id, $n, 'respuesta', 'escribe la respuesta');
+            }
+            $out[] = ['question' => $question, 'answer' => $answer];
+        }
+
+        return $out;
     }
 
     /**
@@ -835,8 +972,10 @@ final class InvitationConfigBuilder
             'buttons' => $this->choice($page['botones'] ?? '', Catalog::BUTTONS, 'pagina', 'botones'),
             'corners' => $this->choice($page['esquinas'] ?? '', Catalog::CORNERS, 'pagina', 'esquinas'),
             'texture' => $this->choice($page['textura'] ?? '', Catalog::TEXTURES, 'pagina', 'textura'),
+            'silhouette' => $this->choice($page['silueta'] ?? '', Catalog::SILHOUETTES, 'pagina', 'silueta'),
+            'fillet' => $this->choice($page['filete'] ?? '', Catalog::FILLETS, 'pagina', 'filete'),
         ];
-        foreach (['confetti' => 'confeti', 'metal' => 'metalico'] as $key => $field) {
+        foreach (['confetti' => 'confeti', 'metal' => 'metalico', 'relief' => 'relieve'] as $key => $field) {
             if (trim($page[$field] ?? '') !== '') {
                 $out[$key] = Normalizer::yes($page[$field]);
             }
@@ -939,7 +1078,7 @@ final class InvitationConfigBuilder
             if ($name === '') {
                 continue;
             }
-            $out[] = [
+            $hotel = [
                 'name' => $name,
                 'note' => trim($item['nota'] ?? ''),
                 'address' => trim($item['direccion'] ?? ''),
@@ -947,6 +1086,13 @@ final class InvitationConfigBuilder
                 'phone' => trim($item['telefono'] ?? ''),
                 'photo' => $this->media($item['foto'] ?? '', $media),
             ];
+            // Opcionales: solo viajan si se llenaron (sin ellos, el config es el de siempre).
+            $extras = [
+                'distance' => trim($item['distancia'] ?? ''),
+                'price' => trim($item['precio'] ?? ''),
+                'booking_url' => $this->webUrl($item['reserva'] ?? '', $section->id, $i + 1, 'reserva'),
+            ];
+            $out[] = $hotel + array_filter($extras, fn ($v) => $v !== '');
         }
 
         return $out;
