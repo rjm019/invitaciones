@@ -290,16 +290,16 @@ LACRE = [
     ('¿Qué pasa al tocar «Agregar al calendario»?', ['Se confirma tu asistencia', 'La hora queda guardada en tu calendario', 'Suena la canción'], 2),
     ('¿Hasta cuándo puedes confirmar tu asistencia?', ['25 de septiembre de 2027', '23 de octubre de 2027', 'No hace falta'], 1),
 ]) + [
+    ('confirmacion', 'visible', 'SI'),
+    ('confirmacion', 'titulo', 'Confirma tu asistencia'),
+    ('confirmacion', 'subtitulo', 'Nos ayudará mucho saber si nos acompañas'),
+
     ('capa-2', 'visible', 'SI'),
     ('capa-2', 'imagen', 'anillos-manos.webp'),
     ('capa-2', 'titulo', 'Te esperamos'),
     ('capa-2', 'texto', 'Sábado 23 de octubre de 2027 · San Miguel de Allende'),
     ('capa-2', 'variante', 'media'),
     ('capa-2', 'efectos', 'letterpress'),
-
-    ('confirmacion', 'visible', 'SI'),
-    ('confirmacion', 'titulo', 'Confirma tu asistencia'),
-    ('confirmacion', 'subtitulo', 'Nos ayudará mucho saber si nos acompañas'),
 
     ('dedicatoria', 'visible', 'SI'),
     ('dedicatoria', 'titulo', 'Unas palabras para nosotros'),
