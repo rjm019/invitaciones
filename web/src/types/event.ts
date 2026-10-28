@@ -349,6 +349,8 @@ export interface EventConfig {
     /** file = MP3 del evento (musica_audio); spotify = la playlist suena al abrir el sobre. */
     source: 'file' | 'spotify'
     audio_url: string | null
+    /** Segundo en que empieza el MP3 (solo viene si es mayor que 0). */
+    start?: number
     spotify_url: string | null
   }
   media: { portrait: string | null }

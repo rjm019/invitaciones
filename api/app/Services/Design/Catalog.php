@@ -337,6 +337,7 @@ final class Catalog
                 ['value' => 'spotify', 'label' => 'Una playlist de Spotify'],
             ]],
             ['key' => 'musica_audio', 'label' => 'Canción (MP3)', 'input' => 'audio', 'help' => 'Ideal de 3 MB o menos.'],
+            ['key' => 'musica_inicio', 'label' => 'Segundo en que empieza la canción', 'input' => 'audio_start', 'min' => 0, 'max' => 36000, 'step' => 1, 'help' => 'Segundo en que empieza la canción (por ejemplo 45 para saltarse la intro). Solo con un MP3.'],
             ['key' => 'spotify', 'label' => 'Enlace de Spotify', 'input' => 'url', 'help' => 'En Spotify: Compartir → Copiar enlace.'],
         ]],
         ['label' => 'Compartir', 'fields' => [
@@ -441,7 +442,7 @@ final class Catalog
             'type' => 'music-player', 'label' => 'Música', 'icon' => 'music',
             'description' => 'El reproductor con la canción que suena al abrir el sobre.',
             'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Dale play', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'controles-oro', 'label' => 'Controles dorados'], ['value' => 'vinilo', 'label' => 'Tocadiscos'], ['value' => 'lacre', 'label' => 'Lacre como botón de play']]]],
-            'linked' => ['musica_fuente', 'musica_audio', 'spotify'],
+            'linked' => ['musica_fuente', 'musica_audio', 'musica_inicio', 'spotify'],
             'texts' => ['titulo' => 'Título'],
         ],
         'bendicion' => [

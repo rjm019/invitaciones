@@ -100,4 +100,24 @@ describe('useMusic', () => {
     mount(defineComponent({ setup: () => ((fromChild = useMusic()), () => null) }))
     expect(fromChild).toBeNull()
   })
+
+  it('el MP3 empieza en el segundo configurado y Spotify lo ignora', async () => {
+    const fake = new FakeAudio()
+    let ctx: MusicContext | null = null
+    const Page = defineComponent({
+      setup: () => (
+        (ctx = provideMusic(
+          () => '/m.mp3',
+          () => fake,
+          undefined,
+          () => 30,
+        )),
+        () => null
+      ),
+    })
+    mount(Page)
+    await ctx!.play()
+    fake.dispatchEvent(new Event('canplay'))
+    expect(fake.currentTime).toBe(30)
+  })
 })

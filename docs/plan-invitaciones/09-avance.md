@@ -599,3 +599,7 @@ Pedido: "un contador de visualizaciones en la página y, si no es invasivo, que 
 - Media Session (título de la canción en la pantalla de bloqueo, solo con MP3) y medición de FPS en un Android de gama media.
 - Probar Spotify en un iPhone y un Android reales: si el play al abrir el sobre pasa o pide tocar ▶, y que la vista ya no salte al cambiar de canción.
 - Actualizar `evento.schema.json` y `frontend.md §4`, que describen la forma original del config. Hoy la forma real está en `web/src/types/event.ts` y la arma `EventConfigBuilder`.
+
+## 28-oct · Segundo de inicio de la canción (`musica_inicio`)
+
+`evento,,musica_inicio` (segundos, entero ≥ 0; solo con MP3) llega al config como `music.start` solo si es > 0 (NAT y lo existente salen idénticos). Se valida en tres capas: el gestor (`AudioStartField`, `audioDurationService`) lee la duración del MP3 y limita el máximo a `floor(duración) - 1`; el servidor (`InvitationConfigBuilder::musicStart`, `Mp3Duration` lee las cabeceras CBR/Xing/VBRI, sin dependencias nuevas) rechaza negativos, texto, > 36000 e inicio ≥ duración si la conoce; el reproductor (`audioService`) salta al inicio en `loadedmetadata`/`canplay`, lo ignora si no cabe y al repetir regresa a ese segundo.

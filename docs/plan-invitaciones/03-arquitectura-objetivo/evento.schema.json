@@ -46,6 +46,7 @@
       "properties": {
         "label": { "type": "string", "default": "DALE PLAY" },
         "audio_url": { "type": ["string", "null"] },
+        "start": { "type": "integer", "minimum": 1, "description": "Segundo en que empieza el MP3; solo viene si es mayor que 0" },
         "spotify_playlist_url": { "type": ["string", "null"], "pattern": "^https://open\\.spotify\\.com/(playlist|album|track)/[A-Za-z0-9]+" }
       }
     },

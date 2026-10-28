@@ -143,7 +143,7 @@ frase-2,,visible,NO
 | Evento | `tipo` (`xv`, `boda`, `graduacion`, `bautizo`, `cumple`, `otro`), `tema` (`jardin-azul`, `marfil`, `nueva-york`, `encaje` o `lacre`), `festejada`, `festejada_corto` (el nombre del sobre), `monograma` (las iniciales del sello y del monograma, de una a tres letras: `I M`; vacío, salen del nombre corto: "Isabella & Mateo" → I M), `pareja`, `subtitulo` ("mis xv años"), `titulo` (el de la pestaña del navegador), `inicia` (AAAA-MM-DD HH:MM) y `zona_horaria` |
 | Salón | `salon`, `salon_nombre_visible`, `salon_ciudad` (también la usa el clima), `salon_direccion`, `salon_maps` (`https://…`), `salon_foto` y `clima_coordenadas` |
 | Confirmaciones | `rsvp_modo`, `rsvp_limite`, `rsvp_whatsapp`, `rsvp_pedir_cancion` y `rsvp_pedir_mensaje` |
-| Música | `musica_fuente`, `musica_audio` y `spotify` |
+| Música | `musica_fuente`, `musica_audio`, `musica_inicio` y `spotify` |
 | Compartir | `mensaje_whatsapp`, `titulo_panel` y la imagen que se manda por WhatsApp: `tarjeta_fondo` (un fondo de `media/` con el sobre al centro), `tarjeta_frase` y `tarjeta_texto` (dos frases opcionales arriba de la fecha, como "Celebremos juntos" / "esta etapa tan especial") |
 
 Estos datos van en `evento` porque los usan varias partes: la portada, el calendario, el clima y el PDF del panel. En el gestor aparecen dentro de la sección donde se ven.
@@ -292,6 +292,7 @@ Sin configurar nada, el tema también pone mariposas que cruzan la pantalla de v
 **Música**: lo que suena al abrir el sobre sale de una de dos fuentes (`musica_fuente`):
 
 - `archivo`: `musica_audio` es el nombre de un MP3 en `media/` (ideal ≤ 3 MB). Sin MP3, el reproductor se ve pero sus botones quedan desactivados.
+- `musica_inicio` (solo con MP3): segundo en que empieza la canción, entero de 0 a 36000 (vacío o 0 = desde el principio; 45 se salta la intro). Debe ser menor que la duración del MP3: el gestor la muestra al elegir el archivo, el servidor la lee de las cabeceras del MP3 y rechaza un inicio que no cabe, y el reproductor ignora un valor mayor a la duración. Al repetir, la canción regresa a ese segundo. Con Spotify se ignora.
 - `spotify`: suena la playlist (o la canción) de `spotify` (el enlace de Compartir → Copiar enlace). El reproductor de Spotify aparece en la sección `playlist` (o, si no hay, debajo del reproductor `musica`) y los controles dorados y el botón flotante lo manejan. Quien no tiene sesión de Spotify en ese navegador oye muestras de 30 s por canción; en iPhone, Safari puede pedir tocar ▶ en el reproductor (la invitación lo avisa).
 
 Sin `musica_fuente`: se usa el MP3 si hay; si no hay MP3 pero sí playlist, Spotify. Con MP3, la `playlist` es un reproductor aparte (al tocarlo se pausa la canción de la invitación).

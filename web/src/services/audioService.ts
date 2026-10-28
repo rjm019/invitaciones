@@ -53,10 +53,22 @@ const EVENTS = [
   'timeupdate',
   'durationchange',
   'loadedmetadata',
+  'canplay',
   'error',
 ] as const
 
-export function createAudioPlayer(src: string | null, create: () => AudioLike): AudioPlayer {
+/**
+ * `start` es el segundo en que empieza la canción (0 = desde el principio). Si no cabe en la
+ * canción (igual o mayor que su duración) se ignora y suena desde el principio; al repetir,
+ * regresa a ese segundo, no a 0.
+ */
+export function createAudioPlayer(
+  src: string | null,
+  create: () => AudioLike,
+  start = 0,
+): AudioPlayer {
+  const wanted = Number.isFinite(start) && start > 0 ? Math.floor(start) : 0
+  let seeked = false
   let audio: AudioLike | null = null
   let state: AudioState = {
     available: !!src,
@@ -75,9 +87,29 @@ export function createAudioPlayer(src: string | null, create: () => AudioLike): 
     listeners.forEach((l) => l(state))
   }
 
+  /** El inicio configurado, ya revisado contra la duración (0 mientras no se conoce). */
+  const startAt = (): number => {
+    const duration = audio && Number.isFinite(audio.duration) ? audio.duration : 0
+    return wanted > 0 && duration > 0 && wanted < duration ? wanted : 0
+  }
+  // Con inicio propio el audio no repite solo (volvería a 0): se repite al terminar.
+  const nativeLoop = () => state.loop && startAt() === 0
+
   const sync = (e: Event) => {
     if (!audio) return
     const duration = Number.isFinite(audio.duration) ? audio.duration : 0
+    if (wanted > 0 && !seeked && (e.type === 'loadedmetadata' || e.type === 'canplay')) {
+      // iOS a veces ignora el salto antes de canplay: se intenta en los dos eventos.
+      const at = startAt()
+      if (at > 0 && audio.currentTime < at) audio.currentTime = at
+      if (e.type === 'canplay') seeked = true
+    }
+    if (e.type === 'ended' && state.loop && startAt() > 0) {
+      audio.currentTime = startAt()
+      void audio.play().catch(() => undefined)
+      return
+    }
+    audio.loop = nativeLoop()
     set({
       playing: !audio.paused && e.type !== 'ended',
       current: audio.currentTime,
@@ -92,7 +124,7 @@ export function createAudioPlayer(src: string | null, create: () => AudioLike): 
     if (!audio) {
       audio = create()
       audio.preload = 'auto'
-      audio.loop = state.loop
+      audio.loop = state.loop && wanted === 0
       EVENTS.forEach((name) => audio!.addEventListener(name, sync))
       audio.src = src
     }
@@ -134,7 +166,8 @@ export function createAudioPlayer(src: string | null, create: () => AudioLike): 
       this.seek(state.current + delta)
     },
     setLoop(loop) {
-      if (audio) audio.loop = loop
+      state = { ...state, loop }
+      if (audio) audio.loop = nativeLoop()
       set({ loop })
     },
     destroy() {

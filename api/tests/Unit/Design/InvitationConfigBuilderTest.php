@@ -9,6 +9,7 @@ use App\Services\Design\DesignSection;
 use App\Services\Design\InvitationConfigBuilder;
 use Carbon\CarbonImmutable;
 use Tests\TestCase;
+use Tests\Unit\Media\Mp3DurationTest;
 
 class InvitationConfigBuilderTest extends TestCase
 {
@@ -372,5 +373,55 @@ class InvitationConfigBuilderTest extends TestCase
 
         $demo = $this->build($this->minimal([$section('7')]), ['demo' => 'SI'])->config['sections'][0];
         $this->assertCount(2, $demo['photos']);
+    }
+
+    public function test_music_start_is_omitted_when_empty_or_zero_and_exposed_when_positive(): void
+    {
+        $base = $this->build($this->minimal(event: ['musica_audio' => 'c.mp3']));
+        $zero = $this->build($this->minimal(event: ['musica_audio' => 'c.mp3', 'musica_inicio' => '0']));
+        $this->assertSame([], $base->errors());
+        $this->assertEquals($base->config, $zero->config);
+        $this->assertArrayNotHasKey('start', $base->config['music']);
+
+        // Sin poder leer el archivo no se inventa nada: solo se revisa el rango.
+        $with = $this->build($this->minimal(event: ['musica_audio' => 'c.mp3', 'musica_inicio' => '45']));
+        $this->assertSame([], $with->errors());
+        $this->assertSame(45, $with->config['music']['start']);
+    }
+
+    public function test_music_start_rejects_negative_text_and_absurd_values(): void
+    {
+        foreach (['-5', 'abc', '4.5', '36001'] as $bad) {
+            $result = $this->build($this->minimal(event: ['musica_audio' => 'c.mp3', 'musica_inicio' => $bad]));
+            $this->assertCount(1, $result->errors(), $bad);
+            $this->assertArrayNotHasKey('start', $result->config['music']);
+        }
+    }
+
+    public function test_music_start_must_be_before_the_known_duration_of_the_mp3(): void
+    {
+        $dir = sys_get_temp_dir().'/ev-'.bin2hex(random_bytes(4));
+        mkdir($dir.'/nueva/media', 0777, true);
+        file_put_contents($dir.'/nueva/media/c.mp3', Mp3DurationTest::cbr(384)); // ~10 s
+        config(['invitaciones.eventos_path' => $dir]);
+
+        try {
+            $event = ['musica_audio' => 'c.mp3'];
+            $late = $this->build($this->minimal(event: [...$event, 'musica_inicio' => '10']));
+            $this->assertStringContainsString('la canción dura 0:10; el inicio debe ser menor.', $late->errors()[0]);
+            $this->assertArrayNotHasKey('start', $late->config['music']);
+
+            $ok = $this->build($this->minimal(event: [...$event, 'musica_inicio' => '9']));
+            $this->assertSame([], $ok->errors());
+            $this->assertSame(9, $ok->config['music']['start']);
+
+            $spotify = $this->build($this->minimal(event: [...$event, 'musica_inicio' => '99', 'musica_fuente' => 'archivo', 'spotify' => 'https://open.spotify.com/playlist/abc']));
+            $this->assertNotSame([], $spotify->errors());
+        } finally {
+            unlink($dir.'/nueva/media/c.mp3');
+            rmdir($dir.'/nueva/media');
+            rmdir($dir.'/nueva');
+            rmdir($dir);
+        }
     }
 }

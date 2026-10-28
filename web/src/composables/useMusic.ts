@@ -63,6 +63,8 @@ export function provideMusic(
   src: () => string | null,
   create: () => AudioLike = () => new Audio(),
   spotify?: SpotifyMusicOptions,
+  /** Segundo en que empieza el MP3 (solo con música de archivo). */
+  start: () => number = () => 0,
 ): MusicContext {
   let player: AudioPlayer | SpotifyPlayer | null = null
   let unsubscribe: (() => void) | null = null
@@ -79,15 +81,15 @@ export function provideMusic(
     player?.destroy()
   }
   watch(
-    [src, spotifyUri],
-    ([url, uri]) => {
+    [src, spotifyUri, start],
+    ([url, uri, from]) => {
       teardown()
       if (uri) {
         const spotifyPlayer = createSpotifyPlayer(uri, spotify?.loadApi ?? loadSpotifyIframeApi)
         stopTracks = spotifyPlayer.onTrackChange(() => trackListeners.forEach((l) => l()))
         player = spotifyPlayer
       } else {
-        player = createAudioPlayer(url, create)
+        player = createAudioPlayer(url, create, from)
       }
       unsubscribe = player.subscribe((s) => (state.value = s))
     },

@@ -5,6 +5,7 @@ namespace App\Services\Design;
 use App\Services\Album\AlbumService;
 use App\Services\Layout\EventRepository;
 use App\Services\Media\ImageOptimizer;
+use App\Services\Media\Mp3Duration;
 use App\Services\Media\SocialEmbed;
 use App\Services\Weather\VenueLocator;
 use Carbon\CarbonImmutable;
@@ -37,6 +38,8 @@ final class InvitationConfigBuilder
     private const MAX_FAQ = 12;
 
     private const DESKTOP = ['completo' => 'full', 'full' => 'full', 'mitad' => 'half', 'half' => 'half'];
+
+    private const MAX_MUSIC_START = 36000;
 
     public const DEFAULT_THEME = 'jardin-azul';
 
@@ -120,6 +123,7 @@ final class InvitationConfigBuilder
             $spotify = null;
         }
         $musicSource = $this->musicSource($e, $spotify);
+        $musicStart = $musicSource === 'file' ? $this->musicStart($e) : 0;
         if (isset($e['clave_panel']) && mb_strlen($e['clave_panel']) < self::MIN_PANEL_PASSWORD) {
             $this->error('evento', null, 'clave_panel', 'usa al menos '.self::MIN_PANEL_PASSWORD.' caracteres');
         }
@@ -187,6 +191,11 @@ final class InvitationConfigBuilder
             'assets' => (object) $media,
         ];
 
+        // Sin segundo de inicio, el config queda idéntico al de antes.
+        if ($musicStart > 0) {
+            $config['music']['start'] = $musicStart;
+        }
+
         // Sin mesa de regalos ni lluvia de sobres, la llave no va (como en el formato anterior).
         if ($config['gifts'] === null) {
             unset($config['gifts']);
@@ -240,6 +249,43 @@ final class InvitationConfigBuilder
         }
 
         return $date;
+    }
+
+    /**
+     * Segundo en que empieza el MP3 (0 = desde el principio). Entero >= 0 y, si se puede
+     * leer la duración del archivo, menor que ella; si no se puede, solo se revisa el rango.
+     *
+     * @param  array<string, string>  $e
+     */
+    private function musicStart(array $e): int
+    {
+        $raw = $e['musica_inicio'] ?? '';
+        if ($raw === '') {
+            return 0;
+        }
+        if (! preg_match('/^\d+$/', $raw) || (int) $raw > self::MAX_MUSIC_START) {
+            $this->error('evento', null, 'musica_inicio', 'debe ser un número entero de segundos, de 0 a '.self::MAX_MUSIC_START);
+
+            return 0;
+        }
+        $start = (int) $raw;
+        $file = trim($e['musica_audio'] ?? '');
+        $path = $start > 0 && $file !== '' ? app(EventRepository::class)->mediaFile($this->slug, $file) : null;
+        $duration = $path !== null ? Mp3Duration::seconds($path) : null;
+        if ($duration !== null && $start >= floor($duration)) {
+            $this->error('evento', null, 'musica_inicio', 'la canción dura '.self::clock($duration).'; el inicio debe ser menor.');
+
+            return 0;
+        }
+
+        return $start;
+    }
+
+    private static function clock(float $seconds): string
+    {
+        $s = (int) floor($seconds);
+
+        return intdiv($s, 60).':'.str_pad((string) ($s % 60), 2, '0', STR_PAD_LEFT);
     }
 
     /**

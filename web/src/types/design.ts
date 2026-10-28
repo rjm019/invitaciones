@@ -51,6 +51,7 @@ export type FieldInput =
   | 'colors'
   | 'image'
   | 'audio'
+  | 'audio_start'
   | 'video'
   | 'icon'
   | 'font'

@@ -85,6 +85,7 @@ const music = provideMusic(
         ? 'spotify'
         : 'music-player',
   },
+  () => (props.event.music.source === 'spotify' ? 0 : (props.event.music.start ?? 0)),
 )
 // Al cambiar de canción, Spotify mueve su lista y arrastraría la página hasta el
 // reproductor: la vista se queda donde el invitado la tiene.

@@ -94,3 +94,69 @@ describe('audioService', () => {
     expect(formatTime(Number.NaN)).toBe('0:00')
   })
 })
+
+describe('audioService · segundo de inicio', () => {
+  const setup = (start: number, duration = 120) => {
+    const fake = new FakeAudio()
+    fake.duration = duration
+    const player = createAudioPlayer('/m.mp3', () => fake, start)
+    return { fake, player }
+  }
+
+  it('salta al inicio cuando hay metadatos y no repite solo', async () => {
+    const { fake, player } = setup(45)
+    await player.play()
+    expect(fake.loop).toBe(false)
+    fake.dispatchEvent(new Event('loadedmetadata'))
+    expect(fake.currentTime).toBe(45)
+    fake.dispatchEvent(new Event('canplay'))
+    expect(fake.currentTime).toBe(45)
+  })
+
+  it('no reinicia la canción si ya avanzó más allá del inicio', async () => {
+    const { fake, player } = setup(45)
+    await player.play()
+    fake.currentTime = 80
+    fake.dispatchEvent(new Event('canplay'))
+    expect(fake.currentTime).toBe(80)
+  })
+
+  it('con inicio mayor o igual a la duración lo ignora y empieza en 0', async () => {
+    const { fake, player } = setup(120)
+    await player.play()
+    fake.dispatchEvent(new Event('loadedmetadata'))
+    fake.dispatchEvent(new Event('canplay'))
+    expect(fake.currentTime).toBe(0)
+    expect(fake.loop).toBe(true)
+  })
+
+  it('al terminar y repetir regresa al inicio configurado, no a 0', async () => {
+    const { fake, player } = setup(45)
+    await player.play()
+    fake.dispatchEvent(new Event('canplay'))
+    fake.currentTime = 120
+    fake.paused = true
+    fake.dispatchEvent(new Event('ended'))
+    expect(fake.currentTime).toBe(45)
+    expect(fake.paused).toBe(false)
+  })
+
+  it('sin repetir, al terminar se queda al final', async () => {
+    const { fake, player } = setup(45)
+    await player.play()
+    fake.dispatchEvent(new Event('canplay'))
+    player.setLoop(false)
+    fake.currentTime = 120
+    fake.dispatchEvent(new Event('ended'))
+    expect(fake.currentTime).toBe(120)
+    expect(player.state().playing).toBe(false)
+  })
+
+  it('sin inicio todo queda como antes', async () => {
+    const { fake, player } = setup(0)
+    await player.play()
+    fake.dispatchEvent(new Event('canplay'))
+    expect(fake.currentTime).toBe(0)
+    expect(fake.loop).toBe(true)
+  })
+})
