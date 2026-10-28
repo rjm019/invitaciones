@@ -46,7 +46,7 @@ const theme: ThemeManifest = {
       effects: ['ink'],
       decor: { divider: 'filigrana.svg' },
     },
-    story: { panel: false, variant: 'editorial', effects: ['reveal'] },
+    story: { panel: false, variant: 'cronologia', effects: ['reveal'] },
     'save-the-date': {
       panel: false,
       desktop: 'half',
@@ -57,7 +57,7 @@ const theme: ThemeManifest = {
       desktop: 'half',
       variant: 'papeleria',
       background: { color: 'olivo' },
-      effects: ['reveal'],
+      effects: ['reveal', 'living-drawing'],
       decor: { estate: 'hacienda.svg', church: 'iglesia.svg' },
     },
     countdown: {
@@ -65,7 +65,7 @@ const theme: ThemeManifest = {
       background: { color: 'borgona' },
       effects: ['blend', 'reveal'],
     },
-    itinerary: { panel: false, desktop: 'half', variant: 'minuto', effects: ['cascade'] },
+    itinerary: { panel: false, desktop: 'half', variant: 'sello', effects: ['timeline-fill'] },
     'dress-code': {
       desktop: 'half',
       variant: 'editorial',
@@ -78,7 +78,7 @@ const theme: ThemeManifest = {
       effects: ['cascade'],
     },
     gallery: { panel: false, variant: 'editorial', effects: ['reveal'] },
-    gifts: { panel: false, desktop: 'half', variant: 'sobre', effects: ['paper-in'] },
+    gifts: { panel: false, desktop: 'half', variant: 'volteo', effects: ['reveal'] },
     faq: {
       desktop: 'half',
       variant: 'editorial',
@@ -87,7 +87,6 @@ const theme: ThemeManifest = {
       decor: { divider: 'filigrana.svg' },
     },
     trivia: {
-      desktop: 'half',
       variant: 'papeleria',
       background: { color: 'olivo' },
       effects: ['reveal'],
@@ -95,6 +94,7 @@ const theme: ThemeManifest = {
     rsvp: { panel: false, desktop: 'half', variant: 'tarjeta-rsvp', effects: ['paper-in'] },
     dedications: {
       panel: false,
+      desktop: 'half',
       variant: 'muro',
       effects: ['ink'],
       decor: { divider: 'filigrana.svg' },

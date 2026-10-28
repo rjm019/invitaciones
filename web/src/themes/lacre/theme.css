@@ -108,6 +108,23 @@
     var(--color-borgona);
 }
 
+/*
+ * Ritmo compacto: la papelería se lee mejor junta. Menos aire arriba y abajo de cada sección
+ * (sin tocar el interlineado del texto) y un poco menos de espacio entre panel y panel.
+ */
+:root[data-theme='lacre'] .invitation__grid {
+  --section-padding-block: 2rem;
+}
+:root[data-theme='lacre'] .section--bare:not(.section--hero-envelope, .section--layer) {
+  padding-block: 1.75rem;
+}
+@media (min-width: 64rem) {
+  :root[data-theme='lacre'] .invitation__grid {
+    --section-gap: 1.25rem;
+    --section-padding-block: 2.75rem;
+  }
+}
+
 /* El papel marfil: tinta oscura. (La fibra la pone la textura "algodon" de la página.) */
 :root[data-theme='lacre'] .section--bg-paper {
   --color-text: #3b342e;
