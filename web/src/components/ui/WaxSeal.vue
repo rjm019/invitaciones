@@ -1,25 +1,29 @@
 <script setup lang="ts">
-import { computed, useId } from 'vue'
+import { computed, ref, useId } from 'vue'
+import { useElementWidth } from '@/composables/useElementWidth'
 import { useMonogram } from '@/composables/useMonogram'
 import { seededRandom } from '@/services/effectsService'
-import { monogramLayout, waxBlobPath, wreathPaths } from '@/services/monogramService'
+import { cartouchePaths, monogramLayout, sealDetail, waxBlobPath } from '@/services/monogramService'
 
 /**
  * Lacre de cera en SVG, quieto y con relieve de verdad. `shape`: redondo u ovalado (más
  * alto que ancho). `tone`: oro o borgoña. Sin `initials`, usa las de la invitación.
  *
  * Cómo se pinta: las piezas se dibujan como un mapa de alturas en los canales de color
- * (rojo = la cera, verde = el hueco que dejó el sello, azul = lo que queda en relieve) y un
- * solo filtro SVG, estático, lo convierte en cera: desenfoca cada canal a su medida (orilla
- * gruesa y redondeada, pared del hueco, relieve fino), le suma el grano de la cera
- * (feTurbulence), lo ilumina desde arriba a la izquierda (feDiffuseLighting y un brillo
- * especular suave con feSpecularLighting), lo tiñe con el tono y le pone su sombra de
+ * (rojo = el reborde, verde = el fondo hundido, azul = lo que queda en relieve) y un solo
+ * filtro SVG, estático, lo convierte en cera: el reborde se desenfoca hasta ser un cordón
+ * redondeado con cresta y se corta en seco contra el fondo (el escalón del sello); el relieve
+ * se desenfoca apenas (trazo nítido con su propia sombra); el grano muy fino (feTurbulence)
+ * va solo en el fondo. Luego lo ilumina desde arriba a la izquierda (feDiffuseLighting y un
+ * brillo satinado largo con feSpecularLighting), lo tiñe con el tono y le pone su sombra de
  * contacto sobre el papel. Nada se anima.
  *
- * - La orilla es orgánica (ondas lentas y derrames, `waxBlobPath`) y la misma para el mismo
- *   `seed`; el hueco del sello va apenas fuera de centro, también por `seed`.
- * - Dentro del hueco: una corona de filigrana vegetal con perlas (`wreathPaths`) y el
- *   monograma caligráfico, ambos en relieve.
+ * - La orilla es casi un círculo con una ondulación suave (`waxBlobPath`), la misma para el
+ *   mismo `seed`; el fondo va apenas fuera de centro, también por `seed`.
+ * - En el fondo: una cartela heráldica de filigrana (`cartouchePaths`: volutas, marco con
+ *   filete, ramas de hojas y bayas, florón, remate y anillo de perlas) y el monograma
+ *   caligráfico grande, ambos en relieve. En lacres chicos el detalle fino se omite solo
+ *   (`sealDetail` según el ancho medido), para que no se vea sucio.
  * - `icon` (play o pause) cambia el monograma por ese signo, grabado (hundido) en el fondo:
  *   el lacre es el botón de la música; el estado se lee solo en el signo.
  *
@@ -55,52 +59,63 @@ const props = withDefaults(
   },
 )
 
+const root = ref<SVGSVGElement | null>(null)
+const width = useElementWidth(root)
+const detail = computed(() => sealDetail(width.value))
+
 const chars = useMonogram(() => props.initials)
 const oval = computed(() => props.shape === 'oval')
 // Caja del dibujo: el ovalado es más alto que ancho.
 const box = computed(() => (oval.value ? { w: 100, h: 124 } : { w: 100, h: 100 }))
 const cy = computed(() => box.value.h / 2)
 
-/** La forma: orilla, hueco del sello (un poco fuera de centro) y semilla del grano. */
+/** La forma: orilla, fondo del sello (un poco fuera de centro) y semilla del grano. */
 const geometry = computed(() => {
   const random = seededRandom(props.seed)
   const body = oval.value
-    ? waxBlobPath(random, 41, 54, 50, cy.value)
-    : waxBlobPath(random, 44, 44, 50, cy.value)
-  const dx = (random() - 0.5) * 2.4
-  const dy = (random() - 0.5) * 2.4
+    ? waxBlobPath(random, 42, 56, 50, cy.value)
+    : waxBlobPath(random, 45.5, 45.5, 50, cy.value)
+  const dx = (random() - 0.5) * 1.6
+  const dy = (random() - 0.5) * 1.6
   const grain = Math.floor(random() * 997) + 1
   return { body, wellX: 50 + dx, wellY: cy.value + dy, grain }
 })
-const well = computed(() => (oval.value ? { rx: 27.5, ry: 39 } : { rx: 30.5, ry: 30.5 }))
-const wreath = computed(() => {
+const well = computed(() => (oval.value ? { rx: 29, ry: 40.5 } : { rx: 32.5, ry: 32.5 }))
+const cartouche = computed(() => cartouchePaths(detail.value))
+// La cartela se dibuja de −50 a 50 (50 = el radio del fondo) y se agranda un poco para
+// llenar el fondo; las perlas van a la escala del fondo, junto a su pared.
+const wellTransform = (k: number) => {
   const { wellX, wellY } = geometry.value
-  return wreathPaths(wellX, wellY, well.value.rx * 0.76, well.value.ry * 0.76)
-})
+  return `translate(${wellX} ${wellY}) scale(${(well.value.rx / 50) * k} ${(well.value.ry / 50) * k})`
+}
+const frameTransform = computed(() => wellTransform(1.15))
+const beadsTransform = computed(() => wellTransform(1))
 
 const layout = computed(() => monogramLayout(chars.value, false))
 const uid = useId()
 const filterId = `seal-fx-${uid}`
 
-// El signo de play o pausa, centrado en el hueco (caja de 100 de ancho).
+// El signo de play o pausa, centrado en el fondo (caja de 100 de ancho).
 const iconPath = computed(() => {
-  const x = geometry.value.wellX
-  const y = geometry.value.wellY
-  if (props.icon === 'play') return `M${x - 6} ${y - 10.5}L${x + 10} ${y}L${x - 6} ${y + 10.5}Z`
+  const x = Math.round(geometry.value.wellX * 100) / 100
+  const y = Math.round(geometry.value.wellY * 100) / 100
+  if (props.icon === 'play') return `M${x - 5.5} ${y - 9.5}L${x + 9} ${y}L${x - 5.5} ${y + 9.5}Z`
   if (props.icon === 'pause')
-    return `M${x - 8.5} ${y - 9.5}h6v19h-6ZM${x + 2.5} ${y - 9.5}h6v19h-6Z`
+    return `M${x - 7.5} ${y - 8.5}h5.4v17h-5.4ZM${x + 2.1} ${y - 8.5}h5.4v17h-5.4Z`
   return ''
 })
 const label = computed(() => `Sello con las iniciales ${chars.value.join(' ')}`)
-// El monograma ocupa el centro de la corona.
+// El monograma, grande, en el centro de la cartela.
 const letterTransform = computed(() => {
-  const k = oval.value ? 0.4 : 0.42
+  // Más alto que ancho: la letra caligráfica se estira un poco en vertical.
+  const k = (oval.value ? 0.32 : 0.35) * (chars.value.length === 1 ? 1.1 : 1)
+  const ky = k * 1.32
   const { wellX, wellY } = geometry.value
-  return `translate(${wellX - 50 * k} ${wellY - 50 * k + 1.5}) scale(${k})`
+  return `translate(${wellX - 50 * k} ${wellY - 52 * ky}) scale(${k} ${ky})`
 })
 // El oro brilla más (casi metálico); la cera borgoña, un satinado suave.
 const spec = computed(() =>
-  props.tone === 'gold' ? { constant: 1.1, exponent: 14 } : { constant: 0.85, exponent: 18 },
+  props.tone === 'gold' ? { constant: 1.0, exponent: 9 } : { constant: 0.62, exponent: 11 },
 )
 const region = computed(() => ({ x: -16, y: -16, width: box.value.w + 32, height: box.value.h + 36 }))
 </script>
@@ -108,8 +123,9 @@ const region = computed(() => ({ x: -16, y: -16, width: box.value.w + 32, height
 <template>
   <svg
     v-if="chars.length || icon"
+    ref="root"
     class="seal"
-    :class="`seal--${tone}`"
+    :class="[`seal--${tone}`, `seal--${detail}`]"
     :style="{ width: size }"
     :viewBox="`0 0 ${box.w} ${box.h}`"
     :role="decorative ? undefined : 'img'"
@@ -125,39 +141,45 @@ const region = computed(() => ({ x: -16, y: -16, width: box.value.w + 32, height
         v-bind="region"
         color-interpolation-filters="sRGB"
       >
-        <!-- Cada canal a su propia altura: cera (rojo), hueco (verde) y relieve (azul). -->
-        <feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0" result="wax" />
-        <feGaussianBlur in="wax" stdDeviation="4.1" result="waxSoft" />
-        <feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0" result="hole" />
-        <feGaussianBlur in="hole" stdDeviation="0.95" result="holeSoft" />
-        <feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0" result="raised" />
-        <feGaussianBlur in="raised" stdDeviation="0.42" result="raisedSoft" />
-        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" :seed="geometry.grain" result="noise" />
-        <feColorMatrix in="noise" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0" result="grain" />
-        <feComposite in="waxSoft" in2="holeSoft" operator="arithmetic" k2="1" k3="-0.6" result="h1" />
-        <feComposite in="h1" in2="raisedSoft" operator="arithmetic" k2="1" k3="0.22" result="h2" />
-        <feComposite in="h2" in2="grain" operator="arithmetic" k2="1" k3="0.028" k4="-0.014" result="height" />
-        <!-- La luz: difusa desde arriba a la izquierda y un brillo especular suave. -->
-        <feDiffuseLighting in="height" surfaceScale="9" diffuseConstant="1" lighting-color="#fff" result="shade">
-          <feDistantLight azimuth="225" elevation="47" />
+        <!-- El reborde (rojo): un cordón redondeado con cresta, cortado en seco contra el fondo. -->
+        <feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0" result="rim" />
+        <feGaussianBlur in="rim" stdDeviation="3.3" result="rimRound" />
+        <feGaussianBlur in="rim" stdDeviation="0.45" result="rimEdge" />
+        <feComposite in="rimRound" in2="rimEdge" operator="in" result="cord" />
+        <!-- El fondo hundido (verde: su altura; el signo grabado va más abajo). -->
+        <feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0" result="floorRaw" />
+        <feGaussianBlur in="floorRaw" stdDeviation="0.45" result="floor" />
+        <!-- El relieve (azul): trazo nítido. -->
+        <feColorMatrix in="SourceGraphic" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0" result="raisedRaw" />
+        <feGaussianBlur in="raisedRaw" stdDeviation="0.24" result="raised" />
+        <!-- Grano muy fino, solo en el fondo. -->
+        <feTurbulence type="fractalNoise" baseFrequency="1.15" numOctaves="2" :seed="geometry.grain" result="noise" />
+        <feColorMatrix in="noise" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0" result="grainAll" />
+        <feComposite in="grainAll" in2="floor" operator="in" result="grain" />
+        <feComposite in="cord" in2="floor" operator="arithmetic" k2="1" k3="0.32" result="h1" />
+        <feComposite in="h1" in2="raised" operator="arithmetic" k2="1" k3="0.24" result="h2" />
+        <feComposite in="h2" in2="grain" operator="arithmetic" k2="1" k3="0.03" result="height" />
+        <!-- La luz: difusa desde arriba a la izquierda y un brillo satinado largo. -->
+        <feDiffuseLighting in="height" surfaceScale="8.5" diffuseConstant="1" lighting-color="#fff" result="shade">
+          <feDistantLight azimuth="225" elevation="46" />
         </feDiffuseLighting>
         <feSpecularLighting
           in="height"
           class="seal__spec"
-          surfaceScale="9"
+          surfaceScale="8.5"
           :specularConstant="spec.constant"
           :specularExponent="spec.exponent"
           result="gloss"
         >
-          <feDistantLight azimuth="230" elevation="32" />
+          <feDistantLight azimuth="228" elevation="36" />
         </feSpecularLighting>
-        <feGaussianBlur in="gloss" stdDeviation="0.5" result="glossSoft" />
-        <!-- El tono de la cera, sombreado; el fondo del hueco, un poco más mate. -->
+        <feGaussianBlur in="gloss" stdDeviation="0.6" result="glossSoft" />
+        <!-- El tono de la cera, sombreado; el fondo, un poco más mate. -->
         <feFlood class="seal__tint" result="tint" />
-        <feComposite in="tint" in2="shade" operator="arithmetic" k1="1" k2="0.2" result="lit" />
-        <feColorMatrix in="holeSoft" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.12 0" result="matte" />
+        <feComposite in="tint" in2="shade" operator="arithmetic" k1="0.92" k2="0.3" result="lit" />
+        <feColorMatrix in="floor" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.14 0" result="matte" />
         <feComposite in="matte" in2="lit" operator="over" result="litMatte" />
-        <feComposite in="glossSoft" in2="litMatte" operator="arithmetic" k2="0.6" k3="1" result="waxLit" />
+        <feComposite in="glossSoft" in2="litMatte" operator="arithmetic" k2="0.55" k3="1" result="waxLit" />
         <feComposite in="waxLit" in2="SourceAlpha" operator="in" result="seal" />
         <!-- Sombra de contacto (pegada y oscura) y sombra suave más lejos, sobre el papel. -->
         <feGaussianBlur in="SourceAlpha" stdDeviation="1.1" result="c1" />
@@ -184,20 +206,30 @@ const region = computed(() => ({ x: -16, y: -16, width: box.value.w + 32, height
         :cy="geometry.wellY"
         :rx="well.rx"
         :ry="well.ry"
-        fill="rgb(255 179 0)"
+        fill="rgb(0 179 0)"
       />
-      <g class="seal__relief" fill="rgb(255 179 255)">
-        <path class="seal__wreath" :d="wreath.fill" />
-        <path
-          class="seal__wreath-stems"
-          :d="wreath.stroke"
-          fill="none"
-          stroke="rgb(255 179 255)"
-          stroke-width="1.15"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-        <g v-if="!icon" :transform="letterTransform" class="seal__letters">
+      <g
+        class="seal__relief"
+        fill="rgb(0 179 196)"
+        stroke="rgb(0 179 196)"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path v-if="cartouche.beads" :transform="beadsTransform" :d="cartouche.beads" stroke="none" />
+        <g :transform="frameTransform">
+          <path class="seal__cartouche" :d="cartouche.heavy" fill="none" stroke-width="2.3" />
+          <path :d="cartouche.medium" fill="none" stroke-width="1.35" />
+          <path v-if="cartouche.fine" :d="cartouche.fine" fill="none" stroke-width="0.75" />
+          <path class="seal__cartouche-fill" :d="cartouche.fill" stroke="none" />
+        </g>
+        <g
+          v-if="!icon"
+          :transform="letterTransform"
+          class="seal__letters"
+          fill="rgb(0 179 255)"
+          stroke="rgb(0 179 255)"
+          stroke-width="2.2"
+        >
           <text
             v-for="(glyph, i) in layout.letters"
             :key="i"
@@ -211,8 +243,8 @@ const region = computed(() => ({ x: -16, y: -16, width: box.value.w + 32, height
           </text>
         </g>
       </g>
-      <!-- El signo (play o pausa), grabado más hondo que el fondo del hueco. -->
-      <path v-if="icon" class="seal__icon" :d="iconPath" fill="rgb(255 255 0)" />
+      <!-- El signo (play o pausa), grabado más hondo que el fondo. -->
+      <path v-if="icon" class="seal__icon" :d="iconPath" fill="rgb(0 89 0)" />
     </g>
   </svg>
 </template>

@@ -5,7 +5,8 @@ import {
   monogramLayout,
   waxBlobPath,
   waxEdgePath,
-  wreathPaths,
+  cartouchePaths,
+  sealDetail,
 } from '../monogramService'
 
 describe('monogramInitials', () => {
@@ -72,12 +73,39 @@ describe('waxBlobPath', () => {
   })
 })
 
-describe('wreathPaths', () => {
-  it('da hojas, bayas y perlas (relleno) y tallos con volutas (trazo), simétricos', () => {
-    const w = wreathPaths(50, 50, 23, 23)
-    expect(w.fill).toMatch(/^M/)
-    expect(w.stroke).toMatch(/^M/)
-    expect(w.fill.split('M').length).toBeGreaterThan(60)
-    expect(wreathPaths(50, 50, 23, 23)).toEqual(w)
+describe('sealDetail', () => {
+  it('quita detalle en lacres chicos; sin medir, completo', () => {
+    expect(sealDetail(0)).toBe('full')
+    expect(sealDetail(160)).toBe('full')
+    expect(sealDetail(80)).toBe('mid')
+    expect(sealDetail(40)).toBe('low')
+  })
+})
+
+describe('cartouchePaths', () => {
+  it('da una cartela simétrica con trazos de varios grosores, hojas y perlas', () => {
+    const full = cartouchePaths('full')
+    expect(full.heavy).toMatch(/^M/)
+    expect(full.medium).toMatch(/^M/)
+    expect(full.fine).toMatch(/^M/)
+    expect(full.beads.split('M').length - 1).toBe(96)
+    expect(cartouchePaths('full')).toEqual(full)
+    // simétrica: cada x de la mitad derecha tiene su reflejo
+    const xs = [...full.heavy.matchAll(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g)].map((m) => Number(m[1]))
+    expect(Math.max(...xs)).toBeCloseTo(-Math.min(...xs), 1)
+    // todo cabe en el fondo (radio 50, contando los puntos de control)
+    const all = [...(full.fill + full.heavy).matchAll(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g)]
+    expect(Math.max(...all.map((m) => Math.hypot(Number(m[1]), Number(m[2]))))).toBeLessThan(45)
+  })
+
+  it('en lacres chicos se simplifica: sin perlas, filete ni ramas', () => {
+    const full = cartouchePaths('full')
+    const mid = cartouchePaths('mid')
+    const low = cartouchePaths('low')
+    expect(mid.beads).toBe('')
+    expect(mid.fine).toBe('')
+    expect(mid.fill.length).toBeLessThan(full.fill.length)
+    expect(low.fill.length).toBeLessThan(mid.fill.length)
+    expect(low.heavy).toBe(full.heavy)
   })
 })

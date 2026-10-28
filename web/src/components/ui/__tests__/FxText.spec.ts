@@ -68,6 +68,6 @@ describe('WaxSeal como botón', () => {
     expect(play.find('.seal__icon').attributes('d')).toMatch(/^M.*L.*Z$/)
     expect(play.find('.seal__gleam').exists()).toBe(false)
     const pause = mount(WaxSeal, { props: { initials: 'I M', icon: 'pause' } })
-    expect(pause.find('.seal__icon').attributes('d')).toContain('h6v19')
+    expect(pause.find('.seal__icon').attributes('d')).toContain('h5.4v17')
   })
 })

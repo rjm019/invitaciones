@@ -55,12 +55,13 @@ describe('Monogram', () => {
 })
 
 describe('WaxSeal', () => {
-  it('es un lacre decorativo: cera, hueco, corona y monograma en relieve bajo un filtro propio', () => {
+  it('es un lacre decorativo: cera, fondo, cartela y monograma en relieve bajo un filtro propio', () => {
     const wrapper = mount(WaxSeal, { props: { initials: 'I M' } })
     expect(wrapper.attributes('aria-hidden')).toBe('true')
     expect(wrapper.find('.seal__body').exists()).toBe(true)
     expect(wrapper.find('.seal__well').exists()).toBe(true)
-    expect(wrapper.find('.seal__wreath').attributes('d')).toMatch(/^M.*Z$/)
+    expect(wrapper.find('.seal__cartouche').attributes('d')).toMatch(/^M/)
+    expect(wrapper.find('.seal__cartouche-fill').attributes('d')).toMatch(/Z$/)
     expect(wrapper.findAll('.seal__letter').map((l) => l.text())).toEqual(['I', 'M'])
     expect(wrapper.classes()).toContain('seal--gold')
     // un filtro por lacre (relieve con luz y sombra), con id propio
