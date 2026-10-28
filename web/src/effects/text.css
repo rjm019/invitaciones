@@ -1,0 +1,332 @@
+/*
+ * Efectos de texto (de todos los temas; nacieron para `lacre`). Los pinta FxText.vue (ver
+ * services/textEffectService.ts); solo transform y opacity, con la velocidad de la invitación
+ * (--motion-scale). Arrancan cuando la sección se ve (.fx-reveal-target.is-visible, de
+ * SectionShell) o cuando quien los usa lo dice (data-play="go"; "wait" los deja listos).
+ * Con "menos movimiento", FxText ya ni los pide: el texto sale completo.
+ *
+ * - maquina_escribir (typewriter-title): letra por letra; un cursor de tinta va detrás de la
+ *   última letra escrita y parpadea al final. El cursor es el ::after de cada letra, visible
+ *   solo mientras esa letra es la última (opacity escalonada): no se mueve nada.
+ * - sello_estampado (stamp): cada letra cae de arriba, grande, y se asienta con un rebote.
+ * - tinta_seca (ink-dry): la letra aparece en el color de acento (una copia encima, su
+ *   ::before) y esa copia se desvanece: queda la tinta seca.
+ * - caligrafia (calligraphy): el texto se descubre de izquierda a derecha (una ventana que
+ *   avanza y su contenido que retrocede lo mismo: transform puro).
+ * - pan_de_oro (gold-leaf): una banda de brillo dorado cruza el texto cada tanto (la misma
+ *   técnica de la ventana; la banda tiene orillas suaves con una máscara fija).
+ * - letterpress: el título baja apenas y se asienta, como presionado contra el papel. Sirve
+ *   en cualquier título con data-text="title", aunque la sección no use FxText.
+ */
+
+.fxt {
+  --fxt-step: 60ms;
+}
+.fxt__read {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.fxt__word {
+  display: inline-block;
+  white-space: nowrap;
+}
+.fxt__ch {
+  position: relative;
+  display: inline-block;
+}
+
+/* ------------------------------------------------------------ máquina de escribir */
+.fx-reveal-target:not(.is-visible) .fxt--typewriter-title:not([data-play]) .fxt__ch,
+.fxt--typewriter-title[data-play='wait'] .fxt__ch {
+  opacity: 0;
+}
+.fx-reveal-target.is-visible .fxt--typewriter-title:not([data-play]) .fxt__ch,
+.fxt--typewriter-title[data-play='go'] .fxt__ch {
+  animation: fxt-type calc(0.03s * var(--motion-scale)) linear both;
+  animation-delay: calc(var(--i) * var(--fxt-step) * var(--motion-scale));
+}
+.fxt--typewriter-title .fxt__ch::after {
+  content: '';
+  position: absolute;
+  right: -0.07em;
+  top: 0.12em;
+  bottom: 0.08em;
+  width: 0.06em;
+  background: var(--color-borgona, var(--color-accent));
+  opacity: 0;
+}
+.fx-reveal-target.is-visible .fxt--typewriter-title:not([data-play]) .fxt__ch::after,
+.fxt--typewriter-title[data-play='go'] .fxt__ch::after {
+  animation: fxt-caret calc(var(--fxt-step) * var(--motion-scale)) linear both;
+  animation-delay: calc(var(--i) * var(--fxt-step) * var(--motion-scale));
+}
+.fx-reveal-target.is-visible .fxt--typewriter-title:not([data-play]) .fxt__ch--last::after,
+.fxt--typewriter-title[data-play='go'] .fxt__ch--last::after {
+  animation: fxt-caret-end calc(2.6s * var(--motion-scale)) linear both;
+  animation-delay: calc(var(--i) * var(--fxt-step) * var(--motion-scale));
+}
+@keyframes fxt-type {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* Sin steps(): con tiempos tan cortos, el redondeo deja algunas letras en su primer cuadro. */
+@keyframes fxt-caret {
+  0%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes fxt-caret-end {
+  0%,
+  9%,
+  20%,
+  29%,
+  40%,
+  49%,
+  60% {
+    opacity: 1;
+  }
+  11%,
+  18%,
+  31%,
+  38%,
+  51%,
+  58%,
+  70%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------ letras estampadas */
+.fx-reveal-target:not(.is-visible) .fxt--stamp:not([data-play]) .fxt__ch,
+.fxt--stamp[data-play='wait'] .fxt__ch {
+  opacity: 0;
+}
+.fx-reveal-target.is-visible .fxt--stamp:not([data-play]) .fxt__ch,
+.fxt--stamp[data-play='go'] .fxt__ch {
+  animation: fxt-stamp calc(0.55s * var(--motion-scale)) cubic-bezier(0.3, 0.6, 0.3, 1) both;
+  animation-delay: calc(var(--i) * var(--fxt-step) * var(--motion-scale));
+}
+@keyframes fxt-stamp {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.5em) scale(1.7) rotate(-5deg);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(0.02em) scale(0.9);
+  }
+  78% {
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------ tinta que se seca */
+.fxt--ink-dry .fxt__ch::before {
+  content: attr(data-c);
+  position: absolute;
+  inset: 0;
+  color: var(--color-borgona, var(--color-accent));
+  opacity: 0;
+  pointer-events: none;
+}
+.fx-reveal-target:not(.is-visible) .fxt--ink-dry:not([data-play]) .fxt__ch,
+.fxt--ink-dry[data-play='wait'] .fxt__ch {
+  opacity: 0;
+}
+.fx-reveal-target.is-visible .fxt--ink-dry:not([data-play]) .fxt__ch,
+.fxt--ink-dry[data-play='go'] .fxt__ch {
+  animation: fxt-ink-in calc(0.5s * var(--motion-scale)) ease-out both;
+  animation-delay: calc(var(--i) * var(--fxt-step) * var(--motion-scale));
+}
+.fx-reveal-target.is-visible .fxt--ink-dry:not([data-play]) .fxt__ch::before,
+.fxt--ink-dry[data-play='go'] .fxt__ch::before {
+  animation: fxt-ink-wet calc(1.8s * var(--motion-scale)) ease-in both;
+  animation-delay: calc(var(--i) * var(--fxt-step) * var(--motion-scale));
+}
+@keyframes fxt-ink-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fxt-ink-wet {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------ caligrafía que se traza */
+.fxt--calligraphy {
+  display: inline-block;
+}
+.fxt__wipe {
+  display: inline-block;
+  overflow: hidden;
+  /* espacio para los floreos de la letra caligráfica, que no se corten */
+  padding: 0.1em 0.25em;
+  margin: -0.1em -0.25em;
+}
+.fxt__ink {
+  display: inline-block;
+}
+.fx-reveal-target:not(.is-visible) .fxt--calligraphy:not([data-play]) .fxt__wipe,
+.fxt--calligraphy[data-play='wait'] .fxt__wipe {
+  transform: translateX(-101%);
+}
+.fx-reveal-target:not(.is-visible) .fxt--calligraphy:not([data-play]) .fxt__ink,
+.fxt--calligraphy[data-play='wait'] .fxt__ink {
+  transform: translateX(101%);
+}
+.fx-reveal-target.is-visible .fxt--calligraphy:not([data-play]) .fxt__wipe,
+.fxt--calligraphy[data-play='go'] .fxt__wipe {
+  animation: fxt-wipe calc(1.5s * var(--motion-scale)) cubic-bezier(0.55, 0.1, 0.35, 1) both;
+}
+.fx-reveal-target.is-visible .fxt--calligraphy:not([data-play]) .fxt__ink,
+.fxt--calligraphy[data-play='go'] .fxt__ink {
+  animation: fxt-wipe-in calc(1.5s * var(--motion-scale)) cubic-bezier(0.55, 0.1, 0.35, 1) both;
+}
+@keyframes fxt-wipe {
+  from {
+    transform: translateX(-101%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes fxt-wipe-in {
+  from {
+    transform: translateX(101%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------ pan de oro */
+.fxt--gold-leaf {
+  position: relative;
+  display: inline-block;
+}
+/* La banda: 35 % del ancho del texto; su contenido (el texto en oro claro) lo cubre todo. */
+.fxt__gleam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 35%;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask: linear-gradient(100deg, transparent, #000 40%, #000 60%, transparent);
+  mask: linear-gradient(100deg, transparent, #000 40%, #000 60%, transparent);
+  transform: translateX(-100%);
+  opacity: 0;
+}
+.fxt__gleam-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% / 0.35);
+  color: color-mix(in srgb, var(--color-oro, #b08d57) 45%, #fff6dc);
+  transform: translateX(35%);
+}
+.fx-reveal-target.is-visible .fxt--gold-leaf:not([data-play]) .fxt__gleam,
+.fxt--gold-leaf[data-play='go'] .fxt__gleam {
+  animation: fxt-gleam calc(7s * var(--motion-scale)) ease-in-out
+    calc(0.6s * var(--motion-scale)) infinite;
+}
+.fx-reveal-target.is-visible .fxt--gold-leaf:not([data-play]) .fxt__gleam-text,
+.fxt--gold-leaf[data-play='go'] .fxt__gleam-text {
+  animation: fxt-gleam-text calc(7s * var(--motion-scale)) ease-in-out
+    calc(0.6s * var(--motion-scale)) infinite;
+}
+@keyframes fxt-gleam {
+  0% {
+    transform: translateX(-100%);
+    opacity: 1;
+  }
+  22% {
+    transform: translateX(286%);
+    opacity: 1;
+  }
+  23%,
+  100% {
+    transform: translateX(286%);
+    opacity: 0;
+  }
+}
+@keyframes fxt-gleam-text {
+  0% {
+    transform: translateX(35%);
+  }
+  22%,
+  100% {
+    transform: translateX(-100%);
+  }
+}
+.section.is-idle .fxt__gleam,
+.section.is-idle .fxt__gleam-text {
+  animation-play-state: paused;
+}
+
+/* ------------------------------------------------------------ letterpress */
+.fx-letterpress .fx-reveal-target:not(.is-visible) [data-text='title'],
+.fxt--letterpress[data-play='wait'] {
+  opacity: 0;
+}
+.fx-letterpress .fx-reveal-target.is-visible [data-text='title'],
+.fxt--letterpress[data-play='go'] {
+  animation: fxt-press calc(0.9s * var(--motion-scale)) cubic-bezier(0.3, 0.7, 0.3, 1) both;
+}
+.fxt--letterpress[data-play] {
+  display: inline-block;
+}
+@keyframes fxt-press {
+  0% {
+    opacity: 0;
+    transform: scale(1.08) translateY(-0.12em);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.985) translateY(0.02em);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-letterpress .fx-reveal-target [data-text='title'],
+  .fx-letterpress .fx-reveal-target:not(.is-visible) [data-text='title'] {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
