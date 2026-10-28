@@ -124,9 +124,11 @@ LACRE = [
     ('portada', 'titulo', 'Con todo el corazón'),
     ('portada', 'texto', 'Tenemos el honor de invitarles a celebrar nuestro matrimonio el día'),
     ('portada', 'boton', 'Toca para abrir'),
+    ('portada', 'efectos', 'maquina_escribir sello_estampado caligrafia'),
 
     ('musica', 'visible', 'SI'),
     ('musica', 'titulo', 'Nuestra canción'),
+    ('musica', 'efectos', 'aparecer pan_de_oro'),
 
     ('bendicion', 'visible', 'SI'),
     ('bendicion', 'texto', 'Con la bendición de Dios y el cariño de quienes nos enseñaron a amar, unimos nuestras vidas.'),
@@ -154,6 +156,13 @@ LACRE = [
     ('historia', '3', 'titulo', 'La pregunta'),
     ('historia', '3', 'texto', 'Al atardecer, en el mirador de San Miguel. Ella dijo que sí antes de que él terminara.'),
     ('historia', '3', 'foto', 'pareja.webp'),
+
+    # Capas de fotos: la página pasa por encima de ellas (profundidad); el texto, sobre un velo.
+    ('capa', 'visible', 'SI'),
+    ('capa', 'imagen', 'pareja.webp'),
+    ('capa', 'titulo', 'Diez años después'),
+    ('capa', 'texto', 'De Guanajuato a San Miguel de Allende, con el mismo libro en la maleta.'),
+    ('capa', 'variante', 'media'),
 
     ('fecha', 'visible', 'SI'),
     ('fecha', 'titulo', 'Reserva la fecha'),
@@ -281,6 +290,13 @@ LACRE = [
     ('¿Qué pasa al tocar «Agregar al calendario»?', ['Se confirma tu asistencia', 'La hora queda guardada en tu calendario', 'Suena la canción'], 2),
     ('¿Hasta cuándo puedes confirmar tu asistencia?', ['25 de septiembre de 2027', '23 de octubre de 2027', 'No hace falta'], 1),
 ]) + [
+    ('capa-2', 'visible', 'SI'),
+    ('capa-2', 'imagen', 'anillos-manos.webp'),
+    ('capa-2', 'titulo', 'Te esperamos'),
+    ('capa-2', 'texto', 'Sábado 23 de octubre de 2027 · San Miguel de Allende'),
+    ('capa-2', 'variante', 'media'),
+    ('capa-2', 'efectos', 'letterpress'),
+
     ('confirmacion', 'visible', 'SI'),
     ('confirmacion', 'titulo', 'Confirma tu asistencia'),
     ('confirmacion', 'subtitulo', 'Nos ayudará mucho saber si nos acompañas'),
