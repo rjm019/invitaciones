@@ -19,15 +19,14 @@ import type { ResolvedSection } from '@/types/event'
  * color (el olivo del tema, `--color-olivo`) con la solapa triangular arriba, cerrada con un
  * lacre dorado con el monograma. Al tocar empieza la música y:
  *
- * 1. el lacre se levanta y se va;
+ * 1. el lacre se desvanece en su lugar (los lacres no se mueven);
  * 2. la solapa abre sobre su bisagra de arriba: la de afuera gira hacia quien mira hasta
  *    quedar de canto y la de adentro (el forro de damasco) sigue el giro hasta quedar
  *    parada detrás de la tarjeta (dos piezas planas, sin 3D compartido: nada queda
  *    flotando ni se cruza);
  * 3. la tarjeta sube desde adentro del sobre hasta salir;
  * 4. la tarjeta pasa al frente y crece a su lugar mientras el sobre entero (con su solapa)
- *    baja y se desvanece: queda solo la tarjeta, con su lacre arriba y el sello ovalado
- *    borgoña al costado;
+ *    baja y se desvanece: queda solo la tarjeta, con su lacre arriba;
  * 5. al final, si la portada ya no ocupa la pantalla, la tarjeta se acomoda arriba con un
  *    deslizamiento (FLIP, solo transform).
  *
@@ -182,9 +181,8 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
           <p v-if="date" class="lh__date" data-text="date">{{ date }}</p>
           <p v-if="place" class="lh__place" data-text="place">{{ place }}</p>
         </div>
-        <WaxSeal class="lh__card-seal" tone="gold" size="18%" seed="tarjeta" :shine="phase === 'open'" />
+        <WaxSeal class="lh__card-seal" tone="gold" size="18%" seed="tarjeta" />
       </div>
-      <WaxSeal class="lh__oval" shape="oval" tone="burgundy" size="24%" seed="ovalado" />
 
       <div v-if="phase !== 'open'" class="lh__front" aria-hidden="true">
         <div class="lh__pocket">
@@ -194,7 +192,7 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
           <p v-if="family" class="lh__to" data-text="to">{{ family }}</p>
         </div>
         <div class="lh__flap-out" />
-        <WaxSeal class="lh__seal" tone="gold" size="17%" seed="sobre-lacre" :shine="phase === 'closed'" />
+        <WaxSeal class="lh__seal" tone="gold" size="17%" seed="sobre-lacre" />
       </div>
 
       <button
@@ -380,36 +378,12 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
 }
 
 /* ------------------------------------------------------------------ lacres */
-/* El lacre que cierra: en la punta de la solapa. */
+/* El lacre que cierra: en la punta de la solapa (su sombra la pinta WaxSeal). Quieto. */
 .lh__seal {
   position: absolute;
   left: 41.5%;
   top: 41%;
   width: 17%;
-  filter: drop-shadow(0 3px 3px rgb(40 30 20 / 0.4));
-}
-.lh--closed .lh__seal {
-  animation: lh-seal-hint calc(3.2s * var(--motion-scale)) ease-in-out infinite;
-}
-@keyframes lh-seal-hint {
-  0%,
-  70%,
-  100% {
-    transform: none;
-  }
-  80% {
-    transform: scale(1.06) rotate(-3deg);
-  }
-  90% {
-    transform: scale(0.98) rotate(1deg);
-  }
-}
-.lh__oval {
-  position: absolute;
-  left: 77%;
-  top: 80%;
-  z-index: 3;
-  filter: drop-shadow(0 6px 8px rgb(40 20 20 / 0.35));
 }
 
 /* ------------------------------------------------------------------ la tarjeta */
@@ -542,15 +516,13 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
   transform: translateY(calc(var(--lh-k) * 3cqi)) scale(calc(0.39 * var(--lh-k)));
 }
 .lh--closed .lh__card-seal,
-.lh--closed .lh__oval,
-.lh--opening .lh__card-seal,
-.lh--opening .lh__oval {
+.lh--opening .lh__card-seal {
   opacity: 0;
 }
 
 /* ------------------------------------------------------------------ abriendo */
 .lh--opening .lh__seal {
-  animation: lh-seal-lift calc(0.7s * var(--motion-scale)) var(--ease-out) forwards;
+  animation: lh-seal-fade calc(0.35s * var(--motion-scale)) ease-out forwards;
 }
 .lh--opening .lh__flap-out {
   animation: lh-flap-out calc(0.55s * var(--motion-scale)) cubic-bezier(0.5, 0, 0.9, 0.6)
@@ -564,17 +536,9 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
   animation: lh-rise calc(1s * var(--motion-scale)) cubic-bezier(0.4, 0, 0.2, 1)
     calc(1.3s * var(--motion-scale)) both;
 }
-@keyframes lh-seal-lift {
-  0% {
-    transform: none;
-    opacity: 1;
-  }
-  40% {
-    transform: translateY(-12%) scale(1.1) rotate(-6deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-60%) scale(1.25) rotate(8deg);
+/* El lacre de la solapa no se mueve: se desvanece en su lugar antes de que la solapa gire. */
+@keyframes lh-seal-fade {
+  to {
     opacity: 0;
   }
 }
@@ -626,12 +590,8 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
   animation: lh-leave calc(0.85s * var(--motion-scale)) cubic-bezier(0.5, 0, 0.75, 0.2) forwards;
 }
 .lh--presenting .lh__card-seal {
-  animation: lh-appear calc(0.6s * var(--motion-scale)) var(--ease-out)
+  animation: lh-appear calc(0.6s * var(--motion-scale)) ease-out
     calc(0.75s * var(--motion-scale)) both;
-}
-.lh--presenting .lh__oval {
-  animation: lh-oval calc(0.7s * var(--motion-scale)) var(--ease-out)
-    calc(0.85s * var(--motion-scale)) both;
 }
 @keyframes lh-present {
   from {
@@ -651,24 +611,13 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
     opacity: 0;
   }
 }
+/* El lacre de la tarjeta aparece en su lugar, sin rebote ni movimiento. */
 @keyframes lh-appear {
   from {
     opacity: 0;
-    transform: translateY(-40%) scale(1.25);
   }
   to {
     opacity: 1;
-    transform: none;
-  }
-}
-@keyframes lh-oval {
-  from {
-    opacity: 0;
-    transform: translate(16%, 12%) rotate(10deg) scale(1.1);
-  }
-  to {
-    opacity: 1;
-    transform: none;
   }
 }
 
@@ -705,8 +654,7 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .lh__open,
-  .lh--closed .lh__seal {
+  .lh__open {
     animation: none;
   }
 }

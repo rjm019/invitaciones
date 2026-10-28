@@ -61,14 +61,13 @@ describe('FxText', () => {
 })
 
 describe('WaxSeal como botón', () => {
-  it('con icon pinta el signo hundido en lugar del monograma, y trae su brillo', () => {
+  it('con icon graba el signo en lugar del monograma, sin brillo ni movimiento', () => {
     const play = mount(WaxSeal, { props: { initials: 'I M', icon: 'play', shine: true } })
     expect(play.find('.seal__icon').exists()).toBe(true)
     expect(play.find('.seal__letters').exists()).toBe(false)
-    expect(play.findAll('.seal__icon path')).toHaveLength(3)
-    expect(play.classes()).toContain('seal--shine')
+    expect(play.find('.seal__icon').attributes('d')).toMatch(/^M.*L.*Z$/)
+    expect(play.find('.seal__gleam').exists()).toBe(false)
     const pause = mount(WaxSeal, { props: { initials: 'I M', icon: 'pause' } })
-    expect(pause.find('.seal__icon path').attributes('d')).toContain('h7v22')
-    expect(pause.find('.seal__gleam').exists()).toBe(true)
+    expect(pause.find('.seal__icon').attributes('d')).toContain('h6v19')
   })
 })

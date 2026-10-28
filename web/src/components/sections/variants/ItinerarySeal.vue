@@ -49,9 +49,8 @@ const rows = computed(() =>
   })),
 )
 
-// El lacre baja con el hilo (su contenedor mide lo mismo que la lista) y se ladea apenas.
+// El lacre baja con el hilo (su contenedor mide lo mismo que la lista); él mismo no gira.
 const travelerStyle = computed(() => ({ transform: `translateY(${fill.value * 100}%)` }))
-const sealStyle = computed(() => ({ transform: `rotate(${(fill.value - 0.5) * 28}deg)` }))
 </script>
 
 <template>
@@ -65,7 +64,7 @@ const sealStyle = computed(() => ({ transform: `rotate(${(fill.value - 0.5) * 28
         <span class="isl__thread-fill" :style="{ transform: `scaleY(${fill})` }" />
       </span>
       <span class="isl__traveler" :style="travelerStyle" aria-hidden="true">
-        <span class="isl__seal" :style="sealStyle">
+        <span class="isl__seal">
           <WaxSeal size="2.7rem" tone="burgundy" :seed="`${section.id}-sello`" />
         </span>
       </span>
@@ -190,8 +189,6 @@ const sealStyle = computed(() => ({ transform: `rotate(${(fill.value - 0.5) * 28
   display: block;
   width: 2.7rem;
   translate: -50% -50%;
-  filter: drop-shadow(0 3px 3px rgb(0 0 0 / 0.25));
-  transition: transform calc(0.3s * var(--motion-scale)) ease-out;
 }
 .isl__seal :deep(.seal) {
   display: block;
@@ -392,7 +389,6 @@ const sealStyle = computed(() => ({ transform: `rotate(${(fill.value - 0.5) * 28
 @media (prefers-reduced-motion: reduce) {
   .isl__thread-fill,
   .isl__traveler,
-  .isl__seal,
   .isl__text {
     transition: none;
   }

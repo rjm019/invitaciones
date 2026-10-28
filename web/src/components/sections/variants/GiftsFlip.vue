@@ -315,7 +315,6 @@ const onBack = (id: string, e: MouseEvent) => {
 .gf__seal {
   display: block;
   margin-bottom: 0.15rem;
-  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.3));
 }
 .gf__seal :deep(.seal) {
   display: block;

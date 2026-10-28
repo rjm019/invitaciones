@@ -11,9 +11,9 @@ import type { ResolvedSection } from '@/types/event'
 
 /**
  * Música de papelería ("lacre"): un reproductor discreto y centrado. El botón ES el lacre
- * (borgoña): el signo de reproducir o pausar va hundido en la cera, como el monograma.
- * Mientras suena, el lacre late apenas y un anillo de puntos gira a su alrededor; en pausa,
- * todo queda quieto y el anillo se apaga. Una marca fina dice "Sonando".
+ * (borgoña): el signo de reproducir o pausar va grabado en la cera. El lacre y su anillo de
+ * puntos no se mueven: el estado se lee solo en el signo grabado (y en la marca fina que
+ * dice "Sonando").
  * Debajo, una línea de avance de un pelo con los tiempos, y atrás/adelante de 10 s en texto.
  * Es la misma canción que inicia el sobre (el mini-reproductor la sigue entre secciones).
  * Con la música en Spotify, el reproductor de Spotify está presente (es el que suena) pero
@@ -72,7 +72,6 @@ onMounted(() => {
             size="100%"
             seed="musica"
             :icon="playing ? 'pause' : 'play'"
-            :shine="!playing"
           />
         </span>
       </button>
@@ -155,7 +154,6 @@ onMounted(() => {
   border: 0;
   background: none;
   cursor: pointer;
-  filter: drop-shadow(0 4px 6px rgb(40 20 20 / 0.3));
 }
 .ms__seal:disabled {
   cursor: default;
@@ -166,21 +164,10 @@ onMounted(() => {
   outline-offset: 6px;
   border-radius: 50%;
 }
-/* El lacre (con su signo hundido) ocupa el centro; el anillo de puntos lo rodea. */
+/* El lacre (con su signo grabado) ocupa el centro; el anillo de puntos lo rodea. Quietos. */
 .ms__beat {
   display: block;
   width: 78%;
-  transition: transform calc(0.3s * var(--motion-scale)) var(--ease-out);
-}
-.ms__seal:hover .ms__beat,
-.ms__seal:focus-visible .ms__beat {
-  transform: scale(1.04);
-}
-.ms__seal:active .ms__beat {
-  transform: scale(0.96);
-}
-.is-playing .ms__beat {
-  animation: ms-beat calc(1.6s * var(--motion-scale)) ease-in-out infinite;
 }
 .ms__ring {
   position: absolute;
@@ -192,12 +179,7 @@ onMounted(() => {
   stroke-width: 1.2;
   stroke-dasharray: 0.6 5.2;
   stroke-linecap: round;
-  opacity: 0.35;
-  transition: opacity calc(0.5s * var(--motion-scale)) ease;
-}
-.is-playing .ms__ring {
-  opacity: 0.95;
-  animation: ms-spin calc(14s * var(--motion-scale)) linear infinite;
+  opacity: 0.6;
 }
 .ms__state {
   margin: 0;
@@ -273,31 +255,5 @@ onMounted(() => {
   opacity: 0;
   pointer-events: none;
   clip-path: inset(50%);
-}
-@keyframes ms-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@keyframes ms-beat {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  18% {
-    transform: scale(1.045);
-  }
-  34% {
-    transform: scale(0.995);
-  }
-  48% {
-    transform: scale(1.025);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .is-playing .ms__beat,
-  .is-playing .ms__ring {
-    animation: none;
-  }
 }
 </style>

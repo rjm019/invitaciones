@@ -162,17 +162,39 @@
   z-index: 1;
 }
 
-/* El botón flotante de la música, como un lacre borgoña pequeño. */
+/*
+ * El botón flotante de la música, como un lacre borgoña pequeño y quieto: orilla irregular,
+ * borde alto con luz arriba a la izquierda, hueco al centro con su pared en sombra y el signo
+ * grabado. Sin ondas ni entrada con movimiento (el estado lo dice solo el signo).
+ */
 :root[data-theme='lacre'] .mini-player {
+  border-radius: 53% 47% 51% 49% / 48% 53% 47% 52%;
   background:
-    radial-gradient(circle at 34% 28%, rgb(255 255 255 / 0.22), transparent 45%),
-    radial-gradient(circle at 50% 50%, #7d2a37 0%, #6e1f2c 55%, #4a121c 100%);
-  color: #f5f0e6;
+    radial-gradient(circle at 36% 30%, rgb(255 228 222 / 0.3), transparent 34%),
+    radial-gradient(circle at 50% 50%, transparent 52%, rgb(255 214 208 / 0.18) 55%, transparent 58%),
+    radial-gradient(circle at 46% 44%, rgb(28 4 9 / 0.42) 50%, transparent 54%),
+    radial-gradient(circle at 52% 54%, #5e1823 0 52%, transparent 53%),
+    radial-gradient(circle at 38% 32%, #8e3644 0%, #6e1f2c 48%, #43101a 100%);
+  color: #3a0b14;
   box-shadow:
-    0 0 0 3px rgb(176 141 87 / 0.55),
-    0 6px 12px -4px rgb(40 20 20 / 0.5);
+    inset 1.5px 2px 2px rgb(255 214 208 / 0.4),
+    inset -2px -3px 4px rgb(28 4 9 / 0.55),
+    0 1px 1.5px rgb(30 14 8 / 0.55),
+    0 6px 12px -4px rgb(40 20 20 / 0.45);
+}
+:root[data-theme='lacre'] .mini-player .mini-player__icon {
+  filter: drop-shadow(0.6px 0.8px 0 rgb(255 205 198 / 0.4));
 }
 :root[data-theme='lacre'] .mini-player::before,
 :root[data-theme='lacre'] .mini-player::after {
-  border-color: rgb(176 141 87 / 0.7);
+  display: none;
+  animation: none;
+}
+:root[data-theme='lacre'] .mini-player-enter-active,
+:root[data-theme='lacre'] .mini-player-leave-active {
+  transition: opacity calc(0.3s * var(--motion-scale)) ease;
+}
+:root[data-theme='lacre'] .mini-player-enter-from,
+:root[data-theme='lacre'] .mini-player-leave-to {
+  transform: none;
 }

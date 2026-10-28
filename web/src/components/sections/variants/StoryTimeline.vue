@@ -262,7 +262,6 @@ const markerStyle = computed(() => ({
   display: block;
   width: 1.7rem;
   translate: -50% -50%;
-  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.18));
 }
 .st__marker :deep(.seal) {
   display: block;

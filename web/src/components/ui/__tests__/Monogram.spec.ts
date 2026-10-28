@@ -55,14 +55,30 @@ describe('Monogram', () => {
 })
 
 describe('WaxSeal', () => {
-  it('es un lacre decorativo con el monograma en tres capas (luz, sombra y cara)', () => {
+  it('es un lacre decorativo: cera, hueco, corona y monograma en relieve bajo un filtro propio', () => {
     const wrapper = mount(WaxSeal, { props: { initials: 'I M' } })
     expect(wrapper.attributes('aria-hidden')).toBe('true')
     expect(wrapper.find('.seal__body').exists()).toBe(true)
-    expect(wrapper.findAll('.seal__letter--light').map((l) => l.text())).toEqual(['I', 'M'])
-    expect(wrapper.findAll('.seal__letter--dark')).toHaveLength(2)
-    expect(wrapper.findAll('.seal__letter--face')).toHaveLength(2)
+    expect(wrapper.find('.seal__well').exists()).toBe(true)
+    expect(wrapper.find('.seal__wreath').attributes('d')).toMatch(/^M.*Z$/)
+    expect(wrapper.findAll('.seal__letter').map((l) => l.text())).toEqual(['I', 'M'])
     expect(wrapper.classes()).toContain('seal--gold')
+    // un filtro por lacre (relieve con luz y sombra), con id propio
+    const filter = wrapper.find('filter')
+    expect(filter.find('feDiffuseLighting').exists()).toBe(true)
+    expect(filter.find('feSpecularLighting').exists()).toBe(true)
+    expect(filter.find('feTurbulence').exists()).toBe(true)
+    expect(wrapper.find('g[filter]').attributes('filter')).toBe(`url(#${filter.attributes('id')})`)
+    // dos lacres en la misma página no comparten filtro
+    const pair = mount({ render: () => [h(WaxSeal, { initials: 'I M' }), h(WaxSeal, { initials: 'I M' })] })
+    const ids = pair.findAll('filter').map((f) => f.attributes('id'))
+    expect(new Set(ids).size).toBe(2)
+  })
+
+  it('no lleva nada animado', () => {
+    const wrapper = mount(WaxSeal, { props: { initials: 'I M', shine: true } })
+    expect(wrapper.html()).not.toMatch(/<animate|gleam/)
+    expect(wrapper.classes()).not.toContain('seal--shine')
   })
 
   it('el ovalado es más alto que ancho y el borgoña cambia de clase', () => {
@@ -81,6 +97,6 @@ describe('WaxSeal', () => {
 
   it('usa las iniciales de la invitación si no se le dan', () => {
     const wrapper = inInvitation({ short_name: 'Isabella & Mateo' }, h(WaxSeal))
-    expect(wrapper.findAll('.seal__letter--face').map((l) => l.text())).toEqual(['I', 'M'])
+    expect(wrapper.findAll('.seal__letter').map((l) => l.text())).toEqual(['I', 'M'])
   })
 })

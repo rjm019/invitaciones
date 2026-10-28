@@ -603,3 +603,11 @@ Pedido: "un contador de visualizaciones en la página y, si no es invasivo, que 
 ## 28-oct · Segundo de inicio de la canción (`musica_inicio`)
 
 `evento,,musica_inicio` (segundos, entero ≥ 0; solo con MP3) llega al config como `music.start` solo si es > 0 (NAT y lo existente salen idénticos). Se valida en tres capas: el gestor (`AudioStartField`, `audioDurationService`) lee la duración del MP3 y limita el máximo a `floor(duración) - 1`; el servidor (`InvitationConfigBuilder::musicStart`, `Mp3Duration` lee las cabeceras CBR/Xing/VBRI, sin dependencias nuevas) rechaza negativos, texto, > 36000 e inicio ≥ duración si la conoce; el reproductor (`audioService`) salta al inicio en `loadedmetadata`/`canplay`, lo ignora si no cabe y al repetir regresa a ese segundo.
+
+## 28-oct · Lacres realistas y quietos (tema `lacre`)
+
+- **`WaxSeal` rehecho** con un filtro SVG estático por lacre: mapa de alturas en los canales de color (cera, hueco del sello, relieve), grano de cera (`feTurbulence`), luz difusa y brillo especular suave desde arriba a la izquierda, tinte oro o borgoña y sombra de contacto sobre el papel. Orilla orgánica por `seed` (`waxBlobPath`), borde alto redondeado, centro hundido con corona de filigrana vegetal y perlas (`wreathPaths`) y monograma caligráfico en relieve; el play/pausa va grabado. Mismas props, mismo tamaño y misma accesibilidad.
+- **Nada animado en los lacres:** fuera el brillo de pan de oro, el latido y el anillo que giraba en la música, el aviso que mecía el lacre del sobre, el lacre que salía volando al abrir (ahora se desvanece en su lugar), la entrada con rebote del de la tarjeta, el ladeo del lacre del itinerario y las ondas del mini-reproductor (que en `lacre` es un lacre quieto hecho con CSS).
+- **Portada:** se quitó el sello ovalado borgoña de la esquina de la tarjeta; el lacre dorado de arriba se queda.
+- Revisado con capturas a 390 y 1440 px (sobre cerrado, portada abierta, música, cierre, confirmación, itinerario, regalos, historia y acercamientos a 3x), dos instantes sin cambio y sin animaciones en los lacres, y pasada con "menos movimiento". NAT (config idéntica) y las tres muestras no usan `WaxSeal` ni el tema: sin cambio.
+

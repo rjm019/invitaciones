@@ -60,7 +60,6 @@ const dividerStyle = computed(() =>
 }
 .cs__seal {
   margin-bottom: 0.6rem;
-  filter: drop-shadow(0 10px 14px rgb(40 20 20 / 0.35));
 }
 .cs__title {
   margin: 0;

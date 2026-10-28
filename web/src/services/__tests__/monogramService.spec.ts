@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { seededRandom } from '@/services/effectsService'
-import { monogramInitials, monogramLayout, waxEdgePath } from '../monogramService'
+import {
+  monogramInitials,
+  monogramLayout,
+  waxBlobPath,
+  waxEdgePath,
+  wreathPaths,
+} from '../monogramService'
 
 describe('monogramInitials', () => {
   it('usa las iniciales que escribió la invitación (solo letras, hasta tres)', () => {
@@ -50,5 +56,28 @@ describe('waxEdgePath', () => {
     expect(a).not.toBe(waxEdgePath(seededRandom('otro')))
     expect(a.startsWith('M')).toBe(true)
     expect(a.endsWith('Z')).toBe(true)
+  })
+})
+
+describe('waxBlobPath', () => {
+  it('es repetible con la misma semilla, cerrado, suave y alrededor del centro', () => {
+    const a = waxBlobPath(seededRandom('lacre'), 44, 44)
+    expect(a).toBe(waxBlobPath(seededRandom('lacre'), 44, 44))
+    expect(a).not.toBe(waxBlobPath(seededRandom('otro'), 44, 44))
+    expect(a).toMatch(/^M[^Z]*C[^Z]*Z$/)
+    const xs = [...a.matchAll(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g)].map((m) => Number(m[1]))
+    // la orilla tiembla pero no se sale de la caja de 100
+    expect(Math.min(...xs)).toBeGreaterThan(0)
+    expect(Math.max(...xs)).toBeLessThan(100)
+  })
+})
+
+describe('wreathPaths', () => {
+  it('da hojas, bayas y perlas (relleno) y tallos con volutas (trazo), simétricos', () => {
+    const w = wreathPaths(50, 50, 23, 23)
+    expect(w.fill).toMatch(/^M/)
+    expect(w.stroke).toMatch(/^M/)
+    expect(w.fill.split('M').length).toBeGreaterThan(60)
+    expect(wreathPaths(50, 50, 23, 23)).toEqual(w)
   })
 })
