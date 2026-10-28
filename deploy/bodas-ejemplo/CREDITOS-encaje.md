@@ -20,3 +20,6 @@ Todas se descargaron de Wikimedia Commons (`commons.wikimedia.org`), con licenci
 | dama.webp | Désirée Fawn thatdesiree | CC0 | https://commons.wikimedia.org/wiki/File:Bridesmaid_Bouquet_(Unsplash).jpg |
 | retrato.webp | Christopher Campbell chrisjoelcampbell | CC0 | https://commons.wikimedia.org/wiki/File:Country_Chic_Wedding_(Unsplash).jpg |
 | encaje-capa.webp | Gianni Scognamiglio gianniscognamiglio | CC0 | https://commons.wikimedia.org/wiki/File:Bride_and_groom_on_grass_(Unsplash).jpg |
+| hotel-cuarto.webp | Kurt Kaiser | CC0 | https://commons.wikimedia.org/wiki/File:Bed_in_hotel_room_2.jpg |
+| hotel-vestibulo.webp | ArchKarl | CC0 | https://commons.wikimedia.org/wiki/File:I_Old_harbor_-_lobby.jpg |
+| hotel-patio.webp | Mx. Granger | CC0 | https://commons.wikimedia.org/wiki/File:Fray_Bentos_Hotel_Colonial_courtyard.jpg |
