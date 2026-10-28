@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import FxText from '@/components/ui/FxText.vue'
 import Monogram from '@/components/ui/Monogram.vue'
 import { useCountdown } from '@/composables/useCountdown'
 import { useEvent } from '@/composables/useEvent'
@@ -28,7 +29,7 @@ const title = computed(() => props.section.title ?? 'Faltan')
 <template>
   <div class="cb">
     <Monogram class="cb__mark" size="min(15rem, 62cqi)" />
-    <h2 class="cb__title" data-text="title">{{ title }}</h2>
+    <h2 class="cb__title" data-text="title"><FxText :text="title" :effects="section.effects" /></h2>
     <ul class="cb__units" role="timer" :aria-label="`${units[0].value} días`">
       <li v-for="unit in units" :key="unit.label" class="cb__unit">
         <span class="cb__number" data-text="digits">{{ unit.value }}</span>

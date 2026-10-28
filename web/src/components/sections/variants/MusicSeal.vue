@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
+import FxText from '@/components/ui/FxText.vue'
 import WaxSeal from '@/components/ui/WaxSeal.vue'
 import { useEvent } from '@/composables/useEvent'
 import { useInView } from '@/composables/useInView'
@@ -10,8 +10,10 @@ import { spotifyEmbed as spotifyEmbedFor } from '@/services/spotifyService'
 import type { ResolvedSection } from '@/types/event'
 
 /**
- * Música de papelería ("lacre"): un reproductor discreto. El botón es un lacre con el
- * monograma (borgoña); mientras suena gira muy despacio y una marca fina dice "Sonando".
+ * Música de papelería ("lacre"): un reproductor discreto y centrado. El botón ES el lacre
+ * (borgoña): el signo de reproducir o pausar va hundido en la cera, como el monograma.
+ * Mientras suena, el lacre late apenas y un anillo de puntos gira a su alrededor; en pausa,
+ * todo queda quieto y el anillo se apaga. Una marca fina dice "Sonando".
  * Debajo, una línea de avance de un pelo con los tiempos, y atrás/adelante de 10 s en texto.
  * Es la misma canción que inicia el sobre (el mini-reproductor la sigue entre secciones).
  * Con la música en Spotify, el reproductor de Spotify está presente (es el que suena) pero
@@ -49,7 +51,7 @@ onMounted(() => {
 
 <template>
   <div ref="root" class="ms" :class="{ 'is-playing': playing, 'is-off': !available }">
-    <h2 class="ms__title" data-text="title">{{ title }}</h2>
+    <h2 class="ms__title" data-text="title"><FxText :text="title" :effects="section.effects" /></h2>
 
     <div class="ms__row">
       <span class="ms__rule" aria-hidden="true" />
@@ -61,8 +63,18 @@ onMounted(() => {
         :aria-pressed="playing"
         @click="music?.toggle()"
       >
-        <span class="ms__spin"><WaxSeal tone="burgundy" size="100%" seed="musica" /></span>
-        <span class="ms__glyph" aria-hidden="true"><AppIcon :name="playing ? 'pause' : 'play'" /></span>
+        <svg class="ms__ring" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="47" />
+        </svg>
+        <span class="ms__beat">
+          <WaxSeal
+            tone="burgundy"
+            size="100%"
+            seed="musica"
+            :icon="playing ? 'pause' : 'play'"
+            :shine="!playing"
+          />
+        </span>
       </button>
       <span class="ms__rule" aria-hidden="true" />
     </div>
@@ -135,7 +147,10 @@ onMounted(() => {
 }
 .ms__seal {
   position: relative;
-  width: 5.2rem;
+  display: grid;
+  place-items: center;
+  width: 6.2rem;
+  aspect-ratio: 1;
   padding: 0;
   border: 0;
   background: none;
@@ -151,30 +166,38 @@ onMounted(() => {
   outline-offset: 6px;
   border-radius: 50%;
 }
-.ms__spin {
+/* El lacre (con su signo hundido) ocupa el centro; el anillo de puntos lo rodea. */
+.ms__beat {
   display: block;
+  width: 78%;
+  transition: transform calc(0.3s * var(--motion-scale)) var(--ease-out);
 }
-.is-playing .ms__spin {
-  animation: ms-spin calc(24s * var(--motion-scale)) linear infinite;
+.ms__seal:hover .ms__beat,
+.ms__seal:focus-visible .ms__beat {
+  transform: scale(1.04);
 }
-/* El signo de reproducir o pausar, chico, sobre el anillo de abajo del lacre. */
-.ms__glyph {
+.ms__seal:active .ms__beat {
+  transform: scale(0.96);
+}
+.is-playing .ms__beat {
+  animation: ms-beat calc(1.6s * var(--motion-scale)) ease-in-out infinite;
+}
+.ms__ring {
   position: absolute;
-  left: 50%;
-  bottom: 4%;
-  display: grid;
-  place-items: center;
-  width: 1.35rem;
-  height: 1.35rem;
-  border-radius: 50%;
-  background: var(--color-paper, var(--color-surface));
-  color: var(--color-borgona, var(--color-accent));
-  transform: translateX(-50%);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--color-oro, var(--color-accent));
+  stroke-width: 1.2;
+  stroke-dasharray: 0.6 5.2;
+  stroke-linecap: round;
+  opacity: 0.35;
+  transition: opacity calc(0.5s * var(--motion-scale)) ease;
 }
-.ms__glyph :deep(.app-icon) {
-  width: 0.55rem;
-  height: 0.55rem;
+.is-playing .ms__ring {
+  opacity: 0.95;
+  animation: ms-spin calc(14s * var(--motion-scale)) linear infinite;
 }
 .ms__state {
   margin: 0;
@@ -256,8 +279,24 @@ onMounted(() => {
     transform: rotate(360deg);
   }
 }
+@keyframes ms-beat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  18% {
+    transform: scale(1.045);
+  }
+  34% {
+    transform: scale(0.995);
+  }
+  48% {
+    transform: scale(1.025);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .is-playing .ms__spin {
+  .is-playing .ms__beat,
+  .is-playing .ms__ring {
     animation: none;
   }
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import FxText from '@/components/ui/FxText.vue'
 import type { ResolvedSection } from '@/types/event'
 
 /**
@@ -17,7 +18,7 @@ const windows = computed(() => Math.max(1, props.section.layers?.length ?? 0))
   <div class="layer" :class="`layer--${section.variant ?? 'media'}`">
     <div v-for="i in windows" :key="i" class="layer__window">
       <template v-if="i === 1">
-        <h2 v-if="section.title" class="layer__title" data-text="title">{{ section.title }}</h2>
+        <h2 v-if="section.title" class="layer__title" data-text="title"><FxText :text="section.title" :effects="section.effects" /></h2>
         <p v-if="section.text" class="layer__text" data-text="text">{{ section.text }}</p>
       </template>
     </div>
