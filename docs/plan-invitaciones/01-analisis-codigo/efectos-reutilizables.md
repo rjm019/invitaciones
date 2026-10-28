@@ -232,14 +232,17 @@ Todo global; el tema solo lo pide en su manifest. Componentes en `components/sec
 | música | `lacre` | `MusicSeal.vue` (el reproductor de Spotify queda presente pero invisible) |
 | bendición | `editorial` | `BlessingEditorial.vue` (lee `useEvent().sections` para no repetir a los papás) |
 | historia | `editorial` | `StoryEditorial.vue` |
+| historia | `cronologia` | `StoryTimeline.vue`: pestañas WAI-ARIA (`role=tablist/tab/tabpanel`, flechas, Inicio y Fin con `tabsService.tabTarget`) y deslizar con `swipeStep`. Todas las tarjetas viven en la misma celda del grid (el alto no salta); la activa entra con `translateX` + `rotate` + `opacity` y las demás quedan `visibility: hidden` e `inert`. El lacre del hilo es un `WaxSeal` cuyo contenedor mide lo que el hilo: `translateX((i + .5) / n · 100 %)` lo lleva al año sin medir nada |
 | fecha | `editorial` | `SaveTheDateEditorial.vue` (pieza interna `paper-notched` con `data-fillet`; la sombra va en el contenedor porque la máscara la recortaría) |
-| ubicación | `papeleria` | `LocationStationery.vue` (tinta de la página, `--root-text`, aunque el panel sea oscuro) |
+| ubicación | `papeleria` | `LocationStationery.vue` (tinta de la página, `--root-text`, aunque el panel sea oscuro). Con `dibujo_vivo` pinta `components/ui/LivingLandmark.vue` en lugar de la máscara (solo si el dibujo es el compartido) |
 | cuenta regresiva | `banda` | `CountdownBand.vue` (con `difuminar` y orilla recta es una franja de lado a lado) |
 | itinerario | `minuto` | `ItineraryMinute.vue` |
+| itinerario | `sello` | `ItinerarySeal.vue`: `useTimelineProgress` (el de `avenida`/`grabado`) da `fill` y `active`; el lacre va en un contenedor del alto de la lista, así `translateY(fill · 100 %)` lo baja por el hilo. Cada dibujo (`momentDrawing` de `engravedIconService`: suma `pareja`, `luna` y `auto` sin cambiar `engravedIcon`) se traza por partes (`> *` con retrasos) al encenderse su momento |
 | vestimenta | `editorial` | `DressCodeEditorial.vue` |
 | hospedaje | `papeleria` | `HotelsStationery.vue` |
 | galería | `editorial` | `GalleryEditorial.vue` |
 | mesa de regalos | `sobre` | `GiftsEnvelope.vue` |
+| mesa de regalos | `volteo` | `GiftsFlip.vue`: `perspective` + `preserve-3d` + `rotateY(180deg)` y `backface-visibility: hidden`; la cara que no se ve queda `inert`, el frente es un `button` con `aria-pressed` que cubre la tarjeta y el foco pasa a la cara visible. Con menos movimiento, fundido. Respeta `hidden` de GiftPrivacy |
 | confirmación | `tarjeta-rsvp` | `RsvpReplyCard.vue`: envuelve a `RsvpSection` (misma lógica) |
 | álbum | `papeleria` | `AlbumStationery.vue`: envuelve a `AlbumSection` |
 | cierre | `lacre` | `ClosingSeal.vue` |
@@ -250,6 +253,7 @@ Todo global; el tema solo lo pide en su manifest. Componentes en `components/sec
 | `tinta` | `ink` | el título pasa de transparente a firme con un desplazamiento mínimo (solo avisa cuándo se ve la sección) |
 | `luz_rasante` | `raking-light` | `SectionShell` pinta `.section__raking`; un haz cálido cruza cada ~11 s con `mix-blend-mode: soft-light` |
 | `papel_entra` | `paper-in` | la sección entra desde abajo, apenas girada, como sacada de un sobre |
+| `dibujo_vivo` | `living-drawing` | `LivingLandmark.vue`: los mismos trazos de `iglesia.svg`/`hacienda.svg` en línea, agrupados; al entrar cada grupo aparece con opacity + scale (la técnica de `encaje_dibujado`) y luego se mecen campanas y árboles (`rotate` con `transform-origin` en unidades del dibujo), vuelan y aletean aves, giran los rayos del sol y se encienden ventanas y rosetón (opacity). Los ciclos se pausan fuera de pantalla (`useInView` sin `once`); con menos movimiento, dibujo completo y quieto |
 
 Con "menos movimiento": el título ya firme, sin luz y sin entrada. CSS en `effects/paper.css`. Adornos nuevos compartidos: `iglesia`, `filigrana`, `damasco`, `piedra`, `camara`. Botón `fino` en `effects/buttons.css`. Ayudas puras en `services/stationeryService.ts` (nombres de la pareja, papás y padrinos, fecha impresa, romanos).
 

@@ -1,0 +1,171 @@
+﻿seccion,elemento,campo,valor
+evento,,tipo,boda
+evento,,tema,lacre
+evento,,festejada,Nombre y Nombre
+evento,,festejada_corto,Nombre & Nombre
+evento,,pareja,Nombre & Nombre
+evento,,monograma,N N
+evento,,subtitulo,nos casamos
+evento,,titulo,Nuestra boda
+evento,,inicia,2027-10-23 17:00
+evento,,zona_horaria,America/Mexico_City
+evento,,salon,Nombre del salón
+evento,,salon_ciudad,"Ciudad, Estado"
+evento,,rsvp_modo,token
+evento,,musica_fuente,archivo
+evento,,mensaje_whatsapp,"¡Hola{, familia}! Te compartimos la invitación ({pases}): {enlace}"
+evento,,tarjeta_frase,Nuestra boda
+portada,,visible,SI
+portada,,variante,sobre-lacre
+portada,,titulo,Con todo el corazón
+portada,,texto,Tenemos el honor de invitarles a celebrar nuestro matrimonio el día
+portada,,boton,Toca para abrir
+musica,,visible,SI
+musica,,variante,lacre
+musica,,titulo,Nuestra canción
+bendicion,,visible,SI
+bendicion,,variante,editorial
+bendicion,,texto,"Con la bendición de Dios y el cariño de quienes nos enseñaron a amar, unimos nuestras vidas."
+bendicion,1,rol,Papás de la novia
+bendicion,1,nombres,"Nombre Apellido
+Nombre Apellido"
+bendicion,2,rol,Papás del novio
+bendicion,2,nombres,"Nombre Apellido
+Nombre Apellido"
+bendicion,3,rol,Padrinos de velación
+bendicion,3,nombres,"Nombre Apellido
+Nombre Apellido"
+historia,,visible,SI
+historia,,variante,cronologia
+historia,,titulo,Nuestra historia
+historia,,texto,"Unas líneas sobre cómo se conocieron y por qué quieren celebrar este día con sus invitados."
+historia,1,anio,2018
+historia,1,titulo,Cómo nos conocimos
+historia,1,texto,Una frase corta sobre ese día.
+historia,2,anio,2022
+historia,2,titulo,Un momento importante
+historia,2,texto,Una frase corta sobre ese momento.
+historia,3,anio,2026
+historia,3,titulo,La pregunta
+historia,3,texto,Dónde y cómo fue la propuesta.
+fecha,,visible,SI
+fecha,,variante,editorial
+fecha,,titulo,Reserva la fecha
+ubicacion,,visible,SI
+ubicacion,,variante,papeleria
+ubicacion,,efectos,aparecer dibujo_vivo
+ubicacion,,titulo,Dónde
+ubicacion,,boton,Ver ubicación
+ubicacion,,acomodo,lado a lado
+ubicacion,,calendario,SI
+ubicacion,1,tipo,ceremonia religiosa
+ubicacion,1,etiqueta,Ceremonia
+ubicacion,1,lugar,Nombre de la parroquia
+ubicacion,1,hora,17:00
+ubicacion,1,direccion,Calle y número
+ubicacion,2,tipo,recepcion
+ubicacion,2,etiqueta,Recepción
+ubicacion,2,lugar,Nombre de la hacienda
+ubicacion,2,hora,19:00
+ubicacion,2,direccion,Calle y número
+cuenta_regresiva,,visible,SI
+cuenta_regresiva,,variante,banda
+cuenta_regresiva,,titulo,Faltan
+cuenta_regresiva,,texto,para decirnos que sí frente a ustedes
+itinerario,,visible,SI
+itinerario,,variante,sello
+itinerario,,efectos,linea
+itinerario,,en_vivo,SI
+itinerario,,titulo,Itinerario
+itinerario,1,hora,17:00
+itinerario,1,actividad,Ceremonia religiosa
+itinerario,2,hora,19:00
+itinerario,2,actividad,Cóctel
+itinerario,3,hora,20:30
+itinerario,3,actividad,Cena
+itinerario,4,hora,22:00
+itinerario,4,actividad,Primer baile
+itinerario,5,hora,23:30
+itinerario,5,actividad,Corte del pastel
+itinerario,6,hora,2:00
+itinerario,6,actividad,Tornaboda
+vestimenta,,visible,SI
+vestimenta,,variante,editorial
+vestimenta,,titulo,Código de vestimenta
+vestimenta,,subtitulo,Formal
+vestimenta,,texto,Cómo sugieren vestir a sus invitados.
+vestimenta,,colores,#4E5136 #A99C88 #6E1F2C #B08D57
+vestimenta,,restricciones,"El blanco y el marfil son para la novia
+Mezclilla y tenis"
+hospedaje,,visible,SI
+hospedaje,,variante,papeleria
+hospedaje,,titulo,Hospedaje
+hospedaje,,subtitulo,Para que nadie maneje de regreso
+hospedaje,1,nombre,Nombre del hotel
+hospedaje,1,nota,Cerca de la hacienda
+hospedaje,1,direccion,Calle y número
+hospedaje,1,telefono,+52 000 000 0000
+hospedaje,2,nombre,Otro hotel
+hospedaje,2,nota,En el centro
+hospedaje,2,direccion,Calle y número
+hospedaje,2,telefono,+52 000 000 0000
+galeria,,visible,SI
+galeria,,variante,editorial
+galeria,,titulo,Momentos
+mesa_regalos,,visible,SI
+mesa_regalos,,variante,volteo
+mesa_regalos,,titulo,Mesa de regalos
+mesa_regalos,,texto,"Su presencia es el mejor regalo. Si desean tener un detalle con nosotros, les dejamos algunas opciones."
+mesa_regalos,,boton,Ver mesa
+mesa_regalos,,sobres_titulo,Transferencia
+mesa_regalos,,sobres_texto,"Si lo prefieren, también pueden hacernos una transferencia."
+mesa_regalos,,banco,Banco
+mesa_regalos,,cuenta,000000000000000000
+mesa_regalos,,titular,Nombre del titular
+mesa_regalos,,sobre_fisico,SI
+mesa_regalos,1,tienda,liverpool
+mesa_regalos,1,numero_evento,00000000
+mesa_regalos,1,enlace,https://mesaderegalos.liverpool.com.mx/
+mesa_regalos,2,tienda,amazon
+mesa_regalos,2,nota,Lista de bodas
+mesa_regalos,2,numero_evento,0000000000
+mesa_regalos,2,enlace,https://www.amazon.com.mx/wedding/home
+informacion,,visible,SI
+informacion,,variante,editorial
+informacion,,titulo,Preguntas frecuentes
+informacion,1,pregunta,¿Hay estacionamiento?
+informacion,1,respuesta,Dónde dejar el auto.
+informacion,2,pregunta,¿Pueden ir niños?
+informacion,2,respuesta,Lo que decidan los novios.
+trivia,,visible,SI
+trivia,,variante,papeleria
+trivia,,titulo,Cuánto nos conoces
+trivia,,texto,Unas preguntas sobre nosotros y sobre esta invitación.
+trivia,,boton,Empezar
+trivia,1,pregunta,¿Dónde nos conocimos?
+trivia,1,opcion_1,En la escuela
+trivia,1,opcion_2,En una fiesta
+trivia,1,opcion_3,En el trabajo
+trivia,1,correcta,1
+trivia,2,pregunta,"¿Quién dijo ""te quiero"" primero?"
+trivia,2,opcion_1,Ella
+trivia,2,opcion_2,Él
+trivia,2,correcta,2
+confirmacion,,visible,SI
+confirmacion,,variante,tarjeta-rsvp
+confirmacion,,titulo,Confirma tu asistencia
+confirmacion,,subtitulo,Nos ayudará mucho saber si nos acompañas
+dedicatoria,,visible,SI
+dedicatoria,,variante,muro
+dedicatoria,,titulo,Unas palabras para nosotros
+dedicatoria,,texto,"Un deseo, un recuerdo o un consejo."
+dedicatoria,,muro,NO
+album,,visible,SI
+album,,variante,papeleria
+album,,titulo,Álbum de la boda
+album,,texto,"El día de la boda, sube hasta 2 fotos de la fiesta."
+album,,boton,Elegir fotos
+cierre,,visible,SI
+cierre,,variante,lacre
+cierre,,titulo,Los esperamos
+cierre,,texto,Gracias por ser parte de nuestra historia.

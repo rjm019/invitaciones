@@ -475,20 +475,23 @@ El tema `lacre` los pone por defecto; cualquier invitación los pide con `varian
 | `musica` | `lacre` | Lacre como botón de play (gira despacio mientras suena) y una línea de avance fina. Con Spotify, su reproductor suena sin verse y queda un enlace a la lista |
 | `bendicion` | `editorial` | Mensaje en itálica entre filigranas y los grupos en columnas; si la portada es `sobre-lacre`, no repite a los papás |
 | `historia` | `editorial` | Texto con capitular, la primera foto de los momentos en un marco de papel y los momentos en columnas |
+| `historia` | `cronologia` | Compacta e interactiva (la del tema `lacre`): el mensaje con capitular y una línea de tiempo con los años como pestañas; un lacre pequeño viaja al año elegido y las tarjetas apiladas (foto, año, título y texto de cada momento) se cambian con un toque, con las flechas del teclado o deslizando el dedo. Sin foto, el momento lleva un sello |
 | `fecha` | `editorial` | Tarjeta con muescas y filete: día de la semana, número grande, mes y año entre filetes, hora y «Agregar al calendario» |
-| `ubicacion` | `papeleria` | Tarjetitas de papel por lugar con dibujo de línea (iglesia si el `tipo` es ceremonia religiosa, hacienda si no; `imagen_iglesia`, `imagen_hacienda`) y botones finos |
+| `ubicacion` | `papeleria` | Tarjetitas de papel por lugar con dibujo de línea (iglesia si el `tipo` es ceremonia religiosa, hacienda si no; `imagen_iglesia`, `imagen_hacienda`) y botones finos. En el celular, con `acomodo` lado a lado, cada tarjetita se acuesta (dibujo a la izquierda). Con el efecto `dibujo_vivo`, los dibujos de siempre se trazan al llegar y cobran vida (campanas, árboles, aves, ventanas encendidas) |
 | `cuenta_regresiva` | `banda` | Franja de lado a lado con números en serif fina y el monograma tenue detrás |
 | `itinerario` | `minuto` | Minuta: hora en versalitas, puntos y actividad; con `en_vivo` marca «Ahora» |
+| `itinerario` | `sello` | Hilo en zigzag con un dibujo de línea por momento (iglesia, auto, copas, plato, pareja que baila, pastel, luna con fuegos…; sale del `icono` o de la actividad). Con el efecto `linea`, el hilo se entinta al bajar, un lacre con el monograma viaja por él y cada momento se enciende al pasar; con `en_vivo` marca «Ahora». Es el del tema `lacre` |
 | `vestimenta` | `editorial` | Página de revista: el `subtitulo` como titular, paleta en muestras de papel, `restricciones` y `referencias` en marcos |
-| `hospedaje` | `papeleria` | Fichas de hotel numeradas en romanos con distancia, tarifa, dirección, teléfono, «Reservar» y «Ver mapa» |
+| `hospedaje` | `papeleria` | Fichas de hotel a lo ancho, con una llave de línea, número en romanos, nota y dirección; «Llamar» (si el hotel trae `telefono`), «Ver mapa» y «Reservar» (si trae `reserva`). No enseña `distancia` ni `precio` |
 | `galeria` | `editorial` | Composición asimétrica (una grande, dos chicas, dos medianas) con marcos finos y pies numerados; abre el visor |
 | `mesa_regalos` | `sobre` | Tarjeta que asoma de un sobre con las tiendas y la transferencia (misma privacidad) |
+| `mesa_regalos` | `volteo` | Una tarjeta de lino por tienda (Liverpool, Amazon…) y otra por la transferencia, con un lacre y su inicial: los datos no se ven hasta tocarla; gira y el dorso enseña el número de evento (o de lista en Amazon) o la CLABE con «Copiar» y «Ver mesa». Por el enlace general, la de la transferencia no gira y avisa que los datos vienen en la invitación personal. Es el del tema `lacre` |
 | `informacion` | `editorial` | Preguntas numeradas entre filetes |
 | `confirmacion` | `tarjeta-rsvp` | Tarjeta de respuesta con muescas, filete y lacre pequeño; campos como renglones |
-| `dedicatoria` | `muro` | Formulario en papel y las dedicatorias (con `muro,SI`) como notas en dos columnas |
+| `dedicatoria` | `muro` | Formulario en papel y las dedicatorias (con `muro,SI`) como notas en dos columnas. Sin `muro` (o con `NO`, como la boda de ejemplo) las dedicatorias solo se leen en el panel |
 | `trivia` | `papeleria` | Cartas de papel con filete |
 | `album` | `papeleria` | Tarjeta con muescas y una cámara de línea (`imagen_marco` la cambia) |
 | `cierre` | `lacre` | Lacre grande borgoña con el monograma, mensaje, nombres y fecha |
 
-Opciones nuevas: `pagina,,botones` = `fino` (contorno de un pelo, mayúsculas espaciadas); `efectos` = `tinta` (el título se asienta como tinta), `luz_rasante` (una luz baja cruza despacio) y `papel_entra` (la tarjeta entra como sacada de un sobre).
+Opciones nuevas: `pagina,,botones` = `fino` (contorno de un pelo, mayúsculas espaciadas); `efectos` = `tinta` (el título se asienta como tinta), `luz_rasante` (una luz baja cruza despacio), `papel_entra` (la tarjeta entra como sacada de un sobre) y `dibujo_vivo` (la iglesia y la hacienda de la ubicación se dibujan y cobran vida). La plantilla `deploy/plantillas/lacre/` trae todas las secciones del tema con textos de ejemplo.
 
