@@ -323,3 +323,184 @@
   border-radius: 46% / 40%;
   pointer-events: none;
 }
+
+/*
+ * Papelería fina (tema `lacre`, de todos). Pieles sobre los componentes de siempre: misma
+ * lógica, otra tinta. Filetes de un pelo, versalitas espaciadas, itálicas, sin cajas.
+ */
+
+/* Información adicional "editorial": cada pregunta numerada, entre filetes, sin caja. */
+.section.section--faq--editorial .faq {
+  counter-reset: faq;
+}
+.section.section--faq--editorial .faq::before {
+  content: '';
+  width: min(11rem, 55%);
+  aspect-ratio: 240 / 28;
+  margin-bottom: 0.4rem;
+  background: var(--color-borgona, var(--color-accent));
+  -webkit-mask: url('../../../themes/_shared/assets/filigrana.svg') center / contain no-repeat;
+  mask: url('../../../themes/_shared/assets/filigrana.svg') center / contain no-repeat;
+  opacity: 0.7;
+}
+.section.section--faq--editorial .faq__title {
+  font-family: var(--t-title-font, var(--font-display));
+  font-size: calc(clamp(1.6rem, 7.5cqi, 2.2rem) * var(--t-title-size, 1));
+  letter-spacing: 0.14em;
+  color: var(--t-title-color, var(--color-text));
+}
+.section.section--faq--editorial .faq__list {
+  border-top-color: color-mix(in srgb, var(--color-borgona, var(--color-text)) 55%, transparent);
+}
+.section.section--faq--editorial .faq__item {
+  counter-increment: faq;
+  border-bottom-color: color-mix(in srgb, var(--color-text) 14%, transparent);
+}
+.section.section--faq--editorial .faq__question {
+  font-weight: 500;
+}
+.section.section--faq--editorial .faq__question::before {
+  content: counter(faq, decimal-leading-zero);
+  display: inline-block;
+  min-width: 2.1rem;
+  font-family: var(--font-caps);
+  font-weight: 600;
+  font-size: 0.72em;
+  letter-spacing: 0.16em;
+  color: var(--color-borgona, var(--color-accent));
+}
+.section.section--faq--editorial .faq__mark {
+  color: var(--color-borgona, var(--color-accent));
+}
+.section.section--faq--editorial .faq__panel {
+  padding-left: 2.3rem;
+}
+.section.section--faq--editorial .faq__answer {
+  font-style: italic;
+  font-size: calc(1.08rem * var(--t-answer-size, 1));
+  color: var(--t-answer-color, color-mix(in srgb, var(--color-text) 85%, transparent));
+}
+
+/*
+ * Dedicatorias en "muro": el formulario sobrio (campos como renglones) y las dedicatorias
+ * como notas de papel en dos columnas, cada una apenas inclinada, como prendidas a un tablero.
+ */
+.section.section--dedications--muro .dedication {
+  max-width: 46rem;
+}
+.section.section--dedications--muro .dedication__divider {
+  display: none;
+}
+.section.section--dedications--muro .dedication__title {
+  font-family: var(--t-title-font, var(--font-display));
+  font-size: calc(clamp(1.6rem, 7.5cqi, 2.3rem) * var(--t-title-size, 1));
+}
+.section.section--dedications--muro .dedication__text {
+  max-width: 30ch;
+  color: var(--t-text-color, var(--color-text));
+}
+.section.section--dedications--muro :is(.dedication__form, .dedication__sent) {
+  max-width: 26rem;
+  padding: 1.6rem 1.4rem 1.4rem;
+  background:
+    url('../../../effects/assets/textura-algodon.svg') 0 0 / 320px,
+    var(--color-paper, var(--color-surface));
+  box-shadow:
+    0 1px 1px rgb(59 52 46 / 0.12),
+    0 14px 22px -14px rgb(59 52 46 / 0.45);
+}
+.section.section--dedications--muro .dedication__field {
+  border-width: 0 0 1px;
+  border-radius: 0;
+  background: transparent;
+  padding-inline: 0.2rem;
+}
+.section.section--dedications--muro .dedication__submit {
+  min-height: 2.8rem;
+  font-family: var(--t-button-font, var(--font-caps));
+  font-size: calc(0.76rem * var(--t-button-size, 1));
+}
+.section.section--dedications--muro .dedication__wall {
+  display: block;
+  columns: 2 15rem;
+  column-gap: 1.2rem;
+}
+.section.section--dedications--muro .dedication__note-card {
+  break-inside: avoid;
+  margin: 0 0 1.2rem;
+  padding: 1.2rem 1.2rem 1rem;
+  border: 0;
+  background:
+    url('../../../effects/assets/textura-algodon.svg') 0 0 / 320px,
+    var(--color-paper, var(--color-surface));
+  box-shadow:
+    0 1px 1px rgb(59 52 46 / 0.12),
+    0 10px 16px -10px rgb(59 52 46 / 0.45);
+  rotate: -0.6deg;
+}
+.section.section--dedications--muro .dedication__note-card:nth-child(even) {
+  rotate: 0.7deg;
+}
+.section.section--dedications--muro .dedication__note-card .dedication__quote {
+  padding: 0;
+}
+.section.section--dedications--muro .dedication__note-card .dedication__author {
+  margin: 0.6rem 0 0;
+  font-family: var(--t-author-font, var(--font-caps));
+  font-weight: 600;
+  font-size: calc(0.72rem * var(--t-author-size, 1));
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--t-author-color, var(--color-borgona, var(--color-accent)));
+}
+
+/* Trivia "papeleria": cada pregunta en una carta de papel con filete fino (sobre un panel oscuro). */
+.section.section--trivia--papeleria .trivia__title {
+  font-family: var(--t-title-font, var(--font-display));
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.section.section--trivia--papeleria .trivia__panel {
+  --card-ink: var(--root-text, #3b342e);
+  --color-text: var(--card-ink);
+  --color-primary: var(--card-ink);
+  position: relative;
+  padding: 1.8rem 1.3rem 1.5rem;
+  border-radius: 0;
+  background:
+    url('../../../effects/assets/textura-algodon.svg') 0 0 / 320px,
+    var(--color-paper, var(--color-surface));
+  color: var(--card-ink);
+  box-shadow:
+    0 1px 1px rgb(0 0 0 / 0.12),
+    0 12px 20px -12px rgb(0 0 0 / 0.5);
+}
+.section.section--trivia--papeleria .trivia__panel::after {
+  content: '';
+  position: absolute;
+  inset: 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--color-borgona, var(--card-ink)) 55%, transparent);
+  pointer-events: none;
+}
+.section.section--trivia--papeleria .trivia__bar {
+  height: 1px;
+  background: color-mix(in srgb, var(--card-ink) 18%, transparent);
+}
+.section.section--trivia--papeleria .trivia__bar-fill {
+  background: var(--color-borgona, var(--card-ink));
+}
+.section.section--trivia--papeleria :is(.trivia__option, .trivia__field) {
+  border-color: color-mix(in srgb, var(--card-ink) 35%, transparent);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--card-ink);
+}
+.section.section--trivia--papeleria .trivia__option[aria-pressed='true'] {
+  border: 1px solid var(--color-borgona, var(--card-ink));
+  background: color-mix(in srgb, var(--color-borgona, var(--card-ink)) 9%, transparent);
+}
+.section.section--trivia--papeleria .trivia__submit {
+  position: relative;
+  z-index: 1;
+  color: var(--card-ink);
+}

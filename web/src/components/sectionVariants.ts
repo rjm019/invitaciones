@@ -16,12 +16,20 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     estatua: () => import('./sections/variants/HeroStatue.vue'),
     telon: () => import('./sections/variants/HeroCurtain.vue'),
     'sobre-central': () => import('./sections/variants/HeroCenterEnvelope.vue'),
+    'sobre-lacre': () => import('./sections/variants/HeroSealedEnvelope.vue'),
   },
-  'music-player': { vinilo: () => import('./sections/variants/MusicVinyl.vue') },
-  blessing: { programa: () => import('./sections/variants/BlessingPlaybill.vue') },
+  'music-player': {
+    vinilo: () => import('./sections/variants/MusicVinyl.vue'),
+    lacre: () => import('./sections/variants/MusicSeal.vue'),
+  },
+  blessing: {
+    programa: () => import('./sections/variants/BlessingPlaybill.vue'),
+    editorial: () => import('./sections/variants/BlessingEditorial.vue'),
+  },
   'save-the-date': {
     boleto: () => import('./sections/variants/SaveTheDateTicket.vue'),
     calendario: () => import('./sections/variants/SaveTheDateEnvelope.vue'),
+    editorial: () => import('./sections/variants/SaveTheDateEditorial.vue'),
   },
   'photo-arch': {
     ventana: () => import('./sections/variants/PhotoTower.vue'),
@@ -30,20 +38,24 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
   location: {
     metro: () => import('./sections/variants/LocationMetro.vue'),
     grabado: () => import('./sections/variants/LocationEngraving.vue'),
+    papeleria: () => import('./sections/variants/LocationStationery.vue'),
   },
   quote: { neon: () => import('./sections/variants/QuoteNeon.vue') },
   itinerary: {
     avenida: () => import('./sections/variants/ItineraryAvenue.vue'),
     grabado: () => import('./sections/variants/ItineraryEngraving.vue'),
+    minuto: () => import('./sections/variants/ItineraryMinute.vue'),
   },
   'dress-code': {
     vitrinas: () => import('./sections/variants/DressCodeWindows.vue'),
     muestrario: () => import('./sections/variants/DressCodeSwatches.vue'),
+    editorial: () => import('./sections/variants/DressCodeEditorial.vue'),
   },
   'no-kids': { cordon: () => import('./sections/variants/NoKidsRope.vue') },
   countdown: {
     tablero: () => import('./sections/variants/CountdownBoard.vue'),
     corazon: () => import('./sections/variants/CountdownHeart.vue'),
+    banda: () => import('./sections/variants/CountdownBand.vue'),
   },
   'envelope-rain': { sobre: () => import('./sections/variants/EnvelopeRainShower.vue') },
   gallery: {
@@ -51,15 +63,24 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     carrusel: () => import('./sections/variants/GalleryCarousel.vue'),
     diapositivas: () => import('./sections/variants/GallerySlideshow.vue'),
     bastidor: () => import('./sections/variants/GalleryHoops.vue'),
+    editorial: () => import('./sections/variants/GalleryEditorial.vue'),
   },
-  hotels: { colgantes: () => import('./sections/variants/HotelsHangers.vue') },
+  hotels: {
+    colgantes: () => import('./sections/variants/HotelsHangers.vue'),
+    papeleria: () => import('./sections/variants/HotelsStationery.vue'),
+  },
   gifts: {
     bolsas: () => import('./sections/variants/GiftsBags.vue'),
     etiqueta: () => import('./sections/variants/GiftsTags.vue'),
+    sobre: () => import('./sections/variants/GiftsEnvelope.vue'),
   },
+  story: { editorial: () => import('./sections/variants/StoryEditorial.vue') },
+  rsvp: { 'tarjeta-rsvp': () => import('./sections/variants/RsvpReplyCard.vue') },
+  'guest-album': { papeleria: () => import('./sections/variants/AlbumStationery.vue') },
   closing: {
     marquesina: () => import('./sections/variants/ClosingMarquee.vue'),
     bordado: () => import('./sections/variants/ClosingEmbroidery.vue'),
+    lacre: () => import('./sections/variants/ClosingSeal.vue'),
   },
 }
 
@@ -69,8 +90,9 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
  */
 export const skinVariants: Record<string, string[]> = {
   rsvp: ['pase'],
-  dedications: ['postal'],
-  trivia: ['tarjetas'],
+  dedications: ['postal', 'muro'],
+  trivia: ['tarjetas', 'papeleria'],
+  faq: ['editorial'],
   video: ['encaje'],
   'social-post': ['encaje'],
 }

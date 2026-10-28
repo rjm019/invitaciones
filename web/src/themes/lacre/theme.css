@@ -1,0 +1,115 @@
+/*
+ * Lacre: papelería fina. Piedra beige de fondo, papel marfil de algodón, lino olivo, una
+ * banda borgoña y el oro viejo del lacre. Tinta casi negra y café para el texto. La paleta
+ * se puede cambiar por invitación (bloque "colores"): los paneles, filetes y lacres la
+ * siguen. Fuera de aquí no hay colores fijos: los diseños de sección leen estos tokens.
+ */
+:root[data-theme='lacre'] {
+  --color-bg: #d8cfc0;
+  --color-text: #3b342e;
+  --color-primary: #4e5136;
+  --color-primary-strong: #3b342e;
+  --color-primary-soft: #a99c88;
+  --color-accent: #6e1f2c;
+  --color-accent-soft: #e9e1d3;
+  /* Botones del panel del dueño (letra blanca encima) */
+  --color-accent-strong: #6e1f2c;
+  --color-surface: #f5f0e6;
+  --color-frame: #a99c88;
+  --color-lino: #efe8da;
+  --color-paper: #f5f0e6;
+  --color-panel: #f5f0e6;
+  --color-panel-alt: #efe8da;
+  --color-panel-warm: #f2ecdf;
+  --color-panel-pearl: #f8f4ec;
+  --color-night: #4e5136;
+  --color-on-night: #f5f0e6;
+  /* Materiales de la papelería */
+  --color-olivo: #4e5136;
+  --color-olivo-medio: #6b6e4e;
+  --color-taupe: #a99c88;
+  --color-borgona: #6e1f2c;
+  --color-oro: #b08d57;
+  --color-stone: #d8cfc0;
+  --color-cotton: #f5f0e6;
+
+  --shadow-card:
+    0 1px 1px rgb(59 52 46 / 0.08), 0 6px 14px -6px rgb(59 52 46 / 0.28),
+    0 22px 40px -18px rgb(59 52 46 / 0.35);
+  --shadow-button: none;
+  --panel-radius: 2px;
+  --panel-shadow:
+    0 1px 1px rgb(59 52 46 / 0.06), 0 14px 30px -16px rgb(59 52 46 / 0.4);
+  --panel-border: none;
+  --relief-light: rgb(255 255 255 / 0.6);
+  --relief-dark: rgb(59 52 46 / 0.16);
+  --monogram-color: var(--color-borgona);
+  --monogram-gap: var(--color-paper);
+  --notch-size: 1.25rem;
+  --notch-a: 1.17rem;
+}
+
+/* La piedra quieta detrás de todo, con una luz cálida que entra por arriba. */
+:root[data-theme='lacre'] .invitation__paper {
+  background:
+    radial-gradient(120% 70% at 18% 0%, rgb(255 251 243 / 0.55), transparent 60%),
+    radial-gradient(90% 60% at 100% 100%, rgb(120 100 78 / 0.12), transparent 70%),
+    var(--page-bg-image, none) center / cover no-repeat,
+    var(--color-bg);
+}
+
+/*
+ * Las secciones sin tarjeta (solo tipografía sobre la piedra) conservan su aire arriba y
+ * abajo; la portada no (ocupa la pantalla).
+ */
+:root[data-theme='lacre'] .section--bare:not(.section--hero-envelope, .section--layer) {
+  padding-block: var(--space-4);
+}
+
+/* Lino olivo: la trama de lino sobre el olivo, con letra marfil y oro. */
+:root[data-theme='lacre'] .section--bg-olivo {
+  --color-text: #f5f0e6;
+  --color-primary: #f5f0e6;
+  --color-primary-strong: #fbf8f1;
+  --color-primary-soft: #cfc6b3;
+  --color-accent: #d9bf8e;
+  --color-surface: #f5f0e6;
+  --color-frame: #8d8f6f;
+  --color-lino: #5a5d40;
+  --relief-light: rgb(255 255 255 / 0.08);
+  --relief-dark: rgb(0 0 0 / 0.35);
+  --monogram-gap: var(--color-olivo);
+  color-scheme: dark;
+}
+:root[data-theme='lacre'] .invitation .section--bg-olivo:is(.section--panel, .section--blend) {
+  background:
+    url('../../effects/assets/textura-lino.svg') 0 0 / 200px,
+    radial-gradient(130% 90% at 50% 0%, rgb(255 255 255 / 0.07), transparent 70%),
+    var(--color-olivo);
+}
+
+/* La banda borgoña: letra marfil; el relieve, hundido. */
+:root[data-theme='lacre'] .section--bg-borgona {
+  --color-text: #f5f0e6;
+  --color-primary: #f5f0e6;
+  --color-primary-strong: #fbf8f1;
+  --color-primary-soft: #d8b9b0;
+  --color-accent: #d9bf8e;
+  --relief-light: rgb(255 255 255 / 0.06);
+  --relief-dark: rgb(0 0 0 / 0.4);
+  --monogram-color: #f5f0e6;
+  --monogram-gap: var(--color-borgona);
+  color-scheme: dark;
+}
+:root[data-theme='lacre'] .section--bg-borgona .section__fill {
+  background:
+    url('../../effects/assets/textura-lino.svg') 0 0 / 200px,
+    linear-gradient(180deg, rgb(0 0 0 / 0.12), transparent 18%, transparent 82%, rgb(0 0 0 / 0.16)),
+    var(--color-borgona);
+}
+
+/* El papel marfil: tinta oscura. (La fibra la pone la textura "algodon" de la página.) */
+:root[data-theme='lacre'] .section--bg-paper {
+  --color-text: #3b342e;
+  --color-bg: var(--color-paper);
+}
