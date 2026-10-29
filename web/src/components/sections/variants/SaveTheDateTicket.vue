@@ -35,7 +35,7 @@ const time = computed(() =>
 const week = computed(() => (starts.value ? eventWeek(starts.value, event.value.timezone) : []))
 const venue = computed(() => event.value.venue.display_name || event.value.venue.name)
 const stub = computed(
-  () => [event.value.title, event.value.celebrant.short_name].find((t) => t?.trim()) ?? '',
+  () => [props.section.text, event.value.title, event.value.celebrant.short_name].find((t) => t?.trim()) ?? '',
 )
 
 const calendarUrl = computed(() =>
@@ -79,7 +79,7 @@ const weekLabel = computed(() =>
       </div>
       <div class="ny-date__stub" aria-hidden="true">
         <span class="ny-date__star">✦</span>
-        <span class="ny-date__stub-text">{{ stub }}</span>
+        <span class="ny-date__stub-text" data-text="text">{{ stub }}</span>
         <span class="ny-date__star">✦</span>
       </div>
     </div>
@@ -217,8 +217,9 @@ const weekLabel = computed(() =>
 .ny-date__stub-text {
   writing-mode: vertical-rl;
   rotate: 180deg;
-  font-family: var(--font-caps);
-  font-size: 0.72rem;
+  font-family: var(--t-text-font, var(--font-caps));
+  font-size: calc(0.72rem * var(--t-text-size, 1));
+  color: var(--t-text-color, inherit);
   letter-spacing: 0.32em;
   text-transform: uppercase;
   white-space: nowrap;

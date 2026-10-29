@@ -45,3 +45,9 @@ export function kindOf(event: ManagerEvent): 'plantilla' | 'muestra' | 'invitaci
 function fold(text: string): string {
   return text.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()
 }
+
+/** Lo escrito al confirmar: acepta la dirección sola o el enlace completo. */
+export function confirmSlug(typed: string): string {
+  const clean = typed.trim().split(/[?#]/)[0].replace(/\/+$/, '')
+  return clean.slice(clean.lastIndexOf('/') + 1)
+}

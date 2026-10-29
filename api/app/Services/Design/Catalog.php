@@ -463,10 +463,10 @@ final class Catalog
         'fecha' => [
             'type' => 'save-the-date', 'label' => 'Fecha', 'icon' => 'calendar-days',
             'description' => 'La fecha grande, el calendario del mes y "Agregar a mi calendario".',
-            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Save the date', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'boleto', 'label' => 'Boleto de Broadway'], ['value' => 'calendario', 'label' => 'Calendario en un sobre'], ['value' => 'editorial', 'label' => 'Tarjeta editorial (número grande y filetes)']]]],
+            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Save the date', 'max_length' => 60], ['key' => 'texto', 'label' => 'Texto del talón (diseño Boleto)', 'input' => 'text', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'boleto', 'label' => 'Boleto de Broadway'], ['value' => 'calendario', 'label' => 'Calendario en un sobre'], ['value' => 'editorial', 'label' => 'Tarjeta editorial (número grande y filetes)']]]],
             'linked' => ['inicia', 'zona_horaria'],
             'slots' => ['destellos'],
-            'texts' => ['titulo' => 'Título', 'fecha' => ['block' => 'date', 'label' => 'Fecha grande'], 'calendario' => ['block' => 'calendar', 'label' => 'Calendario']],
+            'texts' => ['titulo' => 'Título', 'texto' => 'Talón del boleto', 'fecha' => ['block' => 'date', 'label' => 'Fecha grande'], 'calendario' => ['block' => 'calendar', 'label' => 'Calendario']],
         ],
         'foto' => [
             'type' => 'photo-arch', 'label' => 'Foto', 'icon' => 'camera', 'repeatable' => true,

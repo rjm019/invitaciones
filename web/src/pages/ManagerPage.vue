@@ -16,6 +16,7 @@ import { useManagerSession } from '@/composables/useManagerSession'
 import { usePolling } from '@/composables/usePolling'
 import { useToasts } from '@/composables/useToasts'
 import {
+  confirmSlug,
   groupByTab,
   kindOf,
   needsConfirmation,
@@ -62,7 +63,9 @@ const deleting = ref(false)
 const typed = ref('')
 const deleteKind = computed(() => (toDelete.value ? kindOf(toDelete.value) : 'invitación'))
 const mustType = computed(() => !!toDelete.value && needsConfirmation(toDelete.value))
-const canConfirm = computed(() => !mustType.value || typed.value.trim() === toDelete.value?.slug)
+const canConfirm = computed(
+  () => !mustType.value || confirmSlug(typed.value) === toDelete.value?.slug,
+)
 
 function askDelete(event: ManagerEvent): void {
   typed.value = ''
@@ -76,7 +79,11 @@ async function deleteEvent(): Promise<void> {
   deleting.value = true
   try {
     await withSession((t) =>
-      managerService.deleteEvent(t, target.slug, mustType.value ? typed.value.trim() : undefined),
+      managerService.deleteEvent(
+        t,
+        target.slug,
+        mustType.value ? confirmSlug(typed.value) : undefined,
+      ),
     )
     events.value = events.value.filter((e) => e.slug !== target.slug)
     toast(`Se eliminó la ${kind} «${target.title}».`)
@@ -363,7 +370,7 @@ watch(authenticated, (on) => {
           En el servidor queda una copia completa en la papelera, por si hace falta recuperarla.
         </p>
         <label v-if="mustType" class="home__type-confirm">
-          Para confirmar, escribe su dirección: <code>{{ toDelete.slug }}</code>
+          Para confirmar, escribe su dirección (o pega su enlace): <code>{{ toDelete.slug }}</code>
           <input
             v-model="typed"
             type="text"

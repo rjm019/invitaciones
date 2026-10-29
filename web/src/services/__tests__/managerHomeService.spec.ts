@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { groupByTab, kindOf, needsConfirmation, searchEvents, tabOf } from '../managerHomeService'
+import { confirmSlug, groupByTab, kindOf, needsConfirmation, searchEvents, tabOf } from '../managerHomeService'
 import type { ManagerEvent } from '@/types/design'
 
 function ev(over: Partial<ManagerEvent>): ManagerEvent {
@@ -71,5 +71,13 @@ describe('managerHomeService', () => {
     expect(kindOf(ev({}))).toBe('invitación')
     expect(kindOf(ev({ template: true }))).toBe('plantilla')
     expect(kindOf(ev({ demo: true }))).toBe('muestra')
+  })
+})
+
+describe('confirmSlug', () => {
+  it('acepta la dirección sola o el enlace completo', () => {
+    expect(confirmSlug(' xv-samantha ')).toBe('xv-samantha')
+    expect(confirmSlug('https://invitaciones-jiro.fly.dev/e/xv-samantha/')).toBe('xv-samantha')
+    expect(confirmSlug('https://x.dev/e/xv-samantha?utm=1')).toBe('xv-samantha')
   })
 })
