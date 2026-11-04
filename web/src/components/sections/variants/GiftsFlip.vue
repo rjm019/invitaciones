@@ -31,7 +31,8 @@ const stores = computed(() =>
     numberLabel: storeNumberLabel(store),
   })),
 )
-const envelope = computed(() => event.value.gifts?.envelope ?? event.value.envelope ?? null)
+// Solo la tarjeta de transferencia de la propia mesa: la lluvia de sobres es otra sección y no se repite aquí.
+const envelope = computed(() => event.value.gifts?.envelope ?? null)
 const uid = `gf-${props.section.id}`
 
 const open = reactive<Record<string, boolean>>({})
