@@ -869,13 +869,15 @@ final class InvitationConfigBuilder
         return $out;
     }
 
-    /** Rangos del lienzo: campo → [mínimo, máximo, clave en el config]. x, y y ancho van en % del ancho de la sección. */
+    /** Rangos del lienzo: campo → [mínimo, máximo, clave en el config]. x, y, ancho y alto van en % del ancho de la sección. */
     private const CANVAS_RANGES = [
         'x' => [-100, 200, 'x'],
         'y' => [-200, 2000, 'y'],
         'ancho' => [1, 300, 'width'],
+        'alto' => [1, 600, 'height'],
         'rotacion' => [-360, 360, 'rotation'],
         'escala' => [0.1, 5, 'scale'],
+        'escala_y' => [0.1, 5, 'scale_y'],
         'opacidad' => [0, 100, 'opacity'],
     ];
 
@@ -930,7 +932,7 @@ final class InvitationConfigBuilder
                     $entry[$key] = $value;
                 }
             }
-            foreach (['voltear_h' => 'flip_h', 'voltear_v' => 'flip_v', 'bloqueado' => 'locked', 'oculto' => 'hidden'] as $field => $key) {
+            foreach (['voltear_h' => 'flip_h', 'voltear_v' => 'flip_v', 'bloqueado' => 'locked', 'oculto' => 'hidden', 'eliminado' => 'removed'] as $field => $key) {
                 $flag = $this->canvasFlag($id, $where($field), $element[$field] ?? '');
                 if ($flag !== null) {
                     $entry[$key] = $flag;
@@ -955,6 +957,10 @@ final class InvitationConfigBuilder
             $hidden = $this->canvasFlag($id, $where('e_oculto'), $element['e_oculto'] ?? '');
             if ($hidden !== null) {
                 $desktop['hidden'] = $hidden;
+            }
+            $removed = $this->canvasFlag($id, $where('e_eliminado'), $element['e_eliminado'] ?? '');
+            if ($removed !== null) {
+                $desktop['removed'] = $removed;
             }
             if ($desktop !== []) {
                 $entry['desktop'] = $desktop;

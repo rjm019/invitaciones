@@ -184,4 +184,87 @@ describe('useSectionCanvas', () => {
     expect(first.style.getPropertyValue('translate')).toBe('100px 0px')
     wrapper.unmount()
   })
+
+  it('una capa da z-index y position: relative al bloque estático, sin tocar a los absolute', async () => {
+    canvas.value = [
+      { id: 'lienzo-1', target: 'texto:title:0', layer: 3 },
+      { id: 'lienzo-2', target: 'imagen:0', layer: 2 },
+    ]
+    const wrapper = mount(Section, { attachTo: document.body })
+    const img = wrapper.find('img').element
+    img.style.position = 'absolute'
+    measure(400)
+    await nextTick()
+    const first = wrapper.findAll('h2')[0].element
+    expect(first.style.zIndex).toBe('3')
+    expect(first.style.position).toBe('relative')
+    expect(img.style.zIndex).toBe('2')
+    expect(img.style.position).toBe('absolute')
+
+    canvas.value = undefined
+    await nextTick()
+    expect(first.style.zIndex).toBe('')
+    expect(first.style.position).toBe('')
+    expect(img.style.position).toBe('absolute')
+    wrapper.unmount()
+  })
+
+  it('sube el z-index también a cada ancestro que forme un contexto de apilamiento y lo restaura', async () => {
+    const Nested = defineComponent({
+      setup() {
+        const root = ref<HTMLElement | null>(null)
+        useSectionCanvas(root, canvas)
+        return () =>
+          h('section', { ref: root }, [
+            h('div', { class: 'section__content' }, [
+              h('div', { class: 'card', style: { opacity: '0.9', zIndex: '1', position: 'relative' } }, [
+                h('div', { class: 'plain' }, [h('h2', { 'data-text': 'title' }, 'Anidado')]),
+              ]),
+            ]),
+          ])
+      },
+    })
+    canvas.value = [{ id: 'lienzo-1', target: 'texto:title:0', layer: 5 }]
+    const wrapper = mount(Nested, { attachTo: document.body })
+    measure(400)
+    await nextTick()
+    const card = wrapper.find('.card').element as HTMLElement
+    expect(card.style.zIndex).toBe('5')
+    expect((wrapper.find('.plain').element as HTMLElement).style.zIndex).toBe('')
+    expect((wrapper.find('.section__content').element as HTMLElement).style.zIndex).toBe('')
+
+    canvas.value = undefined
+    await nextTick()
+    expect(card.style.zIndex).toBe('1')
+    expect(card.style.position).toBe('relative')
+    wrapper.unmount()
+  })
+
+  it('un bloque quitado es display: none, no choca con inline-block y se restaura', async () => {
+    vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener() {}, removeEventListener() {} }))
+    const real = window.getComputedStyle
+    vi.spyOn(window, 'getComputedStyle').mockImplementation((el, pseudo) =>
+      el.tagName === 'SPAN' ? ({ display: 'inline' } as CSSStyleDeclaration) : real(el, pseudo),
+    )
+    canvas.value = [
+      { id: 'lienzo-1', target: 'texto:time:0', x: 5, removed: true },
+      { id: 'lienzo-2', target: 'texto:title:0', desktop: { removed: true } },
+    ]
+    const wrapper = mount(Section, { attachTo: document.body })
+    measure(200)
+    await nextTick()
+    const time = wrapper.find('span').element
+    expect(time.style.display).toBe('none')
+    expect(time.style.getPropertyValue('translate')).toBe('')
+    expect(wrapper.findAll('h2')[0].element.style.display).toBe('')
+
+    canvas.value = [{ id: 'lienzo-1', target: 'texto:time:0', x: 5 }]
+    await nextTick()
+    expect(time.style.display).toBe('inline-block')
+    canvas.value = undefined
+    await nextTick()
+    expect(time.style.display).toBe('')
+    wrapper.unmount()
+    vi.restoreAllMocks()
+  })
 })

@@ -519,4 +519,34 @@ class InvitationConfigBuilderTest extends TestCase
         $this->assertSame(['id' => 'lienzo-1', 'target' => 'texto:title:0'], $result->config['sections'][0]['canvas'][0]);
         $this->assertCount(1, $result->config['sections'][0]['canvas']);
     }
+
+    public function test_the_canvas_carries_height_vertical_scale_and_removal(): void
+    {
+        $design = $this->minimal([new DesignSection('fecha', [], canvas: [
+            ['tipo' => 'imagen', 'imagen' => 'salon.webp', 'ancho' => '40', 'alto' => '25,5', 'e_alto' => '30'],
+            ['objetivo' => 'texto:title:0', 'escala' => '1.5', 'escala_y' => '0.8', 'e_escala_y' => '1', 'eliminado' => 'NO', 'e_eliminado' => 'SI'],
+            ['objetivo' => 'imagen:0', 'eliminado' => 'SI'],
+        ])]);
+        $result = $this->build($design);
+        $canvas = $result->config['sections'][0]['canvas'];
+
+        $this->assertSame([], $result->errors());
+        $this->assertSame(25.5, $canvas[0]['height']);
+        $this->assertSame(['height' => 30.0], $canvas[0]['desktop']);
+        $this->assertSame(0.8, $canvas[1]['scale_y']);
+        $this->assertFalse($canvas[1]['removed']);
+        $this->assertSame(['scale_y' => 1.0, 'removed' => true], $canvas[1]['desktop']);
+        $this->assertTrue($canvas[2]['removed']);
+    }
+
+    public function test_height_and_vertical_scale_are_validated(): void
+    {
+        $design = $this->minimal([new DesignSection('fecha', [], canvas: [
+            ['objetivo' => 'texto:title:0', 'alto' => '700', 'escala_y' => '9', 'eliminado' => 'quizá'],
+        ])]);
+        $result = $this->build($design, lenient: true);
+
+        $this->assertCount(3, $result->errors());
+        $this->assertSame(['id' => 'lienzo-1', 'target' => 'texto:title:0'], $result->config['sections'][0]['canvas'][0]);
+    }
 }

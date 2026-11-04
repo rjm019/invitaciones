@@ -40,10 +40,13 @@ describe('canvasService', () => {
       x: 10,
       y: 5,
       width: null,
+      height: null,
       rotation: 15,
       scale: 1,
+      scaleY: null,
       opacity: 80,
       hidden: false,
+      removed: false,
       flipH: true,
       flipV: false,
       layer: 2,
@@ -166,5 +169,24 @@ describe('canvasService', () => {
     // Sin ancho propio, cada tipo trae el suyo.
     expect(freeVars({ id: 'a', kind: 'image' }, false)['--cv-w']).toBe('30')
     expect(freeVars({ id: 'a', kind: 'text' }, false)['--cv-w']).toBe('50')
+  })
+
+  it('el alto y la escala vertical se resuelven, y quitado solo deja display: none', () => {
+    const el: CanvasElement = { id: 'lienzo-1', target: 'imagen:0', scale: 1.5, scale_y: 0.8, desktop: { scale_y: 1, removed: true } }
+    expect(resolveCanvas(el, false)).toMatchObject({ scale: 1.5, scaleY: 0.8, removed: false })
+    expect(resolveCanvas(el, true)).toMatchObject({ scaleY: 1, removed: true })
+    expect(existingStyle(resolveCanvas(el, false), 400).scale).toBe('1.5 0.8')
+    expect(existingStyle({ ...resolveCanvas(el, false), flipV: true }, 400).scale).toBe('1.5 -0.8')
+    expect(existingStyle(resolveCanvas({ id: 'a', target: 'imagen:0', scale: 2 }, false), 400).scale).toBe('2 2')
+    expect(existingStyle(resolveCanvas(el, true), 400)).toEqual({ display: 'none' })
+  })
+
+  it('el alto solo viaja en imagen y forma libres (no en texto ni en línea)', () => {
+    const vars = (element: CanvasElement) => freeVars({ ...element, height: 12 }, false)
+    expect(vars({ id: 'a', kind: 'image', image: 'a.webp' })['--cv-h']).toBe('12')
+    expect(vars({ id: 'b', kind: 'shape', shape: 'rectangle' })['--cv-h']).toBe('12')
+    expect(vars({ id: 'c', kind: 'shape', shape: 'line' })['--cv-h']).toBeUndefined()
+    expect(vars({ id: 'd', kind: 'text', text: 'x' })['--cv-h']).toBeUndefined()
+    expect(freeVars({ id: 'e', kind: 'image', image: 'a.webp' }, false)['--cv-h']).toBeUndefined()
   })
 })

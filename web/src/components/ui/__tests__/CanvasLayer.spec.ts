@@ -76,4 +76,15 @@ describe('CanvasLayer', () => {
         .classes(),
     ).not.toContain('canvas-el--outlined')
   })
+
+  it('con alto propio marca el elemento y escribe --cv-h; sin él, conserva su proporción', () => {
+    const wrapper = render([
+      { id: 'lienzo-1', kind: 'image', image: 'a.webp', width: 40, height: 20 },
+      { id: 'lienzo-2', kind: 'image', image: 'b.webp', width: 40 },
+    ])
+    const sized = wrapper.find('[data-canvas-id="lienzo-1"]')
+    expect(sized.attributes('data-sized')).toBe('')
+    expect(sized.attributes('style')).toContain('--cv-h: 20')
+    expect(wrapper.find('[data-canvas-id="lienzo-2"]').attributes('data-sized')).toBeUndefined()
+  })
 })

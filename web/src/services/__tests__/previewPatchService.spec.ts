@@ -269,6 +269,29 @@ describe('previewPatchService', () => {
     expect(canvas[3]).toMatchObject({ kind: 'shape', shape: 'circle', color: 'accent' })
   })
 
+  it('el alto, la escala vertical y eliminado salen como en InvitationConfigBuilder (mismos datos que su prueba)', () => {
+    const canvas = sectionCanvas(catalog, {
+      id: 'fecha',
+      fields: {},
+      items: [],
+      canvas: [
+        { tipo: 'imagen', imagen: 'salon.webp', ancho: '40', alto: '25,5', e_alto: '30' },
+        { objetivo: 'texto:title:0', escala: '1.5', escala_y: '0.8', e_escala_y: '1', eliminado: 'NO', e_eliminado: 'SI' },
+        { objetivo: 'imagen:0', eliminado: 'SI' },
+      ],
+    })
+    expect(canvas[0]).toMatchObject({ height: 25.5, desktop: { height: 30 } })
+    expect(canvas[1]).toMatchObject({ scale_y: 0.8, removed: false, desktop: { scale_y: 1, removed: true } })
+    expect(canvas[2]).toMatchObject({ removed: true })
+    const bad = sectionCanvas(catalog, {
+      id: 'fecha',
+      fields: {},
+      items: [],
+      canvas: [{ objetivo: 'texto:title:0', alto: '700', escala_y: '9', eliminado: 'quizá' }],
+    })
+    expect(bad).toEqual([{ id: 'lienzo-1', target: 'texto:title:0' }])
+  })
+
   it('un valor del lienzo fuera de rango se omite y el elemento sin objetivo ni tipo no pasa', () => {
     const canvas = sectionCanvas(catalog, {
       id: 'fecha',

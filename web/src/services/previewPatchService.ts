@@ -149,8 +149,10 @@ const CANVAS_RANGES: Record<string, [string, number, number]> = {
   x: ['x', -100, 200],
   y: ['y', -200, 2000],
   ancho: ['width', 1, 300],
+  alto: ['height', 1, 600],
   rotacion: ['rotation', -360, 360],
   escala: ['scale', 0.1, 5],
+  escala_y: ['scale_y', 0.1, 5],
   opacidad: ['opacity', 0, 100],
 }
 const CANVAS_KINDS = { texto: 'text', imagen: 'image', forma: 'shape' } as const
@@ -210,6 +212,7 @@ export function sectionCanvas(catalog: Catalog, section: DesignSection): CanvasE
       ['voltear_v', 'flip_v'],
       ['bloqueado', 'locked'],
       ['oculto', 'hidden'],
+      ['eliminado', 'removed'],
     ] as const) {
       const flag = canvasFlag(row[field])
       if (flag !== null) values[key] = flag
@@ -224,6 +227,8 @@ export function sectionCanvas(catalog: Catalog, section: DesignSection): CanvasE
     }
     const hidden = canvasFlag(row.e_oculto)
     if (hidden !== null) desktop.hidden = hidden
+    const removed = canvasFlag(row.e_eliminado)
+    if (removed !== null) desktop.removed = removed
     if (Object.keys(desktop).length) entry.desktop = desktop as CanvasValues
     out.push(entry)
   })

@@ -179,6 +179,8 @@ class DraftTest extends TestCase
         $design['sections'][3]['canvas'] = [
             ['objetivo' => 'texto:title:0', 'x' => '12.5', 'rotacion' => '-10', 'e_x' => '30'],
             ['tipo' => 'forma', 'forma' => 'linea', 'color' => '#FFFFFF', 'y' => '40', 'bloqueado' => 'SI'],
+            ['objetivo' => 'imagen:0', 'escala' => '1.2', 'escala_y' => '0.9', 'eliminado' => 'SI', 'e_eliminado' => 'NO'],
+            ['tipo' => 'forma', 'forma' => 'rectangulo', 'ancho' => '40', 'alto' => '12'],
         ];
 
         $saved = $this->putJson('/api/manager/events/nueva/draft', ['design' => $design, 'version' => $editor['version']])->assertOk()->json();
@@ -186,6 +188,9 @@ class DraftTest extends TestCase
         $this->assertSame('texto:title:0', $saved['config']['sections'][3]['canvas'][0]['target']);
         $this->assertEquals(['x' => 30], $saved['config']['sections'][3]['canvas'][0]['desktop']);
         $this->assertSame('line', $saved['config']['sections'][3]['canvas'][1]['shape']);
+        $this->assertSame(0.9, $saved['config']['sections'][3]['canvas'][2]['scale_y']);
+        $this->assertTrue($saved['config']['sections'][3]['canvas'][2]['removed']);
+        $this->assertSame(12, (int) $saved['config']['sections'][3]['canvas'][3]['height']);
         $this->assertStringContainsString('itinerario,lienzo-2,forma,linea', file_get_contents("{$this->eventos}/nueva/borrador/invitacion.csv"));
         $again = $this->editor();
         $this->assertEquals($design['sections'][3]['canvas'], $again['design']['sections'][3]['canvas']);

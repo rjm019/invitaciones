@@ -72,16 +72,40 @@ export function useCanvasDesktop(): Ref<boolean> {
 }
 
 interface Applied {
-  props: string[]
-  display: string | null
+  /** Lo que había escrito en línea antes (propiedad → valor; '' = nada): es lo que se restaura. */
+  saved: Map<string, string>
+}
+
+/** ¿Este elemento forma su propio contexto de apilamiento? (atrapa el z-index de sus hijos) */
+export function formsStackingContext(el: Element): boolean {
+  const cs = getComputedStyle(el)
+  const positioned = !!cs.position && cs.position !== 'static'
+  if (cs.position === 'fixed' || cs.position === 'sticky') return true
+  if (positioned && cs.zIndex !== 'auto') return true
+  if (cs.opacity !== '' && Number(cs.opacity) < 1) return true
+  for (const prop of ['transform', 'translate', 'rotate', 'scale', 'filter', 'backdropFilter', 'perspective', 'clipPath', 'maskImage']) {
+    const value = (cs as unknown as Record<string, string | undefined>)[prop]
+    if (value && value !== 'none') return true
+  }
+  if (cs.mixBlendMode && cs.mixBlendMode !== 'normal') return true
+  if (cs.isolation === 'isolate') return true
+  if (/opacity|transform|filter|translate|rotate|scale/.test(cs.willChange)) return true
+  if (/paint|layout|strict|content/.test(cs.contain)) return true
+  if (cs.containerType && cs.containerType !== 'normal') return true
+  const parent = el.parentElement ? getComputedStyle(el.parentElement).display : ''
+  return /flex|grid/.test(parent) && cs.zIndex !== 'auto'
 }
 
 /**
  * Aplica el lienzo a los bloques que la sección ya pinta: `translate`, `rotate`, `scale`,
  * `opacity` y `visibility` en línea (propiedades individuales, nunca `transform`, que es de
  * los efectos; tampoco mueven el flujo). Un `span` en línea pasa a `inline-block` para que le
- * hagan caso. Reaplica si Vue vuelve a pintar (MutationObserver) o cambia el ancho, y lo
- * deja todo como estaba al desmontar. Sin elementos con `objetivo`, no observa nada.
+ * hagan caso; un elemento quitado (`removed`) es `display: none` y libera su espacio. Con una
+ * `capa` distinta de 0 el bloque recibe `z-index` (y `position: relative` si era estático) y,
+ * como un contexto de apilamiento atrapa a sus hijos, cada ancestro que lo forme, hasta
+ * `.section__content`, recibe el mismo `z-index`. Reaplica si Vue vuelve a pintar
+ * (MutationObserver) o cambia el ancho, y lo deja todo como estaba al desmontar. Sin
+ * elementos con `objetivo`, no observa nada.
  */
 export function useSectionCanvas(
   root: Ref<HTMLElement | null>,
@@ -90,20 +114,44 @@ export function useSectionCanvas(
   const desktop = useCanvasDesktop()
   const width = ref(0)
   const applied = new Map<HTMLElement, Applied>()
+  /** Los bloques acomodados (no sus ancestros): sus cambios de estilo sí piden reaplicar. */
+  const watched = new Set<HTMLElement>()
   let resize: ResizeObserver | undefined
   let mutations: MutationObserver | undefined
   let frame = 0
 
   const content = () => root.value?.querySelector<HTMLElement>('.section__content') ?? null
 
+  /** Escribe una propiedad en línea guardando lo que había, para devolverlo en `release`. */
+  function write(el: HTMLElement, prop: string, value: string): void {
+    let state = applied.get(el)
+    if (!state) applied.set(el, (state = { saved: new Map() }))
+    if (!state.saved.has(prop)) state.saved.set(prop, el.style.getPropertyValue(prop))
+    el.style.setProperty(prop, value)
+  }
+
   function release(el: HTMLElement, state: Applied): void {
-    for (const prop of state.props) el.style.removeProperty(prop)
-    if (state.display !== null) el.style.display = state.display
+    for (const [prop, before] of state.saved) {
+      if (before === '') el.style.removeProperty(prop)
+      else el.style.setProperty(prop, before)
+    }
   }
 
   function clear(): void {
     for (const [el, state] of applied) release(el, state)
     applied.clear()
+    watched.clear()
+  }
+
+  /** Sube `layer` al bloque y a cada ancestro que forme contexto, hasta `.section__content`. */
+  function raise(el: HTMLElement, layer: number, stops: HTMLElement | null, chain: Map<HTMLElement, number>): void {
+    const own = chain.get(el)
+    chain.set(el, own === undefined ? layer : Math.max(own, layer))
+    for (let up = el.parentElement; up && up !== stops && up !== root.value; up = up.parentElement) {
+      if (!formsStackingContext(up)) continue
+      const seen = chain.get(up)
+      chain.set(up, seen === undefined ? layer : Math.max(seen, layer))
+    }
   }
 
   function apply(): void {
@@ -116,17 +164,29 @@ export function useSectionCanvas(
     clear()
     if (elements.length && width.value > 0) {
       const targets = listCanvasTargets(section)
+      const stops = content()
+      const layers = new Map<HTMLElement, number>()
       for (const element of elements) {
         const found = targets.find((t) => t.target === element.target)
         if (!found) continue
-        const style = existingStyle(resolveCanvas(element, desktop.value), width.value)
-        const state: Applied = { props: Object.keys(style), display: null }
-        if (state.props.length && getComputedStyle(found.el).display === 'inline') {
-          state.display = found.el.style.display
-          found.el.style.display = 'inline-block'
+        const resolved = resolveCanvas(element, desktop.value)
+        const style = existingStyle(resolved, width.value)
+        if (
+          !resolved.removed &&
+          Object.keys(style).length &&
+          getComputedStyle(found.el).display === 'inline'
+        ) {
+          write(found.el, 'display', 'inline-block')
         }
-        for (const [prop, value] of Object.entries(style)) found.el.style.setProperty(prop, value)
-        applied.set(found.el, state)
+        for (const [prop, value] of Object.entries(style)) write(found.el, prop, value)
+        watched.add(found.el)
+        if (resolved.layer !== 0 && !resolved.removed) raise(found.el, resolved.layer, stops, layers)
+      }
+      for (const [el, layer] of layers) {
+        const cs = getComputedStyle(el)
+        const parentDisplay = el.parentElement ? getComputedStyle(el.parentElement).display : ''
+        if ((!cs.position || cs.position === 'static') && !/flex|grid/.test(parentDisplay)) write(el, 'position', 'relative')
+        write(el, 'z-index', String(layer))
       }
     }
     observe()
@@ -142,7 +202,7 @@ export function useSectionCanvas(
     mutations ??= new MutationObserver((records) => {
       // Un cambio de estilo ajeno (efectos, parallax) no pide nada; Vue al repintar sí.
       const relevant = records.some(
-        (r) => r.type === 'childList' || (r.target instanceof HTMLElement && applied.has(r.target)),
+        (r) => r.type === 'childList' || (r.target instanceof HTMLElement && watched.has(r.target)),
       )
       if (relevant && !canvasPaused.value) schedule()
     })

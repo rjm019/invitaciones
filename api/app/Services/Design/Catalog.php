@@ -888,8 +888,9 @@ final class Catalog
      */
     public const CANVAS_FIELDS = [
         'objetivo', 'tipo', 'forma', 'texto', 'imagen', 'color', 'letra', 'tamano', 'alineacion', 'borde', 'radio',
-        'x', 'y', 'ancho', 'rotacion', 'escala', 'voltear_h', 'voltear_v', 'opacidad', 'capa', 'bloqueado', 'oculto',
-        'e_x', 'e_y', 'e_ancho', 'e_rotacion', 'e_escala', 'e_opacidad', 'e_oculto',
+        'x', 'y', 'ancho', 'alto', 'rotacion', 'escala', 'escala_y', 'voltear_h', 'voltear_v', 'opacidad', 'capa', 'bloqueado',
+        'oculto', 'eliminado',
+        'e_x', 'e_y', 'e_ancho', 'e_alto', 'e_rotacion', 'e_escala', 'e_escala_y', 'e_opacidad', 'e_oculto', 'e_eliminado',
     ];
 
     /** Una sección conocida, o null. */

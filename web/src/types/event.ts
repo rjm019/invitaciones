@@ -148,13 +148,19 @@ export interface CanvasValues {
   x?: number
   y?: number
   width?: number
+  /** Alto en % del ancho del contenedor (imagen y forma libres); sin él, conserva su proporción. */
+  height?: number
   /** Grados (-360 a 360). */
   rotation?: number
   /** 0.1 a 5. */
   scale?: number
+  /** Escala vertical de un elemento que ya existe; sin ella, igual a `scale`. */
+  scale_y?: number
   /** 0 a 100. */
   opacity?: number
   hidden?: boolean
+  /** Elemento que ya existe, quitado (display: none): libera su espacio. */
+  removed?: boolean
 }
 
 /**

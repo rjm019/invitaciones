@@ -19,11 +19,15 @@ const desktop = useCanvasDesktop()
 const items = computed(() =>
   freeElements(props.elements)
     .filter((element) => !resolveCanvas(element, desktop.value).hidden)
-    .map((element) => ({
-      element,
-      style: freeVars(element, desktop.value),
-      image: element.kind === 'image' && element.image ? resolveAsset.value(element.image) : null,
-    })),
+    .map((element) => {
+      const style = freeVars(element, desktop.value)
+      return {
+        element,
+        style,
+        sized: '--cv-h' in style,
+        image: element.kind === 'image' && element.image ? resolveAsset.value(element.image) : null,
+      }
+    }),
 )
 </script>
 
@@ -41,6 +45,7 @@ const items = computed(() =>
             'canvas-el--outlined',
         ]"
         :data-canvas-id="item.element.id"
+        :data-sized="item.sized ? '' : undefined"
         :style="item.style"
       >
         <template v-if="item.element.kind === 'text'">{{ item.element.text }}</template>
@@ -56,7 +61,8 @@ const items = computed(() =>
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 1;
+  /* Sin z-index: no forma un contexto de apilamiento, así que lo agregado y los textos e
+     imágenes de la sección comparten el orden de las capas dentro de .section__content. */
 }
 /*
  * Las variables (--cv-*) vienen de canvasService.freeVars. Posición y medidas en cqw: % del
@@ -95,6 +101,15 @@ const items = computed(() =>
   background: var(--cv-color, var(--color-accent));
 }
 /* Con borde, solo el contorno (en la línea, el borde es su grosor). */
+/* Con alto propio (se estiró): la medida manda y la imagen se rellena (fill). */
+.canvas-el[data-sized] {
+  height: calc(var(--cv-h) * 1cqw);
+  aspect-ratio: auto;
+}
+.canvas-el--image[data-sized] img {
+  height: 100%;
+  object-fit: fill;
+}
 .canvas-el--outlined {
   background: transparent;
   border: var(--cv-border) solid var(--cv-color, var(--color-accent));

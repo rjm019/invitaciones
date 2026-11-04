@@ -22,11 +22,17 @@ export interface ResolvedCanvas {
   y: number
   /** null = el elemento usa su ancho natural (o el que le da el servicio para los libres). */
   width: number | null
+  /** % del ancho del contenedor (imagen y forma libres); null = conserva su proporción. */
+  height: number | null
   rotation: number
   scale: number
+  /** Escala vertical de un elemento que ya existe; null = igual a `scale`. */
+  scaleY: number | null
   /** 0 a 100; null = sin tocar. */
   opacity: number | null
   hidden: boolean
+  /** Elemento que ya existe, quitado (display: none): libera su espacio. */
+  removed: boolean
   flipH: boolean
   flipV: boolean
   layer: number
@@ -56,10 +62,13 @@ export function resolveCanvas(element: CanvasElement, desktop: boolean): Resolve
     x: pick('x') ?? 0,
     y: pick('y') ?? 0,
     width: pick('width') ?? null,
+    height: pick('height') ?? null,
     rotation: pick('rotation') ?? 0,
     scale: pick('scale') ?? 1,
+    scaleY: pick('scale_y') ?? null,
     opacity: pick('opacity') ?? null,
     hidden: pick('hidden') ?? false,
+    removed: pick('removed') ?? false,
     flipH: element.flip_h ?? false,
     flipV: element.flip_v ?? false,
     layer: element.layer ?? 0,
@@ -75,17 +84,20 @@ export function percentToPx(percent: number, containerWidth: number): number {
 
 /**
  * Propiedades CSS individuales (translate, rotate, scale, opacity, visibility) de un elemento
- * que ya existe. Nunca `transform`: es de los efectos. Solo salen las que cambian algo.
+ * que ya existe (`scale` lleva la horizontal y la vertical; quitado = solo `display: none`). Nunca `transform`: es de los efectos. Solo salen las que cambian algo.
  * Sin ancho medido (0) no hay con qué convertir el desplazamiento y no se mueve.
  */
 export function existingStyle(r: ResolvedCanvas, containerWidth: number): Record<string, string> {
+  // Quitado: ya no ocupa lugar (display: none); nada más importa.
+  if (r.removed) return { display: 'none' }
   const out: Record<string, string> = {}
   const dx = percentToPx(r.x, containerWidth)
   const dy = percentToPx(r.y, containerWidth)
   if (dx !== 0 || dy !== 0) out.translate = `${dx}px ${dy}px`
   if (r.rotation !== 0) out.rotate = `${r.rotation}deg`
-  if (r.scale !== 1 || r.flipH || r.flipV) {
-    out.scale = `${r.flipH ? -r.scale : r.scale} ${r.flipV ? -r.scale : r.scale}`
+  const scaleY = r.scaleY ?? r.scale
+  if (r.scale !== 1 || scaleY !== 1 || r.flipH || r.flipV) {
+    out.scale = `${r.flipH ? -r.scale : r.scale} ${r.flipV ? -scaleY : scaleY}`
   }
   if (r.opacity !== null) out.opacity = String(round(r.opacity / 100))
   if (r.hidden) out.visibility = 'hidden'
@@ -120,6 +132,11 @@ export function hasCanvas(canvas: CanvasElement[] | undefined): boolean {
 /** Ancho que toma un elemento libre si no trae el suyo (% del contenedor). */
 const FREE_WIDTH = { text: 50, image: 30, shape: 30 } as const
 
+/** ¿Un elemento libre admite alto propio? Imagen y forma (menos la línea: su alto es su grosor). */
+export function hasFreeHeight(element: CanvasElement): boolean {
+  return element.kind === 'image' || (element.kind === 'shape' && element.shape !== 'line')
+}
+
 /**
  * Variables CSS de un elemento libre (las lee CanvasLayer.vue): la posición y el ancho en
  * % del ancho del contenedor, el giro, la escala con volteo, la opacidad y su aspecto.
@@ -135,6 +152,7 @@ export function freeVars(element: CanvasElement, desktop: boolean): Record<strin
     '--cv-scale-y': String(r.flipV ? -r.scale : r.scale),
     '--cv-layer': String(r.layer),
   }
+  if (r.height !== null && hasFreeHeight(element)) vars['--cv-h'] = String(r.height)
   if (r.opacity !== null) vars['--cv-opacity'] = String(round(r.opacity / 100))
   if (element.size !== undefined) vars['--cv-size'] = String(element.size)
   if (element.radius !== undefined) vars['--cv-radius'] = `${element.radius}%`
