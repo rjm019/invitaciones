@@ -278,6 +278,17 @@ class InvitationConfigBuilderTest extends TestCase
         $this->assertArrayNotHasKey('sheet', $plain->config['sections'][0]);
     }
 
+    public function test_a_layer_can_drop_its_shadow(): void
+    {
+        $plain = $this->build($this->minimal([new DesignSection('capa', ['imagen' => 'salon.webp', 'sin_oscurecer' => 'SI'])]));
+        $this->assertSame([], $plain->warnings());
+        $this->assertTrue($plain->config['sections'][0]['plain']);
+
+        // Sin el campo, la sección no cambia.
+        $shaded = $this->build($this->minimal([new DesignSection('capa', ['imagen' => 'salon.webp'])]));
+        $this->assertArrayNotHasKey('plain', $shaded->config['sections'][0]);
+    }
+
     public function test_the_safe_zone_is_validated(): void
     {
         $result = $this->build($this->minimal([new DesignSection('lluvia_sobres', [

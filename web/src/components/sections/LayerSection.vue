@@ -15,7 +15,7 @@ const windows = computed(() => Math.max(1, props.section.layers?.length ?? 0))
 </script>
 
 <template>
-  <div class="layer" :class="`layer--${section.variant ?? 'media'}`">
+  <div class="layer" :class="[`layer--${section.variant ?? 'media'}`, { 'layer--plain': section.plain }]">
     <div v-for="i in windows" :key="i" class="layer__window">
       <template v-if="i === 1">
         <h2 v-if="section.title" class="layer__title" data-text="title"><FxText :text="section.title" :effects="section.effects" /></h2>
@@ -59,6 +59,9 @@ const windows = computed(() => Math.max(1, props.section.layers?.length ?? 0))
     rgb(0 0 0 / 0.6)
   );
   pointer-events: none;
+}
+.layer--plain .layer__window::before {
+  content: none;
 }
 .layer__window > * {
   position: relative;

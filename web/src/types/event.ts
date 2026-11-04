@@ -167,6 +167,8 @@ export interface SectionConfig {
   image?: string | null
   /** Fotos quietas, una por capa (la "capa de imagen"): las pinta SectionShell. */
   layers?: string[]
+  /** Capa de imagen sin la sombra de arriba y abajo. */
+  plain?: boolean
   /** Fotos de una galería (puede haber varias galerías, cada una con las suyas). */
   photos?: GalleryPhoto[]
   /** Video: de dónde sale y qué mostrar (el servidor ya validó el enlace). */

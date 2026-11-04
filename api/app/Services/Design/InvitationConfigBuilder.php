@@ -471,6 +471,9 @@ final class InvitationConfigBuilder
             if ($layers !== []) {
                 $entry['layers'] = $layers;
             }
+            if (Normalizer::yes($f['sin_oscurecer'] ?? 'NO')) {
+                $entry['plain'] = true;
+            }
         }
 
         // Ubicación (repetible): cada sección con sus lugares (la primera además va en `locations`).

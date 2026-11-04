@@ -572,6 +572,7 @@ final class Catalog
                 ['key' => 'titulo', 'label' => 'Título (opcional)', 'input' => 'text', 'max_length' => 60],
                 ['key' => 'texto', 'label' => 'Texto (opcional)', 'input' => 'textarea', 'max_length' => 300],
                 ['key' => 'variante', 'label' => 'Alto de cada capa', 'input' => 'select', 'options' => [['value' => 'media', 'label' => 'Media pantalla'], ['value' => 'alta', 'label' => 'Casi toda la pantalla'], ['value' => 'pantalla', 'label' => 'Pantalla completa']]],
+                ['key' => 'sin_oscurecer', 'label' => 'Quitar el oscurecido de las fotos', 'input' => 'toggle', 'help' => 'Apagado, la foto lleva una sombra arriba y abajo.'],
             ],
             'list' => ['key' => 'fotos', 'label' => 'Más capas', 'item_label' => 'Foto', 'max' => 8, 'help' => 'Cada foto es otra capa: al bajar, la siguiente pasa por encima de la anterior.', 'fields' => [
                 ['key' => 'foto', 'label' => 'Foto', 'input' => 'image', 'required' => true],
