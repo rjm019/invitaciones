@@ -223,6 +223,7 @@ final class DesignTransfer
         foreach ($design->sections as $section) {
             $section->fields = $swap($section->fields);
             $section->items = array_map($swap, $section->items);
+            $section->canvas = array_map($swap, $section->canvas);
         }
     }
 }

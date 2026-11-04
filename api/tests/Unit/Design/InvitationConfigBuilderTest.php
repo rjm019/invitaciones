@@ -470,4 +470,53 @@ class InvitationConfigBuilderTest extends TestCase
             rmdir($dir);
         }
     }
+
+    public function test_a_section_without_canvas_rows_carries_no_canvas_key(): void
+    {
+        $result = $this->build($this->fixture());
+        foreach ($result->config['sections'] as $section) {
+            $this->assertArrayNotHasKey('canvas', $section);
+        }
+    }
+
+    public function test_the_canvas_carries_existing_and_free_elements_with_their_desktop_values(): void
+    {
+        $design = $this->minimal([new DesignSection('fecha', ['titulo' => 'Hola'], canvas: [
+            ['objetivo' => 'texto:title:0', 'x' => '12,5', 'y' => '-3', 'rotacion' => '-15', 'escala' => '1.2', 'voltear_h' => 'SI', 'oculto' => 'NO', 'capa' => '2', 'e_x' => '40', 'e_oculto' => 'SI'],
+            ['tipo' => 'texto', 'texto' => 'Hola', 'letra' => 'Great Vibes', 'tamano' => '6', 'alineacion' => 'centro', 'color' => '#abcdef', 'ancho' => '50', 'opacidad' => '80'],
+            ['tipo' => 'imagen', 'imagen' => 'salon.webp', 'radio' => '10', 'borde' => '2'],
+            ['tipo' => 'forma', 'forma' => 'circulo', 'color' => 'acento'],
+        ])]);
+        $result = $this->build($design);
+        $canvas = $result->config['sections'][0]['canvas'];
+
+        $this->assertSame([], $result->errors());
+        $this->assertSame([], $result->warnings());
+        $this->assertSame([
+            'id' => 'lienzo-1', 'target' => 'texto:title:0', 'x' => 12.5, 'y' => -3.0, 'rotation' => -15.0, 'scale' => 1.2,
+            'flip_h' => true, 'hidden' => false, 'layer' => 2, 'desktop' => ['x' => 40.0, 'hidden' => true],
+        ], $canvas[0]);
+        $this->assertSame(['id' => 'lienzo-2', 'kind' => 'text', 'text' => 'Hola', 'font' => 'Great Vibes', 'size' => 6.0, 'align' => 'center', 'color' => '#ABCDEF', 'width' => 50.0, 'opacity' => 80.0], $canvas[1]);
+        $this->assertSame(['id' => 'lienzo-3', 'kind' => 'image', 'image' => 'https://ejemplo.test/media/nueva/salon.webp', 'radius' => 10.0, 'border' => 2.0], $canvas[2]);
+        $this->assertSame('circle', $canvas[3]['shape']);
+        $this->assertSame('accent', $canvas[3]['color']);
+        $this->assertSame(['Great Vibes'], $result->config['extra_fonts']);
+    }
+
+    public function test_canvas_values_are_validated_like_the_rest(): void
+    {
+        $design = $this->minimal([new DesignSection('fecha', [], canvas: [
+            ['objetivo' => 'texto:title:0', 'x' => '500', 'escala' => '0', 'opacidad' => '101', 'rotacion' => '400', 'voltear_h' => 'tal vez', 'capa' => '1.5', 'e_ancho' => '0'],
+            ['objetivo' => 'cualquiera'],
+            ['x' => '5'],
+            ['tipo' => 'texto'],
+            ['tipo' => 'forma', 'forma' => 'estrella'],
+        ])]);
+        $result = $this->build($design, lenient: true);
+
+        $this->assertCount(11, $result->errors());
+        $this->assertStringContainsString('lienzo-1 → x', $result->errors()[0]);
+        $this->assertSame(['id' => 'lienzo-1', 'target' => 'texto:title:0'], $result->config['sections'][0]['canvas'][0]);
+        $this->assertCount(1, $result->config['sections'][0]['canvas']);
+    }
 }

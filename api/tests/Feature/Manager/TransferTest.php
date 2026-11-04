@@ -126,4 +126,28 @@ class TransferTest extends TestCase
         $this->assertFileEquals("{$this->eventos}/nueva/media/salon.webp", "{$this->eventos}/por-terminal/media/salon.webp");
         $this->artisan('invitacion:validar', ['slug' => 'por-terminal'])->expectsOutputToContain('está lista')->assertSuccessful();
     }
+
+    public function test_the_canvas_survives_exporting_and_importing_csv_xlsx_and_zip(): void
+    {
+        $file = app(DesignFile::class);
+        [$design] = $file->read("{$this->eventos}/nueva/invitacion.csv");
+        $design->section('itinerario')->canvas = [
+            ['objetivo' => 'texto:title:0', 'x' => '12.5', 'e_x' => '30'],
+            ['tipo' => 'imagen', 'imagen' => 'salon.webp', 'ancho' => '40'],
+        ];
+        $file->write("{$this->eventos}/nueva/invitacion.csv", $design);
+        $expected = $design->section('itinerario')->canvas;
+        $this->newEvent('lienzo');
+
+        foreach (['csv', 'xlsx', 'zip'] as $format) {
+            $bytes = $this->asManager()->get("/api/manager/events/nueva/export?format={$format}")->assertOk()->streamedContent();
+            $path = tempnam(sys_get_temp_dir(), 'lz').'.'.$format;
+            file_put_contents($path, $bytes);
+
+            $imported = $this->import('lienzo', $path, "invitacion.{$format}")->assertOk()->json();
+
+            $this->assertEquals($expected, $imported['design']['sections'][3]['canvas'], $format);
+            @unlink($path);
+        }
+    }
 }

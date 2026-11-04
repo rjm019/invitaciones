@@ -170,4 +170,39 @@ class DraftTest extends TestCase
         $this->assertContains(['type' => 'section', 'key' => 'foto', 'change' => 'removed'], $changes);
         $this->assertContains(['type' => 'order', 'key' => null, 'change' => 'changed'], $changes);
     }
+
+    public function test_the_canvas_goes_and_comes_back_through_the_draft(): void
+    {
+        $editor = $this->editor();
+        $this->assertSame([], $editor['design']['sections'][3]['canvas']);
+        $design = $editor['design'];
+        $design['sections'][3]['canvas'] = [
+            ['objetivo' => 'texto:title:0', 'x' => '12.5', 'rotacion' => '-10', 'e_x' => '30'],
+            ['tipo' => 'forma', 'forma' => 'linea', 'color' => '#FFFFFF', 'y' => '40', 'bloqueado' => 'SI'],
+        ];
+
+        $saved = $this->putJson('/api/manager/events/nueva/draft', ['design' => $design, 'version' => $editor['version']])->assertOk()->json();
+
+        $this->assertSame('texto:title:0', $saved['config']['sections'][3]['canvas'][0]['target']);
+        $this->assertEquals(['x' => 30], $saved['config']['sections'][3]['canvas'][0]['desktop']);
+        $this->assertSame('line', $saved['config']['sections'][3]['canvas'][1]['shape']);
+        $this->assertStringContainsString('itinerario,lienzo-2,forma,linea', file_get_contents("{$this->eventos}/nueva/borrador/invitacion.csv"));
+        $again = $this->editor();
+        $this->assertEquals($design['sections'][3]['canvas'], $again['design']['sections'][3]['canvas']);
+        $this->assertEquals($again['config'], $saved['config']);
+        // Los invitados siguen sin ver el lienzo hasta publicar.
+        $this->getJson('/api/public/events/nueva')->assertJsonMissingPath('event.sections.3.canvas');
+    }
+
+    public function test_the_canvas_has_its_own_limit_and_shape(): void
+    {
+        $editor = $this->editor();
+        $bad = fn (mixed $canvas) => $this->putJson('/api/manager/events/nueva/draft', ['design' => [...$editor['design'], 'sections' => [['id' => 'frase', 'canvas' => $canvas]]], 'version' => $editor['version']]);
+
+        $bad(array_fill(0, 61, ['tipo' => 'forma', 'forma' => 'linea']))->assertStatus(422);
+        $bad(['x' => '1'])->assertStatus(422);
+        $bad([['mal campo' => 'x']])->assertStatus(422);
+        $bad([['x' => ['no']]])->assertStatus(422);
+        $bad(array_fill(0, 60, ['tipo' => 'forma', 'forma' => 'linea']))->assertOk();
+    }
 }

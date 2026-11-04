@@ -880,7 +880,17 @@ final class Catalog
     ];
 
     /** Límites de un diseño (contra archivos gigantes o pegados por error). */
-    public const LIMITS = ['sections' => 60, 'fields' => 120, 'items' => 100, 'value' => 4000];
+    public const LIMITS = ['sections' => 60, 'fields' => 120, 'items' => 100, 'value' => 4000, 'canvas' => 60];
+
+    /**
+     * Campos de un elemento del lienzo (filas `lienzo-N` de invitacion.csv), en el orden en
+     * que se escriben. Los `e_*` son solo de escritorio y, vacíos, heredan del celular.
+     */
+    public const CANVAS_FIELDS = [
+        'objetivo', 'tipo', 'forma', 'texto', 'imagen', 'color', 'letra', 'tamano', 'alineacion', 'borde', 'radio',
+        'x', 'y', 'ancho', 'rotacion', 'escala', 'voltear_h', 'voltear_v', 'opacidad', 'capa', 'bloqueado', 'oculto',
+        'e_x', 'e_y', 'e_ancho', 'e_rotacion', 'e_escala', 'e_opacidad', 'e_oculto',
+    ];
 
     /** Una sección conocida, o null. */
     public static function section(string $kind): ?array

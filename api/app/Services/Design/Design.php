@@ -103,6 +103,7 @@ final class Design
                 'id' => $s->id,
                 'fields' => (object) $s->fields,
                 'items' => array_map(fn ($item) => (object) $item, $s->items),
+                'canvas' => array_map(fn ($element) => (object) $element, $s->canvas),
             ], $this->sections),
         ];
     }
@@ -133,6 +134,7 @@ final class Design
                 (string) ($section['id'] ?? ''),
                 $values($section['fields'] ?? []),
                 array_values(array_filter(array_map($values, $section['items'] ?? []), fn ($item) => $item !== [])),
+                array_values(array_filter(array_map($values, $section['canvas'] ?? []), fn ($element) => $element !== [])),
             );
         }
 

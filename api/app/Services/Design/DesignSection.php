@@ -12,11 +12,13 @@ final class DesignSection
     /**
      * @param  array<string, string>  $fields
      * @param  list<array<string, string>>  $items
+     * @param  list<array<string, string>>  $canvas  elementos del lienzo (filas `lienzo-N`)
      */
     public function __construct(
         public string $id,
         public array $fields = [],
         public array $items = [],
+        public array $canvas = [],
     ) {}
 
     /** "frase-2" → "frase". */
@@ -45,9 +47,9 @@ final class DesignSection
         return $value === '' ? null : $value;
     }
 
-    /** @return array{id: string, fields: array<string, string>, items: list<array<string, string>>} */
+    /** @return array{id: string, fields: array<string, string>, items: list<array<string, string>>, canvas: list<array<string, string>>} */
     public function toArray(): array
     {
-        return ['id' => $this->id, 'fields' => $this->fields, 'items' => $this->items];
+        return ['id' => $this->id, 'fields' => $this->fields, 'items' => $this->items, 'canvas' => $this->canvas];
     }
 }

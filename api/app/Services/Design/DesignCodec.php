@@ -22,7 +22,7 @@ final class DesignCodec
         $design = new Design;
         $warnings = [];
         $blocks = array_fill_keys(Catalog::RESERVED, []);
-        /** @var array<string, array{fields: array<string, string>, items: array<int, array<string, string>>}> $sections */
+        /** @var array<string, array{fields: array<string, string>, items: array<int, array<string, string>>, canvas: array<int, array<string, string>>}> $sections */
         $sections = [];
 
         foreach ($rows as $i => $row) {
@@ -51,7 +51,10 @@ final class DesignCodec
             }
 
             $item = null;
-            if ($rawItem !== '') {
+            $element = null;
+            if (preg_match('/^lienzo-(\d+)$/i', $rawItem, $m) && (int) $m[1] >= 1) {
+                $element = (int) $m[1];
+            } elseif ($rawItem !== '') {
                 if (! ctype_digit($rawItem) || (int) $rawItem < 1) {
                     $warnings[] = "fila {$line}: elemento '{$rawItem}' debe ser un número (1, 2, 3…); se ignoró";
 
@@ -61,7 +64,7 @@ final class DesignCodec
             }
 
             if ($isReserved) {
-                if ($item !== null) {
+                if ($item !== null || $element !== null) {
                     $warnings[] = "fila {$line}: {$block} no tiene elementos; se ignoró";
 
                     continue;
@@ -77,11 +80,16 @@ final class DesignCodec
                 continue;
             }
 
-            $sections[$block] ??= ['fields' => [], 'items' => []];
+            $sections[$block] ??= ['fields' => [], 'items' => [], 'canvas' => []];
             if ($value === '') {
                 continue;
             }
-            if ($item === null) {
+            if ($element !== null) {
+                if (isset($sections[$block]['canvas'][$element][$field])) {
+                    $warnings[] = "fila {$line}: {$block}, lienzo-{$element} → {$field} está repetido; se usa el último";
+                }
+                $sections[$block]['canvas'][$element][$field] = $value;
+            } elseif ($item === null) {
                 if (isset($sections[$block]['fields'][$field])) {
                     $warnings[] = "fila {$line}: {$block} → {$field} está repetido; se usa el último";
                 }
@@ -99,11 +107,12 @@ final class DesignCodec
         }
         foreach ($sections as $id => $section) {
             ksort($section['items']);
+            ksort($section['canvas']);
             $kind = DesignSection::kindOf($id);
             if (Catalog::section($kind) === null) {
                 $warnings[] = "sección '{$id}': no es un tipo de sección conocido";
             }
-            $design->sections[] = new DesignSection($id, $section['fields'], array_values($section['items']));
+            $design->sections[] = new DesignSection($id, $section['fields'], array_values($section['items']), array_values($section['canvas']));
         }
 
         return [$design, $warnings];
@@ -141,6 +150,9 @@ final class DesignCodec
             $add($section->id, '', $fields, Catalog::fieldOrder($kind));
             foreach ($section->items as $n => $item) {
                 $add($section->id, (string) ($n + 1), $item, Catalog::itemFieldOrder($kind));
+            }
+            foreach ($section->canvas as $n => $element) {
+                $add($section->id, 'lienzo-'.($n + 1), $element, Catalog::CANVAS_FIELDS);
             }
         }
 

@@ -455,6 +455,10 @@ final class InvitationConfigBuilder
         if ($styles !== []) {
             $entry['text_styles'] = $styles;
         }
+        $canvas = $this->canvas($section, $media);
+        if ($canvas !== []) {
+            $entry['canvas'] = $canvas;
+        }
         if (in_array($kind, ['foto', 'portada'], true) && isset($f['imagen'])) {
             $entry['image'] = $this->media($f['imagen'], $media);
         }
@@ -865,6 +869,212 @@ final class InvitationConfigBuilder
         return $out;
     }
 
+    /** Rangos del lienzo: campo → [mínimo, máximo, clave en el config]. x, y y ancho van en % del ancho de la sección. */
+    private const CANVAS_RANGES = [
+        'x' => [-100, 200, 'x'],
+        'y' => [-200, 2000, 'y'],
+        'ancho' => [1, 300, 'width'],
+        'rotacion' => [-360, 360, 'rotation'],
+        'escala' => [0.1, 5, 'scale'],
+        'opacidad' => [0, 100, 'opacity'],
+    ];
+
+    private const CANVAS_SHAPES = ['linea' => 'line', 'rectangulo' => 'rectangle', 'circulo' => 'circle'];
+
+    private const CANVAS_KINDS = ['texto' => 'text', 'imagen' => 'image', 'forma' => 'shape'];
+
+    private const CANVAS_ALIGN = ['izquierda' => 'left', 'centro' => 'center', 'derecha' => 'right'];
+
+    /**
+     * El lienzo de una sección: elementos que ya existen (`objetivo`: texto:<bloque>:<n> o
+     * imagen:<n>) o libres (`tipo`: texto, imagen o forma), cada uno con su posición. Solo viaja
+     * lo que se escribió; sin elementos no hay llave. Los `e_*` (escritorio) van en `desktop`.
+     *
+     * @param  array<string, string>  $media
+     * @return list<array<string, mixed>>
+     */
+    private function canvas(DesignSection $section, array $media): array
+    {
+        $id = $section->id;
+        $out = [];
+        foreach ($section->canvas as $n => $element) {
+            $name = 'lienzo-'.($n + 1);
+            $where = fn (string $field) => "{$name} → {$field}";
+            $entry = ['id' => $name];
+
+            $target = trim($element['objetivo'] ?? '');
+            if ($target !== '') {
+                if (! preg_match('/^(texto:[a-z0-9_]{1,40}:\d{1,3}|imagen:\d{1,3})$/', $target)) {
+                    $this->error($id, null, $where('objetivo'), "'{$target}' debe ser texto:<bloque>:<n> o imagen:<n>");
+
+                    continue;
+                }
+                $entry['target'] = $target;
+            } else {
+                $type = Normalizer::key($element['tipo'] ?? '');
+                if (! isset(self::CANVAS_KINDS[$type])) {
+                    $this->error($id, null, $where('tipo'), 'falta el objetivo o el tipo (usa texto, imagen o forma)');
+
+                    continue;
+                }
+                $entry['kind'] = self::CANVAS_KINDS[$type];
+                $entry += $this->canvasFree($id, $name, $type, $element, $media);
+                if (! isset($entry[$entry['kind']])) {
+                    continue;
+                }
+            }
+
+            foreach (self::CANVAS_RANGES as $field => [$min, $max, $key]) {
+                $value = $this->canvasNumber($id, $where($field), $element[$field] ?? '', $min, $max);
+                if ($value !== null) {
+                    $entry[$key] = $value;
+                }
+            }
+            foreach (['voltear_h' => 'flip_h', 'voltear_v' => 'flip_v', 'bloqueado' => 'locked', 'oculto' => 'hidden'] as $field => $key) {
+                $flag = $this->canvasFlag($id, $where($field), $element[$field] ?? '');
+                if ($flag !== null) {
+                    $entry[$key] = $flag;
+                }
+            }
+            $layer = trim($element['capa'] ?? '');
+            if ($layer !== '') {
+                if (! preg_match('/^-?\d{1,3}$/', $layer)) {
+                    $this->error($id, null, $where('capa'), "'{$layer}' debe ser un número entero (de -999 a 999)");
+                } else {
+                    $entry['layer'] = (int) $layer;
+                }
+            }
+
+            $desktop = [];
+            foreach (self::CANVAS_RANGES as $field => [$min, $max, $key]) {
+                $value = $this->canvasNumber($id, $where("e_{$field}"), $element["e_{$field}"] ?? '', $min, $max);
+                if ($value !== null) {
+                    $desktop[$key] = $value;
+                }
+            }
+            $hidden = $this->canvasFlag($id, $where('e_oculto'), $element['e_oculto'] ?? '');
+            if ($hidden !== null) {
+                $desktop['hidden'] = $hidden;
+            }
+            if ($desktop !== []) {
+                $entry['desktop'] = $desktop;
+            }
+
+            $this->unknownKeys($id.', '.$name, $element, Catalog::CANVAS_FIELDS);
+            $out[] = $entry;
+        }
+
+        return $out;
+    }
+
+    /**
+     * Lo propio de un elemento libre: su texto, imagen o forma y su aspecto.
+     *
+     * @param  array<string, string>  $element
+     * @param  array<string, string>  $media
+     * @return array<string, mixed>
+     */
+    private function canvasFree(string $id, string $name, string $type, array $element, array $media): array
+    {
+        $where = fn (string $field) => "{$name} → {$field}";
+        $out = [];
+        if ($type === 'texto') {
+            $text = trim($element['texto'] ?? '');
+            if ($text === '') {
+                $this->error($id, null, $where('texto'), 'falta el texto');
+            } else {
+                $out['text'] = $text;
+            }
+            $font = trim($element['letra'] ?? '');
+            if ($font !== '') {
+                $font = $this->fontValue($font, $id, $where('letra'));
+                if ($font !== null) {
+                    $out['font'] = $font;
+                }
+            }
+            $size = $this->canvasNumber($id, $where('tamano'), $element['tamano'] ?? '', 0.5, 40);
+            if ($size !== null) {
+                $out['size'] = $size;
+            }
+            $align = Normalizer::key($element['alineacion'] ?? '');
+            if ($align !== '') {
+                if (isset(self::CANVAS_ALIGN[$align])) {
+                    $out['align'] = self::CANVAS_ALIGN[$align];
+                } else {
+                    $this->error($id, null, $where('alineacion'), "'{$align}' no existe (usa izquierda, centro o derecha)");
+                }
+            }
+        } elseif ($type === 'imagen') {
+            $file = trim($element['imagen'] ?? '');
+            if ($file === '') {
+                $this->error($id, null, $where('imagen'), 'falta el archivo de la imagen');
+            } else {
+                $out['image'] = $this->media($file, $media);
+            }
+            $radius = $this->canvasNumber($id, $where('radio'), $element['radio'] ?? '', 0, 50);
+            if ($radius !== null) {
+                $out['radius'] = $radius;
+            }
+        } else {
+            $shape = Normalizer::key($element['forma'] ?? '');
+            if (! isset(self::CANVAS_SHAPES[$shape])) {
+                $this->error($id, null, $where('forma'), "'{$shape}' no existe (usa linea, rectangulo o circulo)");
+            } else {
+                $out['shape'] = self::CANVAS_SHAPES[$shape];
+            }
+            $radius = $this->canvasNumber($id, $where('radio'), $element['radio'] ?? '', 0, 50);
+            if ($radius !== null) {
+                $out['radius'] = $radius;
+            }
+        }
+        $color = $this->colorValue($element['color'] ?? '', $id, null, $where('color'));
+        if ($color !== null) {
+            $out['color'] = $color;
+        }
+        if ($type !== 'texto') {
+            $border = $this->canvasNumber($id, $where('borde'), $element['borde'] ?? '', 0, 40);
+            if ($border !== null) {
+                $out['border'] = $border;
+            }
+        }
+
+        return $out;
+    }
+
+    private function canvasNumber(string $id, string $field, string $value, float|int $min, float|int $max): ?float
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+        $number = str_replace(',', '.', $value);
+        if (! is_numeric($number) || $number < $min || $number > $max) {
+            $this->error($id, null, $field, "'{$value}' debe ir de {$min} a {$max}");
+
+            return null;
+        }
+
+        return (float) $number;
+    }
+
+    private function canvasFlag(string $id, string $field, string $value): ?bool
+    {
+        $key = Normalizer::key($value);
+        if ($key === '') {
+            return null;
+        }
+        if (in_array($key, ['no', 'n', 'false', '0'], true)) {
+            return false;
+        }
+        if (! Normalizer::yes($value)) {
+            $this->error($id, null, $field, "'{$value}' debe ser SI o NO");
+
+            return null;
+        }
+
+        return true;
+    }
+
     /**
      * Zona segura de la lámina de papel (variante `lamina`): zona_arriba/derecha/abajo/izquierda
      * en % de la imagen (0 a 45) y proporcion (ancho / alto). Solo viaja lo que se escribió.
@@ -1028,6 +1238,11 @@ final class InvitationConfigBuilder
             foreach ($section['text_styles'] ?? [] as $style) {
                 if (isset($style['font'])) {
                     $fonts[$style['font']] = true;
+                }
+            }
+            foreach ($section['canvas'] ?? [] as $element) {
+                if (isset($element['font'])) {
+                    $fonts[$element['font']] = true;
                 }
             }
         }

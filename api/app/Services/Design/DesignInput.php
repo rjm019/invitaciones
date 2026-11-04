@@ -54,6 +54,13 @@ final class DesignInput
             foreach ($items as $item) {
                 self::values($item, "sección {$id}");
             }
+            $canvas = $section['canvas'] ?? [];
+            if (! is_array($canvas) || ! array_is_list($canvas) || count($canvas) > Catalog::LIMITS['canvas']) {
+                self::fail("El lienzo de {$id} no tiene la forma esperada (máximo ".Catalog::LIMITS['canvas'].' elementos).');
+            }
+            foreach ($canvas as $element) {
+                self::values($element, "lienzo de {$id}", count(Catalog::CANVAS_FIELDS));
+            }
         }
 
         return Design::fromArray($data);

@@ -155,4 +155,37 @@ class DesignFileTest extends TestCase
         $this->assertFalse(DesignFile::isLegacyWorkbook($tmp));
         @unlink($tmp);
     }
+
+    public function test_canvas_rows_round_trip_through_csv_and_excel(): void
+    {
+        $design = new Design(event: ['festejada' => 'Nat'], sections: [
+            new DesignSection('fecha', ['titulo' => 'Hola'], canvas: [
+                ['objetivo' => 'texto:title:0', 'x' => '12.5', 'e_x' => '40'],
+                ['tipo' => 'forma', 'forma' => 'linea', 'color' => '#FFFFFF', 'y' => '30'],
+            ]),
+            new DesignSection('frase', ['texto' => 'x']),
+        ]);
+
+        $csv = $this->file->toCsv($design);
+        $this->assertStringContainsString("fecha,lienzo-1,objetivo,texto:title:0\r\n", $csv);
+        $this->assertStringContainsString("fecha,lienzo-2,forma,linea\r\n", $csv);
+        [$again, $warnings] = $this->file->parseCsv($csv);
+        $this->assertSame([], $warnings);
+        $this->assertEquals($design->sections[0]->canvas, $again->sections[0]->canvas);
+        $this->assertSame([], $again->sections[1]->canvas);
+        $this->assertSame($csv, $this->file->toCsv($again));
+
+        $xlsx = tempnam(sys_get_temp_dir(), 'inv');
+        $this->file->writeXlsx($xlsx, $design);
+        [$fromExcel] = $this->file->readXlsx($xlsx);
+        @unlink($xlsx);
+        $this->assertSame($csv, $this->file->toCsv($fromExcel));
+    }
+
+    public function test_a_lienzo_row_in_a_reserved_block_is_ignored_with_a_warning(): void
+    {
+        [$design, $warnings] = $this->file->parseCsv("seccion,elemento,campo,valor\r\nevento,lienzo-1,x,5\r\n");
+        $this->assertSame([], $design->event);
+        $this->assertCount(1, $warnings);
+    }
 }
