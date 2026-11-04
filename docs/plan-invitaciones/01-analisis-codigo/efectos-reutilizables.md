@@ -282,3 +282,22 @@ Global: cualquier tema la puede pedir (`variante = lamina`). `components/ui/Pape
 | lluvia de sobres | `lamina` | `EnvelopeRainSheet.vue`: título (y texto) en la lámina; el bloque bancario (banco, CLABE, titular, Copiar, notas) va debajo, fuera de la imagen |
 
 Campos por sección (CSV): `zona_arriba`, `zona_derecha`, `zona_abajo`, `zona_izquierda` (% de la imagen, 0 a 45) y `proporcion` (ancho / alto, p. ej. `0.72`; vacío: se mide con `naturalWidth/naturalHeight` al cargar). El servidor los pasa como `section.sheet = {top, right, bottom, left, aspect}` (solo lo escrito). Editor: `input: number` en `FieldInput.vue`.
+
+## Lienzo y modo «Acomodar» (mover, girar, escalar y agregar elementos)
+
+Global: cualquier sección de cualquier tema admite filas `lienzo-N` (formato en `eventos/README.md`). Sin ellas no cambia nada.
+
+| Pieza | Qué hace |
+|---|---|
+| `services/canvasService.ts` | Lógica pura: qué valores tocan según el ancho (celular manda; `desktop` pisa desde 64 rem), `existingStyle` (propiedades `translate`, `rotate`, `scale`, `opacity`; nunca `transform`, que es de los efectos) y `freeVars` (variables `--cv-*` de los agregados) |
+| `composables/useSectionCanvas.ts` | Aplica el lienzo a los bloques que la sección ya pinta (`listCanvasTargets` los nombra: `texto:<bloque>:<n>`, `imagen:<n>`); `canvasPaused` lo detiene mientras se arrastra en el editor |
+| `components/ui/CanvasLayer.vue` | Pinta los elementos agregados (marcador `[data-canvas-layer]`), recortados en la orilla de la sección |
+| `services/arrangeService.ts` | Lógica pura del editor: filas ↔ valores, px ↔ %, alinear y repartir, capas, duplicar, «volver a su lugar», `valuesFromBox` (de la caja que mueve Moveable a los valores) |
+| `composables/useArrange.ts` | Lo elegido, sus medidas y las acciones del panel; cada acción es un solo `update` (un paso de deshacer; las flechas seguidas se juntan) |
+| `components/manager/ArrangeOverlay.vue` | Dentro de la vista previa: un velo que no deja pasar toques a la invitación, cajas de ayuda (`proxy`) en coordenadas de la página, Moveable (tamaño, giro, guías magnéticas contra el centro y las orillas de la sección y los demás elementos) y Selecto (recuadro). Moveable y Selecto se cargan con `import()` solo al entrar al modo, así la invitación pública no los descarga |
+| `components/manager/ArrangePanel.vue` | Inspector: capas, X/Y/ancho/alto/giro, opacidad, voltear, bloquear, ocultar, orden, alinear, repartir, duplicar, eliminar, «Volver a su lugar» y, en lo agregado, texto, letra, tamaño, color, alineación, borde y radio |
+| Protocolo (`previewProtocol.ts`) | Modo `arrange`; `arrange-select` (de ida y vuelta: lo elegido y sus medidas en px), `arrange-change` (UN mensaje al soltar el arrastre; `nudge` para las flechas) y `key` (⌘Z, ⇧⌘Z, ⌘D, ⌘S y Supr, porque con el foco en el iframe no llegan al editor) |
+
+Cómo se agrega algo nuevo: un campo del lienzo = columna en `Catalog::CANVAS_FIELDS` y en `InvitationConfigBuilder` (y su espejo en `previewPatchService.sectionCanvas`), valor en `CanvasValues`/`CanvasElement` y su uso en `canvasService`. Un tipo nuevo de elemento agregado = rama en `CanvasLayer.vue`, en `addElement` y en `ArrangePanel.vue`.
+
+Decisiones: el tamaño es siempre proporcional (un bloque que ya existe cambia de `escala`; uno agregado, de `ancho`; no hay alto propio), el orden de capas solo mueve a los agregados y los bloques que ya existen no se borran (se ocultan o vuelven a su lugar).

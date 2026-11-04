@@ -287,6 +287,30 @@ Sin configurar nada, el tema también pone mariposas que cruzan la pantalla de v
 
 **Escritorio** (`escritorio`): `completo` ocupa toda la fila; `mitad` se pone junto a la siguiente sección `mitad`. Una `mitad` sin pareja se queda con la fila completa. Vacío = lo que diga el tema (en `jardin-azul`: fecha | foto, ubicación | frase, itinerario | vestimenta, cuenta regresiva | confirmación).
 
+### Lienzo: mover, girar y agregar elementos (`lienzo-N`)
+
+Cada sección puede acomodar a mano sus elementos, como en un editor gráfico. En el gestor se hace con el modo **Acomodar** de la vista previa; en el archivo son filas `seccion, lienzo-N, campo, valor` (una fila por dato, legible en Excel; `N` es el lugar en la lista y no se salta). Hasta 60 elementos por sección.
+
+```
+fecha,lienzo-1,objetivo,texto:title:0
+fecha,lienzo-1,x,12.5
+fecha,lienzo-1,rotacion,-8
+fecha,lienzo-2,tipo,imagen
+fecha,lienzo-2,imagen,anillos-manos.webp
+fecha,lienzo-2,x,20
+fecha,lienzo-2,y,10
+fecha,lienzo-2,ancho,60
+```
+
+Dos clases de elemento:
+
+- **Un bloque que ya existe** (`objetivo`): `texto:<bloque>:<n>` (cada `data-text` de la sección, numerado dentro de su bloque) o `imagen:<n>` (las `<img>`, por orden). `x` e `y` **desplazan** el bloque desde su sitio; `ancho` no aplica y el tamaño se cambia con `escala`. Sin fila, el bloque no se toca.
+- **Uno agregado** (`tipo`): `texto` (`texto`, `letra`, `tamano`, `color`, `alineacion`), `imagen` (`imagen` de la biblioteca, `borde`, `radio`, `color` del borde) o `forma` (`forma` = `linea`, `rectangulo` o `circulo`; `color`, `borde`, `radio`). `x` e `y` son su **esquina superior izquierda** y `ancho` manda.
+
+Campos comunes: `x`, `y` y `ancho` en % del ancho de `.section__content` (también `y`: el alto de la sección depende del contenido; -100 a 200, -200 a 2000 y 1 a 300), `rotacion` (-360 a 360), `escala` (0.1 a 5), `voltear_h`, `voltear_v`, `opacidad` (0 a 100), `capa` (orden de los agregados; mayor = encima), `bloqueado` (lo respeta solo el editor) y `oculto`.
+
+**Manda el celular.** Los campos `e_x`, `e_y`, `e_ancho`, `e_rotacion`, `e_escala`, `e_opacidad` y `e_oculto` valen solo en pantallas anchas (desde 64 rem); vacíos, heredan del celular. En el editor, la vista que se está viendo (celular o computadora) decide en cuáles se escribe, con un aviso «Editando escritorio». Cada elemento se recorta en la orilla de su sección. Sin filas `lienzo-N`, la invitación sale exactamente igual. Límite: los adornos pintados como fondo CSS no son elementos sueltos y no se mueven (sí los textos con `data-text` y las `<img>`).
+
 ### Música, playlist, clima y dedicatoria
 
 **Música**: lo que suena al abrir el sobre sale de una de dos fuentes (`musica_fuente`):
