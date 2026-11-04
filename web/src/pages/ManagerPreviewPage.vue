@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+import ArrangeOverlay from '@/components/manager/ArrangeOverlay.vue'
 import PreviewStage from '@/components/manager/PreviewStage.vue'
 import { useReducedMotion } from '@/composables/useReducedMotion'
 import {
   readToPreview,
   wrap,
+  type ArrangeChange,
+  type ArrangeFrame,
+  type ArrangeMeasure,
   type FromPreview,
   type PreviewDisplay,
   type PreviewPatch,
@@ -60,6 +64,8 @@ let textEl: HTMLElement | null = null
 let pendingScroll: string | null = null
 
 const picking = computed(() => display.value.mode === 'select')
+const arranging = computed(() => display.value.mode === 'arrange')
+const arrangeComp = ref<InstanceType<typeof ArrangeOverlay> | null>(null)
 const hoverLabel = computed(() =>
   hovered.value ? (display.value.labels[hovered.value.key] ?? hovered.value.key) : '',
 )
@@ -99,11 +105,34 @@ function onMessage(e: MessageEvent): void {
       selected.value = message.key
       scrollToSelected()
       break
+    case 'arrange-select':
+      arrangeComp.value?.setSelection(message.section, message.refs)
+      break
     case 'replay':
       stageKey.value++
       window.scrollTo(0, 0)
       break
   }
+}
+
+function onArrangeSelect(
+  section: string | null,
+  refs: string[],
+  measures: Record<string, ArrangeMeasure>,
+  frame: ArrangeFrame | null,
+): void {
+  if (section) selected.value = section
+  post({ type: 'arrange-select', section, refs, measures, frame })
+  measure()
+}
+
+function onArrangeChange(section: string, changes: ArrangeChange[], nudge: boolean): void {
+  post({ type: 'arrange-change', section, changes, nudge })
+}
+
+/** Con el foco aquí, ⌘Z, ⌘D, Supr… no llegan al editor: se los reenvía. */
+function onArrangeKey(key: string, meta: boolean, shift: boolean): void {
+  post({ type: 'key', key, meta, shift })
 }
 
 /** Lo que llega al instante se aplica una vez por cuadro (con cada tecla, solo lo último). */
@@ -300,6 +329,15 @@ onBeforeUnmount(() => {
 <template>
   <PreviewStage v-if="config" :key="stageKey" :event="config" :display="display" />
   <p v-else class="preview-waiting">Cargando la vista previa…</p>
+
+  <ArrangeOverlay
+    ref="arrangeComp"
+    :active="arranging"
+    :sections="config?.sections ?? []"
+    @select="onArrangeSelect"
+    @change="onArrangeChange"
+    @key="onArrangeKey"
+  />
 
   <div class="preview-overlay" aria-hidden="true">
     <div v-if="rects.selected" class="preview-overlay__selected" :style="box(rects.selected)" />

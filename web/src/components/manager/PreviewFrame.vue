@@ -18,6 +18,7 @@ const emit = defineEmits<{
   device: [device: 'phone' | 'desktop']
   display: [display: Partial<Omit<PreviewDisplay, 'labels'>>]
   replay: []
+  add: [kind: 'text' | 'image' | 'line' | 'rectangle' | 'circle']
 }>()
 
 const SIZE = { phone: { width: 390, height: 844 }, desktop: { width: 1280, height: 800 } }
@@ -92,6 +93,14 @@ defineExpose({ frame })
         >
           <ManagerIcon name="play" /> <span class="preview__label">Probar</span>
         </button>
+        <button
+          type="button"
+          :aria-pressed="display.mode === 'arrange'"
+          title="Acomodar: mover, girar y cambiar el tamaño de textos, imágenes y elementos agregados"
+          @click="emit('display', { mode: 'arrange' })"
+        >
+          <ManagerIcon name="up-down-left-right" /> <span class="preview__label">Acomodar</span>
+        </button>
       </div>
       <select
         class="g-select preview__guest"
@@ -136,6 +145,26 @@ defineExpose({ frame })
       </button>
     </div>
 
+    <div v-if="display.mode === 'arrange'" class="preview__arrange" role="toolbar" aria-label="Agregar">
+      <span class="preview__arrange-title">Agregar</span>
+      <button type="button" class="g-btn g-btn--small" @click="emit('add', 'text')">
+        <ManagerIcon name="font" /> Texto
+      </button>
+      <button type="button" class="g-btn g-btn--small" @click="emit('add', 'image')">
+        <ManagerIcon name="image" /> Imagen
+      </button>
+      <button type="button" class="g-btn g-btn--small" @click="emit('add', 'line')">― Línea</button>
+      <button type="button" class="g-btn g-btn--small" @click="emit('add', 'rectangle')">
+        <ManagerIcon name="square" /> Rectángulo
+      </button>
+      <button type="button" class="g-btn g-btn--small" @click="emit('add', 'circle')">● Círculo</button>
+      <span class="g-grow" />
+      <span class="preview__editing" :class="{ 'is-desktop': device === 'desktop' }" role="status">
+        <ManagerIcon :name="device === 'desktop' ? 'desktop' : 'mobile-screen'" />
+        {{ device === 'desktop' ? 'Editando escritorio' : 'Editando celular' }}
+      </span>
+    </div>
+
     <div ref="stage" class="preview__stage" :class="`preview__stage--${device}`">
       <div
         class="preview__device"
@@ -164,7 +193,7 @@ defineExpose({ frame })
 <style scoped>
 .preview {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto 1fr;
   height: 100%;
   min-height: 0;
   background:
@@ -180,6 +209,35 @@ defineExpose({ frame })
   background: rgb(255 255 255 / 0.7);
   backdrop-filter: blur(8px);
 }
+.preview__arrange {
+  grid-row: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--g-line);
+  background: var(--g-accent-soft);
+}
+.preview__arrange-title {
+  margin-right: 4px;
+  font: 600 12.5px/1 var(--g-font);
+  color: var(--g-accent);
+}
+.preview__editing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--g-surface);
+  color: var(--g-muted);
+  font: 600 12px/1.4 var(--g-font);
+}
+.preview__editing.is-desktop {
+  background: #f59e0b;
+  color: #1c1917;
+}
 .preview__guest {
   width: auto;
   min-height: 32px;
@@ -188,6 +246,7 @@ defineExpose({ frame })
   font-size: 12.5px;
 }
 .preview__stage {
+  grid-row: 3;
   display: grid;
   place-items: center;
   min-height: 0;

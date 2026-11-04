@@ -21,6 +21,12 @@ export interface CanvasTarget {
   el: HTMLElement
 }
 
+/**
+ * El editor lo prende mientras se arrastra un elemento (modo «Acomodar»): los estilos que
+ * se escriben a mano en ese momento no los pisa el lienzo; al apagarlo se acomoda de nuevo.
+ */
+export const canvasPaused = ref(false)
+
 /** Lo que pinta el lienzo no se vuelve a acomodar a sí mismo. */
 const LAYER = '[data-canvas-layer]'
 
@@ -138,7 +144,7 @@ export function useSectionCanvas(
       const relevant = records.some(
         (r) => r.type === 'childList' || (r.target instanceof HTMLElement && applied.has(r.target)),
       )
-      if (relevant) schedule()
+      if (relevant && !canvasPaused.value) schedule()
     })
     mutations.observe(root.value, {
       childList: true,
@@ -163,6 +169,9 @@ export function useSectionCanvas(
   })
 
   watch([canvas, desktop, width], apply, { deep: true, flush: 'post' })
+  watch(canvasPaused, (paused) => {
+    if (!paused) schedule()
+  })
 
   onBeforeUnmount(() => {
     if (frame && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(frame)

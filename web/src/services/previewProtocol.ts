@@ -14,8 +14,11 @@ export interface PreviewDisplay {
   /** general: /e/<slug>; personal: un enlace de ejemplo con 4 lugares (para la confirmación). */
   guest: 'general' | 'personal'
   muted: boolean
-  /** select: un toque elige la sección o el texto; try: la invitación funciona de verdad. */
-  mode: 'select' | 'try'
+  /**
+   * select: un toque elige la sección o el texto; try: la invitación funciona de verdad;
+   * arrange: «Acomodar», mover, girar y cambiar el tamaño de los elementos (el lienzo).
+   */
+  mode: 'select' | 'try' | 'arrange'
   /** Nombre de cada sección (por su key) para la etiqueta "Editar …". */
   labels: Record<string, string>
 }
@@ -42,11 +45,47 @@ export interface PreviewPatch {
   }
 }
 
+/** Lo que el arrastre cambia de un elemento (px ya convertidos a % del ancho de la sección). */
+export interface ArrangeValues {
+  x?: number
+  y?: number
+  width?: number
+  rotation?: number
+  scale?: number
+}
+
+/** "texto:title:0" / "imagen:1" (un bloque que ya existe) o "lienzo-3" (uno agregado). */
+export interface ArrangeChange {
+  ref: string
+  values: ArrangeValues
+}
+
+/**
+ * Medidas en px de un elemento elegido, desde la esquina superior izquierda de
+ * `.section__content`: `x, y, width, height` es la caja que lo envuelve (con el giro) y
+ * `w, h` su tamaño sin girar. Con ellas el editor alinea y reparte sin tocar el DOM.
+ */
+export interface ArrangeMeasure {
+  x: number
+  y: number
+  width: number
+  height: number
+  w: number
+  h: number
+}
+
+/** La sección elegida, en px desde la esquina de su contenido; `content` es el ancho de la unidad (%). */
+export interface ArrangeFrame {
+  content: number
+  section: { x: number; y: number; width: number; height: number }
+}
+
 export type ToPreview =
   | { type: 'config'; config: EventConfig; display: PreviewDisplay }
   | { type: 'display'; display: PreviewDisplay }
   | { type: 'patch'; patch: PreviewPatch }
   | { type: 'select'; key: string | null }
+  | { type: 'arrange-select'; section: string | null; refs: string[] }
   | { type: 'replay' }
 
 export type FromPreview =
@@ -55,6 +94,15 @@ export type FromPreview =
   | { type: 'hover'; key: string | null; block: string | null }
   | { type: 'pick'; key: string; block: string | null }
   | { type: 'tokens'; colors: Record<string, string>; fonts: Record<string, string> }
+  | {
+      type: 'arrange-select'
+      section: string | null
+      refs: string[]
+      measures: Record<string, ArrangeMeasure>
+      frame: ArrangeFrame | null
+    }
+  | { type: 'arrange-change'; section: string; changes: ArrangeChange[]; nudge: boolean }
+  | { type: 'key'; key: string; meta: boolean; shift: boolean }
 
 type Envelope<T> = T & { channel: typeof PREVIEW_CHANNEL }
 
@@ -76,8 +124,40 @@ function isDisplay(v: unknown): v is PreviewDisplay {
     (v.envelope === 'open' || v.envelope === 'closed') &&
     (v.guest === 'general' || v.guest === 'personal') &&
     typeof v.muted === 'boolean' &&
-    (v.mode === 'select' || v.mode === 'try') &&
+    (v.mode === 'select' || v.mode === 'try' || v.mode === 'arrange') &&
     isStringRecord(v.labels)
+  )
+}
+
+const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v)
+/** "texto:title:0", "imagen:1" o "lienzo-3". */
+const isRef = (v: unknown): v is string =>
+  typeof v === 'string' && /^(texto:[a-z0-9_]{1,40}:\d{1,3}|imagen:\d{1,3}|lienzo-\d{1,3})$/.test(v)
+const isRefs = (v: unknown): v is string[] =>
+  Array.isArray(v) && v.length <= 60 && v.every(isRef)
+
+function isValues(v: unknown): v is ArrangeValues {
+  return (
+    isRecord(v) &&
+    Object.keys(v).every((k) => ['x', 'y', 'width', 'rotation', 'scale'].includes(k)) &&
+    Object.values(v).every(isNum)
+  )
+}
+
+function isMeasure(v: unknown): v is ArrangeMeasure {
+  return isRecord(v) && ['x', 'y', 'width', 'height', 'w', 'h'].every((k) => isNum(v[k]))
+}
+
+function isMeasures(v: unknown): v is Record<string, ArrangeMeasure> {
+  return isRecord(v) && Object.entries(v).every(([k, m]) => isRef(k) && isMeasure(m))
+}
+
+function isFrame(v: unknown): v is ArrangeFrame {
+  return (
+    isRecord(v) &&
+    isNum(v.content) &&
+    isRecord(v.section) &&
+    ['x', 'y', 'width', 'height'].every((k) => isNum((v.section as Record<string, unknown>)[k]))
   )
 }
 
@@ -147,6 +227,10 @@ export function readToPreview(data: unknown): ToPreview | null {
       return isPatch(data.patch) ? { type: 'patch', patch: data.patch } : null
     case 'select':
       return data.key === null || isKey(data.key) ? { type: 'select', key: data.key } : null
+    case 'arrange-select':
+      return (data.section === null || isKey(data.section)) && isRefs(data.refs)
+        ? { type: 'arrange-select', section: data.section, refs: data.refs }
+        : null
     case 'replay':
       return { type: 'replay' }
     default:
@@ -175,6 +259,40 @@ export function readFromPreview(data: unknown): FromPreview | null {
     case 'tokens':
       return isStringRecord(data.colors) && isStringRecord(data.fonts)
         ? { type: 'tokens', colors: data.colors, fonts: data.fonts }
+        : null
+    case 'arrange-select':
+      return (data.section === null || isKey(data.section)) &&
+        isRefs(data.refs) &&
+        isMeasures(data.measures) &&
+        (data.frame === null || isFrame(data.frame))
+        ? {
+            type: 'arrange-select',
+            section: data.section,
+            refs: data.refs,
+            measures: data.measures,
+            frame: data.frame,
+          }
+        : null
+    case 'arrange-change':
+      return isKey(data.section) &&
+        typeof data.nudge === 'boolean' &&
+        Array.isArray(data.changes) &&
+        data.changes.length > 0 &&
+        data.changes.length <= 60 &&
+        data.changes.every((c) => isRecord(c) && isRef(c.ref) && isValues(c.values))
+        ? {
+            type: 'arrange-change',
+            section: data.section,
+            changes: data.changes as ArrangeChange[],
+            nudge: data.nudge,
+          }
+        : null
+    case 'key':
+      return typeof data.key === 'string' &&
+        /^[A-Za-z0-9]{1,20}$/.test(data.key) &&
+        typeof data.meta === 'boolean' &&
+        typeof data.shift === 'boolean'
+        ? { type: 'key', key: data.key, meta: data.meta, shift: data.shift }
         : null
     default:
       return null

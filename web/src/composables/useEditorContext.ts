@@ -13,9 +13,11 @@ import {
   setBlockField,
   setItemField,
   setSectionField,
+  setSectionCanvas,
   setSectionFields,
   type DesignBlock,
 } from '@/services/designService'
+import type { ArrangeApi } from '@/composables/useArrange'
 import type { AssetResolver } from '@/services/assetService'
 import type { ThemeManifest } from '@/themes/types'
 import type { Catalog, Design, DesignIssue, DesignValues } from '@/types/design'
@@ -66,6 +68,8 @@ export interface EditorContext {
   update: (next: Design, key?: string | null) => void
   select: (selection: Selection) => void
   pickMedia: (request: MediaRequest) => Promise<string | null>
+  /** «Acomodar»: lo elegido en la vista previa y lo que el panel hace con ello. */
+  arrange: ArrangeApi
 }
 
 const KEY: InjectionKey<EditorContext> = Symbol('editor')
@@ -91,6 +95,10 @@ function helpers(ctx: EditorContext) {
     },
     setFields(id: string, changes: DesignValues, key: string | null = null) {
       ctx.update(setSectionFields(ctx.design.value, id, changes), key)
+    },
+    /** El lienzo de una sección. Un arrastre es un solo cambio (un paso de deshacer). */
+    setCanvas(id: string, canvas: DesignValues[], key: string | null = null) {
+      ctx.update(setSectionCanvas(ctx.design.value, id, canvas), key)
     },
     setItem(id: string, index: number, key: string, value: string) {
       ctx.update(setItemField(ctx.design.value, id, index, key, value), `${id}:${index}:${key}`)

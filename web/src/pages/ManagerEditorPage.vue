@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, shallowRef, watch 
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import '@/components/manager/manager.css'
 import AddSectionDialog from '@/components/manager/AddSectionDialog.vue'
+import ArrangePanel from '@/components/manager/ArrangePanel.vue'
 import ConflictDialog from '@/components/manager/ConflictDialog.vue'
 import EditorTopBar from '@/components/manager/EditorTopBar.vue'
 import GDialog from '@/components/manager/GDialog.vue'
@@ -18,6 +19,7 @@ import SectionList from '@/components/manager/SectionList.vue'
 import StylePanel from '@/components/manager/StylePanel.vue'
 import ToastHost from '@/components/manager/ToastHost.vue'
 import TransferDialog from '@/components/manager/TransferDialog.vue'
+import { useArrange } from '@/composables/useArrange'
 import { useDesignEditor } from '@/composables/useDesignEditor'
 import { provideEditor, type MediaRequest, type Selection } from '@/composables/useEditorContext'
 import { useManagerSession } from '@/composables/useManagerSession'
@@ -84,12 +86,31 @@ const preview = usePreviewHost(frame, {
   onPick: (key, block) =>
     select({ kind: 'section', id: key, tab: 'content', block, at: Date.now() }, true),
   onRendered: (keys) => (rendered.value = new Set(keys)),
+  onArrangeSelect: (section, refs, measures, frame) => {
+    arrange.onSelect(section, refs, measures, frame)
+    const current = selection.value.kind === 'section' ? selection.value.id : null
+    if (section && section !== current) select({ kind: 'section', id: section, tab: 'content' }, true)
+  },
+  onArrangeChange: (section, changes, nudge) => arrange.onChange(section, changes, nudge),
+  onKey: (key, meta, shift) => arrange.onKey(key, meta, shift),
   onTokens: (colors, fonts) => {
     themeColors.value = colors
     themeFonts.value = fonts
   },
 })
 
+// «Acomodar»: lo elegido en la vista previa y lo que el panel hace con ello.
+const arrange = useArrange({
+  design,
+  update: editor.update,
+  desktop: computed(() => device.value === 'desktop'),
+  sendSelect: (section, refs) => preview.arrangeSelect(section, refs),
+  pickMedia: (request) => pickMedia(request),
+  notify: (message) => toast(message),
+  undo: () => editor.undo(),
+  redo: () => editor.redo(),
+  save: () => void editor.save(),
+})
 // Biblioteca de media: una sola, la abre cualquier campo y responde con el archivo elegido.
 const media = reactive<{
   open: boolean
@@ -132,6 +153,16 @@ const selectedSection = computed(() => {
     ? current
     : null
 })
+// Al entrar a «Acomodar» o elegir otra sección, la vista previa elige lo mismo.
+watch(
+  () => [display.mode, selectedSection.value?.id ?? null] as const,
+  ([mode, id], [oldMode]) => {
+    if (mode !== 'arrange') return
+    if (oldMode !== 'arrange') arrange.chooseSection(null)
+    arrange.chooseSection(id)
+  },
+)
+
 function setTab(tab: 'content' | 'design'): void {
   if (selection.value.kind === 'section') selection.value = { ...selection.value, tab, block: null }
 }
@@ -150,6 +181,7 @@ provideEditor({
   update: editor.update,
   select,
   pickMedia,
+  arrange,
 })
 
 watch(
@@ -332,6 +364,21 @@ async function changeSettings(changes: SettingsChange): Promise<void> {
 
 // Atajos: ⌘/Ctrl+Z deshacer, ⌘/Ctrl+Shift+Z o Ctrl+Y rehacer, ⌘/Ctrl+S guardar ya.
 function onKey(e: KeyboardEvent): void {
+  // «Acomodar»: Supr y ⌘D actúan sobre lo elegido (salvo al escribir en un campo).
+  const typing = e.target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)
+  if (ready.value && display.mode === 'arrange' && !typing) {
+    const meta = e.metaKey || e.ctrlKey
+    if (!meta && (e.key === 'Delete' || e.key === 'Backspace')) {
+      e.preventDefault()
+      arrange.onKey('Delete', false, false)
+      return
+    }
+    if (meta && e.key.toLowerCase() === 'd') {
+      e.preventDefault()
+      arrange.onKey('d', true, false)
+      return
+    }
+  }
   if (!(e.metaKey || e.ctrlKey) || !ready.value) return
   const key = e.key.toLowerCase()
   if (key === 'z' && !e.shiftKey) {
@@ -466,11 +513,13 @@ watch(
             @device="(d) => (device = d)"
             @display="(partial) => Object.assign(display, partial)"
             @replay="replay"
+            @add="(kind) => void arrange.add(kind)"
           />
         </main>
 
         <aside class="editor__inspector">
-          <StylePanel v-if="selection.kind === 'style'" />
+          <ArrangePanel v-if="display.mode === 'arrange' && selectedSection" />
+          <StylePanel v-else-if="selection.kind === 'style'" />
           <GeneralPanel
             v-else-if="selection.kind === 'general'"
             :settings="editor.settings.value"

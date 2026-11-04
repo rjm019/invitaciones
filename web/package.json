@@ -19,7 +19,9 @@
     "@fortawesome/fontawesome-free": "^6.7.1",
     "axios": "^1.7.9",
     "lodash": "^4.17.21",
+    "moveable": "0.53.0",
     "qrcode": "1.5.4",
+    "selecto": "1.26.3",
     "vue": "^3.5.13",
     "vue-router": "^4.4.5"
   },

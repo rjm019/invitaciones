@@ -83,6 +83,11 @@ export function setSectionFields(
   }))
 }
 
+/** El lienzo de una sección (sus filas `lienzo-N`), completo. */
+export function setSectionCanvas(design: Design, id: string, canvas: DesignValues[]): Design {
+  return mapSection(design, id, (s) => ({ ...s, canvas }))
+}
+
 export function setItemField(
   design: Design,
   id: string,

@@ -7,6 +7,9 @@ import eyeSvg from '@fortawesome/fontawesome-free/svgs/solid/eye.svg?raw'
 import eyeSlashSvg from '@fortawesome/fontawesome-free/svgs/solid/eye-slash.svg?raw'
 import gripVerticalSvg from '@fortawesome/fontawesome-free/svgs/solid/grip-vertical.svg?raw'
 import trashCanSvg from '@fortawesome/fontawesome-free/svgs/solid/trash-can.svg?raw'
+import upDownLeftRightSvg from '@fortawesome/fontawesome-free/svgs/solid/up-down-left-right.svg?raw'
+import lockOpenSvg from '@fortawesome/fontawesome-free/svgs/solid/lock-open.svg?raw'
+import squareSvg from '@fortawesome/fontawesome-free/svgs/solid/square.svg?raw'
 import copySvg from '@fortawesome/fontawesome-free/svgs/solid/copy.svg?raw'
 import rotateLeftSvg from '@fortawesome/fontawesome-free/svgs/solid/rotate-left.svg?raw'
 import rotateRightSvg from '@fortawesome/fontawesome-free/svgs/solid/rotate-right.svg?raw'
@@ -138,6 +141,9 @@ const ICONS: Record<string, string> = {
   'triangle-exclamation': triangleExclamationSvg,
   'circle-info': circleInfoSvg,
   lock: lockSvg,
+  'lock-open': lockOpenSvg,
+  square: squareSvg,
+  'up-down-left-right': upDownLeftRightSvg,
   key: keySvg,
   link: linkSvg,
   'arrow-up-right-from-square': arrowUpRightFromSquareSvg,

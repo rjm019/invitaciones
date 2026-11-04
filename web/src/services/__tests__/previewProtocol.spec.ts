@@ -139,4 +139,76 @@ describe('previewProtocol', () => {
       readFromPreview({ channel: PREVIEW_CHANNEL, type: 'tokens', colors: { bg: 1 }, fonts: {} }),
     ).toBeNull()
   })
+
+  it('el modo «Acomodar» y sus mensajes pasan solo con la forma correcta', () => {
+    expect(
+      readToPreview({
+        channel: PREVIEW_CHANNEL,
+        type: 'display',
+        display: { ...display, mode: 'arrange' },
+      }),
+    ).toMatchObject({ type: 'display' })
+    expect(
+      readToPreview({ channel: PREVIEW_CHANNEL, type: 'display', display: { ...display, mode: 'x' } }),
+    ).toBeNull()
+    expect(
+      readToPreview(
+        wrap({ type: 'arrange-select', section: 'fecha', refs: ['texto:title:0', 'lienzo-2'] }),
+      ),
+    ).toEqual({ type: 'arrange-select', section: 'fecha', refs: ['texto:title:0', 'lienzo-2'] })
+    expect(
+      readToPreview({ channel: PREVIEW_CHANNEL, type: 'arrange-select', section: 'fecha', refs: ['<b>'] }),
+    ).toBeNull()
+    expect(
+      readToPreview({ channel: PREVIEW_CHANNEL, type: 'arrange-select', section: 'a b', refs: [] }),
+    ).toBeNull()
+
+    const measure = { x: 1, y: 2, width: 30, height: 10, w: 28, h: 9 }
+    const select = {
+      type: 'arrange-select',
+      section: 'fecha',
+      refs: ['imagen:0'],
+      measures: { 'imagen:0': measure },
+      frame: { content: 390, section: { x: 0, y: 0, width: 390, height: 600 } },
+    }
+    expect(readFromPreview(wrap(select as never))).toEqual(select)
+    expect(readFromPreview(wrap({ ...select, section: null, refs: [], measures: {}, frame: null } as never))).toMatchObject({
+      type: 'arrange-select',
+      section: null,
+    })
+    expect(
+      readFromPreview(wrap({ ...select, measures: { 'imagen:0': { ...measure, w: 'x' } } } as never)),
+    ).toBeNull()
+    expect(readFromPreview(wrap({ ...select, frame: { content: 1 } } as never))).toBeNull()
+
+    const change = {
+      type: 'arrange-change',
+      section: 'fecha',
+      changes: [{ ref: 'lienzo-1', values: { x: 10, rotation: 15 } }],
+      nudge: false,
+    }
+    expect(readFromPreview(wrap(change as never))).toEqual(change)
+    expect(readFromPreview(wrap({ ...change, changes: [] } as never))).toBeNull()
+    expect(
+      readFromPreview(wrap({ ...change, changes: [{ ref: 'lienzo-1', values: { x: '10' } }] } as never)),
+    ).toBeNull()
+    expect(
+      readFromPreview(wrap({ ...change, changes: [{ ref: 'lienzo-1', values: { color: 1 } }] } as never)),
+    ).toBeNull()
+    expect(
+      readFromPreview(wrap({ ...change, changes: [{ ref: 'otra-cosa', values: { x: 1 } }] } as never)),
+    ).toBeNull()
+    expect(readFromPreview(wrap({ ...change, nudge: 'si' } as never))).toBeNull()
+
+    expect(readFromPreview(wrap({ type: 'key', key: 'z', meta: true, shift: false }))).toEqual({
+      type: 'key',
+      key: 'z',
+      meta: true,
+      shift: false,
+    })
+    expect(
+      readFromPreview({ channel: PREVIEW_CHANNEL, type: 'key', key: '<script>', meta: false, shift: false }),
+    ).toBeNull()
+    expect(readFromPreview({ channel: PREVIEW_CHANNEL, type: 'key', key: 'z' })).toBeNull()
+  })
 })

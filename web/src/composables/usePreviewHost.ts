@@ -1,6 +1,9 @@
 import { onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
 import {
   readFromPreview,
+  type ArrangeChange,
+  type ArrangeFrame,
+  type ArrangeMeasure,
   wrap,
   type PreviewDisplay,
   type PreviewPatch,
@@ -15,6 +18,17 @@ export interface PreviewHandlers {
   onHover?: (key: string | null, block: string | null) => void
   onRendered?: (keys: string[]) => void
   onTokens?: (colors: Record<string, string>, fonts: Record<string, string>) => void
+  /** «Acomodar»: lo elegido en la vista previa, con sus medidas. */
+  onArrangeSelect?: (
+    section: string | null,
+    refs: string[],
+    measures: Record<string, ArrangeMeasure>,
+    frame: ArrangeFrame | null,
+  ) => void
+  /** «Acomodar»: se soltó un arrastre (o una flecha): los valores nuevos. */
+  onArrangeChange?: (section: string, changes: ArrangeChange[], nudge: boolean) => void
+  /** Una tecla que el foco en la vista previa no deja llegar al editor (⌘Z, Supr…). */
+  onKey?: (key: string, meta: boolean, shift: boolean) => void
 }
 
 /**
@@ -57,6 +71,15 @@ export function usePreviewHost(
       case 'tokens':
         handlers.onTokens?.(message.colors, message.fonts)
         break
+      case 'arrange-select':
+        handlers.onArrangeSelect?.(message.section, message.refs, message.measures, message.frame)
+        break
+      case 'arrange-change':
+        handlers.onArrangeChange?.(message.section, message.changes, message.nudge)
+        break
+      case 'key':
+        handlers.onKey?.(message.key, message.meta, message.shift)
+        break
     }
   }
 
@@ -78,6 +101,10 @@ export function usePreviewHost(
     if (ready.value) post({ type: 'select', key })
   }
 
+  function arrangeSelect(section: string | null, refs: string[]): void {
+    if (ready.value) post({ type: 'arrange-select', section, refs })
+  }
+
   function replay(): void {
     if (ready.value) post({ type: 'replay' })
   }
@@ -95,5 +122,5 @@ export function usePreviewHost(
   onMounted(() => window.addEventListener('message', onMessage))
   onBeforeUnmount(() => window.removeEventListener('message', onMessage))
 
-  return { ready, sendConfig, sendDisplay, sendPatch, select, replay, reset }
+  return { ready, sendConfig, sendDisplay, sendPatch, select, arrangeSelect, replay, reset }
 }

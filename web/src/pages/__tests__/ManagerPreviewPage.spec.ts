@@ -1,9 +1,43 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
-import { mount, type VueWrapper } from '@vue/test-utils'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import ManagerPreviewPage from '../ManagerPreviewPage.vue'
 import { wrap, type PreviewDisplay, type ToPreview } from '@/services/previewProtocol'
 import type { EventConfig } from '@/types/event'
+
+// Moveable y Selecto se cargan solo al entrar a «Acomodar»: aquí, dos dobles que lo registran.
+const libs = vi.hoisted(() => ({ loaded: [] as string[], created: [] as string[] }))
+vi.mock('moveable', () => {
+  libs.loaded.push('moveable')
+  return {
+    default: class {
+      constructor() {
+        libs.created.push('moveable')
+      }
+      on() {
+        return this
+      }
+      destroy() {}
+      updateRect() {}
+      updateTarget() {}
+    },
+  }
+})
+vi.mock('selecto', () => {
+  libs.loaded.push('selecto')
+  return {
+    default: class {
+      constructor() {
+        libs.created.push('selecto')
+      }
+      on() {
+        return this
+      }
+      destroy() {}
+      setSelectedTargets() {}
+    },
+  }
+})
 
 /** La invitación, reducida a una sección con su título (lo demás lo prueban sus componentes). */
 const FakeStage = defineComponent({
@@ -144,5 +178,64 @@ describe('ManagerPreviewPage', () => {
     await nextTick()
     expect(document.querySelector('[data-section-key]')).toBeNull()
     expect(document.body.textContent).toContain('Cargando la vista previa')
+  })
+
+  describe('modo «Acomodar»', () => {
+    const arrange: PreviewDisplay = { ...display, mode: 'arrange' }
+
+    it('no descarga Moveable ni Selecto hasta entrar al modo, y los suelta al salir', async () => {
+      await open()
+      await flushPromises()
+      expect(libs.created).toEqual([])
+      expect(document.querySelector('.arrange-shield')).toBeNull()
+
+      fromEditor({ type: 'display', display: arrange })
+      await flushPromises()
+      expect(libs.created.sort()).toEqual(['moveable', 'selecto'])
+      expect(document.querySelector('.arrange-shield')).not.toBeNull()
+      expect(document.documentElement.classList.contains('is-arranging')).toBe(true)
+
+      fromEditor({ type: 'display', display })
+      await flushPromises()
+      expect(document.querySelector('.arrange-shield')).toBeNull()
+      expect(document.documentElement.classList.contains('is-arranging')).toBe(false)
+    })
+
+    it('reenvía al editor ⌘Z, ⇧⌘Z, ⌘D y Supr (con el foco en la vista previa no le llegan)', async () => {
+      await open()
+      fromEditor({ type: 'display', display: arrange })
+      await flushPromises()
+      editor.postMessage.mockClear()
+      const press = (init: KeyboardEventInit) =>
+        window.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ...init }))
+      press({ key: 'z', metaKey: true })
+      press({ key: 'Z', metaKey: true, shiftKey: true })
+      press({ key: 'd', ctrlKey: true })
+      press({ key: 'Delete' })
+      const keys = sent().filter((m) => m.type === 'key')
+      expect(keys).toMatchObject([
+        { key: 'z', meta: true, shift: false },
+        { key: 'z', meta: true, shift: true },
+        { key: 'd', meta: true, shift: false },
+        { key: 'Delete', meta: false, shift: false },
+      ])
+    })
+
+    it('fuera de «Acomodar» no reenvía teclas', async () => {
+      await open()
+      editor.postMessage.mockClear()
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', metaKey: true }))
+      expect(sent().some((m) => m.type === 'key')).toBe(false)
+    })
+
+    it('acepta la elección del editor sin inventar mensajes', async () => {
+      await open()
+      fromEditor({ type: 'display', display: arrange })
+      await flushPromises()
+      editor.postMessage.mockClear()
+      fromEditor({ type: 'arrange-select', section: 'itinerario', refs: ['texto:title:0'] })
+      await flushPromises()
+      expect(sent().some((m) => m.type === 'arrange-change')).toBe(false)
+    })
   })
 })
