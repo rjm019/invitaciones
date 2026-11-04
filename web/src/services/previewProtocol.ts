@@ -28,7 +28,10 @@ export interface PreviewPatch {
   /** key de la sección → sus colores, estilos de texto y textos (reemplazan los que tenía). */
   sections?: Record<
     string,
-    Pick<SectionConfig, 'colors' | 'text_styles' | 'title' | 'subtitle' | 'text' | 'button'>
+    Pick<
+      SectionConfig,
+      'colors' | 'text_styles' | 'canvas' | 'title' | 'subtitle' | 'text' | 'button'
+    >
   >
   /** Del evento: el título, los nombres y el salón. */
   event?: {
@@ -102,7 +105,10 @@ function isPatch(v: unknown): v is PreviewPatch {
 const isText = (v: unknown) => v === undefined || typeof v === 'string'
 
 function isSectionTexts(v: Record<string, unknown>): boolean {
-  return ['title', 'subtitle', 'text', 'button'].every((key) => isText(v[key]))
+  return (
+    ['title', 'subtitle', 'text', 'button'].every((key) => isText(v[key])) &&
+    (v.canvas === undefined || (Array.isArray(v.canvas) && v.canvas.every(isRecord)))
+  )
 }
 
 function isEventTexts(v: unknown): boolean {

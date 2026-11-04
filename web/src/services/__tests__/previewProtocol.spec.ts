@@ -96,6 +96,20 @@ describe('previewProtocol', () => {
       readToPreview({
         channel: PREVIEW_CHANNEL,
         type: 'patch',
+        patch: { sections: { itinerario: { canvas: [{ id: 'lienzo-1', x: 3 }] } } },
+      }),
+    ).toMatchObject({ type: 'patch' })
+    expect(
+      readToPreview({
+        channel: PREVIEW_CHANNEL,
+        type: 'patch',
+        patch: { sections: { itinerario: { canvas: 'no' } } },
+      }),
+    ).toBeNull()
+    expect(
+      readToPreview({
+        channel: PREVIEW_CHANNEL,
+        type: 'patch',
         patch: { event: { title: 'XV', subtitle: '', celebrant: { full_name: 1 }, venue: {} } },
       }),
     ).toBeNull()

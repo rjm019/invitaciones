@@ -46,6 +46,41 @@ describe('previewService', () => {
     expect(config.palette).toEqual({ primary: '#96792C' })
   })
 
+  it('el lienzo se aplica al instante y las imágenes ya conocidas toman su URL', () => {
+    const withImage = {
+      ...config,
+      sections: [
+        {
+          ...config.sections[0],
+          canvas: [
+            { id: 'lienzo-1', kind: 'image', image: 'https://x.test/media/nueva/a.webp?t=1' },
+          ],
+        },
+        config.sections[1],
+      ],
+    } as unknown as EventConfig
+    const next = applyPreviewPatch(withImage, {
+      sections: {
+        itinerario: {
+          canvas: [
+            { id: 'lienzo-1', kind: 'image', image: 'a.webp', x: 20 },
+            { id: 'lienzo-2', kind: 'image', image: 'nueva.webp' },
+            { id: 'lienzo-3', target: 'imagen:0', y: 3 },
+          ],
+        },
+      },
+    })
+    expect(next.sections[0].canvas).toEqual([
+      { id: 'lienzo-1', kind: 'image', image: 'https://x.test/media/nueva/a.webp?t=1', x: 20 },
+      { id: 'lienzo-2', kind: 'image', image: 'nueva.webp' },
+      { id: 'lienzo-3', target: 'imagen:0', y: 3 },
+    ])
+    // Sin lienzo en el parche, se quita el que tenía.
+    expect(
+      applyPreviewPatch(withImage, { sections: { itinerario: {} } }).sections[0].canvas,
+    ).toBeUndefined()
+  })
+
   it('los textos de las secciones y del evento también se ven al instante', () => {
     const next = applyPreviewPatch(config, {
       sections: {

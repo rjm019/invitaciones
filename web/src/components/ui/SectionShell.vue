@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import CanvasLayer from '@/components/ui/CanvasLayer.vue'
 import FabricAmbience from '@/components/ui/FabricAmbience.vue'
 import SectionAmbience from '@/components/ui/SectionAmbience.vue'
 import { useEvent } from '@/composables/useEvent'
 import { useInView } from '@/composables/useInView'
+import { useSectionCanvas } from '@/composables/useSectionCanvas'
 import { vReveal } from '@/directives/reveal'
 import { backgroundVars } from '@/services/backgroundService'
+import { freeElements, hasCanvas } from '@/services/canvasService'
 import { FABRIC_EFFECTS, motionTime, seededRandom, sparkles } from '@/services/effectsService'
 import { TEXT_EFFECTS } from '@/services/textEffectService'
 import { sectionStyleVars } from '@/services/themeService'
@@ -93,6 +96,12 @@ const root = ref<HTMLElement | null>(null)
 const near = useInView(root, { once: false, rootMargin: '60% 0px', threshold: 0 })
 const entered = useInView(root, { once: true, threshold: 0.25 })
 
+// Lienzo: lo que se acomodó a mano. Los elementos que ya existen los mueve el composable; los
+// libres los pinta CanvasLayer. Con lienzo, la sección recorta en su orilla.
+const canvas = computed(() => props.section.canvas)
+const canvasFree = computed(() => freeElements(canvas.value))
+useSectionCanvas(root, canvas)
+
 const classes = computed(() => [
   'section',
   `section--${props.section.type}`,
@@ -108,6 +117,7 @@ const classes = computed(() => [
     'section--has-bg': hasImage.value || hasColor.value,
     'section--sticky-bg': hasImage.value && props.section.background?.attachment === 'sticky',
     'section--has-layers': layers.value.length > 0,
+    'section--canvas': hasCanvas(canvas.value),
     // Con colores propios, los tokens que se calculan desde otros (degradados, sombras) se
     // vuelven a calcular aquí (ver tokens.css).
     'section--recolored': recolored.value,
@@ -182,6 +192,7 @@ const classes = computed(() => [
       :class="{ 'is-cascade-only': !section.effects.some((e) => REVEALS.includes(e) && !REVEALS_QUIET.includes(e)) }"
     >
       <slot />
+      <CanvasLayer v-if="canvasFree.length" :elements="canvasFree" />
     </div>
     <!-- luz rasante: una luz baja que cruza despacio y hace notar el relieve (effects/paper.css) -->
     <div v-if="section.effects.includes('raking-light')" class="section__raking" aria-hidden="true" />
@@ -206,6 +217,10 @@ const classes = computed(() => [
 /* Sin panel (portada): su contenido es lo que se ve; el espacio lo pone la página. */
 .section--bare {
   padding-block: 0;
+}
+/* Con lienzo, nada se sale de la sección: se recorta en su orilla. */
+.section--canvas {
+  overflow: clip;
 }
 .section--panel {
   border-radius: var(--panel-radius);

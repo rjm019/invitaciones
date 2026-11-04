@@ -1,4 +1,4 @@
-import type { EventConfig } from '@/types/event'
+import type { CanvasElement, EventConfig } from '@/types/event'
 import type { Invitation, InvitationGuest, RsvpPayload } from '@/types/invitation'
 import type { EventWeather } from '@/types/weather'
 import type { PreviewPatch } from './previewProtocol'
@@ -6,7 +6,37 @@ import type { PreviewPatch } from './previewProtocol'
 /** Lugares de la invitación de ejemplo que usa la vista previa del gestor. */
 export const PREVIEW_PASSES = 4
 
-const SECTION_PATCHED = ['colors', 'text_styles', 'title', 'subtitle', 'text', 'button'] as const
+const SECTION_PATCHED = [
+  'colors',
+  'text_styles',
+  'canvas',
+  'title',
+  'subtitle',
+  'text',
+  'button',
+] as const
+
+/** Archivo de media → URL, según las imágenes del lienzo que la config ya trae. */
+function canvasFiles(config: EventConfig): Map<string, string> {
+  const files = new Map<string, string>()
+  for (const section of config.sections) {
+    for (const element of section.canvas ?? []) {
+      if (!element.image) continue
+      const name = decodeURIComponent(element.image.split('?')[0].split('/').pop() ?? '')
+      if (name) files.set(name, element.image)
+    }
+  }
+  return files
+}
+
+/** El parche trae el nombre del archivo; la URL con su token solo la conoce el servidor. */
+function resolveCanvasImages(canvas: CanvasElement[], files: Map<string, string>): CanvasElement[] {
+  return canvas.map((element) =>
+    element.image && !/^(https?:)?\//.test(element.image) && files.has(element.image)
+      ? { ...element, image: files.get(element.image) }
+      : element,
+  )
+}
 
 /**
  * Aplica lo que se ve al instante a la config que ya se está viendo, sin esperar al
@@ -26,9 +56,13 @@ export function applyPreviewPatch(config: EventConfig, patch: PreviewPatch): Eve
   }
   if (patch.sections) {
     const changes = patch.sections
+    const files = canvasFiles(config)
     next.sections = config.sections.map((section) => {
-      const change = section.key ? changes[section.key] : undefined
-      if (!change) return section
+      const found = section.key ? changes[section.key] : undefined
+      if (!found) return section
+      const change = found.canvas
+        ? { ...found, canvas: resolveCanvasImages(found.canvas, files) }
+        : found
       const same = SECTION_PATCHED.every(
         (key) => JSON.stringify(section[key]) === JSON.stringify(change[key]),
       )

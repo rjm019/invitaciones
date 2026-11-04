@@ -4,10 +4,11 @@ import {
   eventTexts,
   needsServer,
   previewPatch,
+  sectionCanvas,
   sectionColors,
   sectionTextStyles,
 } from '../previewPatchService'
-import type { Catalog, Design } from '@/types/design'
+import type { Catalog, Design, DesignSection } from '@/types/design'
 
 const catalog = {
   colors: [
@@ -199,5 +200,135 @@ describe('previewPatchService', () => {
       {},
     )
     expect(styles).toEqual({ time: { size: 0.8 } })
+  })
+
+  it('el lienzo sale como en InvitationConfigBuilder (mismos datos que su prueba)', () => {
+    const section: DesignSection = {
+      id: 'fecha',
+      fields: {},
+      items: [],
+      canvas: [
+        {
+          objetivo: 'texto:title:0',
+          x: '12,5',
+          y: '-3',
+          rotacion: '-15',
+          escala: '1.2',
+          voltear_h: 'SI',
+          oculto: 'NO',
+          capa: '2',
+          e_x: '40',
+          e_oculto: 'SI',
+        },
+        {
+          tipo: 'texto',
+          texto: 'Hola',
+          letra: 'Great Vibes',
+          tamano: '6',
+          alineacion: 'centro',
+          color: '#abcdef',
+          ancho: '50',
+          opacidad: '80',
+        },
+        { tipo: 'imagen', imagen: 'salon.webp', radio: '10', borde: '2' },
+        { tipo: 'forma', forma: 'circulo', color: 'acento' },
+      ],
+    }
+    const canvas = sectionCanvas(catalog, section)
+
+    expect(canvas[0]).toEqual({
+      id: 'lienzo-1',
+      target: 'texto:title:0',
+      x: 12.5,
+      y: -3,
+      rotation: -15,
+      scale: 1.2,
+      flip_h: true,
+      hidden: false,
+      layer: 2,
+      desktop: { x: 40, hidden: true },
+    })
+    expect(canvas[1]).toEqual({
+      id: 'lienzo-2',
+      kind: 'text',
+      text: 'Hola',
+      font: 'Great Vibes',
+      size: 6,
+      align: 'center',
+      color: '#ABCDEF',
+      width: 50,
+      opacity: 80,
+    })
+    expect(canvas[2]).toEqual({
+      id: 'lienzo-3',
+      kind: 'image',
+      image: 'salon.webp',
+      radius: 10,
+      border: 2,
+    })
+    expect(canvas[3]).toMatchObject({ kind: 'shape', shape: 'circle', color: 'accent' })
+  })
+
+  it('un valor del lienzo fuera de rango se omite y el elemento sin objetivo ni tipo no pasa', () => {
+    const canvas = sectionCanvas(catalog, {
+      id: 'fecha',
+      fields: {},
+      items: [],
+      canvas: [
+        {
+          objetivo: 'texto:title:0',
+          x: '500',
+          escala: '0',
+          opacidad: '101',
+          rotacion: '400',
+          voltear_h: 'tal vez',
+          capa: '1.5',
+          e_ancho: '0',
+        },
+        { objetivo: 'cualquiera' },
+        { x: '5' },
+        { tipo: 'texto' },
+        { tipo: 'forma', forma: 'estrella' },
+      ],
+    })
+
+    expect(canvas).toEqual([{ id: 'lienzo-1', target: 'texto:title:0' }])
+  })
+
+  it('sin filas de lienzo la sección no lleva lienzo en el parche', () => {
+    expect(previewPatch(catalog, design).sections?.itinerario.canvas).toBeUndefined()
+  })
+
+  it('mover, girar o escalar un elemento ya se ve al instante; cambiar una imagen necesita al servidor', () => {
+    const base: Design = {
+      event: { tema: 'jardin-azul' },
+      colors: {},
+      fonts: {},
+      texts: {},
+      page: {},
+      sections: [
+        {
+          id: 'itinerario',
+          fields: {},
+          items: [],
+          canvas: [
+            { objetivo: 'texto:title:0', x: '10' },
+            { tipo: 'imagen', imagen: 'a.webp' },
+          ],
+        },
+      ],
+    }
+    const change = (fn: (d: Design) => void): boolean => {
+      const next = JSON.parse(JSON.stringify(base)) as Design
+      fn(next)
+      return needsServer(base, next)
+    }
+    expect(change((d) => (d.sections[0].canvas![0].x = '55'))).toBe(false)
+    expect(change((d) => (d.sections[0].canvas![0].rotacion = '20'))).toBe(false)
+    expect(change((d) => d.sections[0].canvas!.push({ tipo: 'forma', forma: 'linea' }))).toBe(false)
+    expect(change((d) => (d.sections[0].canvas![1].imagen = 'b.webp'))).toBe(true)
+    expect(change((d) => d.sections[0].canvas!.push({ tipo: 'imagen', imagen: 'c.webp' }))).toBe(
+      true,
+    )
   })
 })

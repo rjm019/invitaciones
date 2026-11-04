@@ -142,6 +142,48 @@ export interface TextStyle {
   size?: number
 }
 
+/** Lo que se puede poner distinto en escritorio (vacío = hereda del celular). */
+export interface CanvasValues {
+  /** % del ancho de `.section__content`. */
+  x?: number
+  y?: number
+  width?: number
+  /** Grados (-360 a 360). */
+  rotation?: number
+  /** 0.1 a 5. */
+  scale?: number
+  /** 0 a 100. */
+  opacity?: number
+  hidden?: boolean
+}
+
+/**
+ * Un elemento del lienzo de una sección: o un bloque que ya existe (`target`: "texto:<bloque>:<n>"
+ * o "imagen:<n>") o uno libre (`kind`). Manda el celular; `desktop` solo lo cambia en pantallas anchas.
+ */
+export interface CanvasElement extends CanvasValues {
+  /** "lienzo-1": su lugar en la lista de la sección. */
+  id: string
+  target?: string
+  kind?: 'text' | 'image' | 'shape'
+  text?: string
+  font?: string
+  /** % del ancho de la sección. */
+  size?: number
+  align?: 'left' | 'center' | 'right'
+  /** Hex o token de la paleta. */
+  color?: string
+  image?: string
+  shape?: 'line' | 'rectangle' | 'circle'
+  radius?: number
+  border?: number
+  flip_h?: boolean
+  flip_v?: boolean
+  layer?: number
+  locked?: boolean
+  desktop?: CanvasValues
+}
+
 export interface SectionConfig {
   type: string
   title?: string
@@ -163,6 +205,8 @@ export interface SectionConfig {
   sheet?: { aspect?: number; top?: number; right?: number; bottom?: number; left?: number }
   /** Estilo de cada bloque de texto de la sección ("title", "time"…). */
   text_styles?: Record<string, TextStyle>
+  /** Lienzo: elementos acomodados a mano (solo si la sección los tiene). */
+  canvas?: CanvasElement[]
   /** Imagen propia de la sección (la foto de "foto"). */
   image?: string | null
   /** Fotos quietas, una por capa (la "capa de imagen"): las pinta SectionShell. */

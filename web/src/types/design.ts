@@ -14,6 +14,8 @@ export interface DesignSection {
   id: string
   fields: DesignValues
   items: DesignValues[]
+  /** Elementos del lienzo (filas `lienzo-N` del CSV); la API siempre los manda. */
+  canvas?: DesignValues[]
 }
 
 export interface Design {
@@ -126,7 +128,7 @@ export interface Catalog {
   page: FieldDef[]
   sections: CatalogSection[]
   no_image: string
-  limits: { sections: number; fields: number; items: number; value: number }
+  limits: { sections: number; fields: number; items: number; value: number; canvas: number }
 }
 
 /** Una persona del gestor (la clave nunca viaja). */

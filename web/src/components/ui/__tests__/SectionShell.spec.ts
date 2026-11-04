@@ -230,3 +230,28 @@ describe('SectionShell: silueta y filete de la tarjeta', () => {
     expect(section.attributes('data-fillet')).toBeUndefined()
   })
 })
+
+describe('SectionShell: lienzo', () => {
+  it('sin lienzo no monta nada y no recorta', () => {
+    const wrapper = render({})
+    expect(wrapper.find('[data-canvas-layer]').exists()).toBe(false)
+    expect(wrapper.find('section').classes()).not.toContain('section--canvas')
+  })
+
+  it('con elementos libres monta la capa dentro del contenido y recorta en la orilla', () => {
+    const wrapper = render({
+      canvas: [
+        { id: 'lienzo-1', kind: 'text', text: 'Hola', x: 10 },
+        { id: 'lienzo-2', target: 'texto:title:0', y: 4 },
+      ],
+    })
+    expect(wrapper.find('section').classes()).toContain('section--canvas')
+    expect(wrapper.find('.section__content [data-canvas-layer] .canvas-el').text()).toBe('Hola')
+  })
+
+  it('un lienzo que solo acomoda lo existente también recorta, sin capa', () => {
+    const wrapper = render({ canvas: [{ id: 'lienzo-1', target: 'imagen:0', x: 2 }] })
+    expect(wrapper.find('section').classes()).toContain('section--canvas')
+    expect(wrapper.find('[data-canvas-layer]').exists()).toBe(false)
+  })
+})
