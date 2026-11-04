@@ -4,6 +4,8 @@
 
 Este archivo dice **qué se hizo, qué cambió contra el plan original y qué falta**. Las fases de `04-fases/` tienen sus casillas marcadas con la misma información. Las dudas abiertas están en `08-decisiones-pendientes.md`.
 
+**Nuevo (4-nov; rama `feature/boda-alexa-carlos`, sin unir ni publicar): boda de Alexa & Carlos (13-feb-2027).** Invitación real en `eventos/boda-alexa-carlos/` (fuera de git), basada en `boda-isabella-mateo` con el tema `lacre`: portada de carta con lacre A C, sin trivia ni historia, borgoña solo en detalles (la cuenta regresiva pasa a olivo). Código reutilizable nuevo: variante `lamina` (`frase`, `lluvia_sobres`), con `imagen_lamina`, `proporcion` y `zona_*`, y el tipo de campo `number` en el editor del gestor. Su encaje y su sobre con tulipanes vienen de los diseños del cliente. Comprobado: 379 pruebas de la API, 631 de la web, lint, build, y NAT y las dos bodas de ejemplo idénticas. Faltan datos reales (ciudad y mapas de la capilla, recepción, hoteles, tiendas, banco, fecha límite). Sin `fly deploy`.
+
 ## Resumen
 
 La invitación de Nat y su panel ya están **publicados en Fly.io**, en https://invitaciones-jiro.fly.dev/e/nat y `/panel/nat` (la carpeta ya se renombró). Lo último ya está publicado (release v10); faltan responder las preguntas abiertas antes de mandar los enlaces. El RSVP cierra el 6-nov-2026.
