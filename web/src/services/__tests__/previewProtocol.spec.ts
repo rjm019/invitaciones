@@ -170,8 +170,19 @@ describe('previewProtocol', () => {
       refs: ['imagen:0'],
       measures: { 'imagen:0': measure },
       frame: { content: 390, section: { x: 0, y: 0, width: 390, height: 600 } },
+      blocks: [{ ref: 'imagen:0', label: 'salon.webp' }],
+      copies: { 'imagen:0': { kind: 'image', src: '/media/salon.webp', aspect: 1.5 } },
     }
     expect(readFromPreview(wrap(select as never))).toEqual(select)
+    expect(readFromPreview(wrap({ ...select, blocks: [{ ref: 'lienzo-1', label: '' }] } as never))).toBeNull()
+    expect(
+      readFromPreview(wrap({ ...select, copies: { 'imagen:0': { kind: 'image', src: 'javascript:1', aspect: 1 } } } as never)),
+    ).toBeNull()
+    expect(
+      readFromPreview(
+        wrap({ ...select, copies: { 'imagen:0': { kind: 'text', text: 'Hola', font: null, size: 5, color: '#112233', align: 'left' } } } as never),
+      ),
+    ).not.toBeNull()
     expect(readFromPreview(wrap({ ...select, section: null, refs: [], measures: {}, frame: null } as never))).toMatchObject({
       type: 'arrange-select',
       section: null,

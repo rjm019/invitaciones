@@ -6,7 +6,9 @@ import { useReducedMotion } from '@/composables/useReducedMotion'
 import {
   readToPreview,
   wrap,
+  type ArrangeBlock,
   type ArrangeChange,
+  type ArrangeCopy,
   type ArrangeFrame,
   type ArrangeMeasure,
   type FromPreview,
@@ -120,9 +122,11 @@ function onArrangeSelect(
   refs: string[],
   measures: Record<string, ArrangeMeasure>,
   frame: ArrangeFrame | null,
+  blocks: ArrangeBlock[],
+  copies: Record<string, ArrangeCopy>,
 ): void {
   if (section) selected.value = section
-  post({ type: 'arrange-select', section, refs, measures, frame })
+  post({ type: 'arrange-select', section, refs, measures, frame, blocks, copies })
   measure()
 }
 

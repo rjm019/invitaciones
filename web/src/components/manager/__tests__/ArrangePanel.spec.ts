@@ -110,13 +110,14 @@ describe('ArrangePanel', () => {
     expect(current.value.sections[0].canvas![0].rotacion).toBe('30')
   })
 
-  it('el orden de capas solo vale en lo agregado; en un bloque que ya existía se apaga', async () => {
+  it('el orden de capas, duplicar y eliminar valen también en un bloque que ya existía', async () => {
     const { wrapper, arrange, current } = mountPanel()
     arrange.onSelect('fecha', ['texto:title:0'], measures, frame)
     await wrapper.vm.$nextTick()
-    expect(button(wrapper, 'Al frente').attributes('disabled')).toBeDefined()
-    expect(button(wrapper, 'Eliminar').attributes('disabled')).toBeDefined()
-    expect(button(wrapper, 'Duplicar').attributes('disabled')).toBeDefined()
+    expect(button(wrapper, 'Al frente').attributes('disabled')).toBeUndefined()
+    expect(button(wrapper, 'Eliminar').attributes('disabled')).toBeUndefined()
+    expect(button(wrapper, 'Duplicar').attributes('disabled')).toBeUndefined()
+    expect(wrapper.text()).toContain('copia fija')
     arrange.onSelect('fecha', ['lienzo-1'], measures, frame)
     await wrapper.vm.$nextTick()
     await button(wrapper, 'Al frente').trigger('click')
@@ -163,5 +164,43 @@ describe('ArrangePanel', () => {
     expect(current.value.sections[0].canvas![0].texto).toBe('Nuevo texto')
     await button(wrapper, 'Derecha').trigger('click')
     expect(current.value.sections[0].canvas![0].alineacion).toBe('derecha')
+  })
+
+  it('la lista trae todos los bloques; uno eliminado sale tachado y Restaurar lo devuelve', async () => {
+    const { wrapper, arrange, current } = mountPanel()
+    arrange.onSelect('fecha', ['texto:title:0'], measures, frame, [
+      { ref: 'texto:title:0', label: 'Título' },
+      { ref: 'texto:time:0', label: '5 pm' },
+    ], {})
+    await wrapper.vm.$nextTick()
+    expect(wrapper.findAll('.arr__layer-name').map((n) => n.text())).toEqual([
+      'Círculo',
+      'Abajo',
+      '«5 pm»',
+      '«Título»',
+    ])
+    await button(wrapper, 'Eliminar').trigger('click')
+    expect(current.value.sections[0].canvas![2].eliminado).toBe('SI')
+    await wrapper.vm.$nextTick()
+    const removed = wrapper.find('.arr__layer.is-removed')
+    expect(removed.text()).toContain('Título')
+    await button(wrapper, 'Restaurar').trigger('click')
+    expect(current.value.sections[0].canvas![2].eliminado).toBeUndefined()
+    expect(wrapper.find('.arr__layer.is-removed').exists()).toBe(false)
+  })
+
+  it('el candado de proporción cambia lo que hacen Ancho y Alto y el Alto se apaga en un texto agregado', async () => {
+    const { wrapper, arrange } = mountPanel()
+    arrange.onSelect('fecha', ['lienzo-1'], measures, frame, [], {})
+    await wrapper.vm.$nextTick()
+    const inputs = wrapper.findAll('.arr__grid input')
+    expect(inputs[3].attributes('disabled')).toBeDefined() // Alto de un texto agregado
+    const lock = wrapper.find('.arr__lock input')
+    expect((lock.element as HTMLInputElement).checked).toBe(true)
+    await lock.setValue(false)
+    expect(arrange.proportional.value).toBe(false)
+    arrange.onSelect('fecha', ['lienzo-2'], measures, frame, [], {})
+    await wrapper.vm.$nextTick()
+    expect(wrapper.findAll('.arr__grid input')[3].attributes('disabled')).toBeUndefined()
   })
 })

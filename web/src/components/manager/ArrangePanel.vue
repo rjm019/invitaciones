@@ -26,6 +26,7 @@ const ref0 = computed(() => arrange.refs.value[0] ?? '')
 const measure = computed(() => arrange.measures.value[ref0.value])
 const content = computed(() => arrange.frame.value?.content ?? 0)
 const allFree = computed(() => count.value > 0 && arrange.refs.value.every((r) => r.startsWith('lienzo-')))
+const noHeight = computed(() => !!one.value?.free && (one.value.kind === 'text' || one.value.line))
 const onlyFree = computed(() => count.value === 1 && allFree.value)
 const anyLocked = computed(() => arrange.refs.value.some((r) => arrange.values(r)?.locked))
 const allLocked = computed(
@@ -132,7 +133,7 @@ function choose(ref: string, event: MouseEvent): void {
         <section class="g-group">
           <h3 class="g-group__title">Capas <small>de arriba hacia abajo</small></h3>
           <p v-if="!arrange.layers.value.length" class="g-help">
-            Aún no hay nada acomodado aquí. Toca un texto o una imagen, o usa «Agregar».
+            Esta sección aún no muestra textos ni imágenes. Usa «Agregar».
           </p>
           <ul v-else class="arr__layers" aria-label="Capas de la sección">
             <li
@@ -143,13 +144,23 @@ function choose(ref: string, event: MouseEvent): void {
               <button
                 type="button"
                 class="arr__layer"
+                :class="{ 'is-removed': layer.removed }"
                 :aria-pressed="arrange.refs.value.includes(layer.ref)"
+                :disabled="layer.removed"
                 @click="choose(layer.ref, $event)"
               >
                 <ManagerIcon :name="kindIcon[layer.kind]" />
                 <span class="arr__layer-name">{{ layer.label }}</span>
                 <ManagerIcon v-if="layer.locked" name="lock" label="Bloqueado" />
                 <ManagerIcon v-if="layer.hidden" name="eye-slash" label="Oculto" />
+              </button>
+              <button
+                v-if="layer.removed"
+                type="button"
+                class="g-btn g-btn--small arr__restore"
+                @click="arrange.restore(layer.ref)"
+              >
+                <ManagerIcon name="rotate-left" /> Restaurar
               </button>
             </li>
           </ul>
@@ -210,7 +221,7 @@ function choose(ref: string, event: MouseEvent): void {
                   type="number"
                   step="0.5"
                   min="1"
-                  :disabled="one.locked || numbers.height === null"
+                  :disabled="one.locked || numbers.height === null || noHeight"
                   :value="numbers.height ?? ''"
                   aria-label="Alto en %"
                   @change="onNumber('height', $event)"
@@ -231,8 +242,18 @@ function choose(ref: string, event: MouseEvent): void {
                 />
               </label>
             </div>
+            <label v-if="one" class="arr__lock">
+              <input v-model="arrange.proportional.value" type="checkbox" />
+              <span>Mantener proporción</span>
+            </label>
             <p v-if="one" class="g-help">
-              Medidas en % del ancho de la sección. Ancho y alto cambian el tamaño sin deformar.
+              Medidas en % del ancho de la sección.
+              {{
+                arrange.proportional.value
+                  ? 'Ancho y alto cambian juntos, sin deformar.'
+                  : 'Ancho y alto cambian cada uno por su lado; las letras se deforman.'
+              }}
+              Al arrastrar, las esquinas conservan la proporción y los lados estiran solo ese eje.
             </p>
 
             <label v-if="first" class="arr__opacity">
@@ -291,7 +312,6 @@ function choose(ref: string, event: MouseEvent): void {
               <button
                 type="button"
                 class="g-btn g-btn--small"
-                :disabled="!allFree"
                 @click="arrange.stack('front')"
               >
                 <ManagerIcon name="arrow-up" /> Al frente
@@ -299,7 +319,6 @@ function choose(ref: string, event: MouseEvent): void {
               <button
                 type="button"
                 class="g-btn g-btn--small"
-                :disabled="!allFree"
                 @click="arrange.stack('forward')"
               >
                 Un paso adelante
@@ -307,7 +326,6 @@ function choose(ref: string, event: MouseEvent): void {
               <button
                 type="button"
                 class="g-btn g-btn--small"
-                :disabled="!allFree"
                 @click="arrange.stack('backward')"
               >
                 Un paso atrás
@@ -315,15 +333,14 @@ function choose(ref: string, event: MouseEvent): void {
               <button
                 type="button"
                 class="g-btn g-btn--small"
-                :disabled="!allFree"
                 @click="arrange.stack('back')"
               >
                 <ManagerIcon name="arrow-down" /> Al fondo
               </button>
             </div>
             <p v-if="!allFree" class="g-help">
-              El orden solo cambia en lo que agregaste; los textos e imágenes de la sección
-              mantienen el suyo.
+              Si un texto o imagen de la sección comparte contenedor con otro, sube o baja junto
+              con él.
             </p>
           </section>
 
@@ -478,7 +495,6 @@ function choose(ref: string, event: MouseEvent): void {
               <button
                 type="button"
                 class="g-btn g-btn--small"
-                :disabled="!allFree"
                 title="Duplicar (⌘D)"
                 @click="arrange.duplicate()"
               >
@@ -495,13 +511,17 @@ function choose(ref: string, event: MouseEvent): void {
               <button
                 type="button"
                 class="g-btn g-btn--small g-btn--danger"
-                :disabled="!allFree"
                 title="Eliminar (Supr)"
                 @click="arrange.remove()"
               >
                 <ManagerIcon name="trash-can" /> Eliminar
               </button>
             </div>
+            <p v-if="!allFree" class="g-help">
+              Duplicar un texto o una imagen de la sección hace una copia fija: si después editas
+              el original, la copia no cambia. Eliminar los quita de la vista y libera su lugar;
+              «Restaurar» en la lista los regresa.
+            </p>
           </section>
         </template>
       </template>
@@ -564,15 +584,38 @@ function choose(ref: string, event: MouseEvent): void {
 .arr__layers {
   display: grid;
   gap: 4px;
+  max-height: 240px;
   margin: 0;
   padding: 0;
+  overflow-y: auto;
   list-style: none;
+}
+.arr__layers li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.arr__layer.is-removed {
+  color: var(--g-muted);
+  text-decoration: line-through;
+  cursor: default;
+}
+.arr__restore {
+  flex: none;
+}
+.arr__lock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 13px;
 }
 .arr__layer {
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   padding: 6px 10px;
   border: 1px solid var(--g-line);
   border-radius: 8px;

@@ -135,14 +135,17 @@ describe('useArrange', () => {
     expect(t.canvas()[0].x).toBe('30')
   })
 
-  it('no mueve lo bloqueado y avisa que lo que ya existía no se borra', () => {
+  it('eliminar un bloque de la sección lo quita de la vista y restaurar lo devuelve; el bloqueado no se mueve', () => {
     const t = setup()
     t.arrange.chooseSection('fecha')
     t.arrange.onChange('fecha', [{ ref: 'texto:title:0', values: { x: 1 } }], false)
     t.arrange.choose(['texto:title:0'])
     t.arrange.remove()
-    expect(t.deps.notify).toHaveBeenCalled()
     expect(t.canvas()).toHaveLength(2)
+    expect(t.canvas()[1].eliminado).toBe('SI')
+    t.arrange.restore('texto:title:0')
+    expect(t.canvas()[1].eliminado).toBeUndefined()
+    t.arrange.choose(['texto:title:0'])
     t.arrange.toggle('locked')
     expect(t.canvas()[1].bloqueado).toBe('SI')
     t.arrange.onSelect(
@@ -150,6 +153,8 @@ describe('useArrange', () => {
       ['texto:title:0'],
       { 'texto:title:0': { x: 0, y: 0, width: 50, height: 10, w: 50, h: 10 } },
       { content: 390, section: { x: 0, y: 0, width: 390, height: 600 } },
+      [],
+      {},
     )
     t.arrange.align('right', 'section')
     expect(t.canvas()[1].x).toBe('1')
@@ -169,5 +174,56 @@ describe('useArrange', () => {
     expect(t.canvas()).toHaveLength(1)
     t.arrange.onKey('s', true, false)
     expect(t.deps.save).toHaveBeenCalled()
+  })
+
+  it('duplica un texto de la sección con lo que la vista previa leyó de él', () => {
+    const t = setup()
+    t.arrange.chooseSection('fecha')
+    t.arrange.onSelect(
+      'fecha',
+      ['texto:title:0'],
+      { 'texto:title:0': { x: 40, y: 20, width: 120, height: 30, w: 120, h: 30 } },
+      { content: 400, section: { x: 0, y: 0, width: 400, height: 600 } },
+      [{ ref: 'texto:title:0', label: 'Hola' }],
+      { 'texto:title:0': { kind: 'text', text: 'Hola', font: null, size: 5, color: null, align: 'center' } },
+    )
+    t.arrange.duplicate()
+    expect(t.canvas()).toHaveLength(2)
+    expect(t.canvas()[1]).toMatchObject({ tipo: 'texto', texto: 'Hola', tamano: '5', x: '13', y: '8' })
+    expect(t.arrange.refs.value).toEqual(['lienzo-2'])
+    expect(t.arrange.layers.value.map((l) => l.ref)).toEqual(['lienzo-2', 'lienzo-1', 'texto:title:0'])
+  })
+
+  it('al frente y atrás funcionan con un texto de la sección y la lista trae todos los bloques', () => {
+    const t = setup()
+    t.arrange.chooseSection('fecha')
+    t.arrange.onSelect('fecha', ['texto:title:0'], {}, null, [
+      { ref: 'texto:title:0', label: 'Título' },
+      { ref: 'imagen:0', label: 'foto.webp' },
+    ], {})
+    expect(t.arrange.layers.value.map((l) => l.ref)).toEqual(['lienzo-1', 'imagen:0', 'texto:title:0'])
+    t.arrange.stack('front')
+    expect(t.arrange.layers.value[0].ref).toBe('texto:title:0')
+    expect(t.canvas().find((r) => r.objetivo === 'texto:title:0')?.capa).toBe('2')
+  })
+
+  it('con el candado quitado Ancho y Alto estiran cada eje; con él, ambos', () => {
+    const t = setup()
+    t.arrange.chooseSection('fecha')
+    const m = { 'texto:title:0': { x: 0, y: 0, width: 200, height: 40, w: 200, h: 40 } }
+    const frame = { content: 400, section: { x: 0, y: 0, width: 400, height: 600 } }
+    t.arrange.onSelect('fecha', ['texto:title:0'], m, frame, [], {})
+    t.arrange.proportional.value = false
+    t.arrange.setNumber('height', 20) // 80 px: el doble de alto
+    expect(t.canvas()[1]).toMatchObject({ objetivo: 'texto:title:0', escala_y: '2' })
+    expect(t.canvas()[1].escala).toBeUndefined()
+    t.arrange.setNumber('width', 100) // 400 px: el doble de ancho
+    // Las dos escalas iguales: la vertical se deja vacía (hereda de la horizontal).
+    expect(t.canvas()[1]).toMatchObject({ escala: '2' })
+    expect(t.canvas()[1].escala_y).toBeUndefined()
+    t.arrange.proportional.value = true
+    t.arrange.setNumber('width', 25) // la mitad del ancho actual (m.w sigue siendo 200)
+    expect(t.canvas()[1]).toMatchObject({ escala: '1' })
+    expect(t.canvas()[1].escala_y).toBeUndefined()
   })
 })

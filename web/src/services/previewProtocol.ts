@@ -50,8 +50,12 @@ export interface ArrangeValues {
   x?: number
   y?: number
   width?: number
+  height?: number
   rotation?: number
   scale?: number
+  scale_y?: number
+  /** Tamaño de la letra de un texto agregado (% del ancho). */
+  size?: number
 }
 
 /** "texto:title:0" / "imagen:1" (un bloque que ya existe) o "lienzo-3" (uno agregado). */
@@ -73,6 +77,22 @@ export interface ArrangeMeasure {
   w: number
   h: number
 }
+
+/** Un texto o una imagen de la sección (aparecen en la lista de capas, se toquen o no). */
+export interface ArrangeBlock {
+  /** "texto:title:0" o "imagen:1". */
+  ref: string
+  /** Su texto (o, en una imagen, su descripción); puede ir vacío. */
+  label: string
+}
+
+/**
+ * Lo que la vista previa leyó de un bloque elegido de la sección para poder duplicarlo como
+ * un elemento agregado (la copia es fija: no sigue al original).
+ */
+export type ArrangeCopy =
+  | { kind: 'text'; text: string; font: string | null; size: number; color: string | null; align: 'left' | 'center' | 'right' }
+  | { kind: 'image'; src: string; aspect: number }
 
 /** La sección elegida, en px desde la esquina de su contenido; `content` es el ancho de la unidad (%). */
 export interface ArrangeFrame {
@@ -100,6 +120,8 @@ export type FromPreview =
       refs: string[]
       measures: Record<string, ArrangeMeasure>
       frame: ArrangeFrame | null
+      blocks: ArrangeBlock[]
+      copies: Record<string, ArrangeCopy>
     }
   | { type: 'arrange-change'; section: string; changes: ArrangeChange[]; nudge: boolean }
   | { type: 'key'; key: string; meta: boolean; shift: boolean }
@@ -139,7 +161,7 @@ const isRefs = (v: unknown): v is string[] =>
 function isValues(v: unknown): v is ArrangeValues {
   return (
     isRecord(v) &&
-    Object.keys(v).every((k) => ['x', 'y', 'width', 'rotation', 'scale'].includes(k)) &&
+    Object.keys(v).every((k) => ['x', 'y', 'width', 'height', 'rotation', 'scale', 'scale_y', 'size'].includes(k)) &&
     Object.values(v).every(isNum)
   )
 }
@@ -151,6 +173,37 @@ function isMeasure(v: unknown): v is ArrangeMeasure {
 function isMeasures(v: unknown): v is Record<string, ArrangeMeasure> {
   return isRecord(v) && Object.entries(v).every(([k, m]) => isRef(k) && isMeasure(m))
 }
+
+const isBlocks = (v: unknown): v is ArrangeBlock[] =>
+  Array.isArray(v) &&
+  v.length <= 400 &&
+  v.every(
+    (b) =>
+      isRecord(b) &&
+      typeof b.ref === 'string' &&
+      /^(texto:[a-z0-9_]{1,40}:\d{1,3}|imagen:\d{1,3})$/.test(b.ref) &&
+      typeof b.label === 'string' &&
+      b.label.length <= 80,
+  )
+
+function isCopy(v: unknown): v is ArrangeCopy {
+  if (!isRecord(v)) return false
+  if (v.kind === 'image') {
+    return typeof v.src === 'string' && /^(https?:\/\/|\/)/.test(v.src) && v.src.length <= 1000 && isNum(v.aspect)
+  }
+  return (
+    v.kind === 'text' &&
+    typeof v.text === 'string' &&
+    v.text.length <= 600 &&
+    (v.font === null || (typeof v.font === 'string' && /^[A-Za-z0-9 ]{2,60}$/.test(v.font))) &&
+    isNum(v.size) &&
+    (v.color === null || (typeof v.color === 'string' && /^#[0-9A-Fa-f]{6}$/.test(v.color))) &&
+    (v.align === 'left' || v.align === 'center' || v.align === 'right')
+  )
+}
+
+const isCopies = (v: unknown): v is Record<string, ArrangeCopy> =>
+  isRecord(v) && Object.entries(v).every(([k, c]) => isRef(k) && isCopy(c))
 
 function isFrame(v: unknown): v is ArrangeFrame {
   return (
@@ -264,13 +317,17 @@ export function readFromPreview(data: unknown): FromPreview | null {
       return (data.section === null || isKey(data.section)) &&
         isRefs(data.refs) &&
         isMeasures(data.measures) &&
-        (data.frame === null || isFrame(data.frame))
+        (data.frame === null || isFrame(data.frame)) &&
+        isBlocks(data.blocks) &&
+        isCopies(data.copies)
         ? {
             type: 'arrange-select',
             section: data.section,
             refs: data.refs,
             measures: data.measures,
             frame: data.frame,
+            blocks: data.blocks,
+            copies: data.copies,
           }
         : null
     case 'arrange-change':

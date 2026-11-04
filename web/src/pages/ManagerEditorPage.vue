@@ -86,8 +86,8 @@ const preview = usePreviewHost(frame, {
   onPick: (key, block) =>
     select({ kind: 'section', id: key, tab: 'content', block, at: Date.now() }, true),
   onRendered: (keys) => (rendered.value = new Set(keys)),
-  onArrangeSelect: (section, refs, measures, frame) => {
-    arrange.onSelect(section, refs, measures, frame)
+  onArrangeSelect: (section, refs, measures, frame, blocks, copies) => {
+    arrange.onSelect(section, refs, measures, frame, blocks, copies)
     const current = selection.value.kind === 'section' ? selection.value.id : null
     if (section && section !== current) select({ kind: 'section', id: section, tab: 'content' }, true)
   },

@@ -1,7 +1,9 @@
 import { onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
 import {
   readFromPreview,
+  type ArrangeBlock,
   type ArrangeChange,
+  type ArrangeCopy,
   type ArrangeFrame,
   type ArrangeMeasure,
   wrap,
@@ -24,6 +26,8 @@ export interface PreviewHandlers {
     refs: string[],
     measures: Record<string, ArrangeMeasure>,
     frame: ArrangeFrame | null,
+    blocks: ArrangeBlock[],
+    copies: Record<string, ArrangeCopy>,
   ) => void
   /** «Acomodar»: se soltó un arrastre (o una flecha): los valores nuevos. */
   onArrangeChange?: (section: string, changes: ArrangeChange[], nudge: boolean) => void
@@ -72,7 +76,14 @@ export function usePreviewHost(
         handlers.onTokens?.(message.colors, message.fonts)
         break
       case 'arrange-select':
-        handlers.onArrangeSelect?.(message.section, message.refs, message.measures, message.frame)
+        handlers.onArrangeSelect?.(
+          message.section,
+          message.refs,
+          message.measures,
+          message.frame,
+          message.blocks,
+          message.copies,
+        )
         break
       case 'arrange-change':
         handlers.onArrangeChange?.(message.section, message.changes, message.nudge)

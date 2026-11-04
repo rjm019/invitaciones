@@ -14,6 +14,7 @@ import {
   resetPlace,
   restack,
   setColumns,
+  setRemoved,
   setProperty,
   unionBox,
   type AlignMode,
@@ -22,7 +23,13 @@ import {
   type StackOp,
 } from '@/services/arrangeService'
 import { setSectionCanvas } from '@/services/designService'
-import type { ArrangeChange, ArrangeFrame, ArrangeMeasure } from '@/services/previewProtocol'
+import type {
+  ArrangeBlock,
+  ArrangeChange,
+  ArrangeCopy,
+  ArrangeFrame,
+  ArrangeMeasure,
+} from '@/services/previewProtocol'
 import type { Design, DesignValues } from '@/types/design'
 
 export interface ArrangeDeps {
@@ -60,11 +67,17 @@ export function useArrange(deps: ArrangeDeps) {
   const refs = ref<string[]>([])
   const measures = ref<Record<string, ArrangeMeasure>>({})
   const frame = ref<ArrangeFrame | null>(null)
+  /** Los textos e imágenes de la sección, toquen o no (para la lista de capas y el orden). */
+  const blocks = ref<ArrangeBlock[]>([])
+  /** Lo que la vista previa leyó de lo elegido para duplicarlo. */
+  const copies = ref<Record<string, ArrangeCopy>>({})
+  /** El candado «Mantener proporción» de Ancho y Alto. */
+  const proportional = ref(true)
 
   const canvas = computed<DesignValues[]>(
     () => deps.design.value.sections.find((s) => s.id === section.value)?.canvas ?? [],
   )
-  const layers = computed(() => listLayers(canvas.value))
+  const layers = computed(() => listLayers(canvas.value, blocks.value))
   const values = (ref: string): ElementValues | null =>
     elementValues(canvas.value, ref, deps.desktop.value)
   /** El primer elemento elegido: el panel muestra sus valores. */
@@ -87,6 +100,8 @@ export function useArrange(deps: ArrangeDeps) {
     refs.value = []
     measures.value = {}
     frame.value = null
+    blocks.value = []
+    copies.value = {}
     deps.sendSelect(id, [])
   }
 
@@ -96,11 +111,15 @@ export function useArrange(deps: ArrangeDeps) {
     next: string[],
     nextMeasures: Record<string, ArrangeMeasure>,
     nextFrame: ArrangeFrame | null,
+    nextBlocks: ArrangeBlock[] = [],
+    nextCopies: Record<string, ArrangeCopy> = {},
   ): void {
     section.value = id
     refs.value = next
     measures.value = nextMeasures
     frame.value = nextFrame
+    blocks.value = nextBlocks
+    copies.value = nextCopies
   }
 
   /** Se soltó un arrastre (un paso de deshacer) o se movió con las flechas (se juntan). */
@@ -138,21 +157,33 @@ export function useArrange(deps: ArrangeDeps) {
     choose([result.ref])
   }
 
+  /** Supr: lo agregado se borra; un texto o imagen de la sección se quita de la vista (libera su lugar). */
   function remove(): void {
-    const free = refs.value.filter(isFreeRef)
-    if (!free.length) {
-      if (refs.value.length)
-        deps.notify('Los textos e imágenes de la sección se ocultan o vuelven a su lugar; no se borran.')
-      return
-    }
-    commit(removeElements(canvas.value, free))
-    choose(refs.value.filter((r) => !isFreeRef(r)))
+    if (!refs.value.length) return
+    let next = removeElements(canvas.value, refs.value)
+    for (const ref of refs.value) next = setRemoved(next, ref, true, deps.desktop.value)
+    commit(next)
+    choose([])
+  }
+
+  /** Devuelve a la vista un bloque de la sección que se había quitado. */
+  function restore(ref: string): void {
+    commit(setRemoved(canvas.value, ref, false, deps.desktop.value))
   }
 
   function duplicate(): void {
-    const result = duplicateElements(canvas.value, refs.value)
+    const result = duplicateElements(canvas.value, refs.value, {
+      copies: copies.value,
+      measures: measures.value,
+      content: frame.value?.content ?? 0,
+      desktop: deps.desktop.value,
+    })
     if (!result.refs.length) {
-      deps.notify('Solo se duplican los elementos que agregaste.')
+      deps.notify(
+        canvas.value.length >= 60
+          ? 'La sección ya tiene el máximo de elementos.'
+          : 'No se pudo duplicar lo elegido; toca de nuevo el elemento e inténtalo otra vez.',
+      )
       return
     }
     commit(result.canvas)
@@ -179,7 +210,7 @@ export function useArrange(deps: ArrangeDeps) {
   }
 
   function stack(op: StackOp): void {
-    commit(restack(canvas.value, refs.value, op))
+    commit(restack(canvas.value, refs.value, op, blocks.value))
   }
 
   /** X, Y, ancho, alto o giro escritos a mano en el panel. */
@@ -192,11 +223,39 @@ export function useArrange(deps: ArrangeDeps) {
     const change: ArrangeChange['values'] = {}
     if (field === 'x' || field === 'y' || field === 'rotation') change[field] = value
     else if (m && m.w > 0 && m.h > 0 && cw > 0) {
-      // Ancho y alto cambian el tamaño sin deformar: el existente cambia de escala; el agregado, de ancho.
-      const ratio = field === 'width' ? ((value / 100) * cw) / m.w : ((value / 100) * cw) / m.h
-      if (ratio <= 0) return
-      if (now.free) change.width = (now.width ?? (m.w / cw) * 100) * ratio
-      else change.scale = now.scale * ratio
+      // Lo que mide ahora (px de la vista) contra lo que se pide (% del ancho de la sección).
+      const ratio = (((value / 100) * cw) / (field === 'width' ? m.w : m.h))
+      if (!(ratio > 0)) return
+      const keep = proportional.value
+      if (now.free) {
+        const s = now.scale > 0 ? now.scale : 1
+        const baseW = now.width ?? (m.w / cw) * 100 / s
+        const baseH = now.height ?? (m.h / cw) * 100 / s
+        const solid = now.kind === 'image' || (now.kind === 'shape' && !now.line)
+        if (now.kind === 'text') {
+          if (field === 'height') return
+          change.width = baseW * ratio
+          // Con el candado y en celular, el texto crece con su letra, como al estirar una esquina.
+          if (keep && !deps.desktop.value) change.size = (now.size ?? 5) * ratio
+        } else if (keep) {
+          change.width = baseW * ratio
+          if (now.height !== null) change.height = baseH * ratio
+        } else if (field === 'width') {
+          change.width = baseW * ratio
+          if (solid && now.height === null) change.height = baseH
+        } else if (solid) {
+          change.height = baseH * ratio
+          if (now.width === null) change.width = baseW
+        } else return
+      } else if (keep) {
+        change.scale = now.scale * ratio
+        change.scale_y = (now.scaleY ?? now.scale) * ratio
+      } else if (field === 'width') {
+        change.scale = now.scale * ratio
+        change.scale_y = now.scaleY ?? now.scale
+      } else {
+        change.scale_y = (now.scaleY ?? now.scale) * ratio
+      }
     } else return
     commit(
       applyChanges(canvas.value, [{ ref, values: change }], deps.desktop.value),
@@ -246,6 +305,9 @@ export function useArrange(deps: ArrangeDeps) {
     measures,
     frame,
     canvas,
+    blocks,
+    copies,
+    proportional,
     layers,
     current,
     values,
@@ -257,6 +319,7 @@ export function useArrange(deps: ArrangeDeps) {
     add,
     remove,
     duplicate,
+    restore,
     reset,
     toggle,
     setOpacity,

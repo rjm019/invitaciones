@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   addElement,
   alignDeltas,
+  anchorTextCenter,
   applyChanges,
   distributeDeltas,
   duplicateElements,
@@ -14,6 +15,7 @@ import {
   restack,
   rowIndex,
   setProperty,
+  setRemoved,
   unionBox,
   valuesFromBox,
   type GestureStart,
@@ -218,7 +220,7 @@ describe('arrangeService: del ratón a los valores', () => {
   })
 
   it('un bloque que ya existe se desplaza, gira y cambia de escala', () => {
-    const start: GestureStart = { free: false, x: 2, y: 0, rotation: 0, scale: 1, box }
+    const start: GestureStart = { free: false, x: 2, y: 0, rotation: 0, scale: 1, scaleY: 1, box }
     const out = valuesFromBox(start, { ...box, cx: 340, cy: 180, width: 150, rotation: 30 }, frame)
     expect(out.x).toBeCloseTo(12) // 2 + 40/400*100
     expect(out.y).toBeCloseTo(-5)
@@ -228,7 +230,7 @@ describe('arrangeService: del ratón a los valores', () => {
   })
 
   it('uno libre toma su esquina y su ancho, descontando su escala', () => {
-    const start: GestureStart = { free: true, x: 0, y: 0, rotation: 0, scale: 2, box }
+    const start: GestureStart = { free: true, x: 0, y: 0, rotation: 0, scale: 2, scaleY: 2, box }
     const out = valuesFromBox(start, { cx: 300, cy: 200, width: 200, height: 80, rotation: 0 }, frame)
     // ancho de diseño = 200 / 2 = 100 px = 25 %; esquina = (300-50-100, 200-20-50) = (150,130) px
     expect(out.width).toBeCloseTo(25)
@@ -237,7 +239,153 @@ describe('arrangeService: del ratón a los valores', () => {
   })
 
   it('sin ancho medido no cambia nada', () => {
-    const start: GestureStart = { free: false, x: 0, y: 0, rotation: 0, scale: 1, box }
+    const start: GestureStart = { free: false, x: 0, y: 0, rotation: 0, scale: 1, scaleY: 1, box }
     expect(valuesFromBox(start, box, { left: 0, top: 0, width: 0 })).toEqual({})
+  })
+})
+
+describe('arrangeService: deformar, quitar y copiar bloques de la sección', () => {
+  const frame = { left: 100, top: 50, width: 400 }
+  const box = { cx: 300, cy: 200, width: 100, height: 40, rotation: 0 }
+
+  it('un lado estira un solo eje y una esquina conserva la proporción', () => {
+    const start: GestureStart = { free: false, x: 0, y: 0, rotation: 0, scale: 1, scaleY: 1, box }
+    const side = valuesFromBox(start, { ...box, width: 150 }, frame)
+    expect(side.scale).toBeCloseTo(1.5)
+    expect(side.scale_y).toBeCloseTo(1)
+    const corner = valuesFromBox(start, { ...box, width: 200, height: 80 }, frame)
+    expect(corner.scale).toBeCloseTo(2)
+    expect(corner.scale_y).toBeCloseTo(2)
+  })
+
+  it('una imagen agregada estirada guarda su alto; en proporción, no', () => {
+    const start: GestureStart = { free: true, kind: 'image', x: 0, y: 0, rotation: 0, scale: 1, scaleY: 1, box }
+    expect(valuesFromBox(start, { ...box, width: 200, height: 40 }, frame).height).toBeCloseTo(10)
+    expect(valuesFromBox(start, { ...box, width: 200, height: 80 }, frame).height).toBeUndefined()
+    expect(valuesFromBox({ ...start, sized: true }, { ...box, width: 200, height: 80 }, frame).height).toBeCloseTo(20)
+  })
+
+  it('un texto agregado: la esquina cambia letra y ancho; el alto lo da el texto', () => {
+    const start: GestureStart = { free: true, kind: 'text', x: 0, y: 0, rotation: 0, scale: 1, scaleY: 1, size: 6, box }
+    const out = valuesFromBox(start, { cx: 350, cy: 220, width: 200, height: 80, rotation: 0 }, frame, {
+      direction: [1, 1],
+      writeSize: true,
+      textHeight: 70,
+    })
+    expect(out.size).toBeCloseTo(12)
+    expect(out.width).toBeCloseTo(50)
+    // La esquina de arriba a la izquierda no se movió: (300-50, 200-20) → (250, 180) px.
+    expect(out.x).toBeCloseTo(((250 - 100) / 400) * 100)
+    expect(out.y).toBeCloseTo(((180 - 50) / 400) * 100)
+    // Un lado solo cambia el ancho; en escritorio, tampoco la letra.
+    const side = valuesFromBox(start, { ...box, width: 200 }, frame, { direction: [1, 0], writeSize: true })
+    expect(side.size).toBeUndefined()
+    expect(valuesFromBox(start, { ...box, width: 200 }, frame, { direction: [1, 1], writeSize: false }).size).toBeUndefined()
+  })
+
+  it('al estirar hacia arriba el texto deja fija su esquina de abajo', () => {
+    const out = anchorTextCenter(box, [-1, -1], 200, 50, 0)
+    // La esquina de abajo a la derecha (350, 220) se queda: el centro baja/sube con el alto real.
+    expect(out.cx + 100).toBeCloseTo(350)
+    expect(out.cy + 25).toBeCloseTo(220)
+    const rotated = anchorTextCenter({ ...box, rotation: 90 }, [1, 1], 100, 40, 90)
+    expect(rotated.cx).toBeCloseTo(300)
+    expect(rotated.cy).toBeCloseTo(200)
+  })
+
+  it('escala vertical igual a la horizontal se deja vacía; en escritorio se escribe tal cual', () => {
+    const mobile = applyChanges([], [{ ref: 'imagen:0', values: { scale: 1.5, scale_y: 1.5 } }], false)
+    expect(mobile[0].escala).toBe('1.5')
+    expect(mobile[0].escala_y).toBeUndefined()
+    const side = applyChanges(mobile, [{ ref: 'imagen:0', values: { scale: 1.5, scale_y: 0.8 } }], false)
+    expect(side[0].escala_y).toBe('0.8')
+    expect(elementValues(side, 'imagen:0', false)).toMatchObject({ scale: 1.5, scaleY: 0.8 })
+    const desktop = applyChanges(side, [{ ref: 'imagen:0', values: { scale: 2, scale_y: 2 } }], true)
+    expect(desktop[0].e_escala).toBe('2')
+    expect(desktop[0].e_escala_y).toBe('2')
+  })
+
+  it('imagen y forma agregadas guardan alto en su columna y el texto, su tamaño', () => {
+    const out = applyChanges([free({ tipo: 'imagen', imagen: 'a.webp' })], [{ ref: 'lienzo-1', values: { height: 12.5, size: 7 } }], false)
+    expect(out[0].alto).toBe('12.5')
+    expect(out[0].tamano).toBe('7')
+    const desk = applyChanges(out, [{ ref: 'lienzo-1', values: { height: 20, size: 9 } }], true)
+    expect(desk[0].e_alto).toBe('20')
+    expect(desk[0].tamano).toBe('9')
+  })
+
+  it('eliminar un bloque escribe eliminado; en escritorio solo e_eliminado; restaurar lo limpia', () => {
+    const gone = setRemoved([], 'texto:title:0', true, false)
+    expect(gone).toEqual([{ objetivo: 'texto:title:0', eliminado: 'SI' }])
+    expect(elementValues(gone, 'texto:title:0', true)?.removed).toBe(true)
+    expect(setRemoved(gone, 'texto:title:0', false, false)).toEqual([])
+    const desktopOnly = setRemoved([], 'texto:title:0', true, true)
+    expect(desktopOnly).toEqual([{ objetivo: 'texto:title:0', e_eliminado: 'SI' }])
+    expect(elementValues(desktopOnly, 'texto:title:0', false)?.removed).toBe(false)
+    // Quitado en celular y devuelto en escritorio: el escritorio lo dice con NO.
+    expect(setRemoved(gone, 'texto:title:0', false, true)[0].e_eliminado).toBe('NO')
+    expect(setRemoved([free()], 'lienzo-1', true, false)).toEqual([free()])
+    // «Volver a su lugar» también lo regresa.
+    expect(resetPlace(gone, 'texto:title:0', false)).toEqual([])
+  })
+
+  it('las capas listan todos los bloques y restack los ordena junto con lo agregado', () => {
+    const blocks = [
+      { ref: 'texto:title:0', label: 'Título' },
+      { ref: 'texto:time:0', label: '5 pm' },
+      { ref: 'imagen:0', label: 'foto.webp' },
+    ]
+    const canvas = [free({ texto: 'Libre', capa: '1' })]
+    const layers = listLayers(canvas, blocks)
+    expect(layers.map((l) => l.ref)).toEqual(['lienzo-1', 'imagen:0', 'texto:time:0', 'texto:title:0'])
+    expect(layers[2].label).toBe('«5 pm»')
+    // El título al frente pasa por encima de lo agregado y los bloques de abajo no ganan filas.
+    const front = restack(canvas, ['texto:title:0'], 'front', blocks)
+    expect(listLayers(front, blocks).map((l) => l.ref)[0]).toBe('texto:title:0')
+    expect(front.find((r) => r.objetivo === 'texto:time:0')).toBeUndefined()
+    expect(front.find((r) => r.objetivo === 'texto:title:0')?.capa).toBe('2')
+    // Al fondo: el título queda debajo de los demás bloques, que reciben capa para estar encima.
+    const back = restack(canvas, ['imagen:0'], 'back', blocks)
+    expect(listLayers(back, blocks).map((l) => l.ref).reverse()[0]).toBe('imagen:0')
+    expect(Number(back.find((r) => r.objetivo === 'imagen:0')?.capa)).toBeLessThan(Number(back[0].capa))
+    // Un paso atrás respeta el orden de los vecinos.
+    const step = restack(front, ['texto:title:0'], 'backward', blocks)
+    expect(listLayers(step, blocks).map((l) => l.ref)[0]).toBe('lienzo-1')
+  })
+
+  it('duplicar un texto o una imagen de la sección crea un elemento agregado fijo', () => {
+    const ctx = {
+      content: 400,
+      desktop: false,
+      measures: {
+        'texto:title:0': { x: 40, y: 20, width: 120, height: 30, w: 120, h: 30 },
+        'imagen:0': { x: 0, y: 100, width: 200, height: 100, w: 200, h: 100 },
+      },
+      copies: {
+        'texto:title:0': { kind: 'text' as const, text: 'Nuestra boda', font: 'Great Vibes', size: 7, color: '#112233', align: 'center' as const },
+        'imagen:0': { kind: 'image' as const, src: '/media/salon.webp', aspect: 1 },
+      },
+    }
+    const base = [free({ capa: '4' })]
+    const out = duplicateElements(base, ['texto:title:0', 'imagen:0'], ctx)
+    expect(out.refs).toEqual(['lienzo-2', 'lienzo-3'])
+    expect(out.canvas[1]).toMatchObject({
+      tipo: 'texto',
+      texto: 'Nuestra boda',
+      letra: 'Great Vibes',
+      tamano: '7',
+      color: '#112233',
+      alineacion: 'centro',
+      x: '13',
+      y: '8',
+      capa: '5',
+    })
+    expect(out.canvas[1].ancho).toBe('31.2')
+    expect(out.canvas[2]).toMatchObject({ tipo: 'imagen', imagen: '/media/salon.webp', ancho: '50', x: '3', y: '28', capa: '6' })
+    expect(out.canvas[2].alto).toBe('25')
+    // Sin lo leído de la vista previa no se puede copiar un bloque.
+    expect(duplicateElements(base, ['texto:title:0']).refs).toEqual([])
+    // Quitado: no se copia.
+    expect(duplicateElements([{ objetivo: 'texto:title:0', eliminado: 'SI' }], ['texto:title:0'], ctx).refs).toEqual([])
   })
 })

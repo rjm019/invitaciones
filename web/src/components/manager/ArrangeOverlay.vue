@@ -7,10 +7,13 @@ import {
   valuesFromBox,
   type GestureStart,
   type ProxyBox,
+  type ResizeInfo,
 } from '@/services/arrangeService'
 import { DESKTOP_QUERY, existingStyle, resolveCanvas } from '@/services/canvasService'
 import type {
+  ArrangeBlock,
   ArrangeChange,
+  ArrangeCopy,
   ArrangeFrame,
   ArrangeMeasure,
   ArrangeValues,
@@ -33,6 +36,8 @@ const emit = defineEmits<{
     refs: string[],
     measures: Record<string, ArrangeMeasure>,
     frame: ArrangeFrame | null,
+    blocks: ArrangeBlock[],
+    copies: Record<string, ArrangeCopy>,
   ]
   change: [section: string, changes: ArrangeChange[], nudge: boolean]
   key: [key: string, meta: boolean, shift: boolean]
@@ -43,6 +48,7 @@ interface Item {
   el: HTMLElement
   proxy: HTMLElement
   free: boolean
+  /** Texto agregado: su alto lo da el propio texto. */
   text: boolean
   locked: boolean
   start?: GestureStart
@@ -100,6 +106,8 @@ let gesturing = false
 let resumeTimer: ReturnType<typeof setTimeout> | undefined
 let syncFrame = 0
 let lastPosted = ''
+let waiting: MutationObserver | undefined
+let waitTimer: ReturnType<typeof setTimeout> | undefined
 const pendingNudge = new Map<string, { x: number; y: number }>()
 /** El botón del ratón sigue abajo (para no arrancar un arrastre después de un clic). */
 let pressed = false
@@ -134,13 +142,13 @@ function elementOf(key: string | null, ref: string): CanvasElement | undefined {
 }
 
 /** Dónde está una caja (en la página): centro y tamaño sin girar. */
-function boxOf(el: HTMLElement, rotation: number, scale: number): ProxyBox {
+function boxOf(el: HTMLElement, rotation: number, scaleX: number, scaleY: number): ProxyBox {
   const r = el.getBoundingClientRect()
   let width = r.width
   let height = r.height
   if (Math.abs(normalizeAngle(rotation)) > 0.01) {
-    width = el.offsetWidth * Math.abs(scale)
-    height = el.offsetHeight * Math.abs(scale)
+    width = el.offsetWidth * Math.abs(scaleX)
+    height = el.offsetHeight * Math.abs(scaleY)
   }
   return {
     cx: r.left + r.width / 2 + scrollX,
@@ -189,10 +197,16 @@ function sync(): void {
   if (!props.active || gesturing) return
   const sec = sectionEl(section)
   const seen = new Set<string>()
+  let lacking = false
   if (sec && layer.value) {
     for (const ref of refs) {
       const el = resolveRef(sec, ref)
-      if (!el) continue
+      if (!el) {
+        lacking = true
+        continue
+      }
+      // Un bloque quitado (display: none) no tiene caja que elegir.
+      if (!el.getClientRects().length) continue
       const data = elementOf(section, ref)
       const r = resolveCanvas(data ?? { id: ref }, isDesktop())
       let item = items.get(ref)
@@ -207,7 +221,7 @@ function sync(): void {
       item.text = item.free && el.classList.contains('canvas-el--text')
       item.locked = !!data?.locked
       item.proxy.classList.toggle('is-locked', item.locked)
-      placeProxy(item.proxy, boxOf(el, r.rotation, r.scale))
+      placeProxy(item.proxy, boxOf(el, r.rotation, r.scale, r.scaleY ?? r.scale))
       seen.add(ref)
     }
   }
@@ -220,13 +234,34 @@ function sync(): void {
   if (moveable) {
     const movable = [...items.values()].filter((i) => !i.locked)
     moveable.target = movable.map((i) => i.proxy)
-    moveable.keepRatio = !movable.every((i) => i.text)
+    // Cada gesto decide su proporción al empezar (esquinas sí, lados no): ver `preset`.
+    moveable.keepRatio = true
     moveable.zoom = uiZoom()
     moveable.renderDirections = directionsFor(movable)
     guides(sec, movable)
     moveable.updateRect()
   }
+  if (lacking) waitForElements()
+  else stopWaiting()
   postSelection()
+}
+
+/**
+ * Mientras falte en la página algo de lo elegido (se acaba de agregar y la invitación aún no
+ * lo pinta), se vuelve a armar la caja cada vez que la sección cambia, hasta 3 s.
+ */
+function waitForElements(): void {
+  if (waiting) return
+  const target = sectionEl(section) ?? document.body
+  waiting = new MutationObserver(() => scheduleSync())
+  waiting.observe(target, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-canvas-id', 'src', 'style'] })
+  waitTimer = setTimeout(stopWaiting, 3000)
+}
+
+function stopWaiting(): void {
+  waiting?.disconnect()
+  waiting = undefined
+  clearTimeout(waitTimer)
 }
 
 function scheduleSync(): void {
@@ -235,7 +270,7 @@ function scheduleSync(): void {
 }
 
 /**
- * Los 8 tiradores, salvo los que taparían el centro de un elemento delgado (un texto de una
+ * Los 8 tiradores (en un texto agregado, sin los de arriba y abajo), salvo los que taparían el centro de un elemento delgado (un texto de una
  * línea): ahí los de arriba y abajo (o los de los lados) se quitan para poder arrastrarlo.
  */
 function directionsFor(movable: Item[]): string[] {
@@ -246,7 +281,12 @@ function directionsFor(movable: Item[]): string[] {
   const all = ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se']
   if (!group) return all
   let out = all
+  // Un texto agregado no se estira a lo alto: su alto lo da el texto.
+  if (movable.length && movable.every((i) => i.text)) out = out.filter((d) => d !== 'n' && d !== 's')
   if (group.height < min) out = out.filter((d) => d !== 'n' && d !== 's')
+  // Con la vista previa reducida (celular) los tiradores de los lados de algo delgado caen
+  // encima de los de las esquinas: ahí solo quedan las esquinas, que se distinguen al tacto.
+  if (zoom > 1 && group.height < min) out = out.filter((d) => d !== 'w' && d !== 'e')
   if (group.width < min) out = out.filter((d) => d !== 'w' && d !== 'e')
   return out
 }
@@ -297,8 +337,8 @@ function postSelection(force = false): void {
       measures[item.ref] = measureFrom(
         { left: r.left + scrollX, top: r.top + scrollY, width: r.width, height: r.height },
         {
-          w: item.el.offsetWidth * Math.abs(scaleOf(item)),
-          h: item.el.offsetHeight * Math.abs(scaleOf(item)),
+          w: item.el.offsetWidth * Math.abs(scalesOf(item)[0]),
+          h: item.el.offsetHeight * Math.abs(scalesOf(item)[1]),
         },
         frame,
       )
@@ -317,14 +357,72 @@ function postSelection(force = false): void {
       section: { x: box.x, y: box.y, width: box.width, height: box.height },
     }
   }
-  const json = JSON.stringify([section, refs, measures, area])
+  const blocks = sec ? blocksOf(sec) : []
+  const copies: Record<string, ArrangeCopy> = {}
+  if (frame) {
+    for (const item of items.values()) {
+      const copy = item.free ? null : copyOf(item.el, frame.width)
+      if (copy) copies[item.ref] = copy
+    }
+  }
+  const json = JSON.stringify([section, refs, measures, area, blocks, copies])
   if (!force && json === lastPosted) return
   lastPosted = json
-  emit('select', section, [...refs], measures, area)
+  emit('select', section, [...refs], measures, area, blocks, copies)
 }
 
-function scaleOf(item: Item): number {
-  return resolveCanvas(elementOf(section, item.ref) ?? { id: item.ref }, isDesktop()).scale
+/** Escala horizontal y vertical de un elemento (la vertical es la horizontal si no tiene la suya). */
+function scalesOf(item: Item): [number, number] {
+  const r = resolveCanvas(elementOf(section, item.ref) ?? { id: item.ref }, isDesktop())
+  return [r.scale, r.scaleY ?? r.scale]
+}
+
+/** Los textos e imágenes de la sección, toquen o no: la lista de capas los muestra todos. */
+function blocksOf(sec: HTMLElement): ArrangeBlock[] {
+  const out: ArrangeBlock[] = []
+  for (const t of listCanvasTargets(sec)) {
+    if (t.kind === 'image') {
+      const img = t.el as HTMLImageElement
+      const name = img.alt || (img.currentSrc || img.src).split('/').pop()?.split('?')[0] || ''
+      out.push({ ref: t.target, label: decodeURIComponent(name).slice(0, 40) })
+      continue
+    }
+    const text = (t.el.innerText || t.el.textContent || '').replace(/\s+/g, ' ').trim()
+    if (text) out.push({ ref: t.target, label: text.length > 40 ? `${text.slice(0, 39)}…` : text })
+  }
+  return out
+}
+
+const GENERIC_FONTS = /^(serif|sans-serif|monospace|cursive|fantasy|system-ui|ui-[a-z-]+|emoji|math|fangsong|inherit|initial)$/i
+
+function hexOf(color: string): string | null {
+  const m = /^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/.exec(color)
+  if (!m) return null
+  return `#${[m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, '0')).join('').toUpperCase()}`
+}
+
+/** Lo que hace falta para copiar un texto o una imagen de la sección como elemento agregado. */
+function copyOf(el: HTMLElement, contentWidth: number): ArrangeCopy | null {
+  if (el instanceof HTMLImageElement) {
+    const url = new URL(el.currentSrc || el.src || '', location.href)
+    if (!/^https?:$/.test(url.protocol)) return null
+    const value = url.origin === location.origin ? `${url.pathname}${url.search}` : url.href
+    const aspect = el.naturalWidth > 0 && el.naturalHeight > 0 ? el.naturalWidth / el.naturalHeight : el.offsetWidth / (el.offsetHeight || 1)
+    return value.length <= 1000 ? { kind: 'image', src: value, aspect: round2(aspect) } : null
+  }
+  const text = (el.innerText || el.textContent || '').trim().slice(0, 600)
+  if (!text || contentWidth <= 0) return null
+  const cs = getComputedStyle(el)
+  const family = cs.fontFamily.split(',')[0]?.replace(/["']/g, '').trim() ?? ''
+  const align = cs.textAlign
+  return {
+    kind: 'text',
+    text,
+    font: /^[A-Za-z0-9 ]{2,60}$/.test(family) && !GENERIC_FONTS.test(family) ? family : null,
+    size: Math.min(40, Math.max(0.5, round2((parseFloat(cs.fontSize) / contentWidth) * 100))),
+    color: hexOf(cs.color),
+    align: align === 'center' ? 'center' : align === 'right' || align === 'end' ? 'right' : 'left',
+  }
 }
 
 /** Cambia la selección (de aquí o del editor). */
@@ -401,22 +499,55 @@ function onShieldMove(e: PointerEvent): void {
 
 /* ---- gestos ---- */
 
-function begin(): void {
+/** Hacia dónde va el tirador del gesto en curso (null si se arrastra o se gira). */
+let gestureDir: [number, number] | null = null
+
+/**
+ * Cada gesto decide su proporción al empezar, como en Canva: una esquina conserva la
+ * proporción y un lado estira solo ese eje. Moveable lee `keepRatio` en cada paso del gesto.
+ */
+function applyKeepRatio(direction: number[] | undefined): void {
+  if (!moveable || !direction) return
+  moveable.keepRatio = direction[0] !== 0 && direction[1] !== 0
+}
+
+/** El tirador que se toca (por su clase `moveable-nw`…) fija la proporción antes de que Moveable arranque. */
+function preset(e: Event): void {
+  const handle = (e.target as HTMLElement | null)?.closest?.('.moveable-direction')
+  if (!handle || !moveable) return
+  const name = [...handle.classList].find((c) => /^moveable-(n|s|e|w|ne|nw|se|sw)$/.test(c))?.slice(9)
+  if (!name) return
+  const direction = [name.includes('e') ? 1 : name.includes('w') ? -1 : 0, name.includes('s') ? 1 : name.includes('n') ? -1 : 0]
+  applyKeepRatio(direction)
+}
+
+function begin(e?: { direction?: number[] }): void {
   gesturing = true
   canvasPaused.value = true
   clearTimeout(resumeTimer)
   hover.value = null
+  if (e?.direction) {
+    gestureDir = [e.direction[0] ?? 0, e.direction[1] ?? 0]
+    applyKeepRatio(gestureDir)
+  } else {
+    gestureDir = null
+  }
   const sec = sectionEl(section)
   const frame = sec ? contentFrame(sec) : null
   for (const item of items.values()) {
-    const r = resolveCanvas(elementOf(section, item.ref) ?? { id: item.ref }, isDesktop())
+    const data = elementOf(section, item.ref)
+    const r = resolveCanvas(data ?? { id: item.ref }, isDesktop())
     item.start = {
       free: item.free,
       x: r.x,
       y: r.y,
       rotation: r.rotation,
       scale: r.scale,
+      scaleY: r.scaleY ?? r.scale,
       box: readProxy(item.proxy),
+      kind: item.free ? kindOf(item.el) : null,
+      sized: item.el.hasAttribute('data-sized'),
+      size: data?.size ?? 5,
     }
     if (!item.free && getComputedStyle(item.el).display === 'inline') {
       item.display = item.el.style.display
@@ -426,8 +557,29 @@ function begin(): void {
   if (!frame) gesturing = false
 }
 
+function kindOf(el: HTMLElement): 'text' | 'image' | 'shape' | 'line' {
+  if (el.classList.contains('canvas-el--text')) return 'text'
+  if (el.classList.contains('canvas-el--image')) return 'image'
+  return el.classList.contains('canvas-el--line') ? 'line' : 'shape'
+}
+
+/**
+ * Los valores del gesto. En un texto agregado que se estira, el alto lo da el propio texto:
+ * se pinta primero el ancho y la letra nuevos, se mide cuánto mide y con eso se acomoda la
+ * esquina que no se mueve.
+ */
 function currentValues(item: Item, frame: { left: number; top: number; width: number }): ArrangeValues {
-  return item.start ? valuesFromBox(item.start, readProxy(item.proxy), frame) : {}
+  const start = item.start
+  if (!start) return {}
+  const now = readProxy(item.proxy)
+  if (!(item.text && gestureDir && (gestureDir[0] !== 0 || gestureDir[1] !== 0))) {
+    return valuesFromBox(start, now, frame)
+  }
+  const resize: ResizeInfo = { direction: gestureDir, writeSize: !isDesktop() }
+  const first = valuesFromBox(start, now, frame, resize)
+  paint(item, { width: first.width, size: first.size }, frame)
+  const height = item.el.offsetHeight * Math.abs(start.scale || 1)
+  return valuesFromBox(start, now, frame, { ...resize, textHeight: height })
 }
 
 /** Pinta el elemento ya con los valores del gesto (sin pasar por el editor). */
@@ -439,6 +591,11 @@ function paint(item: Item, values: ArrangeValues, frame: { width: number }): voi
     if (values.x !== undefined) set('--cv-x', String(round2(values.x)))
     if (values.y !== undefined) set('--cv-y', String(round2(values.y)))
     if (values.width !== undefined) set('--cv-w', String(round2(values.width)))
+    if (values.size !== undefined) set('--cv-size', String(round2(values.size)))
+    if (values.height !== undefined) {
+      set('--cv-h', String(round2(values.height)))
+      item.el.setAttribute('data-sized', '')
+    }
     if (values.rotation !== undefined) set('--cv-rotate', `${values.rotation}deg`)
     return
   }
@@ -450,6 +607,7 @@ function paint(item: Item, values: ArrangeValues, frame: { width: number }): voi
       y: values.y ?? base.y,
       rotation: values.rotation ?? base.rotation,
       scale: values.scale ?? base.scale,
+      scaleY: values.scale_y ?? base.scaleY,
     },
     frame.width,
   )
@@ -480,8 +638,13 @@ function finish(): void {
     for (const item of items.values()) {
       if (item.locked || !item.start) continue
       const values = currentValues(item, frame)
-      const moved = differs(values, valuesFromBox(item.start, item.start.box, frame))
-      if (moved) {
+      // Sin moverse, lo mismo con el mismo método (un texto: caja y alto del arranque).
+      const baseline = valuesFromBox(item.start, item.start.box, frame, {
+        direction: gestureDir ?? [0, 0],
+        writeSize: !isDesktop(),
+        textHeight: item.text ? item.start.box.height : undefined,
+      })
+      if (differs(values, baseline)) {
         changes.push({
           ref: item.ref,
           values: Object.fromEntries(
@@ -492,6 +655,7 @@ function finish(): void {
     }
   }
   gesturing = false
+  gestureDir = null
   if (changes.length && section) {
     emit('change', section, changes, false)
     // Hasta que llegue el lienzo nuevo, lo pintado a mano se queda (si no, parpadea).
@@ -686,6 +850,7 @@ function disable(): void {
   moveable = null
   selecto = null
   dropProxies()
+  stopWaiting()
   hover.value = null
   gesturing = false
   clearTimeout(resumeTimer)
@@ -722,6 +887,7 @@ watch(
 for (const type of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'pointercancel']) {
   window.addEventListener(type, onPress, true)
 }
+for (const type of ['pointerdown', 'touchstart', 'mousedown']) window.addEventListener(type, preset, true)
 window.addEventListener('keydown', onKeydown, true)
 window.addEventListener('keyup', onKeyup, true)
 window.addEventListener('resize', onResize)
@@ -732,6 +898,7 @@ onBeforeUnmount(() => {
   for (const type of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'pointercancel']) {
     window.removeEventListener(type, onPress, true)
   }
+  for (const type of ['pointerdown', 'touchstart', 'mousedown']) window.removeEventListener(type, preset, true)
   window.removeEventListener('keydown', onKeydown, true)
   window.removeEventListener('keyup', onKeyup, true)
   window.removeEventListener('resize', onResize)
