@@ -253,6 +253,19 @@ const describedBy = computed(
       <span class="field__value">{{ Math.round(Number(modelValue || 0) * 100) }} %</span>
     </div>
 
+    <!-- Número (zona segura, proporción) -->
+    <input
+      v-else-if="def.input === 'number'"
+      :id="id"
+      class="g-input"
+      type="number"
+      :min="def.min"
+      :max="def.max"
+      :step="def.step ?? 1"
+      :value="modelValue"
+      @input="set(($event.target as HTMLInputElement).value)"
+    />
+
     <ColorField
       v-else-if="def.input === 'color'"
       :model-value="modelValue"

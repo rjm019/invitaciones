@@ -3,6 +3,7 @@
 namespace Tests\Unit\Design;
 
 use App\Services\Design\BuildResult;
+use App\Services\Design\Catalog;
 use App\Services\Design\Design;
 use App\Services\Design\DesignFile;
 use App\Services\Design\DesignSection;
@@ -252,6 +253,40 @@ class InvitationConfigBuilderTest extends TestCase
         $this->assertFalse($this->build($design, ['publicado' => 'NO'])->config['published']);
         // Una plantilla nunca se publica.
         $this->assertFalse($this->build($design, ['publicado' => 'SI', 'plantilla' => 'SI'])->config['published']);
+    }
+
+    public function test_the_paper_sheet_slot_and_safe_zone_travel_to_the_section(): void
+    {
+        $this->assertSame(['slot' => 'sheet', 'label' => 'Lámina de papel'], Catalog::slots('frase')['lamina']);
+        $this->assertArrayHasKey('lamina', Catalog::slots('lluvia_sobres'));
+
+        $design = $this->minimal([new DesignSection('frase', [
+            'texto' => 'Hola', 'variante' => 'lamina', 'imagen_lamina' => 'salon.webp',
+            'zona_arriba' => '22', 'zona_izquierda' => '12.5', 'proporcion' => '0.72',
+        ])]);
+        $result = $this->build($design);
+        $section = $result->config['sections'][0];
+
+        $this->assertSame([], $result->errors());
+        $this->assertSame([], $result->warnings());
+        $this->assertSame('lamina', $section['variant']);
+        $this->assertSame('https://ejemplo.test/media/nueva/salon.webp', $section['decor']['sheet']);
+        $this->assertSame(['top' => 22.0, 'left' => 12.5, 'aspect' => 0.72], $section['sheet']);
+
+        // Sin campos de zona, la sección no lleva `sheet`.
+        $plain = $this->build($this->minimal([new DesignSection('frase', ['texto' => 'Hola'])]));
+        $this->assertArrayNotHasKey('sheet', $plain->config['sections'][0]);
+    }
+
+    public function test_the_safe_zone_is_validated(): void
+    {
+        $result = $this->build($this->minimal([new DesignSection('lluvia_sobres', [
+            'texto' => 'x', 'zona_abajo' => '60', 'proporcion' => 'ancha',
+        ])]), lenient: true);
+
+        $this->assertCount(2, $result->errors());
+        $this->assertStringContainsString('zona_abajo', $result->errors()[0]);
+        $this->assertStringContainsString('proporcion', $result->errors()[1]);
     }
 
     public function test_unknown_fields_and_decor_are_warnings_not_errors(): void

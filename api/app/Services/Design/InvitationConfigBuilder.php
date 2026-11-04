@@ -447,6 +447,10 @@ final class InvitationConfigBuilder
         if ($decor !== []) {
             $entry['decor'] = $decor;
         }
+        $sheet = $this->sheet($id, $f);
+        if ($sheet !== []) {
+            $entry['sheet'] = $sheet;
+        }
         $styles = $this->textStyles($id, $kind, $f, $globalTexts);
         if ($styles !== []) {
             $entry['text_styles'] = $styles;
@@ -852,6 +856,40 @@ final class InvitationConfigBuilder
             $color = $this->colorValue($value, $id, null, $key);
             if ($color !== null) {
                 $out[Normalizer::colorToken(substr($key, 6))] = $color;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Zona segura de la lámina de papel (variante `lamina`): zona_arriba/derecha/abajo/izquierda
+     * en % de la imagen (0 a 45) y proporcion (ancho / alto). Solo viaja lo que se escribió.
+     *
+     * @param  array<string, string>  $fields
+     * @return array<string, float>
+     */
+    private function sheet(string $id, array $fields): array
+    {
+        $out = [];
+        foreach (['arriba' => 'top', 'derecha' => 'right', 'abajo' => 'bottom', 'izquierda' => 'left'] as $name => $side) {
+            $value = trim($fields['zona_'.$name] ?? '');
+            if ($value === '') {
+                continue;
+            }
+            if (! is_numeric($value) || $value < 0 || $value > 45) {
+                $this->error($id, null, 'zona_'.$name, "'{$value}' debe ir de 0 a 45");
+
+                continue;
+            }
+            $out[$side] = (float) $value;
+        }
+        $ratio = trim($fields['proporcion'] ?? '');
+        if ($ratio !== '') {
+            if (! is_numeric($ratio) || $ratio <= 0 || $ratio > 10) {
+                $this->error($id, null, 'proporcion', "'{$ratio}' debe ser ancho entre alto (por ejemplo 0.72)");
+            } else {
+                $out['aspect'] = (float) $ratio;
             }
         }
 

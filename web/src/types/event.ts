@@ -159,6 +159,8 @@ export interface SectionConfig {
   colors?: Record<string, string>
   /** Adornos del tema cambiados en esta sección: ranura → archivo o URL; null = sin adorno. */
   decor?: Record<string, string | null>
+  /** Lámina de papel (variante `lamina`): proporción ancho/alto de la imagen y zona segura en %. */
+  sheet?: { aspect?: number; top?: number; right?: number; bottom?: number; left?: number }
   /** Estilo de cada bloque de texto de la sección ("title", "time"…). */
   text_styles?: Record<string, TextStyle>
   /** Imagen propia de la sección (la foto de "foto"). */

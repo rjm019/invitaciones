@@ -44,6 +44,7 @@ export type FieldInput =
   | 'url'
   | 'phone'
   | 'range'
+  | 'number'
   | 'toggle'
   | 'select'
   | 'chips'

@@ -40,7 +40,10 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     grabado: () => import('./sections/variants/LocationEngraving.vue'),
     papeleria: () => import('./sections/variants/LocationStationery.vue'),
   },
-  quote: { neon: () => import('./sections/variants/QuoteNeon.vue') },
+  quote: {
+    neon: () => import('./sections/variants/QuoteNeon.vue'),
+    lamina: () => import('./sections/variants/QuoteSheet.vue'),
+  },
   itinerary: {
     avenida: () => import('./sections/variants/ItineraryAvenue.vue'),
     grabado: () => import('./sections/variants/ItineraryEngraving.vue'),
@@ -58,7 +61,10 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     corazon: () => import('./sections/variants/CountdownHeart.vue'),
     banda: () => import('./sections/variants/CountdownBand.vue'),
   },
-  'envelope-rain': { sobre: () => import('./sections/variants/EnvelopeRainShower.vue') },
+  'envelope-rain': {
+    sobre: () => import('./sections/variants/EnvelopeRainShower.vue'),
+    lamina: () => import('./sections/variants/EnvelopeRainSheet.vue'),
+  },
   gallery: {
     marcos: () => import('./sections/variants/GalleryFrames.vue'),
     carrusel: () => import('./sections/variants/GalleryCarousel.vue'),

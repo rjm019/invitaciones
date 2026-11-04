@@ -271,3 +271,14 @@ Con "menos movimiento": el título ya firme, sin luz y sin entrada. CSS en `effe
 | `letterpress` | `letterpress` | el título baja apenas y se asienta (scale + translate); solo CSS sobre `[data-text='title']`, sirve en cualquier sección |
 
 Otras piezas: `WaxSeal` con `icon` (play/pausa grabados); `useScrollLock(locked, { strict: true })` (además del overflow, impide `touchmove` y las teclas de desplazamiento; los candados se cuentan, así un visor cerrado no suelta el del sobre); el mini-reproductor como lacre borgoña quieto en `themes/lacre/theme.css` (orilla irregular, borde alto, hueco con su pared en sombra y el signo grabado; sin ondas ni entrada con movimiento); `capa` con velo cálido y letra marfil en el tema.
+
+## Variante `lamina` (frase y lluvia de sobres): papel o encaje con zona segura
+
+Global: cualquier tema la puede pedir (`variante = lamina`). `components/ui/PaperSheet.vue` pinta la imagen de la ranura `lamina` (`imagen_lamina`, `section.decor.sheet`) como `<img>` a todo el ancho (máx. 34 rem), con su proporción intacta y sin recortar, y coloca el contenido dentro de una **zona segura** (márgenes en % de la imagen, por defecto 18/16/18/16) con `container-type: inline-size` para que el texto escale en `cqi`. Sin imagen cae a una tarjeta lisa (`--color-paper`).
+
+| Sección | Variante | Pieza |
+|---|---|---|
+| frase | `lamina` | `QuoteSheet.vue`: la frase (`data-text="text"`) dentro de la lámina |
+| lluvia de sobres | `lamina` | `EnvelopeRainSheet.vue`: título (y texto) en la lámina; el bloque bancario (banco, CLABE, titular, Copiar, notas) va debajo, fuera de la imagen |
+
+Campos por sección (CSV): `zona_arriba`, `zona_derecha`, `zona_abajo`, `zona_izquierda` (% de la imagen, 0 a 45) y `proporcion` (ancho / alto, p. ej. `0.72`; vacío: se mide con `naturalWidth/naturalHeight` al cargar). El servidor los pasa como `section.sheet = {top, right, bottom, left, aspect}` (solo lo escrito). Editor: `input: number` en `FieldInput.vue`.
