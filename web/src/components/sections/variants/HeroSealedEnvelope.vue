@@ -12,6 +12,7 @@ import { useScrollLock } from '@/composables/useScrollLock'
 import { dateParts } from '@/services/dateFormatService'
 import { decorOr } from '@/services/decorService'
 import { coupleNames, formalDate, parentGroups } from '@/services/stationeryService'
+import type { TextEffect } from '@/services/textEffectService'
 import type { ResolvedSection } from '@/types/event'
 
 /**
@@ -85,6 +86,50 @@ const longest = computed(() =>
 const textOn = computed(() => phase.value === 'open')
 const fx = computed(() => props.section.effects)
 
+// Con la máquina de escribir, se escribe toda la portada, un texto tras otro (ms entre letras
+// a velocidad 1). Sin ella, cada texto conserva su efecto o va quieto.
+const TYPE_STEP = 28
+const typed = computed(() => fx.value.includes('typewriter-title'))
+const typing = computed(() => {
+  const at: Record<string, number> = {}
+  let t = 0
+  let last = ''
+  const add = (key: string, text?: string | null) => {
+    if (!text) return
+    at[key] = t
+    last = key
+    t += (Array.from(text).length + 4) * TYPE_STEP
+  }
+  add('title', props.section.title)
+  parents.value.forEach((g, i) => {
+    add(`role${i}`, g.role)
+    g.names.forEach((n, j) => add(`parent${i}-${j}`, n))
+  })
+  if (names.value.length === 2) {
+    add('name0', names.value[0])
+    add('amp', '&')
+    add('name1', names.value[1])
+  } else {
+    add('name0', names.value[0])
+  }
+  add('text', props.section.text)
+  add('date', date.value)
+  add('place', place.value)
+  return { at, last }
+})
+// Props de FxText de cada texto: efectos propios (o ninguno) y, si se escribe todo, su turno.
+const typeProps = (key: string, alone: readonly TextEffect[] = []) =>
+  typed.value
+    ? {
+        effects: fx.value,
+        allow: ['typewriter-title'] as TextEffect[],
+        active: textOn.value,
+        delay: typing.value.at[key] ?? 0,
+        step: TYPE_STEP,
+        endCaret: typing.value.last === key,
+      }
+    : { effects: alone.length ? fx.value : [], allow: alone, active: textOn.value }
+
 const timers: ReturnType<typeof setTimeout>[] = []
 const later = (ms: number, fn: () => void) => timers.push(setTimeout(fn, ms * motionScale()))
 
@@ -151,18 +196,17 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
           :style="{ '--lh-chars': String(longest) }"
         >
           <p v-if="section.title" class="lh__kicker" data-text="title">
-            <FxText
-              :text="section.title"
-              :effects="fx"
-              :allow="['typewriter-title', 'gold-leaf']"
-              :active="textOn"
-            />
+            <FxText :text="section.title" v-bind="typeProps('title', ['gold-leaf'])" />
           </p>
           <div v-if="parents.length" class="lh__parents" :class="{ 'lh__parents--one': parents.length === 1 }">
             <div v-for="(group, i) in parents" :key="i" class="lh__parent">
-              <p class="lh__role" data-text="role">{{ group.role }}</p>
+              <p class="lh__role" data-text="role">
+                <FxText :text="group.role" v-bind="typeProps(`role${i}`)" />
+              </p>
               <p class="lh__parent-names" data-text="names">
-                <span v-for="(n, j) in group.names" :key="j">{{ n }}</span>
+                <span v-for="(n, j) in group.names" :key="j"
+                  ><FxText :text="n" v-bind="typeProps(`parent${i}-${j}`)"
+                /></span>
               </p>
             </div>
           </div>
@@ -171,26 +215,30 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
               <span class="lh__name"
                 ><FxText
                   :text="names[0]!"
-                  :effects="fx"
-                  :allow="['stamp', 'ink-dry', 'letterpress']"
-                  :active="textOn"
+                  v-bind="typeProps('name0', ['stamp', 'ink-dry', 'letterpress'])"
               /></span>
               <span class="lh__amp" aria-label="y"
-                ><FxText text="&" :effects="fx" :allow="['calligraphy']" :active="textOn"
+                ><FxText text="&" v-bind="typeProps('amp', ['calligraphy'])"
               /></span>
               <span class="lh__name"
                 ><FxText
                   :text="names[1]!"
-                  :effects="fx"
-                  :allow="['stamp', 'ink-dry', 'letterpress']"
-                  :active="textOn"
+                  v-bind="typeProps('name1', ['stamp', 'ink-dry', 'letterpress'])"
               /></span>
             </template>
-            <span v-else class="lh__name">{{ names[0] }}</span>
+            <span v-else class="lh__name"
+              ><FxText :text="names[0] ?? ''" v-bind="typeProps('name0', ['stamp', 'ink-dry', 'letterpress'])"
+            /></span>
           </h1>
-          <p v-if="section.text" class="lh__text" data-text="text">{{ section.text }}</p>
-          <p v-if="date" class="lh__date" data-text="date">{{ date }}</p>
-          <p v-if="place" class="lh__place" data-text="place">{{ place }}</p>
+          <p v-if="section.text" class="lh__text" data-text="text">
+            <FxText :text="section.text" v-bind="typeProps('text')" />
+          </p>
+          <p v-if="date" class="lh__date" data-text="date">
+            <FxText :text="date" v-bind="typeProps('date')" />
+          </p>
+          <p v-if="place" class="lh__place" data-text="place">
+            <FxText :text="place" v-bind="typeProps('place')" />
+          </p>
         </div>
         <WaxSeal class="lh__card-seal" tone="gold" size="18%" seed="tarjeta" />
       </div>

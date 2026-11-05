@@ -150,10 +150,21 @@ describe('diseños de papelería (tema lacre)', () => {
     expect(wrapper.find('.lh').classes()).toContain('lh--open')
     expect(wrapper.findAll('.lh__envelope, .lh__front, .lh__flap-in, .lh__flap-out')).toHaveLength(0)
     expect(wrapper.find('.lh__kicker .fxt').attributes('data-play')).toBe('go')
+    // Con la máquina de escribir se escribe toda la portada, un texto tras otro.
+    expect(wrapper.find('.lh__amp .fxt').classes()).toContain('fxt--typewriter-title')
+    expect(wrapper.find('.lh__name .fxt').classes()).toContain('fxt--typewriter-title')
+    const delay = (css: string) => Number.parseInt(wrapper.find(css).attributes('style')?.match(/--fxt-delay:\s*(\d+)ms/)?.[1] ?? '0')
+    expect(delay('.lh__amp .fxt')).toBeGreaterThan(delay('.lh__name .fxt'))
+    wrapper.unmount()
+    vi.useRealTimers()
+  })
+
+  it('sobre-lacre: sin máquina de escribir, los nombres se estampan y el & se traza', () => {
+    reduceMotion(false)
+    const wrapper = render(HeroSealedEnvelope, { title: 'Con todo el corazón', effects: ['stamp', 'calligraphy'] })
     expect(wrapper.find('.lh__amp .fxt').classes()).toContain('fxt--calligraphy')
     expect(wrapper.find('.lh__name .fxt').classes()).toContain('fxt--stamp')
     wrapper.unmount()
-    vi.useRealTimers()
   })
 
   it('bendición editorial: sin repetir a los papás si la portada ya los trae', () => {

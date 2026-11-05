@@ -47,7 +47,7 @@
 .fx-reveal-target.is-visible .fxt--typewriter-title:not([data-play]) .fxt__ch,
 .fxt--typewriter-title[data-play='go'] .fxt__ch {
   animation: fxt-type calc(0.03s * var(--motion-scale)) linear both;
-  animation-delay: calc(var(--i) * var(--fxt-step) * var(--motion-scale));
+  animation-delay: calc((var(--fxt-delay, 0ms) + var(--i) * var(--fxt-step)) * var(--motion-scale));
 }
 .fxt--typewriter-title .fxt__ch::after {
   content: '';
@@ -62,12 +62,12 @@
 .fx-reveal-target.is-visible .fxt--typewriter-title:not([data-play]) .fxt__ch::after,
 .fxt--typewriter-title[data-play='go'] .fxt__ch::after {
   animation: fxt-caret calc(var(--fxt-step) * var(--motion-scale)) linear both;
-  animation-delay: calc(var(--i) * var(--fxt-step) * var(--motion-scale));
+  animation-delay: calc((var(--fxt-delay, 0ms) + var(--i) * var(--fxt-step)) * var(--motion-scale));
 }
 .fx-reveal-target.is-visible .fxt--typewriter-title:not([data-play]) .fxt__ch--last::after,
 .fxt--typewriter-title[data-play='go'] .fxt__ch--last::after {
   animation: fxt-caret-end calc(2.6s * var(--motion-scale)) linear both;
-  animation-delay: calc(var(--i) * var(--fxt-step) * var(--motion-scale));
+  animation-delay: calc((var(--fxt-delay, 0ms) + var(--i) * var(--fxt-step)) * var(--motion-scale));
 }
 @keyframes fxt-type {
   from {
@@ -198,6 +198,8 @@
 }
 .fx-reveal-target:not(.is-visible) .fxt--calligraphy:not([data-play]) .fxt__wipe,
 .fxt--calligraphy[data-play='wait'] .fxt__wipe {
+  /* oculto del todo: la ventana y su relleno dejaban una rendija de la letra a la vista */
+  opacity: 0;
   transform: translateX(-101%);
 }
 .fx-reveal-target:not(.is-visible) .fxt--calligraphy:not([data-play]) .fxt__ink,

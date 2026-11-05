@@ -29,8 +29,14 @@ const props = withDefaults(
     allow?: readonly TextEffect[]
     /** Sin definir: arranca con la sección. true/false: lo controla quien lo usa. */
     active?: boolean
+    /** Máquina de escribir encadenada: ms de espera antes de la primera letra (a velocidad 1). */
+    delay?: number
+    /** ms entre letras, en lugar del que calcula el servicio (para escribir toda una portada). */
+    step?: number
+    /** false: el último carácter no parpadea al final (otro texto sigue escribiéndose). */
+    endCaret?: boolean
   }>(),
-  { effects: () => [], allow: undefined, active: undefined },
+  { effects: () => [], allow: undefined, active: undefined, delay: 0, step: undefined, endCaret: true },
 )
 const reduced = useReducedMotion()
 
@@ -39,12 +45,18 @@ const letters = computed(() =>
   effect.value && LETTER_EFFECTS.includes(effect.value) ? splitLetters(props.text) : null,
 )
 const step = computed(() =>
-  effect.value && letters.value ? letterStep(effect.value, letters.value.count) : 0,
+  effect.value && letters.value
+    ? (props.step ?? letterStep(effect.value, letters.value.count))
+    : 0,
 )
 const play = computed(() =>
   props.active === undefined ? undefined : props.active ? 'go' : 'wait',
 )
-const style = computed(() => (step.value ? { '--fxt-step': `${step.value}ms` } : undefined))
+const style = computed(() =>
+  step.value
+    ? { '--fxt-step': `${step.value}ms`, ...(props.delay ? { '--fxt-delay': `${props.delay}ms` } : {}) }
+    : undefined,
+)
 </script>
 
 <template>
@@ -63,7 +75,7 @@ const style = computed(() => (step.value ? { '--fxt-step': `${step.value}ms` } :
           v-for="letter in word"
           :key="letter.index"
           class="fxt__ch"
-          :class="{ 'fxt__ch--last': letter.index === letters.count - 1 }"
+          :class="{ 'fxt__ch--last': endCaret && letter.index === letters.count - 1 }"
           :data-c="letter.char"
           :style="{ '--i': letter.index }"
           >{{ letter.char }}</span
