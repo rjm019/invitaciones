@@ -260,6 +260,9 @@ export interface SectionConfig {
   fillet?: FilletStyle
   /** Vestimenta: lo que se pide evitar (hasta 6) y fotos de referencia (hasta 4). */
   restrictions?: string[]
+  /** Vestimenta: lista bajo la figura de hombre y la de mujer (hasta 6 cada una). */
+  men_list?: string[]
+  women_list?: string[]
   references?: DressReference[]
   /** Historia: sus momentos (hasta 8). */
   moments?: StoryMoment[]

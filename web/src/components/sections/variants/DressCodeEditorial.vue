@@ -16,6 +16,12 @@ const { event, resolveAsset } = useEvent()
 
 const title = computed(() => props.section.title ?? 'Código de vestimenta')
 const colors = computed(() => event.value.dress_code.colors)
+const menList = computed(() => props.section.men_list ?? [])
+const womenList = computed(() => props.section.women_list ?? [])
+const figures = computed(() => [
+  { key: 'man', image: props.section.decor.man, list: menList.value, label: 'Vestimenta para ellos' },
+  { key: 'woman', image: props.section.decor.woman, list: womenList.value, label: 'Vestimenta para ellas' },
+].filter((f) => f.image || f.list.length))
 const restrictions = computed(() => props.section.restrictions ?? [])
 const references = computed(() =>
   (props.section.references ?? []).flatMap((r) => {
@@ -30,6 +36,15 @@ const references = computed(() =>
     <p class="dr__kicker" data-text="title"><FxText :text="title" :effects="section.effects" /></p>
     <h2 v-if="section.subtitle" class="dr__headline" data-text="subtitle">{{ section.subtitle }}</h2>
     <span class="dr__rule" aria-hidden="true" />
+    <div v-if="figures.length" class="dr__figures">
+      <div v-for="f in figures" :key="f.key" class="dr__figure">
+        <img v-if="f.image" :src="f.image" alt="" class="dr__outfit" loading="lazy" decoding="async" />
+        <ul v-if="f.list.length" class="dr__bullets" :aria-label="f.label">
+          <li v-for="item in f.list" :key="item" data-text="text">{{ item }}</li>
+        </ul>
+      </div>
+    </div>
+
     <p v-if="section.text" class="dr__text" data-text="text">{{ section.text }}</p>
 
     <div v-if="colors.length" class="dr__palette">
@@ -119,6 +134,36 @@ const references = computed(() =>
   line-height: 1.5;
   color: var(--t-text-color, var(--color-text));
   text-wrap: balance;
+}
+.dr__figures {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  width: 100%;
+  align-items: start;
+}
+.dr__figure {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.7rem;
+}
+.dr__outfit {
+  display: block;
+  width: 100%;
+  max-height: 15rem;
+  object-fit: contain;
+}
+.dr__bullets {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0 0 0 1.1em;
+  text-align: left;
+  font-family: var(--t-text-font, var(--font-serif));
+  font-size: calc(clamp(1.05rem, 5cqi, 1.25rem) * var(--t-text-size, 1));
+  line-height: 1.25;
+  color: var(--t-text-color, var(--color-text));
 }
 .dr__label {
   margin: 0 0 0.7rem;

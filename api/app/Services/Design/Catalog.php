@@ -621,6 +621,8 @@ final class Catalog
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Dress Code', 'max_length' => 60],
                 ['key' => 'subtitulo', 'label' => 'Tipo de vestimenta', 'input' => 'text', 'placeholder' => 'Formal', 'max_length' => 80],
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'max_length' => 600],
+                ['key' => 'lista_hombre', 'label' => 'Lista bajo la figura de hombre (uno por línea, hasta 6)', 'input' => 'lines', 'placeholder' => "Traje formal\nCorbata o moño", 'max_length' => 300],
+                ['key' => 'lista_mujer', 'label' => 'Lista bajo la figura de mujer (uno por línea, hasta 6)', 'input' => 'lines', 'placeholder' => "Vestido largo\nTacones", 'max_length' => 300],
                 ['key' => 'restricciones', 'label' => 'Qué evitar (uno por línea, hasta 6)', 'input' => 'lines', 'placeholder' => "Blanco o marfil\nTacones de aguja en el jardín", 'max_length' => 400],
                 ['key' => 'colores', 'label' => 'Colores sugeridos', 'input' => 'colors', 'help' => 'De 1 a 4.'],
                 ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'vitrinas', 'label' => 'Escaparates de la Quinta Avenida'], ['value' => 'muestrario', 'label' => 'Muestrario de telas'], ['value' => 'editorial', 'label' => 'Página de revista']]],

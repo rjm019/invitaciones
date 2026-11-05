@@ -509,6 +509,12 @@ final class InvitationConfigBuilder
             if ($avoid !== []) {
                 $entry['restrictions'] = $avoid;
             }
+            foreach (['lista_hombre' => 'men_list', 'lista_mujer' => 'women_list'] as $key => $prop) {
+                $list = $this->dressLines($section, $key);
+                if ($list !== []) {
+                    $entry[$prop] = $list;
+                }
+            }
             $references = $this->dressReferences($section, $media);
             if ($references !== []) {
                 $entry['references'] = $references;
@@ -706,9 +712,19 @@ final class InvitationConfigBuilder
      */
     private function dressRestrictions(DesignSection $section): array
     {
-        $lines = array_values(array_filter(array_map('trim', explode("\n", $section->field('restricciones') ?? '')), fn ($l) => $l !== ''));
+        return $this->dressLines($section, 'restricciones');
+    }
+
+    /**
+     * Un campo de vestimenta con una línea por elemento, hasta MAX_RESTRICTIONS.
+     *
+     * @return list<string>
+     */
+    private function dressLines(DesignSection $section, string $key): array
+    {
+        $lines = array_values(array_filter(array_map('trim', explode("\n", $section->field($key) ?? '')), fn ($l) => $l !== ''));
         if (count($lines) > self::MAX_RESTRICTIONS) {
-            $this->error($section->id, null, 'restricciones', 'usa hasta '.self::MAX_RESTRICTIONS.' líneas');
+            $this->error($section->id, null, $key, 'usa hasta '.self::MAX_RESTRICTIONS.' líneas');
             $lines = array_slice($lines, 0, self::MAX_RESTRICTIONS);
         }
 

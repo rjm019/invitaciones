@@ -56,6 +56,8 @@ useScrollLock(() => phase.value === 'closed' || phase.value === 'opening', { str
 const root = ref<HTMLElement | null>(null)
 const stage = ref<HTMLElement | null>(null)
 const settle = ref<number | null>(null)
+// Lo que sube la tarjeta mientras crece, para quedar ya en su lugar cuando la portada se acorta.
+const lift = ref(0)
 
 const lining = computed(() =>
   decorOr(props.section.decor, 'lining', resolveAsset.value('damasco.svg')),
@@ -63,6 +65,7 @@ const lining = computed(() =>
 const stageStyle = computed(() => ({
   ...(lining.value ? { '--lh-lining': `url("${lining.value.replace(/"/g, '%22')}")` } : {}),
   ...(settle.value !== null ? { '--lh-settle': `${settle.value}px` } : {}),
+  '--lh-lift': `${lift.value}px`,
 }))
 
 const names = computed(() =>
@@ -91,9 +94,10 @@ async function finish() {
   phase.value = 'open'
   await nextTick()
   const after = stage.value?.getBoundingClientRect().top ?? 0
-  // La portada deja de ocupar la pantalla: la tarjeta sube a su lugar deslizándose.
-  if (Math.abs(before - after) > 2 && !reduced.value) {
-    settle.value = Math.round(before - after)
+  // La tarjeta ya subió `lift` mientras crecía; solo falta lo que reste (si algo) para su lugar.
+  const rest = Math.round(before - after - lift.value)
+  if (Math.abs(rest) > 2 && !reduced.value) {
+    settle.value = rest
     later(1200, () => (settle.value = null))
   }
 }
@@ -104,6 +108,13 @@ function open() {
   if (reduced.value) {
     phase.value = 'open'
     return
+  }
+  // La portada ocupa la pantalla y la tarjeta está centrada; al terminar se acorta y la
+  // tarjeta queda arriba. Se mide ahora para que suba mientras crece, en un solo movimiento.
+  if (root.value && stage.value) {
+    const pad = parseFloat(getComputedStyle(root.value).paddingTop) || 0
+    const centered = stage.value.getBoundingClientRect().top - root.value.getBoundingClientRect().top - pad
+    lift.value = Math.max(0, Math.round(centered))
   }
   phase.value = 'opening'
   later(2300, () => (phase.value = 'presenting'))
@@ -536,6 +547,15 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
   animation: lh-rise calc(1s * var(--motion-scale)) cubic-bezier(0.4, 0, 0.2, 1)
     calc(1.3s * var(--motion-scale)) both;
 }
+/* Cada pieza que se mueve va en su propia capa: así el navegador solo la traslada y no repinta. */
+.lh--opening .lh__card,
+.lh--opening .lh__flap-out,
+.lh--opening .lh__flap-in,
+.lh--presenting .lh__card,
+.lh--presenting .lh__envelope,
+.lh--presenting .lh__front {
+  will-change: transform, opacity;
+}
 /* El lacre de la solapa no se mueve: se desvanece en su lugar antes de que la solapa gire. */
 @keyframes lh-seal-fade {
   to {
@@ -598,7 +618,7 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
     transform: translateY(calc(var(--lh-k) * -45cqi)) scale(calc(0.39 * var(--lh-k)));
   }
   to {
-    transform: none;
+    transform: translateY(calc(var(--lh-lift, 0px) * -1));
   }
 }
 @keyframes lh-leave {

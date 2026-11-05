@@ -117,6 +117,29 @@ class EventCraftPiecesTest extends TestCase
         ], $dress['references']);
     }
 
+    public function test_the_dress_code_takes_a_list_under_each_figure(): void
+    {
+        $this->copyEventFixtures();
+        $this->addLines([
+            "vestimenta,,lista_hombre,\"Traje formal\nCorbata o moño\"",
+            "vestimenta,,lista_mujer,\"Vestido largo\nTacones\"",
+        ]);
+        $dress = collect($this->event()['sections'])->firstWhere('key', 'vestimenta');
+
+        $this->assertSame(['Traje formal', 'Corbata o moño'], $dress['men_list']);
+        $this->assertSame(['Vestido largo', 'Tacones'], $dress['women_list']);
+    }
+
+    public function test_more_than_six_lines_in_a_figure_list_are_reported(): void
+    {
+        $this->copyEventFixtures();
+        $this->addLines(["vestimenta,,lista_mujer,\"1\n2\n3\n4\n5\n6\n7\""]);
+
+        $errors = $this->getJson('/api/public/events/nueva')->assertStatus(503)->json('errors');
+
+        $this->assertStringContainsString('lista_mujer: usa hasta 6 líneas', $errors[0]);
+    }
+
     public function test_more_than_six_restrictions_or_four_references_are_reported(): void
     {
         $this->copyEventFixtures();

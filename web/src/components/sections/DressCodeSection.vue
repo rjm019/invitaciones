@@ -22,6 +22,9 @@ const references = computed(() =>
     return photo ? [{ photo, caption: r.caption }] : []
   }),
 )
+const menList = computed(() => props.section.men_list ?? [])
+const womenList = computed(() => props.section.women_list ?? [])
+const hasLists = computed(() => menList.value.length > 0 || womenList.value.length > 0)
 const cardStyle = computed(() =>
   props.section.decor.card ? { backgroundImage: `url("${props.section.decor.card}")` } : {},
 )
@@ -47,22 +50,23 @@ const shown = useInView(root)
         </p>
 
         <div
-          v-if="section.decor.woman || section.decor.man"
+          v-if="section.decor.woman || section.decor.man || hasLists"
           class="dress__figures"
-          aria-hidden="true"
+          :class="{ 'has-lists': hasLists }"
+          :aria-hidden="hasLists ? undefined : 'true'"
         >
-          <img
-            v-if="section.decor.woman"
-            :src="section.decor.woman"
-            alt=""
-            class="dress__figure dress__figure--left"
-          />
-          <img
-            v-if="section.decor.man"
-            :src="section.decor.man"
-            alt=""
-            class="dress__figure dress__figure--right"
-          />
+          <div v-if="section.decor.man || menList.length" class="dress__col dress__col--man">
+            <img v-if="section.decor.man" :src="section.decor.man" alt="" class="dress__figure" />
+            <ul v-if="menList.length" class="dress__list" aria-label="Vestimenta para ellos">
+              <li v-for="item in menList" :key="item" data-text="text">{{ item }}</li>
+            </ul>
+          </div>
+          <div v-if="section.decor.woman || womenList.length" class="dress__col dress__col--woman">
+            <img v-if="section.decor.woman" :src="section.decor.woman" alt="" class="dress__figure" />
+            <ul v-if="womenList.length" class="dress__list" aria-label="Vestimenta para ellas">
+              <li v-for="item in womenList" :key="item" data-text="text">{{ item }}</li>
+            </ul>
+          </div>
         </div>
 
         <p v-if="section.text" class="dress__text" data-text="text">{{ section.text }}</p>
@@ -161,6 +165,47 @@ const shown = useInView(root)
   width: 100%;
   margin: 0.4rem 0;
 }
+.dress__col {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.6rem;
+}
+/* Con listas, cada figura lleva la suya debajo y las dos columnas se reparten el ancho. */
+.dress__col--woman {
+  order: -1; /* sin listas, ella a la izquierda (como siempre); con listas, ellos primero */
+}
+.has-lists .dress__col--woman {
+  order: 0;
+}
+.dress__figures.has-lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4%;
+}
+.has-lists .dress__figure {
+  height: auto;
+  width: 100%;
+  max-height: clamp(9rem, 48cqi, 13rem);
+  object-fit: contain;
+}
+.dress__list {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0 0 0 1.1em;
+  text-align: left;
+  font-family: var(--t-text-font, var(--font-serif));
+  font-size: calc(clamp(1rem, 5cqi, 1.25rem) * var(--t-text-size, 1));
+  line-height: 1.25;
+  color: var(--t-text-color, var(--color-text));
+}
+.dress:not(.is-shown) .has-lists .dress__col--man .dress__figure {
+  transform: translateX(-2.5rem);
+}
+.dress:not(.is-shown) .has-lists .dress__col--woman .dress__figure {
+  transform: translateX(2.5rem);
+}
 .dress__figure {
   height: clamp(7rem, 38cqi, 10rem);
   width: auto;
@@ -168,11 +213,11 @@ const shown = useInView(root)
     opacity calc(0.7s * var(--motion-scale)) var(--ease-out) calc(0.2s * var(--motion-scale)),
     transform calc(0.7s * var(--motion-scale)) var(--ease-out) calc(0.2s * var(--motion-scale));
 }
-.dress:not(.is-shown) .dress__figure--left {
+.dress:not(.is-shown) .dress__col--woman .dress__figure {
   opacity: 0;
   transform: translateX(-2.5rem);
 }
-.dress:not(.is-shown) .dress__figure--right {
+.dress:not(.is-shown) .dress__col--man .dress__figure {
   opacity: 0;
   transform: translateX(2.5rem);
 }
@@ -330,8 +375,8 @@ const shown = useInView(root)
     animation: none;
   }
   .dress:not(.is-shown) .dress__seal,
-  .dress:not(.is-shown) .dress__figure--left,
-  .dress:not(.is-shown) .dress__figure--right {
+  .dress:not(.is-shown) .dress__col--woman .dress__figure,
+  .dress:not(.is-shown) .dress__col--man .dress__figure {
     opacity: 1;
     transform: none;
   }
