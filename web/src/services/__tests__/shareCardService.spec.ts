@@ -186,6 +186,64 @@ describe('shareCardService', () => {
     expect(texts.find((t) => t.text === 'SOFÍA')?.font).toContain('215px')
   })
 
+
+  it('con marco: fondo, marco y sello; adentro nos casamos, invitado, pases, fecha y QR, sin halo', () => {
+    const frame = { image: { id: 'marco' } as unknown as CanvasImageSource, width: 1185, height: 1543 }
+    const crest = { image: { id: 'sello' } as unknown as CanvasImageSource, width: 560, height: 700 }
+    const framed = fakeContext()
+    drawShareCard(
+      framed.ctx,
+      { background, frame, crest, qr },
+      shareCardText({ ...brand, card: undefined }, { ...invitation, label: 'Los Paz' }),
+      style,
+    )
+    expect(framed.images).toEqual([background.image, frame.image, crest.image])
+    expect(framed.texts.map((t) => t.text)).toEqual([
+      'MIS XV AÑOS',
+      'Los Paz',
+      '2 invitados',
+      'Sábado 28 de noviembre · 5:00 pm',
+      'toca o escanea para abrir',
+    ])
+    // Todo cae dentro del papel del marco (18.9 %–82 % del ancho, centrado en la hoja).
+    for (const t of framed.texts) expect(t.x).toBeGreaterThan(200)
+    expect(framed.texts.every((t) => t.x < 880)).toBe(true)
+    // Sin óvalo cae sin sello; el QR no lleva halo (no pide degradado radial).
+    const bare = fakeContext()
+    let halos = 0
+    ;(bare.ctx as unknown as { createRadialGradient: () => unknown }).createRadialGradient = () => {
+      halos++
+      return { addColorStop() {} }
+    }
+    drawShareCard(bare.ctx, { background, frame, qr }, shareCardText(brand, invitation), style)
+    expect(bare.images).toEqual([background.image, frame.image])
+    expect(halos).toBe(0)
+  })
+
+  it('con marco, un nombre largo baja de tamaño o se parte en dos renglones y cabe en el papel', () => {
+    const frame = { image: {} as CanvasImageSource, width: 1185, height: 1543 }
+    const { ctx, texts } = fakeContext()
+    const long = { ...invitation, label: 'Familia Hernández Rodríguez' }
+    drawShareCard(ctx, { background, frame, qr }, shareCardText(brand, long), style)
+    const lines = texts.filter((t) => t.font.includes('Pinyon Script')).map((t) => t.text)
+    expect(lines.join(' ')).toBe('Familia Hernández Rodríguez')
+    expect(lines.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('sin marco el diseño de siempre; un nombre largo ya no se sale de la hoja', () => {
+    const { ctx, texts } = fakeContext()
+    const couple = { ...brand, celebrant: { full_name: 'Alexa & Carlos', short_name: 'Alexa & Carlos' } }
+    drawShareCard(ctx, { background, qr }, shareCardText(couple, invitation), style)
+    const name = texts.find((t) => t.text === 'ALEXA & CARLOS')
+    const size = Number(/(\d+)px/.exec(name?.font ?? '')?.[1])
+    // 14 letras de size/2 px + 13 espacios de 10 px caben en el ancho útil.
+    expect((14 * size) / 2 + 13 * 10).toBeLessThanOrEqual(1080 - 280)
+    // Los nombres que ya cabían no cambian.
+    const nat = fakeContext()
+    drawShareCard(nat.ctx, { background, qr }, shareCardText(brand, invitation), style)
+    expect(nat.texts.find((t) => t.text === 'NAT')?.font).toContain('250px')
+  })
+
   it('sin nombre en la invitación, el sobre dice "Tu invitación"', () => {
     const { ctx, texts } = fakeContext()
     drawShareCard(ctx, { qr }, shareCardText(brand, { ...invitation, label: null }), style)

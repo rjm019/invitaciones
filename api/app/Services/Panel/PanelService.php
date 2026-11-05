@@ -146,8 +146,32 @@ final class PanelService
                 'background' => $value('tarjeta_fondo'),
                 'phrase' => $value('tarjeta_frase'),
                 'text' => $value('tarjeta_texto'),
-            ],
+            ] + $this->frameOf($value),
         ];
+    }
+
+    /**
+     * Marco de la tarjeta (`tarjeta_marco`, `tarjeta_sello` y la zona del papel interior en %
+     * de la imagen). Solo sale lo que el evento define: sin marco, la tarjeta no cambia.
+     *
+     * @param  callable(string): ?string  $value
+     * @return array<string, mixed>
+     */
+    private function frameOf(callable $value): array
+    {
+        $zone = [];
+        foreach (['top' => 'arriba', 'right' => 'derecha', 'bottom' => 'abajo', 'left' => 'izquierda'] as $side => $name) {
+            $raw = str_replace(',', '.', trim((string) $value('tarjeta_zona_'.$name)));
+            if ($raw !== '' && is_numeric($raw) && $raw >= 0 && $raw <= 45) {
+                $zone[$side] = (float) $raw;
+            }
+        }
+
+        return array_filter([
+            'frame' => $value('tarjeta_marco'),
+            'seal' => $value('tarjeta_sello'),
+            'frame_zone' => $zone === [] ? null : $zone,
+        ], fn ($v) => $v !== null && $v !== '');
     }
 
     /**

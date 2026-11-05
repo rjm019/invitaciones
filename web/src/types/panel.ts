@@ -19,7 +19,16 @@ export interface PanelBrand {
   /** Archivos de media del evento → URL. */
   assets?: Record<string, string>
   /** La imagen para WhatsApp: su fondo (archivo de media) y su frase, del layout. */
-  card?: { background: string | null; phrase: string | null; text: string | null }
+  card?: {
+    background: string | null
+    phrase: string | null
+    text: string | null
+    /** Marco con transparencia (`tarjeta_marco`): con él la tarjeta usa el diseño enmarcado. */
+    frame?: string
+    /** Sello de arriba (óvalo, monograma) y la zona del papel interior del marco, en % de su imagen. */
+    seal?: string
+    frame_zone?: { top?: number; right?: number; bottom?: number; left?: number }
+  }
 }
 
 export interface PanelSession {

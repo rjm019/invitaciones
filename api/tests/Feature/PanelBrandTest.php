@@ -85,6 +85,20 @@ class PanelBrandTest extends TestCase
         $this->assertArrayNotHasKey('card', $this->getJson('/api/admin/events/prueba/brand')->json('brand'));
     }
 
+    public function test_the_frame_seal_and_paper_zone_of_the_card_travel_only_when_defined(): void
+    {
+        $this->appendLine('prueba', 'evento.csv', 'tarjeta_marco,marco-falso.webp');
+        $this->appendLine('prueba', 'evento.csv', 'tarjeta_sello,sello-falso.webp');
+        $this->appendLine('prueba', 'evento.csv', 'tarjeta_zona_arriba,8.5');
+        $this->appendLine('prueba', 'evento.csv', 'tarjeta_zona_izquierda,"18,9"');
+        $this->appendLine('prueba', 'evento.csv', 'tarjeta_zona_abajo,99');
+
+        $card = $this->getJson('/api/admin/events/prueba', $this->auth())->assertOk()->json('brand.card');
+        $this->assertSame('marco-falso.webp', $card['frame']);
+        $this->assertSame('sello-falso.webp', $card['seal']);
+        $this->assertSame(['top' => 8.5, 'left' => 18.9], $card['frame_zone']);
+    }
+
     public function test_the_panel_page_already_carries_its_colors(): void
     {
         $spa = storage_path('framework/testing/app-'.bin2hex(random_bytes(4)).'.html');

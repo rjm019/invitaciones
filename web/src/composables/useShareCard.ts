@@ -89,10 +89,12 @@ export function useShareCard() {
     )
     // El fondo propio del evento (con el sobre); si no hay, el papel del tema y su lacre.
     const own = resolve(brand.card?.background)
-    const [background, paper, seal] = await Promise.all([
+    const [background, paper, seal, frame, crest] = await Promise.all([
       loadImage(own),
       loadImage(own ? null : resolve(theme.page?.image)),
       loadImage(own ? null : resolve(decor.seal)),
+      loadImage(resolve(brand.card?.frame)),
+      loadImage(resolve(brand.card?.seal)),
     ])
     await fontsReady
 
@@ -107,7 +109,7 @@ export function useShareCard() {
     if (!ctx) throw new Error('Este navegador no puede crear la imagen.')
     drawShareCard(
       ctx as unknown as CardContext,
-      { background, paper, seal, qr },
+      { background, paper, seal, qr, frame, crest, frameZone: brand.card?.frame_zone },
       shareCardText(brand, invitation),
       style,
     )

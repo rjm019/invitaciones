@@ -126,6 +126,12 @@ export interface CardArt {
   seal?: CardImage | null
   /** El QR del enlace: se dibuja aquí, con puntos del color de la invitación. */
   qr: QrMatrix
+  /** Marco con transparencia (`tarjeta_marco`): con él se dibuja el diseño enmarcado. */
+  frame?: CardImage | null
+  /** Sello de arriba del diseño enmarcado (óvalo, monograma); sin él, va el nombre. */
+  crest?: CardImage | null
+  /** Papel interior del marco, en % de su imagen que queda fuera por cada lado. */
+  frameZone?: Partial<Record<'top' | 'right' | 'bottom' | 'left', number>>
 }
 
 /** Colores y fuentes del tema (los mismos tokens de la invitación). */
@@ -302,6 +308,8 @@ export function drawQr(
   side: number,
   color: string,
   plate?: string,
+  halo = true,
+  dot = 0.42,
 ): void {
   const n = qr.size
   const m = side / n
@@ -311,11 +319,11 @@ export function drawQr(
     ctx.fillStyle = plate
     roundedRect(ctx, x - pad, y - pad, side + pad * 2, side + pad * 2, m * 3)
     ctx.fill()
-  } else {
-    const halo = ctx.createRadialGradient(mid.x, mid.y, side * 0.45, mid.x, mid.y, side * 0.95)
-    halo.addColorStop(0, 'rgba(255, 255, 255, 0.85)')
-    halo.addColorStop(1, 'rgba(255, 255, 255, 0)')
-    ctx.fillStyle = halo
+  } else if (halo) {
+    const glow = ctx.createRadialGradient(mid.x, mid.y, side * 0.45, mid.x, mid.y, side * 0.95)
+    glow.addColorStop(0, 'rgba(255, 255, 255, 0.85)')
+    glow.addColorStop(1, 'rgba(255, 255, 255, 0)')
+    ctx.fillStyle = glow
     ctx.fillRect(mid.x - side, mid.y - side, side * 2, side * 2)
   }
 
@@ -324,7 +332,7 @@ export function drawQr(
     for (let c = 0; c < n; c++) {
       if (!qr.data[r * n + c] || inEye(r, c, n)) continue
       ctx.beginPath()
-      ctx.arc(x + (c + 0.5) * m, y + (r + 0.5) * m, m * 0.42, 0, Math.PI * 2)
+      ctx.arc(x + (c + 0.5) * m, y + (r + 0.5) * m, m * dot, 0, Math.PI * 2)
       ctx.fill()
     }
   }
@@ -357,6 +365,10 @@ export function drawShareCard(
   text: ShareCardText,
   style: CardStyle,
 ): void {
+  if (art.frame) {
+    drawFramedCard(ctx, { ...art, frame: art.frame }, text, style)
+    return
+  }
   const W = CARD_WIDTH
   const H = CARD_HEIGHT
   const cx = W / 2
@@ -410,7 +422,14 @@ export function drawShareCard(
   const name = upper(text.name)
   // Una mayúscula con acento (SOFÍA) sube más: un poco más chica para no tocar la línea de arriba.
   const nameMax = /[ÁÉÍÓÚÜ]/.test(name) ? 215 : 250
-  const nameSize = fitFont(ctx, name, (s) => engraved(s), nameMax, W - 280)
+  const nameSpacing = 10
+  const nameWidth = W - 280
+  let nameSize = fitFont(ctx, name, (s) => engraved(s), nameMax, nameWidth)
+  // Con el espacio entre letras, un nombre largo («ALEXA & CARLOS») se salía de la hoja.
+  while (nameSize > 20 && ctx.measureText(name).width + nameSpacing * (name.length - 1) > nameWidth) {
+    nameSize -= 2
+    ctx.font = engraved(nameSize)
+  }
   const gold = ctx.createLinearGradient(0, 470 - nameSize * 0.65, 0, 470)
   gold.addColorStop(0, style.primarySoft)
   gold.addColorStop(0.6, style.primary)
@@ -420,7 +439,7 @@ export function drawShareCard(
   ctx.shadowBlur = 2
   ctx.shadowOffsetY = 2
   ctx.fillStyle = gold
-  spaced(ctx, name, cx, 470, 10)
+  spaced(ctx, name, cx, 470, nameSpacing)
   ctx.restore()
   divider(ctx, cx, 525, style.primary)
 
@@ -479,6 +498,137 @@ export function drawShareCard(
   ctx.fillStyle = style.primary
   ctx.font = serif(24, true)
   ctx.fillText('toca o escanea para abrir', cx, qrY + side + 44)
+}
+
+/** Papel interior de un marco típico de encaje (% de la imagen que queda fuera). */
+const FRAME_ZONE = { top: 8.5, right: 18, bottom: 18.7, left: 18.9 }
+/** Adorno de la esquina inferior derecha del marco (flores): desde ahí el QR se aparta. */
+const FRAME_CORNER = { x: 0.6, y: 0.62 }
+
+/**
+ * La tarjeta enmarcada (`tarjeta_marco`): el papel del evento a toda la hoja, el marco grande
+ * al centro y, dentro de su papel, de arriba abajo: el sello, el subtítulo, el nombre del
+ * invitado, sus pases, un filete, la fecha y el QR directo sobre el papel (sin halo). El
+ * espacio se reparte según lo que haya; el nombre largo baja de tamaño o parte en dos renglones.
+ */
+function drawFramedCard(
+  ctx: CardContext,
+  art: CardArt & { frame: CardImage },
+  text: ShareCardText,
+  style: CardStyle,
+): void {
+  const W = CARD_WIDTH
+  const H = CARD_HEIGHT
+  const frame = art.frame
+  const engraved = (size: number, weight = 400) =>
+    `${weight} ${size}px ${family(style.engraved, 'Georgia, serif')}`
+  const script = (size: number) => `400 ${size}px ${family(style.script, 'cursive')}`
+  const serif = (size: number) => `italic 400 ${size}px ${family(style.serif, 'Georgia, serif')}`
+  // Sobre un papel claro: con una paleta oscura, la tinta es el fondo oscuro de la invitación.
+  const ink = style.dark ? style.bg : style.text
+  const gold = style.dark ? style.bg : style.accent
+
+  ctx.fillStyle = style.bg
+  ctx.fillRect(0, 0, W, H)
+  if (art.background) cover(ctx, art.background, 0, 0, W, H)
+  else if (art.paper) cover(ctx, art.paper, 0, 0, W, H)
+
+  // El marco: lo más grande que cabe, centrado.
+  const ratio = frame.width / frame.height
+  let fw = W
+  let fh = fw / ratio
+  if (fh > H - 60) {
+    fh = H - 60
+    fw = fh * ratio
+  }
+  const fx = (W - fw) / 2
+  const fy = (H - fh) / 2
+  ctx.drawImage(frame.image, 0, 0, frame.width, frame.height, fx, fy, fw, fh)
+
+  const z = { ...FRAME_ZONE, ...art.frameZone }
+  const px = fx + (fw * z.left) / 100
+  const pw = fw * (1 - (z.left + z.right) / 100)
+  const py = fy + (fh * z.top) / 100
+  const ph = fh * (1 - (z.top + z.bottom) / 100)
+  const cx = px + pw / 2
+  const cw = pw * 0.84
+  const top = py + ph * 0.045
+  const room = ph * 0.91
+
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'alphabetic'
+
+  // Alturas de cada bloque (el texto se mide al dibujarlo: aquí solo cuánto ocupa).
+  const guest = text.guest ?? 'Tu invitación'
+  const lines = addressLines(ctx, guest, script, 100, cw)
+  const guestH = lines.size * (0.95 + 0.9 * (lines.lines.length - 1)) + lines.size * 0.3
+  const qrSide = 224
+  const hintH = 24
+  const fixed =
+    (text.kicker ? 26 : 0) + guestH + 32 + 12 + (text.date ? 32 : 0) + qrSide + 14 + hintH
+  let crestH = Math.min(ph * 0.22, 230)
+  const blocks = 6 + (text.kicker ? 1 : 0) + (text.date ? 1 : 0)
+  const minGap = 14
+  crestH = Math.max(110, Math.min(crestH, room - fixed - minGap * (blocks - 1)))
+  const crestW = art.crest ? Math.min(cw * 0.55, (crestH * art.crest.width) / art.crest.height) : 0
+  if (art.crest) crestH = (crestW * art.crest.height) / art.crest.width
+  const top0 = art.crest ? crestH : 0
+  const count = blocks - (art.crest ? 0 : 1)
+  const slack = room - fixed - top0
+  const gap = Math.max(minGap, Math.min(58, slack / Math.max(1, count - 1)))
+  const used = fixed + top0 + gap * (count - 1)
+  let y = top + Math.max(0, (room - used) / 2)
+
+  if (art.crest) {
+    ctx.drawImage(art.crest.image, 0, 0, art.crest.width, art.crest.height, cx - crestW / 2, y, crestW, crestH)
+    y += crestH + gap
+  }
+  if (text.kicker) {
+    ctx.fillStyle = gold
+    ctx.font = engraved(26, 500)
+    y += 22
+    spaced(ctx, upper(text.kicker), cx, y, 10)
+    y += 4 + gap
+  }
+  // El nombre de quien recibe, en letra de pluma grande.
+  ctx.fillStyle = ink
+  ctx.font = script(lines.size)
+  lines.lines.forEach((line, i) => {
+    y += lines.size * (i === 0 ? 0.95 : 0.9)
+    ctx.fillText(line, cx, y)
+  })
+  y += lines.size * 0.3 + gap * 0.4
+  ctx.font = serif(32)
+  y += 28
+  ctx.fillText(text.passes, cx, y)
+  y += 4 + gap
+  // Filete fino dorado.
+  ctx.fillStyle = gold
+  ctx.fillRect(cx - cw * 0.22, y, cw * 0.44, 1.5)
+  y += 12 + gap
+  if (text.date) {
+    ctx.fillStyle = gold
+    const size = fitFont(ctx, text.date, serif, 32, cw)
+    ctx.font = serif(size)
+    y += size * 0.8
+    ctx.fillText(text.date, cx, y)
+    y += size * 0.2 + gap
+  }
+
+  // El QR, directo sobre el papel; si choca con las flores de la esquina, se aparta a la izquierda.
+  const flowerX = fx + fw * FRAME_CORNER.x
+  const flowerY = fy + fh * FRAME_CORNER.y
+  const hint = 'toca o escanea para abrir'
+  const hintSize = fitFont(ctx, hint, serif, 24, cw)
+  ctx.font = serif(hintSize)
+  const hintW = ctx.measureText(hint).width
+  const blockW = Math.max(qrSide, hintW)
+  let qx = cx
+  if (y + qrSide + 14 + hintH > flowerY && qx + blockW / 2 > flowerX - 14) qx = flowerX - 14 - blockW / 2
+  drawQr(ctx, art.qr, qx - qrSide / 2, y, qrSide, gold, undefined, false, 0.49)
+  ctx.fillStyle = gold
+  ctx.font = serif(hintSize)
+  ctx.fillText(hint, qx, y + qrSide + 14 + hintH * 0.8)
 }
 
 /**
