@@ -88,7 +88,7 @@ const fx = computed(() => props.section.effects)
 
 // Con la máquina de escribir, se escribe toda la portada, un texto tras otro (ms entre letras
 // a velocidad 1). Sin ella, cada texto conserva su efecto o va quieto.
-const TYPE_STEP = 28
+const TYPE_STEP = 15
 const typed = computed(() => fx.value.includes('typewriter-title'))
 const typing = computed(() => {
   const at: Record<string, number> = {}
@@ -98,7 +98,7 @@ const typing = computed(() => {
     if (!text) return
     at[key] = t
     last = key
-    t += (Array.from(text).length + 4) * TYPE_STEP
+    t += (Array.from(text).length + 1) * TYPE_STEP
   }
   add('title', props.section.title)
   parents.value.forEach((g, i) => {
