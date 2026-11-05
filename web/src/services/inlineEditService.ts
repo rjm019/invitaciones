@@ -19,7 +19,8 @@ function textsOf(catalog: Catalog, def: CatalogSection | undefined) {
 
 /** Campo de la sección (no una lista) que escribe un bloque de texto, si lo hay. */
 function sectionField(catalog: Catalog, def: CatalogSection | undefined, block: string): string | null {
-  const key = textsOf(catalog, def).find((t) => t.block === block)?.key
+  const text = textsOf(catalog, def).find((t) => t.block === block)
+  const key = text?.field ?? text?.key
   return key && def?.fields.some((f) => f.key === key && f.key !== 'variante') ? key : null
 }
 

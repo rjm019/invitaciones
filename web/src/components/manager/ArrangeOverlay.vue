@@ -384,8 +384,9 @@ function blocksOf(sec: HTMLElement): ArrangeBlock[] {
   const out: ArrangeBlock[] = []
   for (const t of listCanvasTargets(sec)) {
     if (t.kind === 'image') {
-      const img = t.el as HTMLImageElement
-      const name = img.alt || (img.currentSrc || img.src).split('/').pop()?.split('?')[0] || ''
+      // Una pieza de varias imágenes (el sobre) se llama como su primera imagen.
+      const img = t.el instanceof HTMLImageElement ? t.el : t.el.querySelector('img')
+      const name = img ? img.alt || (img.currentSrc || img.src).split('/').pop()?.split('?')[0] || '' : ''
       out.push({ ref: t.target, label: decodeURIComponent(name).slice(0, 40) })
       continue
     }
@@ -405,6 +406,8 @@ function hexOf(color: string): string | null {
 
 /** Lo que hace falta para copiar un texto o una imagen de la sección como elemento agregado. */
 function copyOf(el: HTMLElement, contentWidth: number): ArrangeCopy | null {
+  // Una pieza entera (el sobre con sus textos) no se copia como imagen ni como texto.
+  if (el.hasAttribute('data-canvas-whole')) return null
   if (el instanceof HTMLImageElement) {
     const url = new URL(el.currentSrc || el.src || '', location.href)
     if (!/^https?:$/.test(url.protocol)) return null

@@ -60,6 +60,27 @@ describe('listCanvasTargets', () => {
     expect(findCanvasTarget(wrapper.element, 'texto:title:2')).toBeNull()
     expect(findCanvasTarget(wrapper.element, 'nada')).toBeNull()
   })
+
+  it('una pieza marcada data-canvas-whole cuenta como una sola imagen y sus textos siguen siendo objetivos', () => {
+    const Whole = defineComponent({
+      render: () =>
+        h('section', { 'data-section-key': 's' }, [
+          h('img', { src: 'antes.webp' }),
+          h('div', { 'data-canvas-whole': '' }, [
+            h('img', { src: 'atras.webp' }),
+            h('p', { 'data-text': 'covertitle' }, 'Título'),
+            h('img', { src: 'frente.webp' }),
+          ]),
+          h('img', { src: 'despues.webp' }),
+        ]),
+    })
+    const wrapper = mount(Whole)
+    const targets = listCanvasTargets(wrapper.element)
+    expect(targets.map((t) => t.target)).toEqual(['texto:covertitle:0', 'imagen:0', 'imagen:1', 'imagen:2'])
+    expect(targets[2]?.el.hasAttribute('data-canvas-whole')).toBe(true)
+    expect(targets[1]?.el.tagName).toBe('IMG')
+    expect(targets[3]?.el.tagName).toBe('IMG')
+  })
 })
 
 describe('useSectionCanvas', () => {

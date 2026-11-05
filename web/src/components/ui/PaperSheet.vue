@@ -46,7 +46,7 @@ const style = computed(() => {
 </script>
 
 <template>
-  <div class="sheet" :class="{ 'sheet--plain': !src }" :style="style">
+  <div class="sheet" :class="{ 'sheet--plain': !src }" :style="style" data-canvas-whole>
     <img v-if="src" class="sheet__img" :src="src" alt="" @load="onLoad" />
     <div class="sheet__safe">
       <slot />

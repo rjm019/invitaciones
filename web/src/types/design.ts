@@ -106,7 +106,7 @@ export interface CatalogSection {
   /** Adornos del tema que se pueden cambiar: nombre en el CSV → ranura del componente. */
   slots: { key: string; slot: string; label: string }[]
   /** Bloques de texto: nombre en el CSV → bloque del contrato. */
-  texts: { key: string; block: string; label: string }[]
+  texts: { key: string; block: string; label: string; field?: string }[]
   hidden_without: string | null
 }
 
@@ -116,7 +116,7 @@ export interface Catalog {
   event_groups: { label: string; fields: FieldDef[] }[]
   colors: { key: string; token: string; label: string; help: string }[]
   fonts: { key: string; role: string; label: string; help: string }[]
-  texts: { key: string; block: string; label: string }[]
+  texts: { key: string; block: string; label: string; field?: string }[]
   text_props: {
     key: 'fuente' | 'color' | 'tamano'
     prop: 'font' | 'color' | 'size'

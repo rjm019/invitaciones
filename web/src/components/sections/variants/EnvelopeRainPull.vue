@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import EnvelopeRainSection from '@/components/sections/EnvelopeRainSection.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useClipboard } from '@/composables/useClipboard'
@@ -32,9 +32,14 @@ const reduced =
   typeof window !== 'undefined' && typeof window.matchMedia === 'function'
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
     : false
-// En la vista previa del gestor arranca abierto: así se ve y se acomoda lo que va en la hoja.
+// En la vista previa del gestor arranca el sobre que dice `vista_gestor` (cerrado si no dice):
+// así se ve y se acomoda el texto de ese sobre. Fuera del gestor no cuenta.
 const preview = usePreview()
-const open = ref(reduced || !!preview.value)
+const previewOpen = computed(() => !!preview.value && props.section.pull?.view === 'open')
+const open = ref(preview.value ? previewOpen.value : reduced)
+watch(previewOpen, (value) => {
+  if (preview.value) open.value = value
+})
 function toggle(): void {
   open.value = !open.value
 }
@@ -63,6 +68,8 @@ const style = computed(() => {
     '--hy': String(pull.y ?? 55),
     '--hw': String(pull.width ?? 75),
     '--tilt': `${pull.tilt ?? 0}deg`,
+    '--cx': String(pull.cover_x ?? 50),
+    '--cy': String(pull.cover_y ?? 41),
     '--zt': `${safe.top ?? 10}%`,
     '--zr': `${safe.right ?? 10}%`,
     '--zb': `${safe.bottom ?? 10}%`,
@@ -74,9 +81,9 @@ const style = computed(() => {
 
 <template>
   <EnvelopeRainSection v-if="!hasImages" :section="section" />
-  <div v-else class="pull" :style="style">
+  <div v-else class="pull" :class="{ 'pull--edit': !!preview }" :style="style">
     <section v-if="envelope" class="pull__box" aria-labelledby="pull-title">
-      <div class="pull__stage" :class="{ 'is-open': open }" data-pull-stage>
+      <div class="pull__stage" :class="{ 'is-open': open }" data-pull-stage data-canvas-whole>
         <img v-if="back" class="pull__layer pull__back" :src="back" alt="" @load="onStage" />
         <div class="pull__sheet" :inert="!open" :class="{ 'pull__sheet--plain': !paper }">
           <img v-if="paper" class="pull__paper" :src="paper" alt="" @load="onPaper" />
@@ -107,9 +114,9 @@ const style = computed(() => {
         </div>
         <img v-if="front" class="pull__layer pull__front" :src="front" alt="" @load="onStage" />
         <!-- Lo que se lee en la hoja mientras sigue dentro del sobre. -->
-        <div class="pull__cover" :aria-hidden="open">
-          <p class="pull__title">{{ envelope.title || 'Lluvia de sobres' }}</p>
-          <p v-if="envelope.text" class="pull__text">{{ envelope.text }}</p>
+        <div class="pull__cover" :aria-hidden="open" :inert="open">
+          <p class="pull__title" data-text="covertitle">{{ envelope.title || 'Lluvia de sobres' }}</p>
+          <p v-if="envelope.text" class="pull__text" data-text="covertext">{{ envelope.text }}</p>
         </div>
         <button
           type="button"
@@ -213,12 +220,12 @@ const style = computed(() => {
 .pull__cover {
   position: absolute;
   z-index: 3;
-  left: calc(var(--hx) * 1%);
-  top: 33%;
+  left: calc(var(--cx) * 1%);
+  top: calc(var(--cy) * 1%);
   container-type: inline-size;
   display: grid;
   justify-items: center;
-  gap: 0.35rem;
+  gap: 0;
   width: 56%;
   transform: translate(-50%, -50%);
   pointer-events: none;
@@ -227,11 +234,21 @@ const style = computed(() => {
 .is-open .pull__cover {
   opacity: 0;
 }
+/* En el gestor el texto cerrado se puede tomar para acomodarlo. */
+.pull--edit .pull__cover :is(.pull__title, .pull__text) {
+  pointer-events: auto;
+}
 .pull__cover .pull__title {
-  font-size: calc(clamp(1.5rem, 16cqi, 3.2rem) * var(--t-title-size, 1));
+  font-family: var(--t-covertitle-font, var(--t-title-font, var(--font-script)));
+  font-size: calc(clamp(1.5rem, 16cqi, 3.2rem) * var(--t-covertitle-size, var(--t-title-size, 1)));
+  line-height: 0.95;
+  color: var(--t-covertitle-color, var(--t-title-color, var(--color-primary)));
 }
 .pull__cover .pull__text {
-  font-size: calc(clamp(0.8rem, 6.4cqi, 1.3rem) * var(--t-text-size, 1));
+  font-family: var(--t-covertext-font, var(--t-text-font, var(--font-serif)));
+  font-size: calc(clamp(0.8rem, 6.4cqi, 1.3rem) * var(--t-covertext-size, var(--t-text-size, 1)));
+  line-height: 1.2;
+  color: var(--t-covertext-color, var(--t-text-color, var(--color-text)));
 }
 .pull__toggle {
   position: absolute;

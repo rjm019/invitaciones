@@ -29,6 +29,8 @@ export const canvasPaused = ref(false)
 
 /** Lo que pinta el lienzo no se vuelve a acomodar a sí mismo. */
 const LAYER = '[data-canvas-layer]'
+/** Una pieza de varias imágenes (y textos) que el lienzo mueve como una sola. */
+const WHOLE = '[data-canvas-whole]'
 
 /**
  * Los bloques que se pueden acomodar en una sección, en orden de aparición: cada
@@ -46,9 +48,14 @@ export function listCanvasTargets(root: ParentNode): CanvasTarget[] {
     out.push({ target: `texto:${block}:${index}`, kind: 'text', block, index, el })
   }
   let image = 0
-  for (const el of root.querySelectorAll<HTMLImageElement>('img')) {
-    if (el.closest(LAYER)) continue
-    out.push({ target: `imagen:${image}`, kind: 'image', index: image, el })
+  const wholes = new Set<HTMLElement>()
+  for (const img of root.querySelectorAll<HTMLImageElement>('img')) {
+    if (img.closest(LAYER)) continue
+    // Una pieza hecha de varias imágenes (el sobre) cuenta como UNA: se mueve entera.
+    const whole = img.closest<HTMLElement>(WHOLE)
+    if (whole && wholes.has(whole)) continue
+    if (whole) wholes.add(whole)
+    out.push({ target: `imagen:${image}`, kind: 'image', index: image, el: whole ?? img })
     image++
   }
   return out
@@ -259,16 +266,24 @@ export function canvasHitAt(
   y: number,
   skip: (node: HTMLElement) => boolean = () => false,
 ): CanvasHit | null {
+  // Una pieza entera (el sobre) la toma su botón u otra capa que no es imagen ni texto: solo
+  // cuenta si debajo no hay un texto suyo, que gana (así el texto del sobre cerrado se toma).
+  let whole: CanvasHit | null = null
   for (const node of document.elementsFromPoint(x, y)) {
     if (!(node instanceof HTMLElement) || skip(node)) continue
     const section = node.closest<HTMLElement>('[data-section-key]')
     if (!section) continue
     const free = node.closest<HTMLElement>('.canvas-el[data-canvas-id]')
     if (free?.dataset.canvasId) return { section, ref: free.dataset.canvasId, el: free }
-    const el = node.tagName === 'IMG' ? node : node.closest<HTMLElement>('[data-text]')
+    const piece = node.closest<HTMLElement>(WHOLE)
+    const text = node.closest<HTMLElement>('[data-text]')
+    const el = piece && !text ? piece : node.tagName === 'IMG' ? node : text
     if (!el) continue
     const found = listCanvasTargets(section).find((t) => t.el === el)
-    if (found) return { section, ref: found.target, el }
+    if (!found) continue
+    const hit = { section, ref: found.target, el }
+    if (el === piece) whole ??= hit
+    else return hit
   }
-  return null
+  return whole
 }

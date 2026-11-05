@@ -62,7 +62,9 @@ const eventError = (key: string) =>
     .slice(1)
     .join(': ') ?? null
 
-const contentFields = computed(() => (def.value?.fields ?? []).filter((f) => f.key !== 'variante'))
+const contentFields = computed(() =>
+  (def.value?.fields ?? []).filter((f) => f.key !== 'variante' && !f.hidden),
+)
 const texts = computed(() => def.value?.texts ?? catalog.value.texts)
 /** El texto de un campo ("titulo" → su bloque de texto, si lo tiene). */
 const textFor = (key: string) => texts.value.find((t) => t.key === key)

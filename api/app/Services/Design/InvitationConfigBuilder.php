@@ -1124,7 +1124,7 @@ final class InvitationConfigBuilder
      * en % de la imagen (hoja_x, hoja_y = centro; hoja_ancho) y su giro en grados (hoja_giro).
      *
      * @param  array<string, string>  $fields
-     * @return array<string, float>
+     * @return array<string, float|string>
      */
     private function pull(string $id, array $fields): array
     {
@@ -1141,6 +1141,26 @@ final class InvitationConfigBuilder
                 continue;
             }
             $out[$name] = (float) $value;
+        }
+        foreach (['portada_x' => 'cover_x', 'portada_y' => 'cover_y'] as $key => $name) {
+            $value = str_replace(',', '.', trim($fields[$key] ?? ''));
+            if ($value === '') {
+                continue;
+            }
+            if (! is_numeric($value) || $value < 0 || $value > 100) {
+                $this->error($id, null, $key, "'{$value}' debe ir de 0 a 100");
+
+                continue;
+            }
+            $out[$name] = (float) $value;
+        }
+        $view = Normalizer::key($fields['vista_gestor'] ?? '');
+        if ($view !== '') {
+            if (! in_array($view, ['cerrado', 'abierto'], true)) {
+                $this->error($id, null, 'vista_gestor', "'{$view}' no existe (usa cerrado o abierto)");
+            } else {
+                $out['view'] = $view === 'abierto' ? 'open' : 'closed';
+            }
         }
 
         return $out;

@@ -574,4 +574,40 @@ class InvitationConfigBuilderTest extends TestCase
         $plain = $this->build($this->minimal([new DesignSection('lluvia_sobres', ['cuenta' => '1234'])]));
         $this->assertArrayNotHasKey('pull', $plain->config['sections'][0]);
     }
+
+    public function test_the_closed_envelope_text_position_and_the_gestor_view_travel_in_pull(): void
+    {
+        $result = $this->build($this->minimal([new DesignSection('lluvia_sobres', [
+            'variante' => 'sobre-imagen', 'cuenta' => '1234',
+            'portada_x' => '48,5', 'portada_y' => '39', 'vista_gestor' => 'Abierto',
+        ])]));
+        $this->assertSame([], $result->errors());
+        $this->assertSame(['cover_x' => 48.5, 'cover_y' => 39.0, 'view' => 'open'], $result->config['sections'][0]['pull']);
+
+        $bad = $this->build($this->minimal([new DesignSection('lluvia_sobres', [
+            'cuenta' => '1234', 'portada_x' => '120', 'vista_gestor' => 'raro',
+        ])]), lenient: true);
+        $this->assertCount(2, $bad->errors());
+        $this->assertArrayNotHasKey('pull', $bad->config['sections'][0]);
+    }
+
+    public function test_the_catalog_hides_the_sheet_calibration_and_exposes_the_closed_text_blocks(): void
+    {
+        $fields = collect(Catalog::toArray()['sections'])->firstWhere('id', 'lluvia_sobres')['fields'];
+        $byKey = collect($fields)->keyBy('key');
+        foreach (['hoja_x', 'hoja_y', 'hoja_ancho', 'hoja_giro'] as $key) {
+            $this->assertTrue($byKey[$key]['hidden']);
+        }
+        foreach (['portada_x', 'portada_y', 'vista_gestor'] as $key) {
+            $this->assertArrayNotHasKey('hidden', $byKey[$key]);
+        }
+        $texts = collect(Catalog::toArray()['sections'])->firstWhere('id', 'lluvia_sobres')['texts'];
+        $cover = collect($texts)->firstWhere('key', 'portada_titulo');
+        $this->assertSame(['key' => 'portada_titulo', 'block' => 'covertitle', 'label' => 'Título del sobre cerrado', 'field' => 'titulo'], $cover);
+        $this->assertArrayNotHasKey('field', collect($texts)->firstWhere('key', 'titulo'));
+        $keys = collect(Catalog::toArray()['event_groups'])->flatMap(fn ($g) => collect($g['fields'])->pluck('key'));
+        foreach (['tarjeta_marco', 'tarjeta_sello', 'tarjeta_zona_arriba', 'tarjeta_zona_derecha', 'tarjeta_zona_abajo', 'tarjeta_zona_izquierda'] as $key) {
+            $this->assertContains($key, $keys);
+        }
+    }
 }
