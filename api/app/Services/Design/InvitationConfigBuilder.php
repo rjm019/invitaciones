@@ -451,6 +451,10 @@ final class InvitationConfigBuilder
         if ($sheet !== []) {
             $entry['sheet'] = $sheet;
         }
+        $pull = $this->pull($id, $f);
+        if ($pull !== []) {
+            $entry['pull'] = $pull;
+        }
         $styles = $this->textStyles($id, $kind, $f, $globalTexts);
         if ($styles !== []) {
             $entry['text_styles'] = $styles;
@@ -1110,6 +1114,33 @@ final class InvitationConfigBuilder
             } else {
                 $out['aspect'] = (float) $ratio;
             }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Sobre que se abre (variante `sobre-imagen`): dónde queda la hoja dentro del sobre cerrado,
+     * en % de la imagen (hoja_x, hoja_y = centro; hoja_ancho) y su giro en grados (hoja_giro).
+     *
+     * @param  array<string, string>  $fields
+     * @return array<string, float>
+     */
+    private function pull(string $id, array $fields): array
+    {
+        $out = [];
+        $ranges = ['hoja_x' => ['x', 0, 100], 'hoja_y' => ['y', 0, 100], 'hoja_ancho' => ['width', 10, 100], 'hoja_giro' => ['tilt', -45, 45]];
+        foreach ($ranges as $key => [$name, $min, $max]) {
+            $value = trim($fields[$key] ?? '');
+            if ($value === '') {
+                continue;
+            }
+            if (! is_numeric($value) || $value < $min || $value > $max) {
+                $this->error($id, null, $key, "'{$value}' debe ir de {$min} a {$max}");
+
+                continue;
+            }
+            $out[$name] = (float) $value;
         }
 
         return $out;

@@ -549,4 +549,29 @@ class InvitationConfigBuilderTest extends TestCase
         $this->assertCount(3, $result->errors());
         $this->assertSame(['id' => 'lienzo-1', 'target' => 'texto:title:0'], $result->config['sections'][0]['canvas'][0]);
     }
+
+    public function test_the_envelope_that_opens_variant_reads_its_layers_and_the_sheet_placement(): void
+    {
+        $slots = Catalog::slots('lluvia_sobres');
+        $this->assertSame('envelope_back', $slots['sobre_atras']['slot']);
+        $this->assertSame('envelope_front', $slots['sobre_frente']['slot']);
+        $this->assertSame('envelope_sheet', $slots['sobre_hoja']['slot']);
+
+        $result = $this->build($this->minimal([new DesignSection('lluvia_sobres', [
+            'variante' => 'sobre-imagen', 'cuenta' => '012345678901234567',
+            'imagen_sobre_atras' => 'atras.webp', 'imagen_sobre_frente' => 'frente.webp', 'imagen_sobre_hoja' => 'hoja.webp',
+            'hoja_x' => '45.6', 'hoja_y' => '53.7', 'hoja_ancho' => '76.7', 'hoja_giro' => '11.5',
+        ])]));
+        $section = $result->config['sections'][0];
+        $this->assertSame([], $result->errors());
+        $this->assertSame('sobre-imagen', $section['variant']);
+        $this->assertSame(['x' => 45.6, 'y' => 53.7, 'width' => 76.7, 'tilt' => 11.5], $section['pull']);
+        $this->assertArrayHasKey('envelope_back', $section['decor']);
+        $this->assertArrayHasKey('envelope_front', $section['decor']);
+        $this->assertArrayHasKey('envelope_sheet', $section['decor']);
+
+        // Sin campos de hoja, la sección no lleva `pull`.
+        $plain = $this->build($this->minimal([new DesignSection('lluvia_sobres', ['cuenta' => '1234'])]));
+        $this->assertArrayNotHasKey('pull', $plain->config['sections'][0]);
+    }
 }

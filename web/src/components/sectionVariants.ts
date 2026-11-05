@@ -64,6 +64,7 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
   'envelope-rain': {
     sobre: () => import('./sections/variants/EnvelopeRainShower.vue'),
     lamina: () => import('./sections/variants/EnvelopeRainSheet.vue'),
+    'sobre-imagen': () => import('./sections/variants/EnvelopeRainPull.vue'),
   },
   gallery: {
     marcos: () => import('./sections/variants/GalleryFrames.vue'),

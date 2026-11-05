@@ -209,6 +209,8 @@ export interface SectionConfig {
   decor?: Record<string, string | null>
   /** Lámina de papel (variante `lamina`): proporción ancho/alto de la imagen y zona segura en %. */
   sheet?: { aspect?: number; top?: number; right?: number; bottom?: number; left?: number }
+  /** Sobre que se abre (variante `sobre-imagen`): centro (x, y) y ancho de la hoja en % de la imagen, y su giro cerrada. */
+  pull?: { x?: number; y?: number; width?: number; tilt?: number }
   /** Estilo de cada bloque de texto de la sección ("title", "time"…). */
   text_styles?: Record<string, TextStyle>
   /** Lienzo: elementos acomodados a mano (solo si la sección los tiene). */

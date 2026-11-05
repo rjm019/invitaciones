@@ -29,7 +29,11 @@
   --color-olivo-medio: #6b6e4e;
   --color-taupe: #a99c88;
   --color-borgona: #6e1f2c;
-  --seal-burgundy: #5e1a24; /* el lacre: vino profundo (--color-borgona lo usan otras piezas) */
+  --seal-burgundy: var(--color-lacre, #5e1a24); /* el lacre: vino profundo (--color-borgona lo usan otras piezas); `lacre` en colores lo cambia */
+  --player-light: var(--color-lacre-claro, #8e3644);
+  --player-hole: var(--color-lacre-hueco, #5e1823);
+  --player-deep: var(--color-lacre-hondo, #43101a);
+  --player-ink: var(--color-lacre-tinta, #3a0b14);
   --color-oro: #b08d57;
   --color-stone: #d8cfc0;
   --color-cotton: #f5f0e6;
@@ -174,9 +178,9 @@
     radial-gradient(circle at 36% 30%, rgb(255 228 222 / 0.3), transparent 34%),
     radial-gradient(circle at 50% 50%, transparent 52%, rgb(255 214 208 / 0.18) 55%, transparent 58%),
     radial-gradient(circle at 46% 44%, rgb(28 4 9 / 0.42) 50%, transparent 54%),
-    radial-gradient(circle at 52% 54%, #5e1823 0 52%, transparent 53%),
-    radial-gradient(circle at 38% 32%, #8e3644 0%, #6e1f2c 48%, #43101a 100%);
-  color: #3a0b14;
+    radial-gradient(circle at 52% 54%, var(--player-hole) 0 52%, transparent 53%),
+    radial-gradient(circle at 38% 32%, var(--player-light) 0%, var(--color-borgona) 48%, var(--player-deep) 100%);
+  color: var(--player-ink);
   box-shadow:
     inset 1.5px 2px 2px rgb(255 214 208 / 0.4),
     inset -2px -3px 4px rgb(28 4 9 / 0.55),

@@ -258,7 +258,7 @@
     .invitation .section--panel[data-fillet='burgundy'],
     .paper-notched[data-fillet='burgundy']
   ) {
-  --fillet-color: var(--color-borgona, var(--color-accent-strong));
+  --fillet-color: var(--color-filete, var(--color-borgona, var(--color-accent-strong)));
 }
 :is(
     .invitation[data-fillet='gold'] .section--panel:not([data-fillet]),
