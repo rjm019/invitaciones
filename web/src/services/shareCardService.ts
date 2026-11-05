@@ -505,6 +505,19 @@ const FRAME_ZONE = { top: 8.5, right: 18, bottom: 18.7, left: 18.9 }
 /** Adorno de la esquina inferior derecha del marco (flores): desde ahí el QR se aparta. */
 const FRAME_CORNER = { x: 0.66, y: 0.62 }
 
+/** Un color #rrggbb llevado 22 % hacia el papel: el QR se lee, pero sin pesar en la tarjeta. */
+function softTone(color: string): string {
+  const hex = /^#([0-9a-f]{6})$/i.exec(color)?.[1]
+  if (!hex) return color
+  const channel = (i: number) => {
+    const c = parseInt(hex.slice(i, i + 2), 16)
+    return Math.round(c + (240 - c) * 0.22)
+      .toString(16)
+      .padStart(2, '0')
+  }
+  return `#${channel(0)}${channel(2)}${channel(4)}`
+}
+
 /**
  * La tarjeta enmarcada (`tarjeta_marco`): el papel del evento a toda la hoja, el marco grande
  * al centro y, dentro de su papel, de arriba abajo: el sello, el subtítulo, el nombre del
@@ -562,7 +575,8 @@ function drawFramedCard(
   const guest = text.guest ?? 'Tu invitación'
   const lines = addressLines(ctx, guest, script, 100, cw)
   const guestH = lines.size * (0.95 + 0.9 * (lines.lines.length - 1)) + lines.size * 0.3
-  const qrSide = 224
+  // El QR es discreto: pequeño y en un tono suave (se abre también con un toque).
+  const qrSide = 150
   const hintH = 24
   const fixed =
     (text.kicker ? 26 : 0) + guestH + 32 + 12 + (text.date ? 32 : 0) + qrSide + 14 + hintH
@@ -625,7 +639,7 @@ function drawFramedCard(
   const blockW = Math.max(qrSide, hintW)
   let qx = cx
   if (y + qrSide + 14 + hintH > flowerY && qx + blockW / 2 > flowerX - 14) qx = flowerX - 14 - blockW / 2
-  drawQr(ctx, art.qr, qx - qrSide / 2, y, qrSide, gold, undefined, false, 0.49)
+  drawQr(ctx, art.qr, qx - qrSide / 2, y, qrSide, softTone(gold), undefined, false, 0.49)
   ctx.fillStyle = gold
   ctx.font = serif(hintSize)
   ctx.fillText(hint, qx, y + qrSide + 14 + hintH * 0.8)
