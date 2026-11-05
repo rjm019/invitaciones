@@ -31,6 +31,12 @@ export interface PreviewHandlers {
   ) => void
   /** «Acomodar»: se soltó un arrastre (o una flecha): los valores nuevos. */
   onArrangeChange?: (section: string, changes: ArrangeChange[], nudge: boolean) => void
+  /** Pulsar y mover sobre un elemento en «Elegir»: pasar a «Acomodar» con ese elemento elegido. */
+  onArrangeBegin?: (section: string, ref: string) => void
+  /** Doble clic: el texto editado en el lugar. */
+  onEditCommit?: (section: string, ref: string, text: string) => void
+  /** Doble clic en un texto que sale de otro dato: abrir el campo que lo controla. */
+  onEditOpen?: (section: string, block: string, text: string) => void
   /** Una tecla que el foco en la vista previa no deja llegar al editor (⌘Z, Supr…). */
   onKey?: (key: string, meta: boolean, shift: boolean) => void
 }
@@ -90,6 +96,15 @@ export function usePreviewHost(
         break
       case 'key':
         handlers.onKey?.(message.key, message.meta, message.shift)
+        break
+      case 'arrange-begin':
+        handlers.onArrangeBegin?.(message.section, message.ref)
+        break
+      case 'edit-commit':
+        handlers.onEditCommit?.(message.section, message.ref, message.text)
+        break
+      case 'edit-open':
+        handlers.onEditOpen?.(message.section, message.block, message.text)
         break
     }
   }

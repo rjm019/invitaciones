@@ -185,6 +185,7 @@ function remove(): void {
             v-for="f in linked"
             :key="f.key"
             :def="f"
+            :data-field-key="f.key"
             linked
             :model-value="design.event[f.key] ?? ''"
             :error="eventError(f.key)"

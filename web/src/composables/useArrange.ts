@@ -94,6 +94,19 @@ export function useArrange(deps: ArrangeDeps) {
     deps.sendSelect(section.value, next)
   }
 
+  /**
+   * La vista previa ya eligió este elemento (arrastre desde «Elegir»): se anota sin mandárselo
+   * de vuelta, que borraría su selección.
+   */
+  function adopt(id: string, ref: string): void {
+    section.value = id
+    refs.value = [ref]
+    measures.value = {}
+    frame.value = null
+    blocks.value = []
+    copies.value = {}
+  }
+
   function chooseSection(id: string | null): void {
     if (id === section.value) return
     section.value = id
@@ -312,6 +325,7 @@ export function useArrange(deps: ArrangeDeps) {
     current,
     values,
     chooseSection,
+    adopt,
     choose,
     onSelect,
     onChange,

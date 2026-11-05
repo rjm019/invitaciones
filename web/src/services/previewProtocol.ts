@@ -21,6 +21,12 @@ export interface PreviewDisplay {
   mode: 'select' | 'try' | 'arrange'
   /** Nombre de cada sección (por su key) para la etiqueta "Editar …". */
   labels: Record<string, string>
+  /**
+   * Bloques de texto (`data-text`) de cada sección que se escriben en un campo de la sección:
+   * solo esos se editan en el lugar con doble clic. Los demás (nombres, fecha, ciudad…) salen
+   * de otro dato y el doble clic lleva a su campo.
+   */
+  editable?: Record<string, string[]>
 }
 
 /** Lo que se ve al instante, antes de que el servidor responda: estilo y textos tal cual. */
@@ -125,6 +131,12 @@ export type FromPreview =
     }
   | { type: 'arrange-change'; section: string; changes: ArrangeChange[]; nudge: boolean }
   | { type: 'key'; key: string; meta: boolean; shift: boolean }
+  /** Pulsar y mover sobre un elemento en «Elegir»: el editor pasa a «Acomodar» con él elegido. */
+  | { type: 'arrange-begin'; section: string; ref: string }
+  /** Doble clic: el texto editado en el lugar (Enter o clic afuera), listo para guardar. */
+  | { type: 'edit-commit'; section: string; ref: string; text: string }
+  /** Doble clic en un texto que no se escribe en la sección: abre el campo que lo controla. */
+  | { type: 'edit-open'; section: string; block: string; text: string }
 
 type Envelope<T> = T & { channel: typeof PREVIEW_CHANNEL }
 
@@ -137,6 +149,7 @@ const isRecord = (v: unknown): v is Record<string, unknown> =>
 const isStringRecord = (v: unknown): v is Record<string, string> =>
   isRecord(v) && Object.values(v).every((x) => typeof x === 'string')
 const isKey = (v: unknown): v is string => typeof v === 'string' && /^[a-z_]+(-\d+)?$/.test(v)
+const isBlockName = (v: unknown): v is string => typeof v === 'string' && /^[a-z0-9_-]{1,40}$/.test(v)
 const isBlock = (v: unknown): v is string | null =>
   v === null || (typeof v === 'string' && /^[a-z0-9-]+$/.test(v))
 
@@ -147,9 +160,17 @@ function isDisplay(v: unknown): v is PreviewDisplay {
     (v.guest === 'general' || v.guest === 'personal') &&
     typeof v.muted === 'boolean' &&
     (v.mode === 'select' || v.mode === 'try' || v.mode === 'arrange') &&
-    isStringRecord(v.labels)
+    isStringRecord(v.labels) &&
+    (v.editable === undefined ||
+      (isRecord(v.editable) &&
+        Object.entries(v.editable).every(
+          ([k, blocks]) => isKey(k) && Array.isArray(blocks) && blocks.length <= 80 && blocks.every(isBlockName),
+        )))
   )
 }
+
+/** Lo más largo que se acepta de un texto editado en el lugar. */
+export const MAX_EDIT_TEXT = 2000
 
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v)
 /** "texto:title:0", "imagen:1" o "lienzo-3". */
@@ -343,6 +364,24 @@ export function readFromPreview(data: unknown): FromPreview | null {
             changes: data.changes as ArrangeChange[],
             nudge: data.nudge,
           }
+        : null
+    case 'arrange-begin':
+      return isKey(data.section) && isRef(data.ref)
+        ? { type: 'arrange-begin', section: data.section, ref: data.ref }
+        : null
+    case 'edit-commit':
+      return isKey(data.section) &&
+        isRef(data.ref) &&
+        typeof data.text === 'string' &&
+        data.text.length <= MAX_EDIT_TEXT
+        ? { type: 'edit-commit', section: data.section, ref: data.ref, text: data.text }
+        : null
+    case 'edit-open':
+      return isKey(data.section) &&
+        isBlockName(data.block) &&
+        typeof data.text === 'string' &&
+        data.text.length <= MAX_EDIT_TEXT
+        ? { type: 'edit-open', section: data.section, block: data.block, text: data.text }
         : null
     case 'key':
       return typeof data.key === 'string' &&

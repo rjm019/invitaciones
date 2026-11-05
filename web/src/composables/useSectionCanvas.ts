@@ -241,3 +241,34 @@ export function useSectionCanvas(
     clear()
   })
 }
+
+/** Lo que hay bajo un punto de la página y se puede acomodar: un elemento agregado, un texto o una imagen. */
+export interface CanvasHit {
+  section: HTMLElement
+  /** "lienzo-3", "texto:title:0" o "imagen:1". */
+  ref: string
+  el: HTMLElement
+}
+
+/**
+ * El elemento acomodable bajo (x, y) (coordenadas de la ventana), con su sección. `skip`
+ * descarta nodos del propio editor (el velo, la caja de ayuda).
+ */
+export function canvasHitAt(
+  x: number,
+  y: number,
+  skip: (node: HTMLElement) => boolean = () => false,
+): CanvasHit | null {
+  for (const node of document.elementsFromPoint(x, y)) {
+    if (!(node instanceof HTMLElement) || skip(node)) continue
+    const section = node.closest<HTMLElement>('[data-section-key]')
+    if (!section) continue
+    const free = node.closest<HTMLElement>('.canvas-el[data-canvas-id]')
+    if (free?.dataset.canvasId) return { section, ref: free.dataset.canvasId, el: free }
+    const el = node.tagName === 'IMG' ? node : node.closest<HTMLElement>('[data-text]')
+    if (!el) continue
+    const found = listCanvasTargets(section).find((t) => t.el === el)
+    if (found) return { section, ref: found.target, el }
+  }
+  return null
+}

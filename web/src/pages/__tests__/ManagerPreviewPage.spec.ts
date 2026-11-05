@@ -238,4 +238,47 @@ describe('ManagerPreviewPage', () => {
       expect(sent().some((m) => m.type === 'arrange-change')).toBe(false)
     })
   })
+
+  describe('arrastrar desde Elegir', () => {
+    // jsdom no calcula cajas: elementsFromPoint devuelve el título de la sección falsa.
+    function overTitle(): HTMLElement {
+      const title = document.querySelector<HTMLElement>('[data-text="title"]')!
+      document.elementsFromPoint = () => [title]
+      return title
+    }
+    const mouse = (type: string, x: number, y: number, init: MouseEventInit = {}) =>
+      document.dispatchEvent(new MouseEvent(type, { clientX: x, clientY: y, buttons: 1, bubbles: true, cancelable: true, ...init }))
+
+    it('un clic sin mover sigue eligiendo y no entra a Acomodar', async () => {
+      await open()
+      const title = overTitle()
+      mouse('mousedown', 10, 10)
+      mouse('mouseup', 10, 10, { buttons: 0 })
+      title.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+      const types = sent().map((m) => m.type)
+      expect(types).toContain('pick')
+      expect(types).not.toContain('arrange-begin')
+    })
+
+    it('pulsar y mover más de 4 px sobre un texto avisa al editor para entrar a Acomodar con ese elemento', async () => {
+      await open()
+      overTitle()
+      mouse('mousedown', 10, 10)
+      mouse('mousemove', 12, 10)
+      expect(sent().map((m) => m.type)).not.toContain('arrange-begin')
+      mouse('mousemove', 30, 22)
+      expect(sent().find((m) => m.type === 'arrange-begin')).toMatchObject({ section: 'itinerario', ref: 'texto:title:0' })
+      // el velo de Acomodar ya está puesto aunque el editor no haya contestado
+      await nextTick()
+      expect(document.documentElement.classList.contains('is-arranging')).toBe(true)
+    })
+
+    it('sobre el fondo (sin elemento) no arranca nada', async () => {
+      await open()
+      document.elementsFromPoint = () => []
+      mouse('mousedown', 10, 10)
+      mouse('mousemove', 60, 60)
+      expect(sent().map((m) => m.type)).not.toContain('arrange-begin')
+    })
+  })
 })

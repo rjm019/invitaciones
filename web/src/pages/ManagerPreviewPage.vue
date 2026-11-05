@@ -2,7 +2,10 @@
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import ArrangeOverlay from '@/components/manager/ArrangeOverlay.vue'
 import PreviewStage from '@/components/manager/PreviewStage.vue'
+import { inlineEditEl, inlineEditing, usePreviewEdit } from '@/composables/usePreviewEdit'
 import { useReducedMotion } from '@/composables/useReducedMotion'
+import { canvasHitAt, type CanvasHit } from '@/composables/useSectionCanvas'
+import { createDragIntent } from '@/services/dragIntentService'
 import {
   readToPreview,
   wrap,
@@ -65,8 +68,13 @@ let textEl: HTMLElement | null = null
 /** Una sección recién agregada aún no está en la página: se busca cuando aparezca. */
 let pendingScroll: string | null = null
 
-const picking = computed(() => display.value.mode === 'select')
-const arranging = computed(() => display.value.mode === 'arrange')
+/**
+ * Pulsar y mover sobre un elemento en «Elegir» entra solo a «Acomodar» (hasta que el editor
+ * confirme el cambio de modo, `forced` mantiene encendido el velo y las cajas).
+ */
+const forced = ref(false)
+const picking = computed(() => display.value.mode === 'select' && !forced.value)
+const arranging = computed(() => display.value.mode === 'arrange' || forced.value)
 const arrangeComp = ref<InstanceType<typeof ArrangeOverlay> | null>(null)
 const hoverLabel = computed(() =>
   hovered.value ? (display.value.labels[hovered.value.key] ?? hovered.value.key) : '',
@@ -193,19 +201,125 @@ function onPointerLeave(): void {
   measure()
 }
 
-/** En modo elegir, ningún toque llega a la invitación (no abre enlaces ni envía formularios). */
-function onPick(e: Event): void {
-  if (!picking.value) return
-  e.preventDefault()
-  e.stopPropagation()
-  if (e.type !== 'click') return
-  const { section, text } = targetOf(e)
+/** Elige lo que hay bajo un toque o un clic: la sección y, si es un texto, su bloque. */
+function choose(target: EventTarget | null): void {
+  const { section, text } = targetOf({ target } as Event)
   const key = section?.dataset.sectionKey
   if (!key) return
   selected.value = key
   post({ type: 'pick', key, block: text?.dataset.text ?? null })
   measure()
 }
+
+/** ¿El toque cae dentro del texto que se está escribiendo? Ahí el navegador manda (cursor, selección). */
+const inEditedText = (target: EventTarget | null) =>
+  !!inlineEditEl.value && target instanceof Node && inlineEditEl.value.contains(target)
+
+/** En modo elegir, ningún toque llega a la invitación (no abre enlaces ni envía formularios). */
+function onPick(e: Event): void {
+  if (!picking.value || inEditedText(e.target)) return
+  // Cancelar `pointerdown` apaga los eventos de ratón que siguen (mousemove, mouseup): sin
+  // ellos no hay arrastre. Con `mousedown` y `click` basta para que la invitación no los reciba.
+  if (e.type !== 'pointerdown') e.preventDefault()
+  e.stopPropagation()
+  if (e.type === 'click') choose(e.target)
+}
+
+/* ---- arrastrar sin pasos previos ---- */
+interface PickPayload {
+  hit: CanvasHit
+  start: MouseEvent | TouchEvent
+}
+const intent = createDragIntent<PickPayload>(4)
+/** Lo que se espera un toque para saber si viene otro (doble toque = editar el texto). */
+const DOUBLE_TAP_WAIT = 380
+let pendingPick: ReturnType<typeof setTimeout> | undefined
+let lastTouchPoint: { x: number; y: number } | null = null
+
+const pointOf = (e: MouseEvent | TouchEvent) => {
+  const p = 'touches' in e ? (e.touches[0] ?? e.changedTouches[0]) : e
+  return p ? { x: p.clientX, y: p.clientY } : null
+}
+
+function onPressStart(e: Event): void {
+  if (!picking.value || inlineEditing.value) return
+  const ev = e as MouseEvent | TouchEvent
+  if ('button' in ev && ev.button !== 0) return
+  if ('touches' in ev && ev.touches.length !== 1) return
+  const point = pointOf(ev)
+  if (!point) return
+  const hit = canvasHitAt(point.x, point.y)
+  if (!hit) {
+    intent.end(true)
+    return
+  }
+  intent.start(point.x, point.y, { hit, start: ev })
+  if ('touches' in ev) {
+    lastTouchPoint = point
+    // Con el dedo, arrastrar sobre un elemento lo mueve (no desplaza la página); el toque se
+    // resuelve al soltar. Sobre el fondo no se cancela nada: la página se desplaza.
+    if (ev.cancelable) ev.preventDefault()
+  }
+}
+
+function onPressMove(e: Event): void {
+  if (!intent.pending) return
+  const ev = e as MouseEvent | TouchEvent
+  if ('buttons' in ev && !ev.buttons) {
+    intent.end(true)
+    return
+  }
+  const point = pointOf(ev)
+  if (!point) return
+  if ('touches' in ev) lastTouchPoint = point
+  const payload = intent.move(point.x, point.y)
+  if (payload) beginArrangeDrag(payload)
+}
+
+function onPressEnd(e: Event): void {
+  const tap = intent.end(e.type === 'touchcancel')
+  if (tap && e.type === 'touchend' && lastTouchPoint) {
+    // Con el dedo se espera un instante por si es el primer toque de un doble toque (editar).
+    const target = document.elementFromPoint(lastTouchPoint.x, lastTouchPoint.y)
+    clearTimeout(pendingPick)
+    pendingPick = setTimeout(() => choose(target), DOUBLE_TAP_WAIT)
+  }
+  lastTouchPoint = null
+}
+
+function beginArrangeDrag({ hit, start }: PickPayload): void {
+  const key = hit.section.dataset.sectionKey
+  if (!key) return
+  clearTimeout(pendingPick)
+  forced.value = true
+  selected.value = key
+  hoverEl = null
+  textEl = null
+  post({ type: 'arrange-begin', section: key, ref: hit.ref })
+  void arrangeComp.value?.dragFrom(key, hit.ref, start)
+}
+
+/* ---- doble clic: escribir en su lugar ---- */
+usePreviewEdit({
+  enabled: () => display.value.mode !== 'try',
+  editable: (section, block) => {
+    const editable = display.value.editable
+    return !editable || !!editable[section]?.includes(block)
+  },
+  skip: (node) => node.classList.contains('arrange-shield') || !!node.closest('.arrange-layer'),
+  commit: (section, ref, text) => post({ type: 'edit-commit', section, ref, text }),
+  open: (section, block, text) => {
+    selected.value = section
+    post({ type: 'edit-open', section, block, text })
+    measure()
+  },
+  onChange: (editing, section) => {
+    if (editing) {
+      clearTimeout(pendingPick)
+      arrangeComp.value?.setSelection(section, [])
+    }
+  },
+})
 
 /**
  * Safari deja sin pintar zonas de un iframe reducido con `transform` cuando tiene capas
@@ -286,6 +400,12 @@ function reportRendered(): void {
 const observer =
   typeof MutationObserver === 'undefined' ? null : new MutationObserver(reportRendered)
 
+// El editor confirmó (o cambió) el modo: ya no hace falta forzar «Acomodar».
+watch(
+  () => display.value.mode,
+  () => (forced.value = false),
+)
+
 watch(picking, (on) => {
   document.documentElement.classList.toggle('is-picking', on)
   if (!on) onPointerLeave()
@@ -299,6 +419,11 @@ onMounted(() => {
   for (const type of ['click', 'pointerdown', 'mousedown', 'submit']) {
     document.addEventListener(type, onPick, true)
   }
+  document.addEventListener('mousedown', onPressStart, true)
+  document.addEventListener('touchstart', onPressStart, { capture: true, passive: false })
+  document.addEventListener('mousemove', onPressMove, true)
+  document.addEventListener('touchmove', onPressMove, { capture: true, passive: true })
+  for (const type of ['mouseup', 'touchend', 'touchcancel']) document.addEventListener(type, onPressEnd, true)
   window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('resize', measure)
   observer?.observe(document.body, {
@@ -318,6 +443,11 @@ onBeforeUnmount(() => {
   for (const type of ['click', 'pointerdown', 'mousedown', 'submit']) {
     document.removeEventListener(type, onPick, true)
   }
+  document.removeEventListener('mousedown', onPressStart, true)
+  document.removeEventListener('touchstart', onPressStart, true)
+  document.removeEventListener('mousemove', onPressMove, true)
+  document.removeEventListener('touchmove', onPressMove, true)
+  for (const type of ['mouseup', 'touchend', 'touchcancel']) document.removeEventListener(type, onPressEnd, true)
   window.removeEventListener('scroll', onScroll)
   window.removeEventListener('resize', measure)
   observer?.disconnect()
@@ -326,6 +456,7 @@ onBeforeUnmount(() => {
   clearTimeout(nudgeTimer)
   cancelAnimationFrame(patchFrame)
   clearTimeout(renderTimer)
+  clearTimeout(pendingPick)
   document.documentElement.classList.remove('is-picking')
 })
 </script>
@@ -357,6 +488,34 @@ onBeforeUnmount(() => {
 .is-picking body,
 .is-picking body * {
   cursor: pointer !important;
+}
+/* Los elementos agregados reciben el puntero para poder arrastrarlos desde «Elegir». */
+.is-picking .canvas-el {
+  pointer-events: auto;
+}
+/* El texto que se escribe en su lugar: se ve tal cual, sin efectos de letras. */
+.is-inline-editing,
+.is-inline-editing * {
+  -webkit-text-fill-color: currentColor !important;
+  background-image: none !important;
+  text-shadow: none !important;
+  animation: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+.is-inline-editing {
+  outline: 2px solid #4f46e5;
+  outline-offset: 3px;
+  border-radius: 3px;
+  cursor: text !important;
+  white-space: pre-wrap;
+  min-width: 1ch;
+}
+html.is-picking body .is-inline-editing,
+html.is-picking body .is-inline-editing * {
+  cursor: text !important;
 }
 /* Un toque en Spotify (otro sitio, no lo escuchamos) también elige su sección. */
 .is-picking iframe {

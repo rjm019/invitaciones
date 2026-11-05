@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref, watch } from 'vue'
-import { canvasPaused, findCanvasTarget, listCanvasTargets } from '@/composables/useSectionCanvas'
+import { inlineEditing } from '@/composables/usePreviewEdit'
+import { canvasHitAt, canvasPaused, findCanvasTarget, listCanvasTargets } from '@/composables/useSectionCanvas'
 import {
   measureFrom,
   normalizeAngle,
@@ -10,6 +11,7 @@ import {
   type ResizeInfo,
 } from '@/services/arrangeService'
 import { DESKTOP_QUERY, existingStyle, resolveCanvas } from '@/services/canvasService'
+import { realText } from '@/services/realTextService'
 import type {
   ArrangeBlock,
   ArrangeChange,
@@ -387,7 +389,7 @@ function blocksOf(sec: HTMLElement): ArrangeBlock[] {
       out.push({ ref: t.target, label: decodeURIComponent(name).slice(0, 40) })
       continue
     }
-    const text = (t.el.innerText || t.el.textContent || '').replace(/\s+/g, ' ').trim()
+    const text = realText(t.el)
     if (text) out.push({ ref: t.target, label: text.length > 40 ? `${text.slice(0, 39)}…` : text })
   }
   return out
@@ -410,7 +412,7 @@ function copyOf(el: HTMLElement, contentWidth: number): ArrangeCopy | null {
     const aspect = el.naturalWidth > 0 && el.naturalHeight > 0 ? el.naturalWidth / el.naturalHeight : el.offsetWidth / (el.offsetHeight || 1)
     return value.length <= 1000 ? { kind: 'image', src: value, aspect: round2(aspect) } : null
   }
-  const text = (el.innerText || el.textContent || '').trim().slice(0, 600)
+  const text = realText(el, { lines: true }).slice(0, 600)
   if (!text || contentWidth <= 0) return null
   const cs = getComputedStyle(el)
   const family = cs.fontFamily.split(',')[0]?.replace(/["']/g, '').trim() ?? ''
@@ -437,23 +439,40 @@ function setSelection(next: string | null, nextRefs: string[]): void {
   if (!syncFrame) postSelection()
 }
 
-defineExpose({ setSelection })
+/**
+ * Desde «Elegir»: el gesto que arrancó sobre `ref` (ya pasó el umbral) sigue como arrastre.
+ * Elige el elemento, espera a que Moveable y su caja de ayuda existan y le pasa el evento de
+ * inicio (`mousedown` o `touchstart`) para que mida desde donde empezó el dedo o el ratón.
+ * Si ya se soltó mientras cargaba, solo queda elegido.
+ */
+const nextFrames = async (n: number): Promise<void> => {
+  for (let i = 0; i < n; i++) await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+}
+
+async function dragFrom(key: string, ref: string, start: MouseEvent | TouchEvent): Promise<boolean> {
+  setSelection(key, [ref])
+  const limit = performance.now() + 4000
+  while (performance.now() < limit) {
+    if (!pressed) return false
+    const item = items.get(ref)
+    if (moveable && item && !item.locked && moveable.target.length) {
+      // Moveable pinta su caja en el cuadro siguiente: sin esperarlo, el arrastre empieza sin estado.
+      await nextFrames(3)
+      if (!pressed || !moveable) return false
+      moveable.dragStart(start)
+      return true
+    }
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+  }
+  return false
+}
+
+defineExpose({ setSelection, dragFrom })
 
 /* ---- elegir ---- */
 
 function hitAt(x: number, y: number): Hit | null {
-  for (const node of document.elementsFromPoint(x, y)) {
-    if (!(node instanceof HTMLElement) || node === shield.value || layer.value?.contains(node)) continue
-    const sec = node.closest<HTMLElement>('[data-section-key]')
-    if (!sec) continue
-    const free = node.closest<HTMLElement>('.canvas-el[data-canvas-id]')
-    if (free?.dataset.canvasId) return { section: sec, ref: free.dataset.canvasId, el: free }
-    const el = node.tagName === 'IMG' ? node : node.closest<HTMLElement>('[data-text]')
-    if (!el) continue
-    const found = listCanvasTargets(sec).find((t) => t.el === el)
-    if (found) return { section: sec, ref: found.target, el }
-  }
-  return null
+  return canvasHitAt(x, y, (node) => node === shield.value || !!layer.value?.contains(node))
 }
 
 function sectionAt(x: number, y: number): HTMLElement | null {
@@ -702,7 +721,8 @@ const group = (apply: (e: GestureEvent) => void) => (e: GestureEvent) => {
 /* ---- teclado ---- */
 
 function onKeydown(e: KeyboardEvent): void {
-  if (!props.active) return
+  // Escribiendo un texto en su lugar: Supr, flechas, ⌘D… son del texto, no de «Acomodar».
+  if (!props.active || inlineEditing.value) return
   if (e.key === 'Shift' && moveable) moveable.throttleRotate = 15
   const meta = e.metaKey || e.ctrlKey
   if (meta && /^[zyds]$/i.test(e.key)) {
@@ -746,6 +766,22 @@ function nudge(e: KeyboardEvent): void {
 }
 
 /* ---- encender y apagar ---- */
+
+/**
+ * Con el dedo, arrastrar sobre un elemento (o sobre la caja de ayuda y sus tiradores) lo
+ * mueve, no desplaza la página: el navegador decide eso al empezar el toque, así que se
+ * cancela aquí solo si hay un elemento debajo. Sobre el fondo, el dedo desplaza la página.
+ */
+function onTouchStart(e: TouchEvent): void {
+  if (!props.active || inlineEditing.value || !e.cancelable || e.touches.length !== 1) return
+  const target = e.target instanceof Element ? e.target : null
+  if (target?.closest('.arrange-proxy, .moveable-control-box')) {
+    e.preventDefault()
+    return
+  }
+  const t = e.touches[0]
+  if (hitAt(t.clientX, t.clientY)) e.preventDefault()
+}
 
 function onResize(): void {
   scheduleSync()
@@ -890,6 +926,7 @@ for (const type of ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'pointer
 for (const type of ['pointerdown', 'touchstart', 'mousedown']) window.addEventListener(type, preset, true)
 window.addEventListener('keydown', onKeydown, true)
 window.addEventListener('keyup', onKeyup, true)
+window.addEventListener('touchstart', onTouchStart, { capture: true, passive: false })
 window.addEventListener('resize', onResize)
 document.addEventListener('transitionend', onResize, true)
 document.addEventListener('animationend', onResize, true)
@@ -901,6 +938,7 @@ onBeforeUnmount(() => {
   for (const type of ['pointerdown', 'touchstart', 'mousedown']) window.removeEventListener(type, preset, true)
   window.removeEventListener('keydown', onKeydown, true)
   window.removeEventListener('keyup', onKeyup, true)
+  window.removeEventListener('touchstart', onTouchStart, true)
   window.removeEventListener('resize', onResize)
   document.removeEventListener('transitionend', onResize, true)
   document.removeEventListener('animationend', onResize, true)
@@ -912,7 +950,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div v-if="active" class="arrange" aria-hidden="true">
-    <div ref="shield" class="arrange-shield" @pointermove="onShieldMove" @pointerleave="hover = null" />
+    <div ref="shield" class="arrange-shield" :class="{ 'is-editing': inlineEditing }" @pointermove="onShieldMove" @pointerleave="hover = null" />
     <div ref="layer" class="arrange-layer">
       <div
         v-if="hover"
@@ -938,6 +976,9 @@ onBeforeUnmount(() => {
   user-select: none;
   -webkit-user-select: none;
 }
+.arrange-shield.is-editing {
+  pointer-events: none;
+}
 .arrange-layer {
   position: absolute;
   left: 0;
@@ -947,6 +988,7 @@ onBeforeUnmount(() => {
   z-index: 2147483001;
 }
 .arrange-proxy {
+  touch-action: none;
   position: absolute;
   box-sizing: border-box;
   outline: 1px solid #4f46e5;
@@ -962,6 +1004,10 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
   outline: 1px dashed rgb(79 70 229 / 0.7);
   pointer-events: none;
+}
+.moveable-control-box,
+.moveable-control-box * {
+  touch-action: none;
 }
 .moveable-control-box {
   z-index: 2147483002 !important;

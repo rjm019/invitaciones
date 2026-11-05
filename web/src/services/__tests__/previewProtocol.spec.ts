@@ -223,3 +223,22 @@ describe('previewProtocol', () => {
     expect(readFromPreview({ channel: PREVIEW_CHANNEL, type: 'key', key: 'z' })).toBeNull()
   })
 })
+
+describe('mensajes de arrastre y edición en el lugar', () => {
+  const w = (m: Record<string, unknown>) => ({ channel: PREVIEW_CHANNEL, ...m })
+  it('acepta arrange-begin, edit-commit y edit-open con forma válida', () => {
+    expect(readFromPreview(w({ type: 'arrange-begin', section: 'frase', ref: 'texto:text:0' }))).toMatchObject({ type: 'arrange-begin' })
+    expect(readFromPreview(w({ type: 'edit-commit', section: 'itinerario', ref: 'lienzo-2', text: 'Hola' }))).toMatchObject({ type: 'edit-commit' })
+    expect(readFromPreview(w({ type: 'edit-open', section: 'portada', block: 'name', text: 'Alexa' }))).toMatchObject({ type: 'edit-open' })
+  })
+  it('rechaza refs inválidas, textos enormes y bloques raros', () => {
+    expect(readFromPreview(w({ type: 'arrange-begin', section: 'frase', ref: '<img>' }))).toBeNull()
+    expect(readFromPreview(w({ type: 'edit-commit', section: 'frase', ref: 'lienzo-1', text: 'x'.repeat(2001) }))).toBeNull()
+    expect(readFromPreview(w({ type: 'edit-open', section: 'frase', block: 'a b', text: '' }))).toBeNull()
+  })
+  it('display acepta editable bien formado y rechaza el mal formado', () => {
+    const d = { envelope: 'open', guest: 'general', muted: true, mode: 'select', labels: {} }
+    expect(readToPreview(w({ type: 'display', display: { ...d, editable: { frase: ['text'] } } }))).not.toBeNull()
+    expect(readToPreview(w({ type: 'display', display: { ...d, editable: { frase: [3] } } }))).toBeNull()
+  })
+})

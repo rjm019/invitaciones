@@ -483,6 +483,7 @@ function assign(username: string, on: boolean): void {
         <template v-for="f in g.fields" :key="f.key">
           <FieldInput
             :def="f"
+            :data-field-key="f.key"
             :model-value="design.event[f.key] ?? ''"
             :error="error(f.key)"
             @update:model-value="(v) => setBlock('event', f.key, v)"

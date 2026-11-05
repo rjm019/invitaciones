@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowRef, watch } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import '@/components/manager/manager.css'
 import AddSectionDialog from '@/components/manager/AddSectionDialog.vue'
@@ -26,7 +26,8 @@ import { useManagerSession } from '@/composables/useManagerSession'
 import { usePreviewHost } from '@/composables/usePreviewHost'
 import { useToasts } from '@/composables/useToasts'
 import { createAssetResolver } from '@/services/assetService'
-import { addSection, sectionLabel } from '@/services/designService'
+import { addSection, catalogSection, sectionLabel } from '@/services/designService'
+import { applyInlineEdit, controllingEventField, editableBlocks } from '@/services/inlineEditService'
 import * as managerService from '@/services/managerService'
 import { previewPatch } from '@/services/previewPatchService'
 import type { PreviewDisplay } from '@/services/previewProtocol'
@@ -73,7 +74,19 @@ const labels = computed(() =>
     ]),
   ),
 )
-const previewDisplay = computed<PreviewDisplay>(() => ({ ...display, labels: labels.value }))
+// Los textos que se editan con doble clic en la vista previa (como texto, para que solo
+// cambie cuando cambian las secciones y no con cada tecla).
+const editableKey = computed(() =>
+  editor.catalog.value && editor.design.value
+    ? JSON.stringify(editableBlocks(editor.catalog.value, editor.design.value))
+    : '{}',
+)
+const editable = computed<Record<string, string[]>>(() => JSON.parse(editableKey.value))
+const previewDisplay = computed<PreviewDisplay>(() => ({
+  ...display,
+  labels: labels.value,
+  editable: editable.value,
+}))
 
 // Vista previa
 const previewComp = ref<InstanceType<typeof PreviewFrame> | null>(null)
@@ -93,11 +106,65 @@ const preview = usePreviewHost(frame, {
   },
   onArrangeChange: (section, changes, nudge) => arrange.onChange(section, changes, nudge),
   onKey: (key, meta, shift) => arrange.onKey(key, meta, shift),
+  onArrangeBegin: (section, ref) => {
+    // Pulsar y mover en «Elegir»: la vista previa ya eligió el elemento y arrastra; aquí solo
+    // se pasa a «Acomodar» sin que el cambio de modo borre esa selección.
+    skipArrangeChoose = true
+    select({ kind: 'section', id: section, tab: 'content', block: null }, true)
+    display.mode = 'arrange'
+    arrange.adopt(section, ref)
+  },
+  onEditCommit: (section, ref, text) => {
+    if (!editor.catalog.value || !editor.design.value) return
+    const result = applyInlineEdit(editor.catalog.value, editor.design.value, section, ref, text)
+    if (!result) return
+    if ('design' in result) {
+      editor.update(result.design) // un guardado = un paso de deshacer
+      return
+    }
+    openControllingField(section, result.open, text)
+  },
+  onEditOpen: (section, block, text) => openControllingField(section, block, text),
   onTokens: (colors, fonts) => {
     themeColors.value = colors
     themeFonts.value = fonts
   },
 })
+
+/** Entre «Elegir» y «Acomodar»: la vista previa ya eligió, que el cambio de modo no lo borre. */
+let skipArrangeChoose = false
+
+/**
+ * Un texto que no se escribe en la sección (nombres, fecha, ciudad, un número calculado):
+ * no se finge editarlo. Se abre, con el cursor, el campo del evento que lo controla; si no
+ * hay, la sección con su texto elegido y un aviso.
+ */
+function openControllingField(section: string, block: string, shown: string): void {
+  const catalog = editor.catalog.value
+  const current = editor.design.value
+  if (!catalog || !current) return
+  const field = controllingEventField(catalog, current, section, shown)
+  const label = catalogSection(catalog, section)?.label ?? section
+  if (field?.inSection) {
+    select({ kind: 'section', id: section, tab: 'content', block, at: Date.now() }, true)
+    toast(`Este texto se escribe en «${field.label}» (Del evento). Ya lo abrí.`)
+  } else if (field) {
+    select({ kind: 'general' }, true)
+    toast(`Este texto sale de «${field.label}», en Datos generales. Ya lo abrí.`)
+  } else {
+    select({ kind: 'section', id: section, tab: 'content', block, at: Date.now() }, true)
+    toast(`Este texto sale de otro dato o se calcula solo; no se escribe en «${label}». Aquí cambias su letra y color.`)
+  }
+  if (field) {
+    void nextTick().then(() =>
+      setTimeout(() => {
+        document
+          .querySelector<HTMLElement>(`[data-field-key="${field.key}"] :is(input, textarea, select)`)
+          ?.focus()
+      }, 150),
+    )
+  }
+}
 
 // «Acomodar»: lo elegido en la vista previa y lo que el panel hace con ello.
 const arrange = useArrange({
@@ -158,6 +225,10 @@ watch(
   () => [display.mode, selectedSection.value?.id ?? null] as const,
   ([mode, id], [oldMode]) => {
     if (mode !== 'arrange') return
+    if (skipArrangeChoose) {
+      skipArrangeChoose = false
+      return
+    }
     if (oldMode !== 'arrange') arrange.chooseSection(null)
     arrange.chooseSection(id)
   },
