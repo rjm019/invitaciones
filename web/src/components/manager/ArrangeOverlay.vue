@@ -854,7 +854,10 @@ async function enable(): Promise<void> {
     if (!additive && !items.get(hit.ref)?.locked) {
       // Arrastrar de una vez lo que se acaba de elegir.
       // (Si el botón ya se soltó —un clic rápido— no hay nada que arrastrar.)
-      setTimeout(() => pressed && m.dragStart(e.inputEvent as MouseEvent), 0)
+      // Moveable pinta su caja en el cuadro siguiente: sin esperarlo, el arrastre empieza sin estado.
+      void nextFrames(3).then(() => {
+        if (pressed) m.dragStart(e.inputEvent as MouseEvent)
+      })
     }
   }) as never)
   s.on('selectEnd', ((e: { selected: HTMLElement[]; isClick: boolean; inputEvent: Event }) => {

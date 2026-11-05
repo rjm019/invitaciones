@@ -503,7 +503,7 @@ export function drawShareCard(
 /** Papel interior de un marco típico de encaje (% de la imagen que queda fuera). */
 const FRAME_ZONE = { top: 8.5, right: 18, bottom: 18.7, left: 18.9 }
 /** Adorno de la esquina inferior derecha del marco (flores): desde ahí el QR se aparta. */
-const FRAME_CORNER = { x: 0.6, y: 0.62 }
+const FRAME_CORNER = { x: 0.66, y: 0.62 }
 
 /**
  * La tarjeta enmarcada (`tarjeta_marco`): el papel del evento a toda la hoja, el marco grande
@@ -619,7 +619,7 @@ function drawFramedCard(
   const flowerX = fx + fw * FRAME_CORNER.x
   const flowerY = fy + fh * FRAME_CORNER.y
   const hint = 'toca o escanea para abrir'
-  const hintSize = fitFont(ctx, hint, serif, 24, cw)
+  const hintSize = fitFont(ctx, hint, serif, 20, cw)
   ctx.font = serif(hintSize)
   const hintW = ctx.measureText(hint).width
   const blockW = Math.max(qrSide, hintW)
