@@ -212,12 +212,23 @@ defineExpose({ frame })
 .preview__arrange {
   grid-row: 2;
   display: flex;
-  flex-wrap: wrap;
+  /* Una sola fila: si no cabe, se desplaza; así no crece ni empuja la vista previa. */
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
   border-bottom: 1px solid var(--g-line);
   background: var(--g-accent-soft);
+}
+.preview__arrange > * {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.preview__arrange > .g-grow {
+  flex-shrink: 1;
+  min-width: 0;
 }
 .preview__arrange-title {
   margin-right: 4px;
