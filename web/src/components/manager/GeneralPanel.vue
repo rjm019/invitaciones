@@ -359,7 +359,7 @@ function assign(username: string, on: boolean): void {
         <h3 class="g-group__title">Aviso de fecha límite</h3>
         <p class="g-help">
           Al abrir la invitación, quien aún no envió todos sus nombres ve un aviso de la fecha límite
-          para confirmar («mañana», «hoy» o «en N días»).
+          para confirmar («mañana», «hoy» o «en N días»). El cliente puede cambiar el texto en su panel.
         </p>
         <label class="g-switch">
           <input

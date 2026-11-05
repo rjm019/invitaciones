@@ -163,6 +163,25 @@ export async function updateDeadline(
   return data.rsvp
 }
 
+/** Cambia el texto del aviso de la fecha límite; null restaura el de siempre. */
+export async function updateDeadlineNotice(
+  slug: string,
+  token: string,
+  text: string | null,
+): Promise<PanelRsvp> {
+  const { data } = await http.put<{ rsvp: PanelRsvp }>(
+    `${base(slug)}/deadline-notice`,
+    { text },
+    auth(token),
+  )
+  return data.rsvp
+}
+
+/** Un ejemplo de cómo se lee el aviso en la invitación. */
+export function noticePreview(text: string): string {
+  return text.replace(/\{cuando\}/g, 'mañana')
+}
+
 /** Huella del evento: barata de pedir cada pocos segundos para saber si hay algo nuevo. */
 export async function getVersion(slug: string, token: string): Promise<string> {
   const { data } = await http.get<{ version: string }>(`${base(slug)}/version`, auth(token))

@@ -191,10 +191,21 @@ onMounted(() => {
               @send="sending = $event"
             />
             <div v-if="overview.reminders" class="panel__side">
-              <DeadlineCard :rsvp="overview.rsvp" :bounds="bounds" :change="panel.changeDeadline" />
+              <DeadlineCard
+                :rsvp="overview.rsvp"
+                :bounds="bounds"
+                :change="panel.changeDeadline"
+                :change-notice="panel.changeNotice"
+              />
               <ReminderCard :reminders="overview.reminders" :change="panel.changeReminders" />
             </div>
-            <DeadlineCard v-else :rsvp="overview.rsvp" :bounds="bounds" :change="panel.changeDeadline" />
+            <DeadlineCard
+              v-else
+              :rsvp="overview.rsvp"
+              :bounds="bounds"
+              :change="panel.changeDeadline"
+              :change-notice="panel.changeNotice"
+            />
           </div>
           <InvitationList
             :invitations="overview.invitations"
@@ -328,7 +339,8 @@ onMounted(() => {
 .panel input[type='tel'],
 .panel input[type='password'],
 .panel input[type='date'],
-.panel input:not([type]) {
+.panel input:not([type]),
+.panel textarea {
   width: 100%;
   min-height: 2.9rem;
   padding: 0.55rem 0.8rem;
@@ -339,13 +351,15 @@ onMounted(() => {
   font: inherit;
   font-size: 1.05rem;
 }
+.panel textarea:focus-visible,
 .panel input:focus-visible,
 .panel button:focus-visible,
 .panel a:focus-visible {
   outline: 2px solid var(--p-accent);
   outline-offset: 2px;
 }
-.panel input[aria-invalid='true'] {
+.panel input[aria-invalid='true'],
+.panel textarea[aria-invalid='true'] {
   border-color: var(--p-no);
 }
 .p-button {

@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { longDate } from '@/services/dateFormatService'
 import { changesLabel } from '@/services/panelService'
+import NoticeForm from './NoticeForm.vue'
 import type { PanelRsvp } from '@/types/panel'
 
 /**
@@ -12,6 +13,7 @@ const props = defineProps<{
   rsvp: PanelRsvp
   bounds: { min: string; max: string | null }
   change: (date: string) => Promise<void>
+  changeNotice: (text: string | null) => Promise<void>
 }>()
 
 const date = ref('')
@@ -108,6 +110,7 @@ async function save() {
     </form>
     <p v-if="error" class="p-error" role="alert">{{ error }}</p>
     <p v-if="done" class="deadline__done" role="status">{{ done }}</p>
+    <NoticeForm v-if="rsvp.notice" :notice="rsvp.notice" :change="changeNotice" />
   </section>
 </template>
 

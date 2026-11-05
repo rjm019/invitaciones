@@ -30,6 +30,8 @@ export interface Invitation {
   deadline: string | null
   /** Días que faltan para la fecha límite (0 = hoy); solo llega con el aviso encendido y lugares sin nombre. */
   deadline_days?: number
+  /** El aviso de la fecha límite ya armado por el servidor; llega junto con `deadline_days`. */
+  deadline_notice?: string
   /** La dedicatoria que ya dejó este enlace (una por invitación), o null. */
   dedication: InvitationDedication | null
   /** Estado de la trivia de este enlace; null si el evento no tiene. */

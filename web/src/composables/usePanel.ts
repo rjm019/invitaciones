@@ -154,6 +154,11 @@ export function usePanel(slug: string) {
     if (overview.value) overview.value = { ...overview.value, rsvp }
   }
 
+  async function changeNotice(text: string | null): Promise<void> {
+    const rsvp = await withSession((t) => panelService.updateDeadlineNotice(slug, t, text))
+    if (overview.value) overview.value = { ...overview.value, rsvp }
+  }
+
   async function changePhone(id: string, phone: string | null): Promise<void> {
     overview.value = await withSession((t) =>
       panelService.updateInvitationPhone(slug, t, id, phone),
@@ -181,6 +186,7 @@ export function usePanel(slug: string) {
     create,
     remove,
     changeDeadline,
+    changeNotice,
     assignTables,
     changePhone,
     changeReminders,

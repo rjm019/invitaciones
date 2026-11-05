@@ -8,6 +8,7 @@ const api = vi.hoisted(() => ({
   getVersion: vi.fn(),
   createInvitation: vi.fn(),
   updateDeadline: vi.fn(),
+  updateDeadlineNotice: vi.fn(),
   assignTables: vi.fn(),
   deleteInvitation: vi.fn(),
 }))
@@ -98,6 +99,10 @@ describe('usePanel', () => {
 
     await panel.changeDeadline('2026-11-10')
     expect(panel.overview.value?.rsvp).toEqual({ changes_left: 2 })
+
+    api.updateDeadlineNotice.mockResolvedValue({ notice: { text: 'Hola {cuando}' } })
+    await panel.changeNotice('Hola {cuando}')
+    expect(panel.overview.value?.rsvp).toEqual({ notice: { text: 'Hola {cuando}' } })
   })
   it('eliminar una invitación deja el panel como lo devuelve el servidor', async () => {
     sessionStorage.setItem('panel:mis-xv', 't0k')

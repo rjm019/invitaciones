@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import { useInvitation } from '@/composables/useInvitation'
-import { deadlineNotice } from '@/services/invitationService'
 
 /**
  * Aviso de la fecha límite: al abrir la invitación salta un modal con un solo botón OK, con los
  * colores y letras de la invitación. Una vez por día que falta y por dispositivo; solo llega
- * del servidor (`deadline_days`) con el ajuste encendido y lugares sin nombre.
+ * del servidor, ya armado, con el ajuste encendido y lugares sin nombre.
  */
 const context = useInvitation()
 const dialog = ref<HTMLDialogElement | null>(null)
-const text = computed(() => deadlineNotice(context?.invitation.value?.deadline_days))
+const text = computed(() => context?.invitation.value?.deadline_notice)
 const key = computed(() => `aviso-fecha-${context?.token}-${context?.invitation.value?.deadline_days}`)
 
 function seen(): boolean {

@@ -5,9 +5,11 @@ import { createInvitationContext, provideInvitationContext } from '@/composables
 import type { Invitation } from '@/types/invitation'
 import DeadlineNotice from '../DeadlineNotice.vue'
 
-function render(days?: number) {
+const TEXT = 'Recuerda que mañana es la fecha límite para confirmar tu asistencia'
+
+function render(notice?: string) {
   const context = createInvitationContext('tok')
-  context.invitation.value = { deadline_days: days } as Invitation
+  context.invitation.value = { deadline_days: 1, deadline_notice: notice } as Invitation
   return mount(
     defineComponent({
       setup() {
@@ -29,19 +31,19 @@ describe('DeadlineNotice', () => {
     }
   })
 
-  it('sin días no hay modal', () => {
+  it('sin aviso no hay modal', () => {
     expect(render().find('dialog').exists()).toBe(false)
   })
 
-  it('dice mañana y se cierra con OK', async () => {
-    const wrapper = render(1)
+  it('muestra el aviso del servidor y se cierra con OK', async () => {
+    const wrapper = render(TEXT)
     await wrapper.vm.$nextTick()
-    expect(wrapper.find('dialog').text()).toContain('mañana es la fecha límite para confirmar')
+    expect(wrapper.find('dialog').text()).toContain(TEXT)
     expect(wrapper.find('dialog').attributes('open')).toBeDefined()
     await wrapper.find('button').trigger('click')
     expect(wrapper.find('dialog').attributes('open')).toBeUndefined()
     // Ya visto: al recargar ese mismo día no vuelve a saltar.
-    const again = render(1)
+    const again = render(TEXT)
     await again.vm.$nextTick()
     expect(again.find('dialog').attributes('open')).toBeUndefined()
   })

@@ -78,6 +78,7 @@ Route::prefix('admin/events/{slug}')->where(['slug' => '[a-z0-9-]+'])->group(fun
         Route::post('/invitations', [PanelController::class, 'storeInvitation']);
         Route::delete('/invitations/{id}', [PanelController::class, 'destroyInvitation'])->where('id', '[0-9]+');
         Route::put('/deadline', [PanelController::class, 'updateDeadline']);
+        Route::put('/deadline-notice', [PanelController::class, 'updateDeadlineNotice']);
         // Recordatorios por WhatsApp (solo con la función encendida por el gestor).
         Route::put('/invitations/{id}/phone', [PanelController::class, 'updatePhone'])->where('id', '[0-9]+');
         Route::put('/reminders', [PanelController::class, 'updateReminders']);

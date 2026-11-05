@@ -110,6 +110,15 @@ export interface PanelRsvp {
   changes_used: number
   changes_left: number
   max_changes: number
+  /** Texto del aviso de la fecha límite; solo con el aviso encendido en el gestor. */
+  notice?: PanelDeadlineNotice
+}
+
+export interface PanelDeadlineNotice {
+  /** Con {cuando}, donde la invitación escribe "hoy", "mañana" o "en N días". */
+  text: string
+  /** El de siempre: el que vuelve al restaurar. */
+  default: string
 }
 
 export interface PanelSummary {

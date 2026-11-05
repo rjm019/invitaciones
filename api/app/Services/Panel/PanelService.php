@@ -4,6 +4,7 @@ namespace App\Services\Panel;
 
 use App\Services\Album\AlbumService;
 use App\Services\Csv\CsvFile;
+use App\Services\Design\Normalizer;
 use App\Services\Design\TriviaQuiz;
 use App\Services\Invitations\DedicationStore;
 use App\Services\Invitations\EventSettings;
@@ -450,6 +451,36 @@ final class PanelService
     }
 
     /**
+     * Cambia el texto del aviso de la fecha límite; null (o el texto de siempre) lo restaura.
+     *
+     * @return array<string, mixed> el rsvp al día
+     *
+     * @throws RsvpException 409 con el aviso apagado · 422 si el texto no lleva {cuando}
+     */
+    public function changeDeadlineNotice(string $slug, ?string $text): array
+    {
+        $event = $this->event($slug);
+        if (! $this->noticeOn($slug)) {
+            throw new RsvpException('El aviso de la fecha límite no está activo en esta invitación.', 409);
+        }
+
+        $text = trim((string) preg_replace('/\s+/u', ' ', (string) $text));
+        if ($text !== '' && ! str_contains($text, InvitationService::DEADLINE_NOTICE_SLOT)) {
+            throw new RsvpException('Deja {cuando} en el texto: ahí se escribe «hoy», «mañana» o «en 3 días».', 422, 'text');
+        }
+        $custom = $text !== '' && $text !== InvitationService::DEADLINE_NOTICE;
+
+        $this->settings->put(
+            $this->events->path($slug),
+            ['aviso_fecha_texto' => $custom ? CsvFile::safe($text) : null],
+            CarbonImmutable::now($event['timezone']),
+            EventSettings::OWNER,
+        );
+
+        return $this->rsvp($slug, $event);
+    }
+
+    /**
      * Huella de los archivos del evento: cambia en cuanto alguien abre o confirma una
      * invitación, o el dueño cambia algo. El panel la consulta cada pocos segundos y solo
      * vuelve a pedir todo cuando cambió (así se ve "en vivo" sin costo).
@@ -499,7 +530,16 @@ final class PanelService
             'changes_used' => $used,
             'changes_left' => max(0, EventSettings::MAX_DEADLINE_CHANGES - $used),
             'max_changes' => EventSettings::MAX_DEADLINE_CHANGES,
-        ];
+        ] + ($this->noticeOn($slug) ? ['notice' => [
+            'text' => CsvFile::unsafe($this->events->settings($slug)['aviso_fecha_texto'] ?? '') ?: InvitationService::DEADLINE_NOTICE,
+            'default' => InvitationService::DEADLINE_NOTICE,
+        ]] : []);
+    }
+
+    /** ¿El gestor encendió el aviso de la fecha límite en esta invitación? */
+    private function noticeOn(string $slug): bool
+    {
+        return Normalizer::yes($this->events->settings($slug)['aviso_fecha_limite'] ?? '');
     }
 
     /**

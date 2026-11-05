@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Services\Invitations\DedicationStore;
 use App\Services\Invitations\EventSettings;
+use App\Services\Invitations\InvitationService;
 use App\Services\Invitations\InvitationStore;
 use App\Services\Invitations\ResponseStore;
 use App\Services\Invitations\RsvpException;
@@ -128,6 +129,52 @@ class AdminPanelTest extends TestCase
         $this->assertSame(5, $days());
         CarbonImmutable::setTestNow('2026-11-07 09:00:00 America/Mexico_City');
         $this->assertNull($days()); // ya cerró
+    }
+
+    public function test_the_invitation_brings_the_deadline_notice_with_its_ending(): void
+    {
+        $notice = fn () => $this->getJson('/api/public/invitations/Fam1Token001')->assertOk()->json('invitation.deadline_notice');
+        app(EventSettings::class)->put("{$this->eventos}/prueba", ['aviso_fecha_limite' => 'SI'], CarbonImmutable::now());
+
+        CarbonImmutable::setTestNow('2026-11-05 09:00:00 America/Mexico_City');
+        $this->assertSame('Recuerda que mañana es la fecha límite para confirmar tu asistencia', $notice());
+        CarbonImmutable::setTestNow('2026-11-06 09:00:00 America/Mexico_City');
+        $this->assertSame('Recuerda que hoy es la fecha límite para confirmar tu asistencia', $notice());
+        CarbonImmutable::setTestNow('2026-11-01 09:00:00 America/Mexico_City');
+        $this->assertSame('Recuerda que en 5 días es la fecha límite para confirmar tu asistencia', $notice());
+    }
+
+    public function test_the_owner_edits_the_deadline_notice_from_the_panel(): void
+    {
+        $token = $this->login();
+        $change = fn (?string $text) => $this->putJson('/api/admin/events/prueba/deadline-notice', ['text' => $text], $this->auth($token));
+        $stored = fn () => app(EventSettings::class)->read("{$this->eventos}/prueba")['aviso_fecha_texto'] ?? null;
+
+        // Apagado: ni se ve en el panel ni se puede cambiar.
+        $this->assertArrayNotHasKey('notice', $this->getJson('/api/admin/events/prueba', $this->auth($token))->json('rsvp'));
+        $change('Hola, {cuando} se cierra')->assertStatus(409);
+
+        app(EventSettings::class)->put("{$this->eventos}/prueba", ['aviso_fecha_limite' => 'SI'], CarbonImmutable::now());
+        $this->getJson('/api/admin/events/prueba', $this->auth($token))
+            ->assertJsonPath('rsvp.notice.text', InvitationService::DEADLINE_NOTICE)
+            ->assertJsonPath('rsvp.notice.default', InvitationService::DEADLINE_NOTICE);
+
+        $change('Sin la palabra')->assertStatus(422)->assertJsonPath('errors.text.0', 'Deja {cuando} en el texto: ahí se escribe «hoy», «mañana» o «en 3 días».');
+        $change(str_repeat('a', 161).'{cuando}')->assertStatus(422)->assertJsonPath('errors.text.0', 'El aviso lleva hasta 160 caracteres.');
+        $this->putJson('/api/admin/events/prueba/deadline-notice', ['text' => 'Hola {cuando}'])->assertUnauthorized();
+
+        $change("Hola,\n{cuando}  se cierra")->assertOk()->assertJsonPath('rsvp.notice.text', 'Hola, {cuando} se cierra');
+        $this->assertSame('Hola, {cuando} se cierra', $stored());
+        CarbonImmutable::setTestNow('2026-11-05 09:00:00 America/Mexico_City');
+        $this->getJson('/api/public/invitations/Fam1Token001')->assertJsonPath('invitation.deadline_notice', 'Hola, mañana se cierra');
+        CarbonImmutable::setTestNow('2026-10-13 12:00:00 America/Mexico_City');
+
+        // Una fórmula no llega viva al CSV, y el cliente la sigue viendo como la escribió.
+        $change('=1+1 {cuando}')->assertOk()->assertJsonPath('rsvp.notice.text', '=1+1 {cuando}');
+        $this->assertSame("'=1+1 {cuando}", $stored());
+
+        $change(null)->assertOk()->assertJsonPath('rsvp.notice.text', InvitationService::DEADLINE_NOTICE);
+        $this->assertNull($stored());
     }
 
     public function test_generates_a_link_for_the_number_of_guests(): void

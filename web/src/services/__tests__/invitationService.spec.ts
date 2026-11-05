@@ -4,7 +4,7 @@ const { get, post } = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }))
 vi.mock('../http', () => ({ http: { get, post } }))
 
 import { setBoot } from '../bootService'
-import { deadlineNotice, getInvitation, sendDedication, sendRsvp } from '../invitationService'
+import { getInvitation, sendDedication, sendRsvp } from '../invitationService'
 
 describe('invitationService', () => {
   beforeEach(() => {
@@ -46,15 +46,5 @@ describe('invitationService', () => {
     post.mockResolvedValue({ data: { invitation: { dedication } } })
     await expect(sendDedication('Abc123Def456', dedication)).resolves.toEqual({ dedication })
     expect(post).toHaveBeenCalledWith('/public/invitations/Abc123Def456/dedication', dedication)
-  })
-})
-
-describe('deadlineNotice', () => {
-  it('dice hoy, mañana o en N días, y no avisa sin días', () => {
-    expect(deadlineNotice(0)).toBe('Recuerda que hoy es la fecha límite para confirmar')
-    expect(deadlineNotice(1)).toBe('Recuerda que mañana es la fecha límite para confirmar')
-    expect(deadlineNotice(5)).toBe('Recuerda que en 5 días es la fecha límite para confirmar')
-    expect(deadlineNotice(undefined)).toBeNull()
-    expect(deadlineNotice(-1)).toBeNull()
   })
 })

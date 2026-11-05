@@ -4,6 +4,7 @@ namespace App\Services\Invitations;
 
 use App\Services\Album\AlbumService;
 use App\Services\Album\EventEnded;
+use App\Services\Csv\CsvFile;
 use App\Services\Design\Normalizer;
 use App\Services\Layout\EventRepository;
 use Carbon\CarbonImmutable;
@@ -17,6 +18,11 @@ use Throwable;
 final class InvitationService
 {
     public const NOT_FOUND = 'Invitación no encontrada.';
+
+    /** Texto del aviso de la fecha límite; {cuando} se vuelve "hoy", "mañana" o "en N días". */
+    public const DEADLINE_NOTICE = 'Recuerda que {cuando} es la fecha límite para confirmar tu asistencia';
+
+    public const DEADLINE_NOTICE_SLOT = '{cuando}';
 
     public function __construct(
         private readonly EventRepository $events,
@@ -211,7 +217,23 @@ final class InvitationService
             ],
             'trivia' => $this->trivia->present($invitation),
         ] + (($album = $this->album->present($invitation)) === null ? [] : ['album' => $album])
-            + (($days = $this->deadlineDays($invitation, count($guests))) === null ? [] : ['deadline_days' => $days]);
+            + (($days = $this->deadlineDays($invitation, count($guests))) === null ? [] : [
+                'deadline_days' => $days,
+                'deadline_notice' => $this->deadlineNotice($invitation->slug, $days),
+            ]);
+    }
+
+    /** El aviso ya armado: el texto que escribió el cliente en su panel, o el de siempre. */
+    private function deadlineNotice(string $slug, int $days): string
+    {
+        $when = match ($days) {
+            0 => 'hoy',
+            1 => 'mañana',
+            default => "en {$days} días",
+        };
+        $text = CsvFile::unsafe($this->events->settings($slug)['aviso_fecha_texto'] ?? '') ?: self::DEADLINE_NOTICE;
+
+        return str_replace(self::DEADLINE_NOTICE_SLOT, $when, $text);
     }
 
     /**

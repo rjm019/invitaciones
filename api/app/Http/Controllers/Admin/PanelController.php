@@ -149,6 +149,17 @@ class PanelController extends Controller
         return response()->json(['rsvp' => $panel->changeDeadline($slug, $data['deadline'])]);
     }
 
+    /** PUT /api/admin/events/{slug}/deadline-notice — { text: string|null } (vacío restaura el de siempre) */
+    public function updateDeadlineNotice(Request $request, string $slug, PanelService $panel): JsonResponse
+    {
+        $data = $request->validate(['text' => ['present', 'nullable', 'string', 'max:160']], [
+            'text.max' => 'El aviso lleva hasta 160 caracteres.',
+            'text.*' => 'Escribe el texto del aviso.',
+        ]);
+
+        return response()->json(['rsvp' => $panel->changeDeadlineNotice($slug, $data['text'])]);
+    }
+
     /** PUT /api/admin/events/{slug}/invitations/{id}/phone — { phone: string|null } (vacío lo quita). Devuelve el panel. */
     public function updatePhone(Request $request, string $slug, string $id, PanelService $panel): JsonResponse
     {

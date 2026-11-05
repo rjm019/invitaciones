@@ -18,6 +18,7 @@ import {
   filterDedications,
   filterGuests,
   filterInvitations,
+  noticePreview,
   getBrand,
   getOverview,
   getVersion,
@@ -28,6 +29,7 @@ import {
   parseTable,
   tableSummary,
   updateDeadline,
+  updateDeadlineNotice,
 } from '../panelService'
 import { setBoot } from '../bootService'
 import type { PanelInvitation } from '@/types/panel'
@@ -87,6 +89,19 @@ describe('panelService', () => {
       { deadline: '2026-11-10' },
       expect.anything(),
     )
+  })
+
+  it('cambia el texto del aviso y arma su ejemplo', async () => {
+    put.mockResolvedValueOnce({ data: { rsvp: { changes_left: 2 } } })
+    await expect(updateDeadlineNotice('mis-xv', 't', 'Hola {cuando}')).resolves.toEqual({
+      changes_left: 2,
+    })
+    expect(put).toHaveBeenCalledWith(
+      '/admin/events/mis-xv/deadline-notice',
+      { text: 'Hola {cuando}' },
+      expect.anything(),
+    )
+    expect(noticePreview('Recuerda que {cuando} cierra')).toBe('Recuerda que mañana cierra')
   })
 
   it('elimina una invitación y devuelve el panel actualizado', async () => {
