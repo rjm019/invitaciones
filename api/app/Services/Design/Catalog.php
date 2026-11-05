@@ -433,6 +433,8 @@ final class Catalog
             'description' => 'El sobre que se abre con el nombre y el salón.',
             'fields' => [
                 ['key' => 'boton', 'label' => 'Texto para abrir', 'input' => 'text', 'placeholder' => 'Toca para abrir', 'max_length' => 60],
+                ['key' => 'titulo', 'label' => 'Encabezado de la tarjeta', 'input' => 'text', 'placeholder' => 'Con todo el corazón', 'max_length' => 80, 'help' => 'Lo usa "Sobre con lacre y tarjeta de papelería".'],
+                ['key' => 'texto', 'label' => 'Frase antes de la fecha', 'input' => 'textarea', 'max_length' => 200, 'help' => 'Lo usa "Sobre con lacre y tarjeta de papelería".'],
                 ['key' => 'imagen', 'label' => 'Foto de la portada', 'input' => 'image', 'help' => 'La usa "Estatua de la Libertad" detrás del nombre.'],
                 ['key' => 'variante', 'label' => 'Cómo abre', 'input' => 'select', 'options' => [
                     ['value' => 'sobre', 'label' => 'Sobre'],

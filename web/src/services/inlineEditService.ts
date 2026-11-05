@@ -86,6 +86,13 @@ export function applyInlineEdit(
 /** Sin espacios ni mayúsculas: los nombres se parten en renglones («Alexa», «&», «Carlos»). */
 const norm = (v: string) => v.replace(/\s+/g, '').toLowerCase()
 
+/** Las palabras de un texto, sin mayúsculas ni puntuación. */
+const words = (v: string) => v.toLowerCase().match(/[\p{L}\p{N}&]+/gu) ?? []
+
+/** Si `part` aparece en `all` como palabras completas y seguidas: «A C» no está en «a celebrar». */
+const hasWords = (all: string[], part: string[]) =>
+  part.length > 0 && all.some((_, i) => part.every((word, j) => all[i + j] === word))
+
 /**
  * El campo del evento que controla un texto que no es de la sección: de los «del evento» de
  * la sección (o de todos los grupos) el que vale lo mismo que se ve. null si ninguno.
@@ -98,11 +105,13 @@ export function controllingEventField(
 ): { key: string; label: string; inSection: boolean } | null {
   const wanted = norm(shown)
   if (!wanted) return null
+  const shownWords = words(shown)
   const def = catalogSection(catalog, sectionId)
   const all = catalog.event_groups.flatMap((g) => g.fields)
   const matches = (key: string) => {
-    const value = norm(design.event[key] ?? '')
-    return value !== '' && (value === wanted || wanted.includes(value) || value.includes(wanted))
+    const value = design.event[key] ?? ''
+    const valueWords = words(value)
+    return norm(value) === wanted || hasWords(shownWords, valueWords) || hasWords(valueWords, shownWords)
   }
   const linked = (def?.linked ?? []).find(matches)
   const key = linked ?? all.find((f) => matches(f.key))?.key

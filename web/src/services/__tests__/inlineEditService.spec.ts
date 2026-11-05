@@ -62,4 +62,12 @@ describe('inlineEditService', () => {
     expect(f).toMatchObject({ key: 'festejada', inSection: true })
     expect(controllingEventField(catalog, design, 'portada', '13')).toBeNull()
   })
+
+  it('compara palabras completas: unas iniciales no controlan una frase que las contiene', () => {
+    const withInitials = { ...design, event: { ...design.event, festejada: 'A C' } }
+    expect(controllingEventField(catalog, withInitials, 'portada', 'invitarles a celebrar')).toBeNull()
+    expect(controllingEventField(catalog, withInitials, 'portada', 'AC')).toMatchObject({ key: 'festejada' })
+    expect(controllingEventField(catalog, design, 'portada', 'Boda de Alexa & Carlos')).toMatchObject({ key: 'festejada' })
+    expect(controllingEventField(catalog, design, 'portada', 'Carlos')).toMatchObject({ key: 'festejada' })
+  })
 })
