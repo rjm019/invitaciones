@@ -43,6 +43,17 @@ describe('EnvelopeRainPull (sobre-imagen)', () => {
     vi.unstubAllGlobals()
   })
 
+  it('cerrado: el título y la frase se leen sobre la hoja; abierto se apartan', async () => {
+    vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener() {}, removeEventListener() {} }))
+    const w = render({ decor }, { envelope })
+    const cover = w.get('.pull__cover')
+    expect(cover.text()).toContain('Lluvia')
+    expect(cover.text()).toContain('Gracias')
+    expect(cover.attributes('aria-hidden')).toBe('false')
+    await w.get('button.pull__toggle').trigger('click')
+    expect(cover.attributes('aria-hidden')).toBe('true')
+  })
+
   it('en la hoja van título, texto, CLABE agrupada, titular, copiar y la nota de caja', () => {
     const w = render({ decor }, { envelope })
     const sheet = w.get('.pull__sheet')

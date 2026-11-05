@@ -106,6 +106,11 @@ const style = computed(() => {
           </div>
         </div>
         <img v-if="front" class="pull__layer pull__front" :src="front" alt="" @load="onStage" />
+        <!-- Lo que se lee en la hoja mientras sigue dentro del sobre. -->
+        <div class="pull__cover" :aria-hidden="open">
+          <p class="pull__title">{{ envelope.title || 'Lluvia de sobres' }}</p>
+          <p v-if="envelope.text" class="pull__text">{{ envelope.text }}</p>
+        </div>
         <button
           type="button"
           class="pull__toggle"
@@ -205,6 +210,29 @@ const style = computed(() => {
 .is-open .pull__safe {
   opacity: 1;
 }
+.pull__cover {
+  position: absolute;
+  z-index: 3;
+  left: calc(var(--hx) * 1%);
+  top: 33%;
+  container-type: inline-size;
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  width: 56%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: opacity var(--dur) ease;
+}
+.is-open .pull__cover {
+  opacity: 0;
+}
+.pull__cover .pull__title {
+  font-size: calc(clamp(1.5rem, 16cqi, 3.2rem) * var(--t-title-size, 1));
+}
+.pull__cover .pull__text {
+  font-size: calc(clamp(0.8rem, 6.4cqi, 1.3rem) * var(--t-text-size, 1));
+}
 .pull__toggle {
   position: absolute;
   inset: 0;
@@ -223,7 +251,7 @@ const style = computed(() => {
 .pull__hint {
   margin: 0;
   font-family: var(--font-caps);
-  font-size: 0.8rem;
+  font-size: clamp(1rem, 4.6cqi, 1.3rem);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--color-primary);
@@ -296,7 +324,8 @@ const style = computed(() => {
 }
 @media (prefers-reduced-motion: reduce) {
   .pull__sheet,
-  .pull__safe {
+  .pull__safe,
+  .pull__cover {
     transition: none;
   }
 }
