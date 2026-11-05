@@ -22,14 +22,14 @@
 
   // ---------- carga ----------
 
-  ListaInvitados.prototype.cargar = function (invitados, categorias) {
+  ListaInvitados.prototype.cargar = function (invitados, categorias, conservarMesa) {
     this.invitados = (invitados || []).map(function (g) {
       return g instanceof Invitado ? g : new Invitado(g);
     });
     this.categorias = (categorias || []).slice();
     this.porId = {};
     this.invitados.forEach(function (g) { this.porId[g.id] = g; }, this);
-    this.filtros.mesa = null;
+    if (!conservarMesa) this.filtros.mesa = null;
     this.avisar();
   };
 

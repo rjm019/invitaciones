@@ -94,4 +94,7 @@ return [
         'hours' => '10-20',
     ],
 
+    // Buscador de invitados (recepcion/): contraseña de quien puede cargar la lista.
+    'recepcion_clave' => (string) env('RECEPCION_CLAVE', ''),
+
 ];

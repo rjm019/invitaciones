@@ -11,6 +11,7 @@
     this.almacen = almacen;
     this.pendiente = null;
     this.alCargar = null;
+    this.subir = null;   // (categorias, invitados) → Promise: la manda al servidor para todos
 
     var self = this;
 
@@ -45,11 +46,26 @@
 
   ImportacionController.prototype.confirmar = function () {
     if (!this.pendiente) return;
-    this.lista.cargar(this.pendiente.invitados, this.pendiente.categorias);
-    this.almacen.guardarEstado(this.lista);
-    this.pendiente = null;
-    this.vista.ocultar();
-    if (this.alCargar) this.alCargar();
+    var self = this;
+    var res = this.pendiente;
+
+    var terminar = function () {
+      self.lista.cargar(res.invitados, res.categorias);
+      self.almacen.guardarEstado(self.lista);
+      self.pendiente = null;
+      self.vista.ocultar();
+      if (self.alCargar) self.alCargar();
+    };
+
+    if (!this.subir) { terminar(); return; }
+
+    this.subir(res.categorias, res.invitados.map(function (g) {
+      return typeof g.aObjeto === 'function' ? g.aObjeto() : g;
+    })).then(terminar).catch(function (err) {
+      self.vista.error(err.status === 401
+        ? 'La contraseña ya no es válida. Vuelve a ingresarla.'
+        : 'No se pudo subir la lista al servidor: ' + err.message);
+    });
   };
 
   ImportacionController.prototype.cancelar = function () {

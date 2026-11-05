@@ -5,9 +5,11 @@
 **/.DS_Store
 eventos/
 docs/
-recepcion/
+recepcion/*
+!recepcion/public/
 **/node_modules
 **/vendor
+!recepcion/public/vendor
 api/tests/
 api/storage/logs/*
 api/storage/framework/cache/*

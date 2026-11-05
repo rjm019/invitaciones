@@ -306,3 +306,16 @@ li.libre .nombre{color:var(--sutil); font-style:italic}
   overflow-x:auto;
 }
 #acciones .boton{flex:0 0 auto}
+#titulo.sin-red::after{content:" · sin conexión"; font-size:12px; color:#b3261e; font-weight:600}
+
+/* Confirmar quitar una llegada: grande y rápido de tocar */
+.confirmar-grande{width:min(92vw, 440px); padding:20px 16px}
+.confirmar-grande .swal2-title{font-size:26px; padding:0 0 8px}
+.confirmar-nombre{font-size:24px; font-weight:700; line-height:1.2; margin:6px 0}
+.confirmar-detalle{font-size:16px; color:#6b6358}
+.confirmar-acciones{display:flex; flex-direction:column; gap:12px; width:100%; margin-top:18px}
+.confirmar-acciones.swal2-actions{flex-direction:column-reverse}
+.confirmar-btn{width:100%; min-height:64px; font-size:22px; font-weight:700; border:0; border-radius:14px; cursor:pointer; color:#fff}
+.confirmar-si{background:#b3261e}
+.confirmar-no{background:#8a8177}
+.confirmar-btn:focus-visible{outline:4px solid #1a73e8; outline-offset:2px}

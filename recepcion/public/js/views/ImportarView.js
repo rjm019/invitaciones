@@ -12,6 +12,10 @@
     this.app = document.getElementById('app');
     this.zona = document.getElementById('zona-suelta');
     this.entrada = document.getElementById('archivo');
+    this.acceso = document.getElementById('acceso-admin');
+    this.btnVolver = document.getElementById('btn-volver');
+    this.alPedirClave = null;
+    this.alVolver = null;
     this.informe = document.getElementById('informe');
     this.alElegirArchivo = null;
     this.alConfirmar = null;
@@ -50,6 +54,13 @@
       if (f && self.alElegirArchivo) self.alElegirArchivo(f);
     });
 
+    document.getElementById('btn-clave').addEventListener('click', function () {
+      if (self.alPedirClave) self.alPedirClave();
+    });
+    this.btnVolver.addEventListener('click', function () {
+      if (self.alVolver) self.alVolver();
+    });
+
     this.informe.addEventListener('click', function (e) {
       if (e.target.id === 'btn-confirmar' && self.alConfirmar) self.alConfirmar();
       if (e.target.id === 'btn-cancelar' && self.alCancelar) self.alCancelar();
@@ -59,6 +70,14 @@
   ImportarView.prototype.mostrar = function () {
     this.pantalla.hidden = false;
     this.app.hidden = true;
+  };
+
+  // Sin contraseña de administración solo se ofrece ingresarla; con ella, el archivo.
+  ImportarView.prototype.ponerAcceso = function (esAdmin, hayLista) {
+    this.zona.hidden = !esAdmin;
+    this.acceso.hidden = esAdmin;
+    this.btnVolver.hidden = !hayLista;
+    if (!esAdmin) this.informe.hidden = true;
   };
 
   ImportarView.prototype.ocultar = function () {

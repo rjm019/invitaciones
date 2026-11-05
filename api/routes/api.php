@@ -18,6 +18,7 @@ use App\Http\Controllers\Public\DedicationWallController;
 use App\Http\Controllers\Public\EventController;
 use App\Http\Controllers\Public\InvitationController;
 use App\Http\Controllers\Public\QuoteController;
+use App\Http\Controllers\Public\RecepcionController;
 use App\Http\Controllers\Public\RsvpController;
 use App\Http\Controllers\Public\TriviaController;
 use App\Http\Controllers\Public\VisitController;
@@ -48,6 +49,12 @@ Route::prefix('public')->group(function () {
 
     // Cotizaciones de la landing.
     Route::post('/quotes', [QuoteController::class, 'store'])->middleware('throttle:quote');
+
+    // Buscador de invitados compartido: leer y marcar es libre; cargar la lista pide la clave.
+    Route::get('/recepcion', [RecepcionController::class, 'show'])->middleware('throttle:120,1');
+    Route::post('/recepcion/cambios', [RecepcionController::class, 'changes'])->middleware('throttle:120,1');
+    Route::post('/recepcion/sesion', [RecepcionController::class, 'session'])->middleware('throttle:10,1');
+    Route::put('/recepcion/lista', [RecepcionController::class, 'replace'])->middleware('throttle:10,1');
 
     // Cada página vista (la landing, las invitaciones y las muestras): para las estadísticas.
     Route::post('/visits', [VisitController::class, 'store'])->middleware('throttle:visit');

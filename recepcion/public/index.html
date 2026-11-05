@@ -16,6 +16,12 @@
        Acepta el layout en rejilla, la lista agrupada por titular
        (<i>Mesa · Nombre · No. Personas · Niños</i>) y un CSV ya generado por el sistema.</p>
 
+    <div id="acceso-admin" class="zona-suelta" hidden>
+      <div class="zona-icono">🔒</div>
+      <p><b>Solo la administración puede cargar la lista</b></p>
+      <button id="btn-clave" class="boton primario">Ingresar contraseña</button>
+    </div>
+
     <div id="zona-suelta" class="zona-suelta">
       <div class="zona-icono">📄</div>
       <p><b>Arrastra el archivo aquí</b></p>
@@ -23,6 +29,8 @@
       <button id="btn-elegir" class="boton primario">Elegir archivo</button>
       <input type="file" id="archivo" accept=".csv,.xlsx,.xlsm,.xls,.xlsb" hidden>
     </div>
+
+    <button id="btn-volver" class="boton" hidden style="margin-top:12px">Volver a la lista</button>
 
     <div id="informe" class="informe" hidden></div>
   </div>
@@ -97,6 +105,7 @@
 <script src="js/services/CsvService.js"></script>
 <script src="js/services/LayoutService.js"></script>
 <script src="js/services/ArchivoService.js"></script>
+<script src="js/services/SyncService.js"></script>
 <script src="js/services/AlmacenService.js"></script>
 
 <script src="js/models/Invitado.js"></script>

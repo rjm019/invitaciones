@@ -42,6 +42,10 @@ RUN composer dump-autoload --optimize --no-dev \
 COPY --from=web /web/dist/ public/
 RUN mv public/index.html public/app.html
 
+# El buscador de invitados (recepcion/public, JS plano sin build) en /buscador: Apache lo
+# sirve estático y guarda los datos en el navegador de la puerta, no en el servidor.
+COPY recepcion/public/ public/buscador/
+
 COPY deploy/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 

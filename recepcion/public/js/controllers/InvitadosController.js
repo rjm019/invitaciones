@@ -32,7 +32,7 @@
     return this.contexto.clave || '';
   };
 
-  // Marcar es directo; desmarcar a alguien registrado por otra persona pide confirmación (§2.7).
+  // Marcar es directo; desmarcar siempre pide confirmación.
   InvitadosController.prototype.alternar = function (id) {
     var g = this.lista.obtener(id);
     if (!g) return;
@@ -43,27 +43,28 @@
       return;
     }
 
-    var yo = this.hostess();
-    var ajeno = g.marcado_por && yo && g.marcado_por !== yo;
     var self = this;
+    var esc = raiz.ListaView.esc;
+    var quien = g.marcado_por ? ' por <b>' + esc(g.marcado_por) + '</b>' : '';
+    var cuando = g.hora ? ' a las ' + esc(g.hora) : '';
 
-    if (!ajeno) {
-      this.lista.desmarcar(id);
-      this.almacen.guardarEstado(this.lista);
-      return;
-    }
-
+    // Quitar una llegada siempre se confirma: botones grandes para que sea rápido y sin errores.
     Swal.fire({
-      icon: 'question',
       title: '¿Quitar la llegada?',
-      html: '<b>' + g.marcado_por + '</b> registró a ' + g.nombre +
-            ' a las ' + g.hora + '.',
+      html: '<div class="confirmar-nombre">' + esc(g.nombre) + '</div>' +
+            '<div class="confirmar-detalle">Mesa ' + g.mesa + '<br>Registrado' + quien + cuando + '</div>',
       showCancelButton: true,
       reverseButtons: true,
+      focusCancel: true,
       confirmButtonText: 'Sí, quitar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#b3261e',
-      cancelButtonColor: '#8a8177'
+      cancelButtonText: 'No, dejarlo',
+      buttonsStyling: false,
+      customClass: {
+        popup: 'confirmar-grande',
+        actions: 'confirmar-acciones',
+        confirmButton: 'confirmar-btn confirmar-si',
+        cancelButton: 'confirmar-btn confirmar-no'
+      }
     }).then(function (r) {
       if (!r.isConfirmed) return;
       self.lista.desmarcar(id);

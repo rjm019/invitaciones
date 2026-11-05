@@ -41,12 +41,17 @@
   var AlmacenService = {
     disponible: disponible,
 
-    guardarEstado: function (lista) {
-      return escribir(CLAVE_ESTADO, {
+    // Quien comparte la lista con el servidor se entera de cada cambio guardado.
+    alGuardar: null,
+
+    guardarEstado: function (lista, silencioso) {
+      var ok = escribir(CLAVE_ESTADO, {
         guardado: new Date().toISOString(),
         categorias: lista.categorias,
         invitados: lista.invitados.map(function (g) { return g.aObjeto(); })
       });
+      if (!silencioso && AlmacenService.alGuardar) AlmacenService.alGuardar();
+      return ok;
     },
 
     leerEstado: function () {
