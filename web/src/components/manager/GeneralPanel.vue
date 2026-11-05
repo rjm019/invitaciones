@@ -358,8 +358,8 @@ function assign(username: string, on: boolean): void {
       <section v-if="settings && !settings.template && isAdmin" class="g-group">
         <h3 class="g-group__title">Aviso de fecha límite</h3>
         <p class="g-help">
-          Al abrir su panel, el cliente ve un aviso cuando se acerca la fecha límite para confirmar
-          («mañana», «hoy» o «en N días»).
+          Al abrir la invitación, quien aún no envió todos sus nombres ve un aviso de la fecha límite
+          para confirmar («mañana», «hoy» o «en N días»).
         </p>
         <label class="g-switch">
           <input
@@ -371,7 +371,7 @@ function assign(username: string, on: boolean): void {
           />
           <span class="g-switch__track" />
           <span>
-            <strong>Mostrar el aviso en el panel del cliente</strong>
+            <strong>Mostrar el aviso al abrir la invitación</strong>
             <small class="general__sub">Cambia al instante.</small>
           </span>
         </label>

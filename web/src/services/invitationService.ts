@@ -72,3 +72,10 @@ export async function sendAlbumPhoto(
   })
   return data.album
 }
+
+/** Aviso de la fecha límite: "mañana", "hoy" o "en N días"; null si no aplica. */
+export function deadlineNotice(days: number | null | undefined): string | null {
+  if (days === null || days === undefined || days < 0) return null
+  const when = days === 0 ? 'hoy' : days === 1 ? 'mañana' : `en ${days} días`
+  return `Recuerda que ${when} es la fecha límite para confirmar`
+}

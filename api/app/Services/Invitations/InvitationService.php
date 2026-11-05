@@ -4,6 +4,7 @@ namespace App\Services\Invitations;
 
 use App\Services\Album\AlbumService;
 use App\Services\Album\EventEnded;
+use App\Services\Design\Normalizer;
 use App\Services\Layout\EventRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
@@ -209,7 +210,28 @@ final class InvitationService
                 'sent_at' => CarbonImmutable::parse($dedication['sent_at'], $timezone)->toIso8601String(),
             ],
             'trivia' => $this->trivia->present($invitation),
-        ] + (($album = $this->album->present($invitation)) === null ? [] : ['album' => $album]);
+        ] + (($album = $this->album->present($invitation)) === null ? [] : ['album' => $album])
+            + (($days = $this->deadlineDays($invitation, count($guests))) === null ? [] : ['deadline_days' => $days]);
+    }
+
+    /**
+     * Días que faltan para la fecha límite (0 = hoy) para el aviso de la invitación. Solo con el
+     * ajuste `aviso_fecha_limite` encendido, las confirmaciones abiertas y lugares sin nombre;
+     * null en cualquier otro caso (la invitación sale idéntica).
+     */
+    private function deadlineDays(Invitation $invitation, int $named): ?int
+    {
+        $deadline = $invitation->event['rsvp']['deadline'] ?? null;
+        if (! $deadline || $named >= $invitation->record['passes']
+            || self::closedReason($invitation->event) !== null
+            || ! Normalizer::yes($this->events->settings($invitation->slug)['aviso_fecha_limite'] ?? '')) {
+            return null;
+        }
+        $timezone = $invitation->event['timezone'];
+        $today = CarbonImmutable::now($timezone)->startOfDay();
+        $days = (int) $today->diffInDays(CarbonImmutable::parse($deadline, $timezone)->startOfDay(), false);
+
+        return $days >= 0 ? $days : null;
     }
 
     /**

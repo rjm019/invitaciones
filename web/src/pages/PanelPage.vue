@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import DeadlineCard from '@/components/panel/DeadlineCard.vue'
 import DedicationList from '@/components/panel/DedicationList.vue'
 import AlbumList from '@/components/panel/AlbumList.vue'
@@ -14,7 +14,7 @@ import { usePanel } from '@/composables/usePanel'
 import { usePanelTheme } from '@/composables/usePanelTheme'
 import { usePolling } from '@/composables/usePolling'
 import { isDarkPalette } from '@/services/colorService'
-import { deadlineAlert, deadlineBounds } from '@/services/panelService'
+import { deadlineBounds } from '@/services/panelService'
 import type { PanelInvitation } from '@/types/panel'
 
 /**
@@ -41,32 +41,6 @@ const sending = ref<PanelInvitation | null>(null)
 const bounds = computed(() =>
   overview.value ? deadlineBounds(overview.value) : { min: '', max: null },
 )
-// Aviso de la fecha límite: salta una vez por sesión del navegador y por día que falta.
-const alertText = computed(() => (overview.value ? deadlineAlert(overview.value.rsvp) : null))
-const alertDialog = ref<HTMLDialogElement | null>(null)
-const alertKey = computed(() => `panel-aviso-${props.slug}-${overview.value?.rsvp.days_left}`)
-
-function alertSeen(): boolean {
-  try {
-    return sessionStorage.getItem(alertKey.value) === '1'
-  } catch {
-    return false
-  }
-}
-
-function closeAlert() {
-  try {
-    sessionStorage.setItem(alertKey.value, '1')
-  } catch {
-    /* sin almacenamiento: el aviso volverá a salir al recargar */
-  }
-  alertDialog.value?.close()
-}
-
-watch(alertText, (text) => {
-  if (text && !alertSeen()) void nextTick(() => alertDialog.value?.showModal())
-})
-
 const title = computed(() => brand.value?.title || overview.value?.event.title || props.slug)
 
 function onCreated(invitation: PanelInvitation) {
@@ -115,17 +89,6 @@ onMounted(() => {
       <p v-if="error" class="p-error panel__center" role="alert">{{ error }}</p>
 
       <template v-if="overview">
-        <dialog
-          v-if="alertText"
-          ref="alertDialog"
-          class="panel__alert"
-          aria-labelledby="panel-alert-text"
-          @cancel.prevent="closeAlert"
-        >
-          <p id="panel-alert-text" class="panel__alert-text">{{ alertText }}</p>
-          <button type="button" class="p-button" @click="closeAlert">OK</button>
-        </dialog>
-
         <p v-if="!overview.event.published" class="panel__draft">
           El evento no está publicado: los enlaces todavía no abren para tus invitados.
         </p>
@@ -576,25 +539,6 @@ onMounted(() => {
 .panel .guests {
   max-width: 70rem;
   margin: 0 auto;
-}
-.panel__alert {
-  width: min(100% - 2rem, 24rem);
-  padding: 1.6rem 1.4rem 1.3rem;
-  border: 1px solid var(--p-line);
-  border-radius: 18px;
-  background: var(--p-card);
-  color: var(--p-text);
-  text-align: center;
-  box-shadow: 0 20px 60px rgb(20 40 60 / 0.25);
-}
-.panel__alert::backdrop {
-  background: rgb(20 35 50 / 0.45);
-}
-.panel__alert-text {
-  margin: 0 0 1.2rem;
-  font-family: var(--p-font-title);
-  font-size: 1.25rem;
-  line-height: 1.35;
 }
 .panel__draft {
   max-width: 70rem;

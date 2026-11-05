@@ -616,6 +616,6 @@ Pedido: "un contador de visualizaciones en la página y, si no es invasivo, que 
 - Revisado con capturas a 390 y 1440 px (sobre cerrado, portada abierta, música, cierre, confirmación, itinerario, regalos, historia y acercamientos a 3x), dos instantes sin cambio y sin animaciones en los lacres, y pasada con "menos movimiento". NAT (config idéntica) y las tres muestras no usan `WaxSeal` ni el tema: sin cambio.
 
 
-## 5-nov · Aviso de fecha límite en el panel del cliente
+## 5-nov · Aviso de fecha límite en la invitación
 
-Ajuste por evento `aviso_fecha_limite=SI` (casilla en "Datos generales", solo quien administra; pensado para NAT, cuyo RSVP cierra el 6-nov). `PanelService::rsvp()` agrega `days_left` (null si está apagado, sin fecha o cerrada). `PanelPage` abre un modal con botón OK (`<dialog>`, colores del panel) con `deadlineAlert()`: «mañana», «hoy» o «en N días»; sale una vez por sesión del navegador y por día que falta. Config de la invitación sin cambio. Sin deploy ni casilla encendida en producción todavía.
+Ajuste por evento `aviso_fecha_limite=SI` (casilla en "Datos generales", solo quien administra; pensado para NAT, cuyo RSVP cierra el 6-nov). `InvitationService::present()` agrega `deadline_days` solo con el ajuste encendido, las confirmaciones abiertas y lugares sin nombre (si no, la invitación sale idéntica). `components/ui/DeadlineNotice.vue` (montado en `InvitationRenderer`, fuera de la vista previa del gestor) abre un `<dialog>` con botón OK y los tokens de la invitación: «Recuerda que mañana / hoy / en N días es la fecha límite para confirmar»; sale una vez por día que falta y por dispositivo (`localStorage`). El panel del cliente no lleva aviso (primero se puso ahí por un malentendido y se quitó).

@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, shallowRef, watch } from 'vue'
 import ButterflyFlight from '@/components/ui/ButterflyFlight.vue'
 import CelebrationBurst from '@/components/ui/CelebrationBurst.vue'
+import DeadlineNotice from '@/components/ui/DeadlineNotice.vue'
 import DemoRibbon from '@/components/ui/DemoRibbon.vue'
 import FloatingDecor from '@/components/ui/FloatingDecor.vue'
 import FoilConfetti from '@/components/ui/FoilConfetti.vue'
@@ -241,6 +242,7 @@ onBeforeUnmount(() => revert?.())
           <p v-else class="invitation__pending">Sección «{{ section.type }}» en construcción</p>
         </SectionShell>
       </main>
+      <DeadlineNotice v-if="ready && !preview" />
       <InvitationFooter v-if="complete" />
       <template v-if="complete">
         <MiniPlayer />
