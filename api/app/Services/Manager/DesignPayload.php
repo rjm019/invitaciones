@@ -129,6 +129,7 @@ final class DesignPayload
             'panel_password' => $template ? null : ($settings['clave_panel'] ?? $this->events->eventValue($slug, 'clave_panel')),
             'owner_deadline' => ($settings['rsvp_limite'] ?? '') ?: null,
             'deadline_changes' => (int) ($settings['rsvp_limite_cambios'] ?? 0),
+            'deadline_alert' => Normalizer::yes($settings['aviso_fecha_limite'] ?? ''),
             // Recordatorios por WhatsApp: el interruptor y el tope los pone quien administra.
             'whatsapp_reminders' => Normalizer::yes($settings['whatsapp_recordatorios'] ?? ''),
             'whatsapp_cap' => $this->reminders->settings($slug)['cap'],

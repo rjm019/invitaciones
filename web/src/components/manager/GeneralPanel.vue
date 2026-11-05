@@ -356,6 +356,28 @@ function assign(username: string, on: boolean): void {
       </section>
 
       <section v-if="settings && !settings.template && isAdmin" class="g-group">
+        <h3 class="g-group__title">Aviso de fecha límite</h3>
+        <p class="g-help">
+          Al abrir su panel, el cliente ve un aviso cuando se acerca la fecha límite para confirmar
+          («mañana», «hoy» o «en N días»).
+        </p>
+        <label class="g-switch">
+          <input
+            type="checkbox"
+            :checked="!!settings.deadline_alert"
+            @change="
+              emit('settings', { deadline_alert: ($event.target as HTMLInputElement).checked })
+            "
+          />
+          <span class="g-switch__track" />
+          <span>
+            <strong>Mostrar el aviso en el panel del cliente</strong>
+            <small class="general__sub">Cambia al instante.</small>
+          </span>
+        </label>
+      </section>
+
+      <section v-if="settings && !settings.template && isAdmin" class="g-group">
         <h3 class="g-group__title">Recordatorios por WhatsApp</h3>
         <p class="g-help">
           Se les escribe a los invitados que no han respondido. El cliente los enciende en su panel;

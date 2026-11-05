@@ -110,6 +110,8 @@ export interface PanelRsvp {
   changes_used: number
   changes_left: number
   max_changes: number
+  /** Días que faltan para la fecha límite (0 = hoy); null si el aviso está apagado o ya no aplica. */
+  days_left?: number | null
 }
 
 export interface PanelSummary {

@@ -4,6 +4,7 @@ namespace App\Services\Panel;
 
 use App\Services\Album\AlbumService;
 use App\Services\Csv\CsvFile;
+use App\Services\Design\Normalizer;
 use App\Services\Design\TriviaQuiz;
 use App\Services\Invitations\DedicationStore;
 use App\Services\Invitations\EventSettings;
@@ -499,7 +500,22 @@ final class PanelService
             'changes_used' => $used,
             'changes_left' => max(0, EventSettings::MAX_DEADLINE_CHANGES - $used),
             'max_changes' => EventSettings::MAX_DEADLINE_CHANGES,
+            'days_left' => $this->daysLeft($slug, $event),
         ];
+    }
+
+    /** Días que faltan para la fecha límite, solo con el aviso encendido y las confirmaciones abiertas. */
+    private function daysLeft(string $slug, array $event): ?int
+    {
+        $deadline = $event['rsvp']['deadline'] ?? null;
+        if (! $deadline || ! Normalizer::yes($this->events->settings($slug)['aviso_fecha_limite'] ?? '')
+            || InvitationService::closedReason($event) !== null) {
+            return null;
+        }
+        $today = CarbonImmutable::now($event['timezone'])->startOfDay();
+        $days = (int) $today->diffInDays(CarbonImmutable::parse($deadline, $event['timezone'])->startOfDay(), false);
+
+        return $days >= 0 ? $days : null;
     }
 
     /**

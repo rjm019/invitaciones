@@ -203,6 +203,14 @@ export function changesLabel(rsvp: PanelRsvp): string {
     : `Te quedan ${rsvp.changes_left} de ${rsvp.max_changes} cambios`
 }
 
+/** Aviso de la fecha límite: "mañana", "hoy" o "en N días"; null si no aplica. */
+export function deadlineAlert(rsvp: PanelRsvp): string | null {
+  const days = rsvp.days_left
+  if (days === null || days === undefined || days < 0) return null
+  const when = days === 0 ? 'hoy' : days === 1 ? 'mañana' : `en ${days} días`
+  return `Recuerda que ${when} es la fecha límite para confirmar`
+}
+
 /** Fechas que acepta el servidor para la fecha límite: de hoy al día del evento (zona del evento). */
 export function deadlineBounds(
   overview: Pick<PanelOverview, 'event'>,

@@ -12,6 +12,7 @@ import {
   assignTables,
   changesLabel,
   createInvitation,
+  deadlineAlert,
   deadlineBounds,
   deleteInvitation,
   deletionWarning,
@@ -270,5 +271,18 @@ describe('filterDedications', () => {
     expect(filterDedications(list, 'pérez').map((d) => d.name)).toEqual(['Ana'])
     expect(filterDedications(list, 'QUEREMOS').map((d) => d.name)).toEqual(['Luis'])
     expect(filterDedications(list, '  ')).toBe(list)
+  })
+})
+
+describe('deadlineAlert', () => {
+  const rsvp = (days_left?: number | null) =>
+    ({ deadline: '2026-11-06', open: true, changes_used: 0, changes_left: 3, max_changes: 3, days_left }) as never
+
+  it('dice hoy, mañana o en N días, y no avisa sin días', () => {
+    expect(deadlineAlert(rsvp(0))).toBe('Recuerda que hoy es la fecha límite para confirmar')
+    expect(deadlineAlert(rsvp(1))).toBe('Recuerda que mañana es la fecha límite para confirmar')
+    expect(deadlineAlert(rsvp(5))).toBe('Recuerda que en 5 días es la fecha límite para confirmar')
+    expect(deadlineAlert(rsvp(null))).toBeNull()
+    expect(deadlineAlert(rsvp())).toBeNull()
   })
 })

@@ -107,9 +107,27 @@ class AdminPanelTest extends TestCase
             $data['invitations'][1]['guests'],
         );
         $this->assertSame(
-            ['deadline' => '2026-11-06', 'open' => true, 'changes_used' => 0, 'changes_left' => 3, 'max_changes' => 3],
+            ['deadline' => '2026-11-06', 'open' => true, 'changes_used' => 0, 'changes_left' => 3, 'max_changes' => 3, 'days_left' => null],
             $data['rsvp'],
         );
+    }
+
+    public function test_counts_the_days_left_only_with_the_deadline_alert_on(): void
+    {
+        $days = fn () => $this->getJson('/api/admin/events/prueba', $this->auth($this->login()))->assertOk()->json('rsvp.days_left');
+        $alert = fn (?string $on) => app(EventSettings::class)->put("{$this->eventos}/prueba", ['aviso_fecha_limite' => $on], CarbonImmutable::now());
+
+        CarbonImmutable::setTestNow('2026-11-05 09:00:00 America/Mexico_City');
+        $this->assertNull($days()); // apagado: el panel queda como estaba
+
+        $alert('SI');
+        $this->assertSame(1, $days());
+        CarbonImmutable::setTestNow('2026-11-06 09:00:00 America/Mexico_City');
+        $this->assertSame(0, $days());
+        CarbonImmutable::setTestNow('2026-11-01 09:00:00 America/Mexico_City');
+        $this->assertSame(5, $days());
+        CarbonImmutable::setTestNow('2026-11-07 09:00:00 America/Mexico_City');
+        $this->assertNull($days()); // ya cerró
     }
 
     public function test_generates_a_link_for_the_number_of_guests(): void

@@ -111,6 +111,7 @@ class EventController extends Controller
             'deadline_changes' => ['sometimes', 'integer', 'min:0', 'max:'.EventSettings::MAX_DEADLINE_CHANGES],
             'whatsapp_reminders' => ['sometimes', 'boolean'],
             'whatsapp_cap' => ['sometimes', 'integer', 'min:1', 'max:5000'],
+            'deadline_alert' => ['sometimes', 'boolean'],
         ], [
             'panel_password.min' => 'La clave del panel lleva al menos '.InvitationConfigBuilder::MIN_PANEL_PASSWORD.' caracteres.',
             'panel_password.regex' => 'La clave del panel no lleva espacios ni acentos: solo letras, números y símbolos.',
@@ -118,6 +119,7 @@ class EventController extends Controller
             'published.*' => 'Elige si la invitación se ve.',
             'people.*' => 'Elige a las personas de la lista.',
             'whatsapp_reminders.*' => 'Elige si los recordatorios por WhatsApp están activos.',
+            'deadline_alert.*' => 'Elige si el aviso de la fecha límite está activo.',
             'whatsapp_cap.*' => 'El tope de mensajes va de 1 a 5000.',
             'deadline_changes.*' => 'Los cambios de fecha del cliente van de 0 a '.EventSettings::MAX_DEADLINE_CHANGES.'.',
         ]);
@@ -128,7 +130,7 @@ class EventController extends Controller
         if ((array_key_exists('whatsapp_reminders', $data) || array_key_exists('whatsapp_cap', $data)) && ($me['rol'] ?? '') !== 'admin') {
             return response()->json(['message' => 'Solo quien administra el gestor maneja los recordatorios por WhatsApp.'], 403);
         }
-        if ((array_key_exists('owner_deadline', $data) || array_key_exists('deadline_changes', $data)) && ($me['rol'] ?? '') !== 'admin') {
+        if ((array_key_exists('owner_deadline', $data) || array_key_exists('deadline_changes', $data) || array_key_exists('deadline_alert', $data)) && ($me['rol'] ?? '') !== 'admin') {
             return response()->json(['message' => 'Solo quien administra el gestor cambia lo que el cliente movió en su panel.'], 403);
         }
         // Una fecha nueva va en la invitación (y se publica, con sus revisiones): aquí solo se quita la del cliente.
@@ -166,6 +168,9 @@ class EventController extends Controller
         }
         if (array_key_exists('deadline_changes', $data)) {
             $changes['rsvp_limite_cambios'] = $data['deadline_changes'] > 0 ? (string) $data['deadline_changes'] : null;
+        }
+        if (array_key_exists('deadline_alert', $data)) {
+            $changes['aviso_fecha_limite'] = $data['deadline_alert'] ? 'SI' : null;
         }
         if (array_key_exists('whatsapp_reminders', $data)) {
             $changes['whatsapp_recordatorios'] = $data['whatsapp_reminders'] ? 'SI' : null;

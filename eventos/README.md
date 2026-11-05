@@ -343,6 +343,7 @@ Lo que aplica **al instante**, sin pasar por "Publicar". Lo escribe la API (desd
 | `publicado` | `SI`/`NO`: si los invitados pueden abrir la invitación. Una invitación nueva nace en `NO` |
 | `plantilla` | `SI`: es una plantilla. Nunca es pública (`/e/<slug>` responde 404) y no tiene panel |
 | `rsvp_limite`, `rsvp_limite_cambios` | La fecha límite que el cliente movió desde su panel y cuántas veces (máximo 3). Gana sobre la de la invitación. Si publicas otra fecha, el gestor pregunta cuál dejar |
+| `aviso_fecha_limite` | `SI`: al abrir el panel del cliente salta un aviso («Recuerda que mañana / hoy / en N días es la fecha límite para confirmar») mientras las confirmaciones estén abiertas. Solo quien administra, en "Datos generales"; apagado, el panel no cambia |
 | `whatsapp_recordatorios`, `whatsapp_tope` | `SI`: el panel muestra los teléfonos y los recordatorios por WhatsApp (fase 12). Tope de mensajes del evento (300 si está vacío). Solo quien administra, en "Datos generales" |
 | `recordatorio_cada_dias`, `recordatorio_permiso` | Los elige el cliente en su panel: cada cuántos días (0 = apagado; 2, 3, 5 o 7) y cuándo marcó que tiene permiso de sus invitados. Sin permiso no se manda nada |
 
