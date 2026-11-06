@@ -51,10 +51,10 @@ Route::prefix('public')->group(function () {
     Route::post('/quotes', [QuoteController::class, 'store'])->middleware('throttle:quote');
 
     // Buscador de invitados compartido: leer y marcar es libre; cargar la lista pide la clave.
-    Route::get('/recepcion', [RecepcionController::class, 'show'])->middleware('throttle:120,1');
-    Route::post('/recepcion/cambios', [RecepcionController::class, 'changes'])->middleware('throttle:120,1');
-    Route::post('/recepcion/sesion', [RecepcionController::class, 'session'])->middleware('throttle:10,1');
-    Route::put('/recepcion/lista', [RecepcionController::class, 'replace'])->middleware('throttle:10,1');
+    Route::get('/recepcion', [RecepcionController::class, 'show'])->middleware('throttle:recepcion-lectura');
+    Route::post('/recepcion/cambios', [RecepcionController::class, 'changes'])->middleware('throttle:recepcion-lectura');
+    Route::post('/recepcion/sesion', [RecepcionController::class, 'session'])->middleware('throttle:recepcion-clave');
+    Route::put('/recepcion/lista', [RecepcionController::class, 'replace'])->middleware('throttle:recepcion-clave');
 
     // Cada página vista (la landing, las invitaciones y las muestras): para las estadísticas.
     Route::post('/visits', [VisitController::class, 'store'])->middleware('throttle:visit');

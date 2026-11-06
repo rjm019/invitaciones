@@ -23,6 +23,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Buscador de recepción. Lectura y llegadas: cada pantalla consulta cada segundo y varias
+        // comparten la IP del wifi del salón. La contraseña lleva su propio contador: sin nombre,
+        // Laravel junta todas las rutas por IP y el sondeo agotaba los intentos de la contraseña.
+        RateLimiter::for('recepcion-lectura', fn (Request $request) => Limit::perMinute(600)
+            ->by('recepcion-lectura|'.$request->ip()));
+        RateLimiter::for('recepcion-clave', fn (Request $request) => Limit::perMinute(10)
+            ->by('recepcion-clave|'.$request->ip()));
+
         // Confirmaciones: 10 por minuto por IP y por invitación.
         RateLimiter::for('rsvp', fn (Request $request) => Limit::perMinute(10)
             ->by($request->ip().'|'.$request->route('token')));

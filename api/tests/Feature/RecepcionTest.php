@@ -88,4 +88,14 @@ class RecepcionTest extends TestCase
     {
         $this->postJson('/api/public/recepcion/cambios', ['invitados' => [['nombre' => 'sin id']]])->assertStatus(422);
     }
+
+    public function test_polling_does_not_exhaust_the_password_attempts(): void
+    {
+        for ($i = 0; $i < 30; $i++) {
+            $this->getJson('/api/public/recepcion?rev=0')->assertOk();
+        }
+
+        $this->postJson('/api/public/recepcion/sesion', [], ['X-Recepcion-Key' => 'secreta'])->assertOk();
+        $this->postJson('/api/public/recepcion/sesion', [], ['X-Recepcion-Key' => 'mala'])->assertStatus(401);
+    }
 }
