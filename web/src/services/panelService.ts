@@ -257,6 +257,25 @@ export function filterInvitations(list: PanelInvitation[], query: string): Panel
   )
 }
 
+/** Indicador del resumen que filtra la lista de invitaciones (a nivel invitación, no invitado). */
+export type SummaryFilter = 'all' | 'attending' | 'declined' | 'empty'
+
+export const SUMMARY_FILTER_LABELS: Record<SummaryFilter, string> = {
+  all: 'Todas las invitaciones',
+  attending: 'Invitaciones con invitados que asistirán',
+  declined: 'Invitaciones con invitados que no asistirán',
+  empty: 'Invitaciones con lugares pendientes',
+}
+
+/** Las invitaciones que tienen al menos un invitado en ese estado (o un lugar sin nombre). */
+export function filterBySummary(list: PanelInvitation[], filter: SummaryFilter): PanelInvitation[] {
+  if (filter === 'all') return list
+  return list.filter((inv) => {
+    const p = invitationProgress(inv)
+    return filter === 'attending' ? p.attending > 0 : filter === 'declined' ? p.declined > 0 : p.empty > 0
+  })
+}
+
 /** Una persona (o un lugar libre) de la lista completa de invitados. */
 export interface GuestRow {
   key: string

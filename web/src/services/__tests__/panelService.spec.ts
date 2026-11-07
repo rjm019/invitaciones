@@ -25,6 +25,7 @@ import {
   guestCounts,
   guestRows,
   invitationProgress,
+  filterBySummary,
   login,
   parseTable,
   tableSummary,
@@ -285,5 +286,20 @@ describe('filterDedications', () => {
     expect(filterDedications(list, 'pérez').map((d) => d.name)).toEqual(['Ana'])
     expect(filterDedications(list, 'QUEREMOS').map((d) => d.name)).toEqual(['Luis'])
     expect(filterDedications(list, '  ')).toBe(list)
+  })
+})
+
+describe('filterBySummary', () => {
+  const g = (slot: number, attending: boolean) => ({ slot, full_name: `P${slot}`, attending, table: null })
+  const list = [
+    inv({ id: '1', passes: 2, guests: [g(1, true), g(2, true)] }),
+    inv({ id: '2', passes: 2, guests: [g(1, false)] }),
+    inv({ id: '3', passes: 3, guests: [] }),
+  ]
+  it('filtra por invitación, no por invitado', () => {
+    expect(filterBySummary(list, 'all').map((i) => i.id)).toEqual(['1', '2', '3'])
+    expect(filterBySummary(list, 'attending').map((i) => i.id)).toEqual(['1'])
+    expect(filterBySummary(list, 'declined').map((i) => i.id)).toEqual(['2'])
+    expect(filterBySummary(list, 'empty').map((i) => i.id)).toEqual(['2', '3'])
   })
 })

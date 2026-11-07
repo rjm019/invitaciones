@@ -4,9 +4,12 @@ import { useClipboard } from '@/composables/useClipboard'
 import { ApiError } from '@/services/http'
 import {
   deletionWarning,
+  filterBySummary,
   filterInvitations,
   invitationProgress,
   parseTable,
+  SUMMARY_FILTER_LABELS,
+  type SummaryFilter,
 } from '@/services/panelService'
 import { formatPhone, reminderStatusLabel } from '@/services/reminderService'
 import type {
@@ -26,6 +29,8 @@ import type {
 const props = defineProps<{
   invitations: PanelInvitation[]
   highlight: string | null
+  /** Indicador del resumen elegido arriba: deja solo las invitaciones que le tocan. */
+  statusFilter?: SummaryFilter
   dedications: PanelDedication[]
   assign: (assignments: TableAssignment[]) => Promise<void>
   remove: (id: string) => Promise<void>
@@ -33,10 +38,17 @@ const props = defineProps<{
   reminders?: PanelReminders | null
   changePhone?: (id: string, phone: string | null) => Promise<void>
 }>()
-const emit = defineEmits<{ send: [invitation: PanelInvitation] }>()
+const emit = defineEmits<{ send: [invitation: PanelInvitation]; clearFilter: [] }>()
 
 const open = ref(false)
 const revealed = ref<string | null>(null)
+// Al elegir un indicador arriba, la lista se abre sola.
+watch(
+  () => props.statusFilter,
+  (f) => {
+    if (f && f !== 'all') open.value = true
+  },
+)
 // Al generar una nueva, la lista se abre para que se vea.
 watch(
   () => props.highlight,
@@ -146,7 +158,9 @@ async function confirmRemove(inv: PanelInvitation) {
 
 const query = ref('')
 const { copied, copy } = useClipboard()
-const shown = computed(() => [...filterInvitations(props.invitations, query.value)].reverse()) // las nuevas arriba
+const shown = computed(() =>
+  [...filterInvitations(filterBySummary(props.invitations, props.statusFilter ?? 'all'), query.value)].reverse(),
+) // las nuevas arriba
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
 </script>
 
@@ -176,10 +190,19 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
         aria-label="Buscar invitación"
       />
 
+      <p v-if="statusFilter && statusFilter !== 'all'" class="list__filter">
+        <span>{{ SUMMARY_FILTER_LABELS[statusFilter] }}: {{ shown.length }}</span>
+        <button type="button" class="list__filter-clear" @click="emit('clearFilter')">
+          Quitar filtro
+        </button>
+      </p>
+
       <p v-if="!invitations.length" class="p-hint">
         Todavía no hay invitaciones. Genera la primera arriba.
       </p>
-      <p v-else-if="!shown.length" class="p-hint">Ninguna invitación coincide con «{{ query }}».</p>
+      <p v-else-if="!shown.length" class="p-hint">
+        {{ query ? `Ninguna invitación coincide con «${query}».` : 'Ninguna invitación en este grupo.' }}
+      </p>
 
       <ol class="list__items">
         <li
@@ -645,5 +668,26 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
   overflow-wrap: anywhere;
   color: var(--p-muted);
   font-size: 0.85rem;
+}
+
+.list__filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--p-accent);
+  border-radius: 10px;
+  font-size: 0.85rem;
+}
+.list__filter-clear {
+  border: 0;
+  background: none;
+  color: var(--p-accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
 }
 </style>

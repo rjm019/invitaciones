@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import DeadlineCard from '@/components/panel/DeadlineCard.vue'
 import DedicationList from '@/components/panel/DedicationList.vue'
 import AlbumList from '@/components/panel/AlbumList.vue'
@@ -14,7 +14,7 @@ import { usePanel } from '@/composables/usePanel'
 import { usePanelTheme } from '@/composables/usePanelTheme'
 import { usePolling } from '@/composables/usePolling'
 import { isDarkPalette } from '@/services/colorService'
-import { deadlineBounds } from '@/services/panelService'
+import { deadlineBounds, type SummaryFilter } from '@/services/panelService'
 import type { PanelInvitation } from '@/types/panel'
 
 /**
@@ -37,6 +37,18 @@ usePolling(
 
 const tab = ref<'invitations' | 'guests' | 'dedications' | 'trivia' | 'album'>('invitations')
 const highlight = ref<string | null>(null)
+const statusFilter = ref<SummaryFilter>('all')
+
+// Tocar un indicador muestra sus invitaciones; tocarlo de nuevo (o Invitaciones/Invitados) quita el filtro.
+function pickSummary(filter: SummaryFilter) {
+  statusFilter.value = statusFilter.value === filter ? 'all' : filter
+  tab.value = 'invitations'
+  if (statusFilter.value !== 'all') {
+    void nextTick(() =>
+      document.getElementById('view-invitations')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+    )
+  }
+}
 const sending = ref<PanelInvitation | null>(null)
 const bounds = computed(() =>
   overview.value ? deadlineBounds(overview.value) : { min: '', max: null },
@@ -93,28 +105,26 @@ onMounted(() => {
           El evento no está publicado: los enlaces todavía no abren para tus invitados.
         </p>
 
-        <dl class="panel__summary">
-          <div>
-            <dt>Invitaciones</dt>
-            <dd>{{ overview.summary.invitations }}</dd>
-          </div>
-          <div>
-            <dt>Invitados</dt>
-            <dd>{{ overview.summary.seats }}</dd>
-          </div>
-          <div class="is-ok">
-            <dt>Asistirán</dt>
-            <dd>{{ overview.summary.attending }}</dd>
-          </div>
-          <div class="is-no">
-            <dt>No asistirán</dt>
-            <dd>{{ overview.summary.declined }}</dd>
-          </div>
-          <div>
-            <dt>Pendientes</dt>
-            <dd>{{ overview.summary.empty }}</dd>
-          </div>
-        </dl>
+        <div class="panel__summary" role="group" aria-label="Resumen: toca uno para ver sus invitaciones">
+          <button
+            v-for="stat in [
+              { f: 'all', label: 'Invitaciones', n: overview.summary.invitations, cls: '' },
+              { f: 'all', label: 'Invitados', n: overview.summary.seats, cls: '' },
+              { f: 'attending', label: 'Asistirán', n: overview.summary.attending, cls: 'is-ok' },
+              { f: 'declined', label: 'No asistirán', n: overview.summary.declined, cls: 'is-no' },
+              { f: 'empty', label: 'Pendientes', n: overview.summary.empty, cls: '' },
+            ] as const"
+            :key="stat.label"
+            type="button"
+            class="panel__stat"
+            :class="[stat.cls, { 'is-active': stat.f !== 'all' && statusFilter === stat.f }]"
+            :aria-pressed="stat.f !== 'all' && statusFilter === stat.f"
+            @click="pickSummary(stat.f)"
+          >
+            <span class="panel__stat-label">{{ stat.label }}</span>
+            <span class="panel__stat-value">{{ stat.n }}</span>
+          </button>
+        </div>
 
         <div class="panel__tabs" role="tablist" aria-label="Vistas del panel">
           <button
@@ -210,12 +220,14 @@ onMounted(() => {
           <InvitationList
             :invitations="overview.invitations"
             :highlight="highlight"
+            :status-filter="statusFilter"
             :dedications="overview.dedications"
             :assign="panel.assignTables"
             :remove="panel.remove"
             :reminders="overview.reminders ?? null"
             :change-phone="panel.changePhone"
             @send="sending = $event"
+            @clear-filter="statusFilter = 'all'"
           />
         </div>
 
@@ -576,25 +588,37 @@ onMounted(() => {
   border-radius: 14px;
   background: color-mix(in srgb, var(--p-card) 65%, transparent);
 }
-.panel__summary div {
+.panel__stat {
   display: flex;
-  flex-direction: column-reverse; /* en el HTML va primero la etiqueta (dt), para el lector */
+  flex-direction: column-reverse; /* la etiqueta va primero en el HTML, para el lector */
   align-items: center;
   min-width: 0;
-  padding: 0 0.1rem;
+  padding: 0.15rem 0.1rem;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  font: inherit;
   text-align: center;
+  cursor: pointer;
 }
-.panel__summary div + div {
+.panel__stat + .panel__stat {
   border-left: 1px solid var(--p-line);
+  border-radius: 0 10px 10px 0;
 }
-.panel__summary dt {
+.panel__stat:hover,
+.panel__stat.is-active {
+  background: color-mix(in srgb, var(--p-accent) 16%, transparent);
+}
+.panel__stat.is-active {
+  box-shadow: inset 0 0 0 1px var(--p-accent);
+}
+.panel__stat-label {
   color: var(--p-muted);
   font-family: var(--p-font-body);
   font-size: 0.7rem;
   line-height: 1.2;
 }
-.panel__summary dd {
-  margin: 0;
+.panel__stat-value {
   color: var(--p-accent);
   /* Los números en la letra de los títulos grandes (en Marcellus el 0 parece una O). */
   font-family: var(--font-display, Georgia, serif);
@@ -602,21 +626,21 @@ onMounted(() => {
   line-height: 1.2;
   font-variant-numeric: lining-nums tabular-nums;
 }
-.panel__summary .is-ok dd {
+.panel__summary .is-ok .panel__stat-value {
   color: var(--p-ok);
 }
-.panel__summary .is-no dd {
+.panel__summary .is-no .panel__stat-value {
   color: var(--p-no);
 }
 @media (min-width: 720px) {
   .panel__summary {
     padding: 0.7rem 0.4rem;
   }
-  .panel__summary dt {
+  .panel__stat-label {
     font-size: 0.78rem;
     letter-spacing: 0.04em;
   }
-  .panel__summary dd {
+  .panel__stat-value {
     font-size: 1.45rem;
   }
 }
