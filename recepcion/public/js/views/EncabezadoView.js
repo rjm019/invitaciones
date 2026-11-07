@@ -84,12 +84,40 @@
     });
   };
 
+  // Los números van dentro de la barra: en blanco sobre lo llenado y en tinta sobre lo que falta
+  // (dos capas iguales; la blanca se recorta al ancho de lo llenado).
+  EncabezadoView.prototype.pintarTextosBarra = function (llegados, total) {
+    var faltan = total - llegados;
+    var pct = total ? Math.round(llegados / total * 100) : 0;
+    var ll = llegados + (llegados === 1 ? ' llegó' : ' llegaron') + ' · ' + pct + '%';
+    var fa = faltan + (faltan === 1 ? ' falta' : ' faltan') + ' · ' + (total ? 100 - pct : 0) + '%';
+    var g = document.getElementById.bind(document);
+    ['bt', 'bc'].forEach(function (p) {
+      g(p + '-llegaron').textContent = ll;
+      g(p + '-faltan').textContent = fa;
+    });
+    var grande = g('barra-grande');
+    grande.setAttribute('aria-valuenow', pct);
+    grande.setAttribute('aria-valuetext', ll + ', ' + fa);
+    var capa = g('barra-capa');
+    capa.style.width = (total ? llegados / total * 100 : 0) + '%';
+    g('barra-capa-textos').style.width = grande.clientWidth + 'px';
+    if (!this.barraObservada) {
+      this.barraObservada = true;
+      var self = this;
+      window.addEventListener('resize', function () {
+        g('barra-capa-textos').style.width = grande.clientWidth + 'px';
+      });
+    }
+  };
+
   EncabezadoView.prototype.pintar = function (lista) {
     var total = lista.presentes().length;   // los lugares libres no son personas
     var llegados = lista.totalLlegados();
 
     this.contador.textContent = llegados + ' de ' + total;
     this.barra.style.width = (total ? llegados / total * 100 : 0) + '%';
+    this.pintarTextosBarra(llegados, total);
 
     this.pintarPills(this.pillsEstado, this.ESTADOS.map(function (e) {
       return { id: e.id, etiqueta: e.etiqueta, conteo: '' };

@@ -334,3 +334,13 @@ ul.invitados li.buscado .nota,ul.invitados li.buscado .marca,ul.invitados li.bus
   background:#4a3300; color:#ffd966; font-size:11px; font-weight:800; letter-spacing:.04em;
   vertical-align:middle; text-decoration:none;
 }
+
+/* barra de avance del encabezado: llegaron y faltan, con su porcentaje, dentro de la barra */
+.barra.barra-grande{position:relative; height:26px; border-radius:99px}
+.barra-grande .barra-textos{
+  position:absolute; inset:0; display:flex; justify-content:space-between; align-items:center;
+  padding:0 10px; font-size:12px; font-weight:700; color:var(--ink); white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+.barra-grande .barra-capa{position:absolute; top:0; left:0; bottom:0; overflow:hidden; transition:width .2s}
+.barra-grande .barra-capa .barra-textos{inset:auto; top:0; bottom:0; left:0; color:#fff}

@@ -54,7 +54,13 @@
       <button id="btn-limpiar" class="limpiar" aria-label="Limpiar">&times;</button>
     </div>
 
-    <div class="barra"><i id="barra-avance"></i></div>
+    <div class="barra barra-grande" id="barra-grande" role="progressbar" aria-label="Avance de llegadas">
+      <i id="barra-avance"></i>
+      <div class="barra-textos" aria-hidden="true"><span id="bt-llegaron"></span><span id="bt-faltan"></span></div>
+      <div class="barra-capa" id="barra-capa" aria-hidden="true">
+        <div class="barra-textos" id="barra-capa-textos"><span id="bc-llegaron"></span><span id="bc-faltan"></span></div>
+      </div>
+    </div>
 
     <div class="fila">
       <div id="pills-estado" class="pills"></div>
