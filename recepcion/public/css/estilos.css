@@ -322,13 +322,15 @@ li.libre .nombre{color:var(--sutil); font-style:italic}
 
 /* persona buscada: primera de su mesa y resaltada */
 ul.invitados li.buscado{
-  background:#fff6c9; box-shadow:inset 4px 0 0 #e0a800, 0 0 0 2px #e0a800;
-  border-radius:8px; position:relative; z-index:1;
+  background:#d9a520; box-shadow:inset 5px 0 0 #7a5200, 0 0 0 2px #7a5200;
+  border-radius:8px; position:relative; z-index:1; color:#2b1d00;
 }
-ul.invitados li.buscado.llego{background:#fff6c9}
-ul.invitados li.buscado .nombre{font-weight:700}
+ul.invitados li.buscado.llego{background:#d9a520}
+ul.invitados li.buscado .nombre{font-weight:700; color:#2b1d00}
+ul.invitados li.buscado.llego .nombre{color:#2b1d00}
+ul.invitados li.buscado .nota,ul.invitados li.buscado .marca,ul.invitados li.buscado .sustituye{color:#4a3300}
 .tag-buscado{
   display:inline-block; margin-right:6px; padding:1px 7px; border-radius:999px;
-  background:#e0a800; color:#fff; font-size:11px; font-weight:800; letter-spacing:.04em;
+  background:#4a3300; color:#ffd966; font-size:11px; font-weight:800; letter-spacing:.04em;
   vertical-align:middle; text-decoration:none;
 }
