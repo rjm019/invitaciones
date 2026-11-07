@@ -232,5 +232,15 @@ verifica('se puede buscar por el invitado original',
   (s.ponerFiltro('texto', nombreQueSeMueve), s.visibles().length) > 0, true);
 s.limpiarFiltros();
 
+console.log('\n=== Persona buscada primero en su mesa ===\n');
+var d = new ListaInvitados();
+d.cargar(res.invitados, res.categorias);
+var ult = d.invitados.filter(function (g) { return g.mesa === 1 && !g.libre; }).pop();
+d.ponerFiltro('mesa', 1, ult.id);
+verifica('la persona buscada es la primera de su mesa', d.visibles()[0].id, ult.id);
+d.ponerFiltro('mesa', 2);
+verifica('sin destacado se limpia', d.filtros.destacado, null);
+d.limpiarFiltros();
+
 console.log('\n' + (fallos ? '✗ ' + fallos + ' prueba(s) fallando\n' : '✓ Todas las pruebas pasaron\n'));
 process.exit(fallos ? 1 : 0);

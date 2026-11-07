@@ -20,7 +20,7 @@
 
     vista.alAlternar = function (id) { self.alternar(id); };
     vista.alEditarNota = function (id) { self.editarNota(id); };
-    vista.alVerMesa = function (mesa) { self.verMesa(mesa); };
+    vista.alVerMesa = function (mesa, id) { self.verMesa(mesa, id); };
     vista.alCambiarLugar = function (id) { self.cambiarLugar(id); };
   }
 
@@ -333,8 +333,8 @@
     });
   };
 
-  InvitadosController.prototype.verMesa = function (mesa) {
-    this.lista.ponerFiltro('mesa', mesa);
+  InvitadosController.prototype.verMesa = function (mesa, id) {
+    this.lista.ponerFiltro('mesa', mesa, id);
     window.scrollTo(0, 0);
   };
 

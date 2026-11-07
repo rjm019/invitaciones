@@ -28,7 +28,11 @@
       if (mas) { if (self.alAgregarLugar) self.alAgregarLugar(Number(mas.dataset.mesa)); return; }
 
       var chip = e.target.closest('.chip-mesa');
-      if (chip) { if (self.alVerMesa) self.alVerMesa(Number(chip.dataset.mesa)); return; }
+      if (chip) {
+        var fila = chip.closest('li[data-id]');
+        if (self.alVerMesa) self.alVerMesa(Number(chip.dataset.mesa), fila ? Number(fila.dataset.id) : null);
+        return;
+      }
 
       var lugar = e.target.closest('.btn-lugar');
       if (lugar) { if (self.alCambiarLugar) self.alCambiarLugar(Number(lugar.dataset.id)); return; }
@@ -120,9 +124,10 @@
       ? '<span class="marca">Llegó ' + esc(g.hora) + (g.marcado_por ? ' · ' + esc(g.marcado_por) : '') + '</span>'
       : '';
 
-    return '<li class="' + (g.llego ? 'llego' : '') + '" data-id="' + g.id + '">' +
+    var buscado = lista.filtros.destacado === g.id && lista.filtros.mesa !== null;
+    return '<li class="' + (g.llego ? 'llego' : '') + (buscado ? ' buscado' : '') + '" data-id="' + g.id + '">' +
              '<span class="casilla">✓</span>' +
-             '<span class="nombre">' + esc(g.nombre) + this.marcaExtra(g) + etiqueta +
+             '<span class="nombre">' + (buscado ? '<span class="tag-buscado">BUSCADO</span>' : '') + esc(g.nombre) + this.marcaExtra(g) + etiqueta +
                origen + nota + marca + '</span>' +
              this.botonLugar(g) +
              '<button class="btn-nota ' + (g.comentario ? 'tiene' : '') + '" data-id="' + g.id + '"' +

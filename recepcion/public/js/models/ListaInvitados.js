@@ -17,7 +17,7 @@
     this.categorias = [];
     this.porId = {};
     this.oyentes = [];
-    this.filtros = { texto: '', categoria: 'todos', estado: 'todos', mesa: null };
+    this.filtros = { texto: '', categoria: 'todos', estado: 'todos', mesa: null, destacado: null };
   }
 
   // ---------- carga ----------
@@ -29,7 +29,7 @@
     this.categorias = (categorias || []).slice();
     this.porId = {};
     this.invitados.forEach(function (g) { this.porId[g.id] = g; }, this);
-    if (!conservarMesa) this.filtros.mesa = null;
+    if (!conservarMesa) { this.filtros.mesa = null; this.filtros.destacado = null; }
     this.avisar();
   };
 
@@ -180,15 +180,18 @@
 
   // ---------- filtros ----------
 
-  ListaInvitados.prototype.ponerFiltro = function (campo, valor) {
+  ListaInvitados.prototype.ponerFiltro = function (campo, valor, destacado) {
     this.filtros[campo] = valor;
     if (campo === 'texto' && valor) this.filtros.mesa = null;
     if (campo === 'mesa' && valor !== null) this.filtros.texto = '';
+    // la persona buscada solo se destaca dentro de la mesa que se abrió con ella
+    if (campo === 'mesa') this.filtros.destacado = (valor !== null && destacado != null) ? destacado : null;
+    if (campo === 'texto' && valor) this.filtros.destacado = null;
     this.avisar();
   };
 
   ListaInvitados.prototype.limpiarFiltros = function () {
-    this.filtros = { texto: '', categoria: 'todos', estado: 'todos', mesa: null };
+    this.filtros = { texto: '', categoria: 'todos', estado: 'todos', mesa: null, destacado: null };
     this.avisar();
   };
 
@@ -214,7 +217,15 @@
     }, this)
       // La vista agrupa por mesa recorriendo en orden, así que mover a alguien
       // de mesa tiene que reordenar la lista o se parten los encabezados.
-      .sort(function (a, b) { return a.mesa - b.mesa; });
+      .sort(function (a, b) {
+        if (a.mesa !== b.mesa) return a.mesa - b.mesa;
+        // la persona buscada va primero dentro de su mesa
+        if (f.destacado != null) {
+          if (a.id === f.destacado) return -1;
+          if (b.id === f.destacado) return 1;
+        }
+        return 0;
+      });
   };
 
   // ---------- conteos ----------

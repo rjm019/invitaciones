@@ -175,7 +175,7 @@
     this.notas.alIrAInvitado = function (id) {
       var g = self.lista.obtener(id);
       if (!g) return;
-      self.lista.ponerFiltro('mesa', g.mesa);
+      self.lista.ponerFiltro('mesa', g.mesa, g.id);
       self.cambiarVista('lista');
       window.scrollTo(0, 0);
     };
