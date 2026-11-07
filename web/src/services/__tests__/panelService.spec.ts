@@ -290,7 +290,7 @@ describe('filterDedications', () => {
 })
 
 describe('filterBySummary', () => {
-  const g = (slot: number, attending: boolean) => ({ slot, full_name: `P${slot}`, attending, table: null })
+  const g = (slot: number, attending: boolean) => ({ slot, full_name: `P${slot}`, attending, table: null, responded_at: null })
   const list = [
     inv({ id: '1', passes: 2, guests: [g(1, true), g(2, true)] }),
     inv({ id: '2', passes: 2, guests: [g(1, false)] }),
