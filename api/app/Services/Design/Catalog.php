@@ -207,6 +207,7 @@ final class Catalog
         'azulejo' => ['slot' => 'tile', 'label' => 'Azulejo de talavera'],
         'hojalata' => ['slot' => 'tin', 'label' => 'Marco de hojalata'],
         'monarca' => ['slot' => 'monarch', 'label' => 'Mariposa monarca'],
+        'pinata' => ['slot' => 'pinata', 'label' => 'Piñata'],
     ];
 
     /** División entre secciones (la orilla de las franjas): nombre en el CSV → código. */
@@ -523,13 +524,13 @@ final class Catalog
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Galería', 'max_length' => 60],
                 ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'max_length' => 120],
-                ['key' => 'variante', 'label' => 'Presentación', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Cuadrícula'], ['value' => 'marcos', 'label' => 'Marcos de plata'], ['value' => 'carrusel', 'label' => 'Carrusel (se desliza de lado)'], ['value' => 'diapositivas', 'label' => 'Se cambian solas (como un gif)'], ['value' => 'bastidor', 'label' => 'Bastidores de bordado'], ['value' => 'editorial', 'label' => 'Editorial (marcos finos y pies de foto)']]],
+                ['key' => 'variante', 'label' => 'Presentación', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Cuadrícula'], ['value' => 'marcos', 'label' => 'Marcos de plata'], ['value' => 'carrusel', 'label' => 'Carrusel (se desliza de lado)'], ['value' => 'diapositivas', 'label' => 'Se cambian solas (como un gif)'], ['value' => 'bastidor', 'label' => 'Bastidores de bordado'], ['value' => 'editorial', 'label' => 'Editorial (marcos finos y pies de foto)'], ['value' => 'collage', 'label' => 'Collage de polaroids con washi']]],
             ],
             'list' => ['key' => 'fotos', 'label' => 'Fotos', 'item_label' => 'Foto', 'max' => 24, 'fields' => [
                 ['key' => 'foto', 'label' => 'Foto', 'input' => 'image', 'required' => true],
                 ['key' => 'pie', 'label' => 'Pie de foto', 'input' => 'text', 'max_length' => 120],
             ]],
-            'slots' => ['marco', 'divisor'],
+            'slots' => ['marco', 'divisor', 'flores', 'cempasuchil', 'monarca'],
             'texts' => ['titulo' => 'Título', 'subtitulo' => 'Subtítulo', 'pie' => ['block' => 'caption', 'label' => 'Pie de foto']],
             'hidden_without' => 'Agrega al menos una foto.',
         ],
@@ -571,7 +572,7 @@ final class Catalog
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Ubicación', 'max_length' => 60],
                 ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Ver en Maps', 'max_length' => 40],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'metro', 'label' => 'Letrero del metro'], ['value' => 'grabado', 'label' => 'Hacienda en grabado'], ['value' => 'papeleria', 'label' => 'Tarjetitas de papel con dibujo de línea']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'metro', 'label' => 'Letrero del metro'], ['value' => 'grabado', 'label' => 'Hacienda en grabado'], ['value' => 'papeleria', 'label' => 'Tarjetitas de papel con dibujo de línea'], ['value' => 'placa', 'label' => 'Placa de talavera con corazón de encaje']]],
                 ['key' => 'acomodo', 'label' => 'Acomodo de los lugares', 'input' => 'select', 'help' => 'Lado a lado (en el celular se apilan) o uno debajo del otro.', 'options' => [['value' => 'lado a lado', 'label' => 'Lado a lado'], ['value' => 'uno debajo del otro', 'label' => 'Uno debajo del otro']]],
                 ['key' => 'calendario', 'label' => 'Botón "Agregar al calendario"', 'input' => 'select', 'options' => [['value' => 'SI', 'label' => 'Sí'], ['value' => 'NO', 'label' => 'No']]],
             ],
@@ -585,7 +586,7 @@ final class Catalog
                 ['key' => 'maps', 'label' => 'Enlace de Google Maps', 'input' => 'url'],
                 ['key' => 'foto', 'label' => 'Foto', 'input' => 'image'],
             ]],
-            'slots' => ['hacienda', 'iglesia'],
+            'slots' => ['hacienda', 'iglesia', 'azulejo', 'flores'],
             'texts' => ['titulo' => 'Título', 'etiqueta' => ['block' => 'label', 'label' => 'Qué es (Ceremonia)'], 'lugar' => ['block' => 'place', 'label' => 'Nombre del lugar'], 'detalle' => ['block' => 'detail', 'label' => 'Hora y dirección'], 'boton' => 'Botón'],
         ],
         'frase' => [
@@ -630,6 +631,7 @@ final class Catalog
                     ['value' => 'grabado', 'label' => 'Grabado con íconos de línea'],
                     ['value' => 'minuto', 'label' => 'Minuta editorial (hora en versalitas)'],
                     ['value' => 'sello', 'label' => 'Hilo con un lacre que baja y dibujos de línea'],
+                    ['value' => 'tendedero', 'label' => 'Tendedero de banderas de papel picado'],
                 ]],
             ],
             'list' => ['key' => 'momentos', 'label' => 'Momentos', 'item_label' => 'Momento', 'max' => 12, 'fields' => [
@@ -651,7 +653,7 @@ final class Catalog
                 ['key' => 'lista_mujer', 'label' => 'Lista bajo la figura de mujer (uno por línea, hasta 6)', 'input' => 'lines', 'placeholder' => "Vestido largo\nTacones", 'max_length' => 300],
                 ['key' => 'restricciones', 'label' => 'Qué evitar (uno por línea, hasta 6)', 'input' => 'lines', 'placeholder' => "Blanco o marfil\nTacones de aguja en el jardín", 'max_length' => 400],
                 ['key' => 'colores', 'label' => 'Colores sugeridos', 'input' => 'colors', 'help' => 'De 1 a 4.'],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'vitrinas', 'label' => 'Escaparates de la Quinta Avenida'], ['value' => 'muestrario', 'label' => 'Muestrario de telas'], ['value' => 'editorial', 'label' => 'Página de revista']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'vitrinas', 'label' => 'Escaparates de la Quinta Avenida'], ['value' => 'muestrario', 'label' => 'Muestrario de telas'], ['value' => 'editorial', 'label' => 'Página de revista'], ['value' => 'sarape', 'label' => 'Sarape con listones de colores']]],
                 ['key' => 'enlace', 'label' => 'Enlace de ejemplos', 'input' => 'url', 'placeholder' => 'https://…', 'help' => 'Un tablero o una galería con ideas de vestimenta. Solo https. Sin enlace, el botón no aparece.'],
                 ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Ver ejemplos', 'max_length' => 40],
             ],
@@ -693,7 +695,7 @@ final class Catalog
                 ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'max_length' => 120],
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'max_length' => 600],
                 ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Ver en Maps', 'max_length' => 40],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'colgantes', 'label' => 'Colgantes de hotel'], ['value' => 'papeleria', 'label' => 'Fichas de hotel de papelería']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'colgantes', 'label' => 'Colgantes de hotel'], ['value' => 'papeleria', 'label' => 'Fichas de hotel de papelería'], ['value' => 'azulejo', 'label' => 'Tarjetas con cenefa de azulejos']]],
             ],
             'list' => ['key' => 'hoteles', 'label' => 'Hoteles', 'item_label' => 'Hotel', 'max' => 8, 'fields' => [
                 ['key' => 'nombre', 'label' => 'Nombre', 'input' => 'text', 'required' => true, 'max_length' => 120],
@@ -706,7 +708,7 @@ final class Catalog
                 ['key' => 'precio', 'label' => 'Precio (opcional)', 'input' => 'text', 'placeholder' => 'Desde $1,800 por noche', 'max_length' => 80],
                 ['key' => 'reserva', 'label' => 'Enlace para reservar (opcional)', 'input' => 'url', 'placeholder' => 'https://…', 'help' => 'Solo https.'],
             ]],
-            'slots' => ['tarjeta', 'divisor'],
+            'slots' => ['tarjeta', 'divisor', 'azulejo'],
             'texts' => ['titulo' => 'Título', 'subtitulo' => 'Subtítulo', 'texto' => 'Texto', 'nombre' => ['block' => 'name', 'label' => 'Nombre del hotel'], 'nota' => ['block' => 'note', 'label' => 'Nota'], 'direccion' => ['block' => 'address', 'label' => 'Dirección'], 'boton' => 'Botón'],
             'hidden_without' => 'Agrega al menos un hotel.',
         ],
@@ -752,6 +754,7 @@ final class Catalog
                     ['value' => 'etiqueta', 'label' => 'Etiquetas de papel rasgado'],
                     ['value' => 'sobre', 'label' => 'Sobre entreabierto'],
                     ['value' => 'volteo', 'label' => 'Tarjetas que se voltean para ver los datos'],
+                    ['value' => 'pinata', 'label' => 'Piñata que se rompe y suelta las tarjetas'],
                 ]],
                 ['key' => 'sobres_titulo', 'label' => '(Antiguo) Título de la lluvia de sobres', 'input' => 'text', 'placeholder' => 'Lluvia de sobres', 'max_length' => 60],
                 ['key' => 'sobres_texto', 'label' => '(Antiguo) Texto de la lluvia de sobres', 'input' => 'textarea', 'max_length' => 400],
@@ -775,7 +778,7 @@ final class Catalog
                 ['key' => 'enlace', 'label' => 'Enlace de la mesa', 'input' => 'url'],
                 ['key' => 'numero_evento', 'label' => 'Número de evento', 'input' => 'text', 'max_length' => 30, 'help' => 'El de Liverpool, con botón para copiar.'],
             ]],
-            'slots' => ['lazo', 'divisor'],
+            'slots' => ['lazo', 'divisor', 'pinata'],
             'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'tienda' => ['block' => 'store', 'label' => 'Tiendas'], 'sobres' => ['block' => 'envelope', 'label' => 'Lluvia de sobres'], 'cuenta' => ['block' => 'account', 'label' => 'Datos bancarios'], 'boton' => 'Botón'],
             'hidden_without' => 'Agrega una tienda o los datos de la lluvia de sobres.',
         ],
@@ -816,10 +819,10 @@ final class Catalog
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Confirmación', 'max_length' => 60],
                 ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'max_length' => 160],
                 ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => '¡Confirma aquí!', 'max_length' => 40],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'pase', 'label' => 'Pase VIP'], ['value' => 'tarjeta-rsvp', 'label' => 'Tarjeta de respuesta con lacre']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'pase', 'label' => 'Pase VIP'], ['value' => 'tarjeta-rsvp', 'label' => 'Tarjeta de respuesta con lacre'], ['value' => 'carpeta', 'label' => 'Tarjeta sobre una carpeta de encaje']]],
             ],
             'linked' => ['rsvp_modo', 'rsvp_limite', 'rsvp_whatsapp'],
-            'slots' => ['tarjeta', 'flores'],
+            'slots' => ['tarjeta', 'flores', 'cempasuchil'],
             'texts' => ['titulo' => 'Título', 'subtitulo' => 'Subtítulo', 'fecha_limite' => ['block' => 'deadline', 'label' => 'Fecha límite'], 'boton' => 'Botón'],
         ],
         'dedicatoria' => [
@@ -830,7 +833,7 @@ final class Catalog
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'placeholder' => 'Escribe unos buenos deseos…', 'max_length' => 400],
                 ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Enviar', 'max_length' => 40],
                 ['key' => 'muro', 'label' => 'Mostrar las dedicatorias recibidas', 'input' => 'select', 'help' => 'Con "Sí", la invitación muestra el nombre y el mensaje de cada dedicatoria (las más recientes primero). Quien administra puede quitar una eliminando su invitación. Sin elegir: no.', 'options' => [['value' => 'SI', 'label' => 'Sí'], ['value' => 'NO', 'label' => 'No']]],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'postal', 'label' => 'Postal de correo aéreo'], ['value' => 'muro', 'label' => 'Notas de papel en dos columnas']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'postal', 'label' => 'Postal de correo aéreo'], ['value' => 'muro', 'label' => 'Notas de papel en dos columnas'], ['value' => 'exvoto', 'label' => 'Laminitas de exvoto']]],
             ],
             'slots' => ['divisor'],
             'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'mensaje' => ['block' => 'message', 'label' => 'Mensaje enviado y del muro'], 'autor' => ['block' => 'author', 'label' => 'Quién lo envía'], 'boton' => 'Botón'],
@@ -918,9 +921,9 @@ final class Catalog
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => '¡Te esperamos!', 'max_length' => 80],
                 ['key' => 'texto', 'label' => 'Texto', 'input' => 'textarea', 'max_length' => 400],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'marquesina', 'label' => 'Marquesina de Broadway'], ['value' => 'bordado', 'label' => 'Tela bordada con alcatraces'], ['value' => 'lacre', 'label' => 'Lacre grande con el monograma']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'marquesina', 'label' => 'Marquesina de Broadway'], ['value' => 'bordado', 'label' => 'Tela bordada con alcatraces'], ['value' => 'lacre', 'label' => 'Lacre grande con el monograma'], ['value' => 'serenata', 'label' => 'Serenata de mariachis con papel picado']]],
             ],
-            'slots' => ['flores', 'corona', 'tela', 'alcatraz'],
+            'slots' => ['flores', 'corona', 'tela', 'alcatraz', 'saguaro', 'nopal'],
             'texts' => ['titulo' => 'Título', 'texto' => 'Texto', 'firma' => ['block' => 'signature', 'label' => 'Firma']],
         ],
     ];

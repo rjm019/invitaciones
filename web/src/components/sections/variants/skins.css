@@ -504,3 +504,167 @@
   z-index: 1;
   color: var(--card-ink);
 }
+
+/*
+ * Fiesta mexicana (tema `fiesta`, de todos). Pieles sobre los componentes de siempre: papel
+ * crema, filos de color y adornos compartidos (azulejos, gerbera, cempasúchil, corazón).
+ */
+
+/* Hospedaje "azulejo": cada hotel en una tarjeta crema con una cenefa de cuatro azulejos arriba y filo doble. */
+.section.section--hotels--azulejo .hotels__card {
+  --card-ink: var(--color-tinta, #3a2420);
+  --color-text: var(--card-ink);
+  padding-top: calc(var(--space-3) + 2.4rem);
+  background: var(--color-paper, #fbf3e2);
+  color: var(--card-ink);
+  box-shadow:
+    0 0 0 3px var(--color-paper, #fbf3e2),
+    0 0 0 5px var(--color-talavera, var(--color-primary)),
+    0 1rem 1.6rem -0.8rem rgb(0 0 0 / 0.5);
+}
+.section.section--hotels--azulejo .hotels__card::before {
+  content: '';
+  position: absolute;
+  top: 0.8rem;
+  left: 0;
+  right: 0;
+  height: 2.2rem;
+  background:
+    url('../../../themes/_shared/assets/azulejo-1.svg') calc(50% - 4.4rem) 0 / 2.2rem 2.2rem no-repeat,
+    url('../../../themes/_shared/assets/azulejo-2.svg') calc(50% - 2.2rem) 0 / 2.2rem 2.2rem no-repeat,
+    url('../../../themes/_shared/assets/azulejo-3.svg') 50% 0 / 2.2rem 2.2rem no-repeat,
+    url('../../../themes/_shared/assets/azulejo-4.svg') calc(50% + 2.2rem) 0 / 2.2rem 2.2rem no-repeat,
+    repeating-linear-gradient(
+        90deg,
+        var(--color-talavera, var(--color-primary)) 0 0.4rem,
+        transparent 0.4rem 0.8rem
+      )
+      0 50% / 100% 2px no-repeat;
+  pointer-events: none;
+}
+.section.section--hotels--azulejo .hotels__card::after {
+  border: 1px solid color-mix(in srgb, var(--color-talavera, var(--color-primary)) 55%, transparent);
+}
+.section.section--hotels--azulejo .hotels__name {
+  color: var(--t-name-color, var(--color-talavera, var(--color-primary)));
+}
+
+/*
+ * Confirmación "carpeta": la tarjeta crema descansa sobre una carpeta de encaje (orilla
+ * festoneada, calada con círculos) y una gerbera y un cempasúchil asoman en dos esquinas.
+ * Los campos del enlace personal llevan solo línea inferior.
+ */
+.section.section--rsvp--carpeta .rsvp {
+  max-width: 27rem;
+}
+.section.section--rsvp--carpeta .rsvp__oval {
+  position: relative;
+  padding: 1.5rem 1.3rem;
+  isolation: isolate;
+}
+.section.section--rsvp--carpeta .rsvp__oval::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--color-paper, #fbf3e2) 80%, var(--color-rosa, var(--color-accent)));
+  filter: drop-shadow(0 0.6rem 0.8rem rgb(0 0 0 / 0.3));
+  -webkit-mask:
+    radial-gradient(circle, transparent 0.24rem, #000 0.26rem) -0.5rem -0.5rem / 1rem 1rem round,
+    linear-gradient(#000 0 0) center / calc(100% - 1rem) calc(100% - 1rem) no-repeat;
+  mask:
+    radial-gradient(circle, transparent 0.24rem, #000 0.26rem) -0.5rem -0.5rem / 1rem 1rem round,
+    linear-gradient(#000 0 0) center / calc(100% - 1rem) calc(100% - 1rem) no-repeat;
+}
+.section.section--rsvp--carpeta .rsvp__card {
+  --color-text: var(--color-tinta, #3a2420);
+  --color-primary: var(--color-talavera, var(--color-primary));
+  border-radius: 0.3rem;
+  background: var(--color-paper, #fbf3e2);
+  color: var(--color-text);
+  box-shadow: 0 0.4rem 0.9rem -0.4rem rgb(0 0 0 / 0.45);
+}
+.section.section--rsvp--carpeta .rsvp__card--image {
+  aspect-ratio: auto;
+}
+.section.section--rsvp--carpeta .rsvp__card-bg,
+.section.section--rsvp--carpeta .rsvp__flowers {
+  display: none;
+}
+.section.section--rsvp--carpeta .rsvp__body {
+  padding: 1.8rem 1.4rem;
+}
+.section.section--rsvp--carpeta .rsvp::before,
+.section.section--rsvp--carpeta .rsvp::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  width: 4.2rem;
+  aspect-ratio: 1;
+  background: center / contain no-repeat;
+  filter: drop-shadow(0 0.2rem 0.3rem rgb(0 0 0 / 0.3));
+  pointer-events: none;
+}
+.section.section--rsvp--carpeta .rsvp::before {
+  top: -1rem;
+  left: -0.8rem;
+  background-image: url('../../../themes/_shared/assets/gerbera.svg');
+}
+.section.section--rsvp--carpeta .rsvp::after {
+  right: -0.8rem;
+  bottom: -1rem;
+  background-image: url('../../../themes/_shared/assets/cempasuchil.svg');
+}
+.section.section--rsvp--carpeta .guest-form__input {
+  border-width: 0 0 2px;
+  border-radius: 0;
+  background: transparent;
+  padding-inline: 0.2rem;
+  color: var(--color-tinta, #3a2420);
+}
+.section.section--rsvp--carpeta .guest-form__input:focus-visible {
+  outline: 2px solid var(--color-talavera, currentColor);
+  outline-offset: 2px;
+}
+
+/*
+ * Dedicatoria "exvoto": cada dedicatoria (la enviada y las del muro) es una laminita: papel
+ * crema con filo rojo punteado, un corazoncito arriba y el texto en cursiva. Van giradas
+ * apenas, una de un lado y otra del otro.
+ */
+.section.section--dedications--exvoto :is(.dedication__sent, .dedication__note-card) {
+  --card-ink: var(--color-tinta, #3a2420);
+  --color-text: var(--card-ink);
+  --color-primary: var(--color-rojo, var(--color-accent));
+  position: relative;
+  padding: 2.3rem 1.2rem 1.1rem;
+  border: 2px dotted var(--color-rojo, var(--color-accent));
+  background: var(--color-paper, #fbf3e2);
+  color: var(--card-ink);
+  text-align: center;
+  box-shadow: 0 0.6rem 1rem -0.6rem rgb(0 0 0 / 0.5);
+  rotate: -1deg;
+}
+.section.section--dedications--exvoto .dedication__note-card:nth-child(even) {
+  rotate: 1deg;
+}
+.section.section--dedications--exvoto :is(.dedication__sent, .dedication__note-card)::before {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  width: 1.4rem;
+  height: 1.3rem;
+  translate: -50% 0;
+  background: var(--color-rojo, var(--color-accent));
+  -webkit-mask: url('../../../themes/_shared/assets/corazon-sagrado.svg') center / contain no-repeat;
+  mask: url('../../../themes/_shared/assets/corazon-sagrado.svg') center / contain no-repeat;
+}
+.section.section--dedications--exvoto :is(.dedication__sent, .dedication__note-card) .dedication__quote {
+  padding-top: 0;
+  font-style: italic;
+  color: var(--t-message-color, var(--card-ink));
+}
+.section.section--dedications--exvoto :is(.dedication__sent, .dedication__note-card) .dedication__author {
+  color: var(--t-author-color, var(--color-rojo, var(--card-ink)));
+}

@@ -5,8 +5,14 @@ import { provideEvent } from '@/composables/useEvent'
 import { sectionVariants } from '@/components/sectionVariants'
 import type { EventConfig, ResolvedSection } from '@/types/event'
 import BlessingRetablo from '../BlessingRetablo.vue'
+import ClosingSerenade from '../ClosingSerenade.vue'
 import CountdownTiles from '../CountdownTiles.vue'
+import DressCodeSarape from '../DressCodeSarape.vue'
+import GalleryCollage from '../GalleryCollage.vue'
+import GiftsPinata from '../GiftsPinata.vue'
 import HeroPapelPicado from '../HeroPapelPicado.vue'
+import ItineraryBunting from '../ItineraryBunting.vue'
+import LocationPlaque from '../LocationPlaque.vue'
 import MusicMariachi from '../MusicMariachi.vue'
 import PhotoNicho from '../PhotoNicho.vue'
 import QuotePicado from '../QuotePicado.vue'
@@ -24,6 +30,10 @@ const event = {
     { role: 'Padrinos', names: ['Rosa'] },
   ],
   media: { portrait: '/foto.jpg' },
+  locations: [],
+  itinerary: [],
+  dress_code: { colors: ['#d6336c'] },
+  gifts: { stores: [], envelope: null },
   music: { spotify_url: null },
   sections: [],
 } as unknown as EventConfig
@@ -75,6 +85,15 @@ describe('diseños de la fiesta (variantes A)', () => {
     expect(sectionVariants.countdown.azulejos).toBeTypeOf('function')
     expect(sectionVariants['photo-arch'].nicho).toBeTypeOf('function')
     expect(sectionVariants.quote.picado).toBeTypeOf('function')
+  })
+
+  it('variantes B: están registradas', () => {
+    expect(sectionVariants.location.placa).toBeTypeOf('function')
+    expect(sectionVariants.itinerary.tendedero).toBeTypeOf('function')
+    expect(sectionVariants['dress-code'].sarape).toBeTypeOf('function')
+    expect(sectionVariants.gallery.collage).toBeTypeOf('function')
+    expect(sectionVariants.gifts.pinata).toBeTypeOf('function')
+    expect(sectionVariants.closing.serenata).toBeTypeOf('function')
   })
 
   it('portada: cerrada tapa la escena con tres hileras y al tocar empieza a abrir', async () => {
@@ -150,5 +169,46 @@ describe('diseños de la fiesta (variantes A)', () => {
     const w = render(QuotePicado, section({ type: 'quote', text: 'Amor eterno' }))
     expect(w.find('.qp__text').text()).toBe('Amor eterno')
     expect(w.find('.qp__author').exists()).toBe(false)
+  })
+
+  it('ubicación: monta la placa', () => {
+    const w = render(LocationPlaque, section({ type: 'location', title: 'Ubicación' }))
+    expect(w.text()).toContain('Ubicación')
+  })
+
+  it('itinerario: monta el tendedero', () => {
+    const w = render(ItineraryBunting, section({ type: 'itinerary', title: 'Itinerario' }))
+    expect(w.text()).toContain('Itinerario')
+  })
+
+  it('vestimenta: monta el sarape con su título', () => {
+    const w = render(DressCodeSarape, section({ type: 'dress-code', title: 'Vestimenta' }))
+    expect(w.find('.ds__title').text()).toBe('Vestimenta')
+    expect(w.findAll('.ds__band')).toHaveLength(2)
+  })
+
+  it('galería: una polaroid por foto', () => {
+    const w = render(
+      GalleryCollage,
+      section({ type: 'gallery', title: 'Fotos', photos: [{ photo: 'a.jpg', caption: 'Uno' }, { photo: 'b.jpg' }] } as Partial<ResolvedSection>),
+    )
+    expect(w.findAll('.gc__item')).toHaveLength(2)
+    expect(w.find('.gc__title').text()).toBe('Fotos')
+  })
+
+  it('regalos: la piñata es un botón y las tarjetas se voltean', async () => {
+    reduceMotion(false)
+    const w = render(GiftsPinata, section({ type: 'gifts', title: 'Regalos' }))
+    expect(w.find('.gp__pinata').element.tagName).toBe('BUTTON')
+    expect(w.find('.gp__title').text()).toBe('Regalos')
+    await w.find('.gp__pinata').trigger('click')
+    expect(w.findAll('.gp__bit')).toHaveLength(18)
+  })
+
+  it('cierre: título, firma y los tres mariachis', () => {
+    const w = render(ClosingSerenade, section({ type: 'closing', title: 'Gracias' }))
+    expect(w.find('.cn__title').text()).toBe('Gracias')
+    expect(w.find('.cn__signature').text()).toBe('Mariana y Diego')
+    expect(w.find('#musico-3').exists()).toBe(true)
   })
 })
