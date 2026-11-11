@@ -164,3 +164,10 @@ Salieron durante la implementación y se juntaron para el final. Al responder un
 68. **Los topes:** 5 recordatorios por enlace como máximo, 300 mensajes por evento (cambiable en el gestor) y 200 al día en total (por el límite de Meta sin verificar). ¿Te sirven?
 69. **Lo que contesten los invitados:** si alguien responde al recordatorio con texto («sí vamos»), ese mensaje no confirma nada: hay que entrar con el botón. ¿Mando una respuesta automática que lo diga (cuesta lo mismo que un mensaje desde el 1-oct-2026), o lo dejamos sin respuesta?
 70. **Aviso de privacidad:** hay que agregar que se tratan teléfonos de invitados que entrega el cliente, para los recordatorios del RSVP, por medio de WhatsApp (Meta), y que se borran 30 días después del evento. ¿Lo redacto yo y lo revisa un abogado, o ya tienes un texto?
+
+**Tema `fiesta` y boda de ejemplo (10-nov)**
+
+71. **El nombre:** ¿se queda el tema `fiesta` («Fiesta mexicana») y la pareja de ejemplo Mariana & Diego, o lo cambiamos?
+72. **Las ilustraciones:** ¿seguimos con ilustraciones SVG hechas para el tema, o prefieres recortes de fotos reales con licencia libre (flores, azulejos)?
+73. **La música:** la canción de Mariana & Diego («El milagro de tus ojos») suena por Spotify, y quien no tenga sesión abierta solo oye un fragmento. ¿Hay un MP3 con permiso para que suene completa, como en NAT?
+74. **Los mariachis:** hoy son dibujos vectoriales planos. ¿Los rehacemos con trazo de acuarela, como la referencia?

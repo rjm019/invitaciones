@@ -274,6 +274,15 @@ Cada texto de la invitación es un **bloque**: los cuatro comunes (`titulo`, `su
   - `caligrafia`: el título se descubre de izquierda a derecha como si lo escribiera una pluma (en la portada, el "&").
   - `pan_de_oro`: un brillo dorado recorre el título, el monograma y los lacres de la sección cada tanto.
   - `letterpress`: el título se imprime al llegar, como presionado contra el papel (sirve en cualquier sección, aunque su diseño no tenga los demás).
+- Los de fiesta mexicana (tema `fiesta`; sirven en cualquier tema):
+  - `papel_picado` (o `banderines`): dos hileras de banderas de papel picado colgadas de un hilo arriba, que se mecen con la brisa.
+  - `cempasuchil` (o `petalos_cempasuchil`): pétalos naranjas, rosas y amarillos que caen meciéndose.
+  - `flores_brotan`: gerberas y cempasúchil brotan en dos esquinas al llegar a la sección y luego se mecen apenas.
+  - `corazon_late`: el corazón sagrado late con doble pulso y sus rayos giran despacio.
+  - `notas`: notas musicales que suben y se desvanecen.
+  - `sarape`: una franja de sarape al pie de la sección se desliza despacio de lado.
+  - `azulejos_voltean`: una cenefa de azulejos que se voltean uno tras otro al llegar.
+  - `mariachis` (o `serenata`): un trío de mariachis chico al pie de la sección, tocando con sus notas.
 - `difuminar` (o `sin_cortes`, `integrar`): la sección deja de ser tarjeta (ver abajo).
 - `ninguno` apaga los que el tema trae por defecto (no quita `difuminar` si la página lo pide).
 
@@ -529,3 +538,38 @@ El tema `lacre` los pone por defecto; cualquier invitación los pide con `varian
 
 Opciones nuevas: `pagina,,botones` = `fino` (contorno de un pelo, mayúsculas espaciadas); `efectos` = `tinta` (el título se asienta como tinta), `luz_rasante` (una luz baja cruza despacio), `papel_entra` (la tarjeta entra como sacada de un sobre) y `dibujo_vivo` (la iglesia y la hacienda de la ubicación se dibujan y cobran vida). La plantilla `deploy/plantillas/lacre/` trae todas las secciones del tema con textos de ejemplo.
 
+
+## Opciones del tema `fiesta`
+
+En el bloque `pagina` (y, donde se indica, en cada sección):
+
+| Fila | Valores |
+|---|---|
+| `pagina,,orilla` / `<sección>,,orilla` | `picado`: orilla de papel picado entre las franjas |
+| `pagina,,esquinas` | `flores`: ramito de gerbera y cempasúchil en dos esquinas de los paneles |
+| `pagina,,botones` | `talavera`: botón de azulejo cobalto con filo doble |
+| `pagina,,textura` | `amate`: fibra de papel amate en el fondo de los paneles |
+| `<sección>,,efectos` | `papel_picado`, `cempasuchil`, `flores_brotan`, `corazon_late`, `notas`, `sarape`, `azulejos_voltean` y `mariachis` (ver arriba) |
+
+Diseños de sección nuevos (`variante`; sirven en cualquier tema):
+
+| Sección | `variante` | Diseño |
+|---|---|---|
+| `portada` | `papel-picado` | Collage de carpeta de encaje, flores, cactus y azulejos tapado por papel picado; al tocar, las banderas se levantan y arranca la música |
+| `musica` | `mariachi` | Trío de mariachis en acuarela que toca al sonar |
+| `bendicion` | `retablo` | Nicho de hojalata con el corazón sagrado y los papás dentro |
+| `fecha` | `loteria` | Carta de lotería que se voltea (el número es el día) |
+| `cuenta_regresiva` | `azulejos` | Cuatro azulejos de talavera con los números |
+| `foto` | `nicho` | Foto en marco de hojalata con arco y flores |
+| `frase` | `picado` | Frase en una bandera grande de papel picado |
+| `ubicacion` | `placa` | Placa de talavera por lugar con corazón de encaje para la hora |
+| `itinerario` | `tendedero` | Hilo con una bandera de papel picado por momento |
+| `vestimenta` | `sarape` | Tarjeta entre franjas de sarape con listones de colores |
+| `hospedaje` | `azulejo` | Tarjetas con cenefa de azulejos |
+| `galeria` | `collage` | Polaroids giradas con cinta washi, con flores |
+| `mesa_regalos` | `pinata` | Piñata que se mece; al tocarla cae confeti (las tarjetas siempre se ven) |
+| `confirmacion` | `carpeta` | Tarjeta sobre una carpeta de encaje |
+| `dedicatoria` | `exvoto` | Cada dedicatoria es una laminita tipo exvoto |
+| `cierre` | `serenata` | Papel picado, firma caligráfica y mariachis al pie con saguaro y nopal |
+
+Adornos nuevos (`imagen_<adorno>`): `cempasuchil`, `nopal`, `saguaro`, `azulejo`, `hojalata`, `monarca`, `pinata` y `corazon` (corazón sagrado). Las secciones que ahora los piden: `portada` (`encaje`, `cempasuchil`, `nopal`, `saguaro`, `corazon`, `azulejo`), `bendicion` (`corazon`, `flores`), `fecha` (`corazon`), `foto` (`hojalata`, `flores`, `cempasuchil`, `monarca`), `galeria` (`flores`, `cempasuchil`, `monarca`), `ubicacion` (`azulejo`, `flores`), `hospedaje` (`azulejo`), `mesa_regalos` (`pinata`), `cuenta_regresiva` (`azulejo`, `flores`), `confirmacion` (`cempasuchil`) y `cierre` (`saguaro`, `nopal`).

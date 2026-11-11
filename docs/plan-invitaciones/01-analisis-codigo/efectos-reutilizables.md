@@ -307,3 +307,56 @@ Capas en todo: `restack` y la lista de capas cubren todos los textos e imágenes
 Duplicar y eliminar en bloques que ya existen: duplicar crea un elemento agregado con lo que la vista previa leyó (`arrange-select.copies`: texto, letra, tamaño, color y alineación de `getComputedStyle`; `src` y proporción de la imagen); es una copia fija (si luego se edita el original, no cambia), el texto copiado trae las mayúsculas que se ven (`text-transform`) y no copia espaciado ni peso de letra. Eliminar escribe `eliminado` / `e_eliminado` (`display: none`: libera el lugar; ⌘Z lo deshace; la lista de capas lo muestra tachado con «Restaurar»; «Volver a su lugar» también lo regresa).
 
 Celular: con la vista previa reducida, los tiradores de los lados de algo delgado caen sobre los de las esquinas y se quitan (solo quedan las esquinas).
+
+## Tema `fiesta` (boda mexicana): piezas nuevas
+
+Todo es global: el tema `fiesta` solo les pone valor en su manifest (`web/src/themes/fiesta/manifest.ts`).
+
+**Opciones de página** (`Catalog::EDGES`, `BUTTONS`, `CORNERS` y `TEXTURES`; `designAttrs`):
+
+| Opción | Valor nuevo | Dónde vive |
+|---|---|---|
+| `orilla` (página y sección) | `picado` | `effects/assets/picado-arriba.svg` y `picado-abajo.svg` (calados de papel picado); `.section--edge-picado` en `SectionShell.vue` |
+| `botones` | `talavera` | `effects/buttons.css`: azulejo cobalto, filo blanco doble y esquinas con florecita |
+| `esquinas` | `flores` | `effects/assets/flores-esquina-tl.svg` y `flores-esquina-br.svg` (ramito de gerbera y cempasúchil en dos esquinas opuestas); reglas en `effects/options.css` |
+| `textura` | `amate` | `effects/assets/textura-amate.svg` (fibras cruzadas); `effects/options.css` (`data-texture`). El velo del color del panel es poco sobre el crema y casi todo sobre el rosa, el cobalto y el nopal |
+
+**Efectos** (`Catalog::EFFECTS`, `EFFECT_ALIASES`, `EffectName` y `services/effectsService.ts`; los pinta `FabricAmbience.vue`; CSS en `effects/fiesta.css`):
+
+| CSV (`efectos`) | Id | Qué hace |
+|---|---|---|
+| `papel_picado` (o `banderines`) | `papel-picado` | dos hileras de banderas de papel picado colgadas de un hilo arriba; se mecen con la brisa, cada una girando desde su hilo |
+| `cempasuchil` (o `petalos_cempasuchil`) | `marigold` | pétalos naranjas, rosas y amarillos que caen meciéndose |
+| `flores_brotan` | `bloom` | gerberas y cempasúchil brotan en dos esquinas opuestas al llegar a la sección (scale y rotate) y luego se mecen apenas |
+| `corazon_late` | `heartbeat` | el corazón sagrado late con doble pulso y sus rayos giran muy despacio |
+| `notas` | `music-notes` | notas musicales que suben desde abajo y se desvanecen |
+| `sarape` | `sarape-drift` | una franja de sarape al pie de la sección se desliza despacio de lado |
+| `azulejos_voltean` | `tile-flip` | una cenefa de azulejos en la orilla de arriba; al llegar, se voltean uno tras otro |
+| `mariachis` (o `serenata`) | `mariachi-band` | un trío de mariachis chico al pie, centrado (`MariachiBand`), tocando: se mecen, rasguean y sus notas salen de los instrumentos |
+
+Con "menos movimiento": todo queda quieto y en su lugar (las flores ya brotadas, los azulejos ya volteados). Los pétalos de cempasúchil y las notas no se pintan (`display: none` en `fiesta.css`) y el trío de mariachis no se mueve.
+
+**Diseños de sección** (`variante`; `components/sectionVariants.ts` → `components/sections/variants/`, o pieles en `variants/skins.css`):
+
+| Sección | Variante | Componente | Idea |
+|---|---|---|---|
+| portada | `papel-picado` | `HeroPapelPicado.vue` | collage de una carpeta de encaje con gerberas, cactus, corazón y azulejos, tapado por tres hileras de papel picado; al tocar, las banderas se levantan una tras otra, las flores brotan y arranca la música |
+| música | `mariachi` | `MusicMariachi.vue` (con `MariachiBand`) | el trío en acuarela: al sonar, se mece y echa notas; en pausa queda quieto |
+| bendición | `retablo` | `BlessingRetablo.vue` | nicho de hojalata con el corazón sagrado arriba y los papás dentro; si la portada ya lleva a los papás (`sobre-lacre`), aquí van solo los demás grupos |
+| fecha | `loteria` | `SaveTheDateLoteria.vue` | carta de lotería que se voltea: el número es el día y el dorso enseña el mes con `MonthCalendar` |
+| cuenta regresiva | `azulejos` | `CountdownTiles.vue` | cuatro azulejos de talavera para días, horas, minutos y segundos; el que cambia da un saltito |
+| foto | `nicho` | `PhotoNicho.vue` | foto recortada en arco dentro de un marco de hojalata, con flores que abrazan las esquinas y una monarca arriba |
+| frase | `picado` | `QuotePicado.vue` | la frase en una bandera grande de papel picado que cuelga de un hilo y se mece |
+| ubicación | `placa` | `LocationPlaque.vue` | placa de talavera por lugar, corazón de encaje con la hora y polaroid del lugar |
+| itinerario | `tendedero` | `ItineraryBunting.vue` | un hilo con una bandera de papel picado por momento; con "línea que se llena", cada bandera se enciende cuando el hilo llega a ella |
+| vestimenta | `sarape` | `DressCodeSarape.vue` | tarjeta crema entre dos franjas de sarape; los colores sugeridos cuelgan como listones que se mecen |
+| hospedaje | `azulejo` | piel en `skins.css` | cada hotel en una tarjeta crema con una cenefa de cuatro azulejos |
+| galería | `collage` | `GalleryCollage.vue` | polaroids giradas con cinta washi, con gerberas, cempasúchil y una monarca entre ellas; al tocar una se abre el visor |
+| mesa de regalos | `pinata` | `GiftsPinata.vue` | la piñata se mece; al tocarla caen confeti y dulces, pero solo es adorno: las tarjetas de datos siempre se ven |
+| confirmación | `carpeta` | piel en `skins.css` (`section--rsvp--carpeta`) | la tarjeta de respuesta descansa sobre una carpeta de encaje, con flores |
+| dedicatorias | `exvoto` | piel en `skins.css` (`section--dedications--exvoto`) | cada dedicatoria es una laminita tipo exvoto |
+| cierre | `serenata` | `ClosingSerenade.vue` | papel picado arriba, firma en letra caligráfica y, al pie, los mariachis con un saguaro, un nopal y una franja de sarape |
+
+**Adornos compartidos nuevos** (`themes/_shared/assets/`): `papel-picado.svg`, `sarape.svg`, `mariachis.svg` (el trío, dibujado en línea en `MariachiBand`), `pinata.svg`, `corazon-sagrado.svg`, `hojalata.svg` (marco de nicho), `monarca.svg`, `nopal.svg`, `saguaro.svg`, `cempasuchil.svg`, `gerbera.svg`, `gerbera-naranja.svg`, `gerbera-palo.svg`, `gerbera-roja.svg` y `azulejo-1.svg` a `azulejo-4.svg` (talavera). Ranuras nuevas: `cempasuchil`, `nopal`, `saguaro`, `azulejo`, `hojalata`, `monarca`, `pinata` y `corazon` (corazón sagrado).
+
+**Componente `MariachiBand.vue`** (`components/ui/`): el trío (guitarra, acordeón y guitarrón) en acuarela, en línea para que cada pieza se mueva por separado. Con `playing` se mece, rasguea, abre el fuelle y echa notas desde la boca de cada instrumento; sin `playing` queda quieto. `size` puede ser `md` (ancho de su contenedor) o `sm` (unos 7 rem de alto). Lo usan la música `mariachi`, el cierre `serenata` y el efecto `mariachi-band`. Sirve en cualquier tema.
