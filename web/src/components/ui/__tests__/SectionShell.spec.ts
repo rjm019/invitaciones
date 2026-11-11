@@ -217,6 +217,35 @@ describe('SectionShell: efectos de tela y encaje', () => {
   })
 })
 
+describe('SectionShell: efectos de fiesta mexicana', () => {
+  it('pinta cada capa como ambiente y sin tapar el contenido', () => {
+    const wrapper = render({
+      effects: ['papel-picado', 'marigold', 'bloom', 'heartbeat', 'music-notes', 'sarape-drift', 'tile-flip'],
+    })
+    expect(wrapper.findAll('.fab-string')).toHaveLength(2)
+    expect(wrapper.findAll('.fab-flag').length).toBeGreaterThanOrEqual(10)
+    expect(wrapper.findAll('.fab-marigold')).toHaveLength(14)
+    expect(wrapper.findAll('.fab-bloom')).toHaveLength(6)
+    expect(wrapper.findAll('.fab-heart__rays')).toHaveLength(1)
+    expect(wrapper.findAll('.fab-heart__core')).toHaveLength(1)
+    expect(wrapper.findAll('.fab-note').length).toBeGreaterThanOrEqual(8)
+    expect(wrapper.findAll('.fab-sarape')).toHaveLength(1)
+    expect(wrapper.findAll('.fab-tile')).toHaveLength(7)
+    expect(wrapper.findAll('.ambience.fab')).toHaveLength(7)
+    for (const layer of wrapper.findAll('.fab')) expect(layer.attributes('aria-hidden')).toBe('true')
+    expect(wrapper.find('section').classes()).toEqual(
+      expect.arrayContaining(['fx-papel-picado', 'fx-tile-flip', 'fx-heartbeat']),
+    )
+  })
+
+  it('su duración y retraso pasan por la velocidad de la invitación', () => {
+    const wrapper = render({ effects: ['papel-picado', 'marigold', 'bloom', 'music-notes', 'tile-flip'] })
+    for (const sel of ['.fab-flag', '.fab-marigold', '.fab-bloom', '.fab-note', '.fab-tile']) {
+      expect(wrapper.find(sel).attributes('style')).toContain('--motion-scale')
+    }
+  })
+})
+
 describe('SectionShell: silueta y filete de la tarjeta', () => {
   it('marca la silueta y el filete de la sección para que el CSS los pinte', () => {
     const section = render({ silhouette: 'notch', fillet: 'burgundy' }).find('section')

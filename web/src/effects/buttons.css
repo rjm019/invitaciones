@@ -139,6 +139,26 @@
 }
 
 /*
+ * Azulejo de talavera: fondo cobalto, letra crema, doble filo (borde y línea interior en
+ * crema), radio chico y mayúsculas espaciadas.
+ */
+.invitation[data-buttons='talavera'] .inv-btn {
+  --btn-bg: var(--color-talavera, var(--color-primary));
+  --btn-color: var(--color-cream, var(--color-paper, #f6ecd9));
+  --btn-border: 2px solid var(--color-cream, var(--color-paper, #f6ecd9));
+  --btn-radius: 4px;
+  --btn-shadow:
+    inset 0 0 0 3px var(--color-talavera, var(--color-primary)),
+    inset 0 0 0 4px var(--color-cream, var(--color-paper, #f6ecd9)),
+    0 0.15rem 0.4rem rgb(0 0 0 / 0.25);
+  --btn-case: uppercase;
+  --btn-tracking: 0.2em;
+  --btn-decoration: none;
+  --btn-clip: none;
+  --btn-glow: none;
+}
+
+/*
  * Contorno fino (papelería): un filo de 1 px casi recto, mayúsculas pequeñas muy espaciadas,
  * sin fondo ni sombra (como "VER UBICACIÓN" en una tarjeta impresa). Toma la tinta de su
  * sección. Al pasar o enfocar, el fondo se tiñe apenas.

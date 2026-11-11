@@ -7,6 +7,11 @@ import {
   pearlBeads,
   pearlStrands,
   petals,
+  buntingFlags,
+  marigoldPetals,
+  bloomFlowers,
+  musicNotes,
+  flipTiles,
   tulleVeils,
   cityLights,
   confetti,
@@ -326,5 +331,59 @@ describe('efectos de tela y encaje', () => {
 
   it('FABRIC_EFFECTS no repite nombres', () => {
     expect(new Set(FABRIC_EFFECTS).size).toBe(FABRIC_EFFECTS.length)
+  })
+})
+
+describe('efectos de fiesta mexicana', () => {
+  it('banderines: dos hileras de 5 a 7, estables por sección y con los 7 colores posibles', () => {
+    const flags = buntingFlags('portada')
+    expect(flags).toEqual(buntingFlags('portada'))
+    for (const row of [0, 1]) {
+      const inRow = flags.filter((f) => f.row === row)
+      expect(inRow.length).toBeGreaterThanOrEqual(5)
+      expect(inRow.length).toBeLessThanOrEqual(7)
+    }
+    for (const f of flags) {
+      expect(f.color).toBeGreaterThanOrEqual(0)
+      expect(f.color).toBeLessThan(7)
+      expect(f.left).toBeGreaterThan(0)
+      expect(f.left).toBeLessThan(100)
+      expect(f.duration).toBeGreaterThan(2)
+    }
+  })
+
+  it('cempasúchil: la caída de los pétalos con tres tonos', () => {
+    const fall = marigoldPetals('regalos')
+    expect(fall).toHaveLength(14)
+    expect(fall).toEqual(marigoldPetals('regalos'))
+    for (const p of fall) {
+      expect([0, 1, 2]).toContain(p.tone)
+      expect(p.fall).toBeGreaterThan(100)
+    }
+  })
+
+  it('flores que brotan: tres por esquina, escalonadas', () => {
+    const flowers = bloomFlowers('ubicacion')
+    expect(flowers).toEqual(bloomFlowers('ubicacion'))
+    expect(flowers.map((f) => f.corner)).toEqual(['tl', 'tl', 'tl', 'br', 'br', 'br'])
+    for (const f of flowers) expect(f.kind).toBeLessThan(5)
+    expect(flowers[5].delay).toBeGreaterThan(flowers[0].delay)
+  })
+
+  it('notas: de 8 a 10, suben y se van de lado', () => {
+    const notes = musicNotes('musica')
+    expect(notes).toEqual(musicNotes('musica'))
+    expect(notes.length).toBeGreaterThanOrEqual(8)
+    expect(notes.length).toBeLessThanOrEqual(10)
+    for (const n of notes) {
+      expect(n.rise).toBeGreaterThan(100)
+      expect([0, 1]).toContain(n.glyph)
+    }
+  })
+
+  it('azulejos: siete, alternando los cuatro dibujos y volteándose en orden', () => {
+    const tiles = flipTiles('fecha')
+    expect(tiles.map((t) => t.tile)).toEqual([1, 2, 3, 4, 1, 2, 3])
+    expect(tiles[6].delay).toBeGreaterThan(tiles[0].delay)
   })
 })

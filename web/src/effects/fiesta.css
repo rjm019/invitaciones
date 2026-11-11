@@ -1,0 +1,296 @@
+/*
+ * Efectos de fiesta mexicana (globales; los pinta FabricAmbience.vue como capas detrás del
+ * contenido): papel picado, cempasúchil, flores que brotan, corazón que late, notas,
+ * sarape y azulejos que se voltean. Reglas de siempre: solo transform, opacity y las
+ * propiedades individuales translate/rotate/scale; duraciones con --motion-scale; con
+ * "menos movimiento" todo queda quieto y ya puesto (pétalos y notas no se pintan); con la
+ * sección lejos de la pantalla (.is-idle) todo se pausa (ver effects.css). Solo tokens de
+ * color, con respaldo a los de cualquier otro tema.
+ */
+
+/* papel_picado (papel-picado): dos hileras de banderas colgadas de un hilo, arriba. */
+.fab-string {
+  position: absolute;
+  left: 2%;
+  width: 96%;
+  height: 0.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text, currentColor) 45%, transparent);
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+}
+.fab-string--r0 {
+  top: 0;
+}
+.fab-string--r1 {
+  top: 1.45rem;
+}
+.fab-flag {
+  position: absolute;
+  /* El hilo cuelga en curva: la bandera del centro baja lo que el hilo. */
+  top: calc(var(--fab-row, 0) * 1.45rem + 4 * var(--fab-x, 0.5) * (1 - var(--fab-x, 0.5)) * 0.5rem);
+  width: 1.5rem;
+  height: 1rem;
+  translate: -50% 0;
+  transform-origin: top center;
+  background-color: var(--color-primary);
+  -webkit-mask: var(--fab-mask) center / 100% 100% no-repeat;
+  mask: var(--fab-mask) center / 100% 100% no-repeat;
+  animation: fab-flag-sway calc(3.4s * var(--motion-scale)) ease-in-out infinite alternate;
+}
+.fab-flag--c0 {
+  background-color: var(--color-rosa, var(--color-primary));
+}
+.fab-flag--c1 {
+  background-color: var(--color-cempasuchil, var(--color-accent, var(--color-primary)));
+}
+.fab-flag--c2 {
+  background-color: var(--color-turquesa, var(--color-primary));
+}
+.fab-flag--c3 {
+  background-color: var(--color-amarillo, var(--color-accent, var(--color-primary)));
+}
+.fab-flag--c4 {
+  background-color: var(--color-talavera, var(--color-primary));
+}
+.fab-flag--c5 {
+  background-color: var(--color-rojo, var(--color-accent, var(--color-primary)));
+}
+.fab-flag--c6 {
+  background-color: var(--color-nopal, var(--color-primary));
+}
+@keyframes fab-flag-sway {
+  from {
+    rotate: calc(-1 * var(--fab-sway, 4deg));
+  }
+  to {
+    rotate: var(--fab-sway, 4deg);
+  }
+}
+/* Las banderas ocupan la orilla de arriba: el contenido baja para no pisarlas. */
+.fx-papel-picado > .section__content {
+  padding-top: 3.4rem;
+}
+
+/* cempasuchil (marigold): pétalos naranjas, rosas y amarillos (la caída de `petals`). */
+.fab-marigold {
+  position: absolute;
+  border-radius: 0 100% 0 100%;
+  opacity: 0;
+  animation: fab-petal calc(16s * var(--motion-scale)) ease-in-out infinite;
+}
+.fab-marigold--t0 {
+  background: linear-gradient(
+    135deg,
+    var(--color-cempasuchil, var(--color-accent, var(--color-primary))),
+    color-mix(in srgb, var(--color-cempasuchil, var(--color-accent, var(--color-primary))) 70%, #000)
+  );
+}
+.fab-marigold--t1 {
+  background: linear-gradient(
+    135deg,
+    var(--color-rosa, var(--color-primary)),
+    color-mix(in srgb, var(--color-rosa, var(--color-primary)) 70%, #000)
+  );
+}
+.fab-marigold--t2 {
+  background: linear-gradient(
+    135deg,
+    var(--color-amarillo, var(--color-accent, var(--color-primary))),
+    color-mix(in srgb, var(--color-amarillo, var(--color-accent, var(--color-primary))) 70%, #000)
+  );
+}
+
+/*
+ * flores_brotan (bloom): gerberas y cempasúchil en dos esquinas opuestas. Al entrar la
+ * sección crecen desde un punto girado (scale + rotate) y luego se mecen apenas (rotate);
+ * el mecido empieza cuando termina el crecimiento y gana por ir después en la lista.
+ */
+.fab-bloom {
+  position: absolute;
+  background: center / contain no-repeat;
+  scale: 0;
+  rotate: -40deg;
+}
+.fab-bloom--br {
+  transform-origin: 50% 50%;
+}
+.fab.is-in .fab-bloom {
+  animation:
+    fab-bloom-grow calc(0.9s * var(--motion-scale)) cubic-bezier(0.3, 1.4, 0.5, 1)
+      var(--fab-grow-delay, 0s) both,
+    fab-bloom-sway var(--fab-sway-time, 5s) ease-in-out var(--fab-sway-delay, 1s) infinite
+      alternate;
+}
+@keyframes fab-bloom-grow {
+  from {
+    scale: 0;
+    rotate: -40deg;
+  }
+  to {
+    scale: 1;
+    rotate: 0deg;
+  }
+}
+@keyframes fab-bloom-sway {
+  from {
+    rotate: calc(-1 * var(--fab-sway, 4deg));
+  }
+  to {
+    rotate: var(--fab-sway, 4deg);
+  }
+}
+
+/* corazon_late (heartbeat): el corazón sagrado arriba, centrado; late y sus rayos giran. */
+.fab-heart {
+  position: absolute;
+  top: 0.6rem;
+  left: 50%;
+  width: 4.5rem;
+  height: 4.8rem;
+  translate: -50% 0;
+  overflow: visible;
+}
+.fab-heart__rays,
+.fab-heart__core {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.fab-heart__rays {
+  animation: fab-heart-spin calc(48s * var(--motion-scale)) linear infinite;
+}
+.fab-heart__core {
+  animation: fab-heart-beat calc(1.8s * var(--motion-scale)) ease-in-out infinite;
+}
+@keyframes fab-heart-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+/* Doble pulso y descanso. */
+@keyframes fab-heart-beat {
+  0%,
+  40%,
+  100% {
+    scale: 1;
+  }
+  10% {
+    scale: 1.08;
+  }
+  20% {
+    scale: 1;
+  }
+  30% {
+    scale: 1.08;
+  }
+}
+/* El corazón ocupa la franja de arriba: el título baja. */
+.fx-heartbeat > .section__content {
+  padding-top: 5.6rem;
+}
+
+/* notas (music-notes): notas que suben desde el pie con deriva lateral y se desvanecen. */
+.fab-note {
+  position: absolute;
+  bottom: 0;
+  line-height: 1;
+  color: var(--color-accent, var(--color-primary));
+  opacity: 0;
+  animation: fab-note calc(9s * var(--motion-scale)) ease-in-out infinite;
+}
+@keyframes fab-note {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-8deg);
+  }
+  15% {
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate(calc(var(--fab-drift, 20px) * -0.6), calc(var(--fab-rise, -200px) * 0.5))
+      rotate(8deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--fab-drift, 20px), var(--fab-rise, -200px)) rotate(-6deg);
+  }
+}
+
+/*
+ * sarape (sarape-drift): una franja de sarape al pie. La capa mide un azulejo más que la
+ * sección (5.2rem = 2 × el alto) y se desliza justo un azulejo: el bucle no da salto.
+ */
+.fab-sarape {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: calc(100% + 5.2rem);
+  height: 2.6rem;
+  background: 0 0 / 5.2rem 100% repeat-x;
+  animation: fab-sarape calc(14s * var(--motion-scale)) linear infinite;
+}
+@keyframes fab-sarape {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-5.2rem);
+  }
+}
+.fx-sarape-drift > .section__content {
+  padding-bottom: 3rem;
+}
+
+/*
+ * azulejos_voltean (tile-flip): cenefa de azulejos en la orilla de arriba. Al entrar la
+ * sección cada uno gira de canto (90°) a plano, uno tras otro; después quedan quietos.
+ */
+.fab-tiles {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: flex;
+  translate: -50% 0;
+  perspective: 600px;
+}
+.fab-tile {
+  width: 2.6rem;
+  height: 2.6rem;
+  background: center / cover no-repeat;
+  transform: rotateY(90deg);
+}
+.fab.is-in .fab-tile {
+  animation: fab-tile-flip calc(0.7s * var(--motion-scale)) ease-out var(--fab-flip-delay, 0s) both;
+}
+@keyframes fab-tile-flip {
+  from {
+    transform: rotateY(90deg);
+  }
+  to {
+    transform: rotateY(0deg);
+  }
+}
+.fx-tile-flip > .section__content {
+  padding-top: 3.2rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Todo quieto y ya puesto; los pétalos y las notas no se pintan. */
+  .fab-flag,
+  .fab-heart__rays,
+  .fab-heart__core,
+  .fab-sarape,
+  .fab.is-in .fab-bloom,
+  .fab.is-in .fab-tile {
+    animation: none;
+  }
+  .fab-bloom {
+    scale: 1;
+    rotate: 0deg;
+  }
+  .fab-tile {
+    transform: none;
+  }
+  .fab-marigold,
+  .fab-note {
+    display: none;
+  }
+}

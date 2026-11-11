@@ -2,13 +2,30 @@
 import { computed } from 'vue'
 import doilyUrl from '@/themes/_shared/assets/encaje.svg?url'
 import drapeUrl from '@/themes/_shared/assets/cortinaje.svg?url'
+import bunting from '@/themes/_shared/assets/papel-picado.svg?url'
+import heartUrl from '@/themes/_shared/assets/corazon-sagrado.svg?url'
+import sarapeUrl from '@/themes/_shared/assets/sarape.svg?url'
+import gerberaPink from '@/themes/_shared/assets/gerbera.svg?url'
+import gerberaOrange from '@/themes/_shared/assets/gerbera-naranja.svg?url'
+import gerberaRed from '@/themes/_shared/assets/gerbera-roja.svg?url'
+import gerberaPale from '@/themes/_shared/assets/gerbera-palo.svg?url'
+import marigoldFlower from '@/themes/_shared/assets/cempasuchil.svg?url'
+import tile1 from '@/themes/_shared/assets/azulejo-1.svg?url'
+import tile2 from '@/themes/_shared/assets/azulejo-2.svg?url'
+import tile3 from '@/themes/_shared/assets/azulejo-3.svg?url'
+import tile4 from '@/themes/_shared/assets/azulejo-4.svg?url'
 import laceBottomUrl from '@/effects/assets/encaje-abajo.svg?url'
 import laceTopUrl from '@/effects/assets/encaje-arriba.svg?url'
 import {
+  bloomFlowers,
+  buntingFlags,
+  flipTiles,
   laceDoilies,
   laceStrokes,
   lightDust,
+  marigoldPetals,
   motionTime,
+  musicNotes,
   pearlBeads,
   pearlStrands,
   petals,
@@ -31,6 +48,13 @@ import type { ResolvedSection } from '@/types/event'
  * - petalos (petals): pétalos blancos que caen despacio.
  * - polvo_luz (light-dust): motas de luz que suben y se encienden.
  * - tul_respira (tulle-breathe): velos en las orillas que respiran, como cortinas con brisa.
+ * - papel_picado (papel-picado): dos hileras de banderas de papel picado que se mecen arriba.
+ * - cempasuchil (marigold): pétalos naranjas, rosas y amarillos que caen.
+ * - flores_brotan (bloom): gerberas y cempasúchil que brotan en dos esquinas al entrar.
+ * - corazon_late (heartbeat): el corazón sagrado late y sus rayos giran despacio.
+ * - notas (music-notes): notas musicales que suben y se desvanecen.
+ * - sarape (sarape-drift): una franja de sarape al pie que se desliza de lado.
+ * - azulejos_voltean (tile-flip): una cenefa de azulejos que se voltean uno tras otro al entrar.
  * Solo se anima transform, opacity y las propiedades individuales translate/rotate/scale
  * (que no repintan); nada de blur ni sombras animadas. `entered` arranca las entradas.
  */
@@ -58,6 +82,15 @@ const strands = computed(() => (has('pearl-strands') ? pearlStrands(seed.value) 
 const falling = computed(() => (has('petals') ? petals(seed.value) : []))
 const motes = computed(() => (has('light-dust') ? lightDust(seed.value) : []))
 const veils = computed(() => (has('tulle-breathe') ? tulleVeils(seed.value) : []))
+const flags = computed(() => (has('papel-picado') ? buntingFlags(seed.value) : []))
+const marigolds = computed(() => (has('marigold') ? marigoldPetals(seed.value) : []))
+const blooms = computed(() => (has('bloom') ? bloomFlowers(seed.value) : []))
+const heart = computed(() => has('heartbeat'))
+const notes = computed(() => (has('music-notes') ? musicNotes(seed.value) : []))
+const sarape = computed(() => has('sarape-drift'))
+const tiles = computed(() => (has('tile-flip') ? flipTiles(seed.value) : []))
+const bloomArt = [gerberaPink, gerberaOrange, gerberaRed, gerberaPale, marigoldFlower]
+const tileArt = [tile1, tile2, tile3, tile4]
 </script>
 
 <template>
@@ -220,5 +253,106 @@ const veils = computed(() => (has('tulle-breathe') ? tulleVeils(seed.value) : []
         animationDuration: motionTime(v.duration),
       }"
     />
+  </div>
+
+  <div v-if="flags.length" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <span v-for="row in [0, 1]" :key="`s${row}`" class="fab-string" :class="`fab-string--r${row}`" />
+    <span
+      v-for="(f, i) in flags"
+      :key="i"
+      class="fab-flag"
+      :class="`fab-flag--c${f.color}`"
+      :style="{
+        ...mask(bunting),
+        left: `${f.left}%`,
+        '--fab-x': f.left / 100,
+        '--fab-row': f.row,
+        '--fab-sway': `${f.sway}deg`,
+        animationDuration: motionTime(f.duration),
+        animationDelay: motionTime(f.delay),
+      }"
+    />
+  </div>
+
+  <div v-if="marigolds.length" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <span
+      v-for="(p, i) in marigolds"
+      :key="i"
+      class="fab-marigold"
+      :class="`fab-marigold--t${p.tone}`"
+      :style="{
+        left: `${p.left}%`,
+        top: `${p.top}%`,
+        width: `${p.size * 0.62}px`,
+        height: `${p.size}px`,
+        '--fab-fall': `${p.fall}px`,
+        '--fab-sway': `${p.sway}px`,
+        '--fab-turn': `${p.turn}deg`,
+        animationDelay: motionTime(p.delay),
+        animationDuration: motionTime(p.duration),
+      }"
+    />
+  </div>
+
+  <div v-if="blooms.length" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <span
+      v-for="(b, i) in blooms"
+      :key="i"
+      class="fab-bloom"
+      :class="`fab-bloom--${b.corner}`"
+      :style="{
+        backgroundImage: `url('${bloomArt[b.kind]}')`,
+        [b.corner === 'tl' ? 'left' : 'right']: `${b.x}rem`,
+        [b.corner === 'tl' ? 'top' : 'bottom']: `${b.y}rem`,
+        width: `${b.size}rem`,
+        height: `${b.size}rem`,
+        '--fab-sway': `${b.sway}deg`,
+        '--fab-grow-delay': motionTime(b.delay),
+        '--fab-sway-time': motionTime(b.duration),
+        '--fab-sway-delay': motionTime(b.delay + 1),
+      }"
+    />
+  </div>
+
+  <div v-if="heart" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <svg class="fab-heart" viewBox="0 22 240 256">
+      <use class="fab-heart__rays" :href="`${heartUrl}#rayos`" />
+      <use class="fab-heart__core" :href="`${heartUrl}#corazon`" />
+    </svg>
+  </div>
+
+  <div v-if="notes.length" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <span
+      v-for="(n, i) in notes"
+      :key="i"
+      class="fab-note"
+      :style="{
+        left: `${n.left}%`,
+        fontSize: `${n.size}rem`,
+        '--fab-rise': `${-n.rise}px`,
+        '--fab-drift': `${n.drift}px`,
+        animationDelay: motionTime(n.delay),
+        animationDuration: motionTime(n.duration),
+      }"
+      >{{ n.glyph ? '♫' : '♪' }}</span
+    >
+  </div>
+
+  <div v-if="sarape" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <span class="fab-sarape" :style="{ backgroundImage: `url('${sarapeUrl}')` }" />
+  </div>
+
+  <div v-if="tiles.length" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <div class="fab-tiles">
+      <span
+        v-for="(t, i) in tiles"
+        :key="i"
+        class="fab-tile"
+        :style="{
+          backgroundImage: `url('${tileArt[t.tile - 1]}')`,
+          '--fab-flip-delay': motionTime(t.delay),
+        }"
+      />
+    </div>
   </div>
 </template>

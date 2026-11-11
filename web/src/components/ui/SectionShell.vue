@@ -320,6 +320,13 @@ const classes = computed(() => [
   --blend-bottom: url('../../effects/assets/encaje-abajo.svg');
   --blend-bottom-size: auto;
 }
+.section--edge-picado {
+  --blend-edge: clamp(2.2rem, 10vw, 3.2rem);
+  --blend-top: url('../../effects/assets/picado-arriba.svg');
+  --blend-top-size: auto;
+  --blend-bottom: url('../../effects/assets/picado-abajo.svg');
+  --blend-bottom-size: auto;
+}
 .section--edge-straight {
   --blend-edge: 0px;
   --blend-top: linear-gradient(#000 0 0);

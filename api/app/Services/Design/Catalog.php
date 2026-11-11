@@ -110,6 +110,13 @@ final class Catalog
         'caligrafia' => ['effect' => 'calligraphy', 'label' => 'Caligrafía que se traza', 'help' => 'El título (o el "&" de los nombres) se va descubriendo de izquierda a derecha, como si una pluma lo escribiera.'],
         'sello_estampado' => ['effect' => 'stamp', 'label' => 'Letras estampadas', 'help' => 'Las letras del título caen una tras otra y se asientan como un sello que se estampa en el papel.'],
         'pan_de_oro' => ['effect' => 'gold-leaf', 'label' => 'Brillo de pan de oro', 'help' => 'De vez en cuando un brillo dorado recorre el título, el monograma y los lacres de la sección.'],
+        'papel_picado' => ['effect' => 'papel-picado', 'label' => 'Papel picado (banderines)', 'help' => 'Un tendedero de banderas de papel picado, de colores de la paleta, cuelga arriba y se mece con la brisa.'],
+        'cempasuchil' => ['effect' => 'marigold', 'label' => 'Pétalos de cempasúchil', 'help' => 'Pétalos naranjas, rosas y amarillos que caen meciéndose.'],
+        'flores_brotan' => ['effect' => 'bloom', 'label' => 'Flores que brotan', 'help' => 'Gerberas y cempasúchil brotan en las esquinas al llegar a la sección y luego se mecen apenas.'],
+        'corazon_late' => ['effect' => 'heartbeat', 'label' => 'Corazón que late', 'help' => 'Un corazón sagrado arriba late con doble pulso y sus rayos giran muy despacio.'],
+        'notas' => ['effect' => 'music-notes', 'label' => 'Notas musicales', 'help' => 'Notas musicales que suben desde abajo y se desvanecen.'],
+        'sarape' => ['effect' => 'sarape-drift', 'label' => 'Sarape que se desliza', 'help' => 'Una franja de sarape al pie de la sección se desliza despacio de lado.'],
+        'azulejos_voltean' => ['effect' => 'tile-flip', 'label' => 'Azulejos que se voltean', 'help' => 'Una cenefa de azulejos en la orilla de arriba; al llegar, se voltean uno tras otro.'],
         'letterpress' => ['effect' => 'letterpress', 'label' => 'Prensa (letterpress)', 'help' => 'El título se imprime al llegar: baja apenas, como presionado contra el papel, y queda en bajorrelieve.'],
     ];
 
@@ -130,6 +137,8 @@ final class Catalog
         'foco_escenario' => 'foco',
         'saten' => 'satin_brillo',
         'luz' => 'luz_rasante',
+        'banderines' => 'papel_picado',
+        'petalos_cempasuchil' => 'cempasuchil',
     ];
 
     /** Palabras que apagan los efectos que el tema trae por defecto. */
@@ -202,6 +211,7 @@ final class Catalog
         'feston' => ['value' => 'scallop', 'label' => 'Festón (medias lunas)'],
         'recta' => ['value' => 'straight', 'label' => 'Recta'],
         'encaje' => ['value' => 'lace', 'label' => 'Encaje'],
+        'picado' => ['value' => 'picado', 'label' => 'Papel picado'],
     ];
 
     /** Estilos de botón de toda la invitación. */
@@ -215,12 +225,14 @@ final class Catalog
         'texto' => ['value' => 'link', 'label' => 'Texto subrayado'],
         'liston' => ['value' => 'ribbon', 'label' => 'Listón de satén'],
         'fino' => ['value' => 'fine', 'label' => 'Contorno fino (papelería)'],
+        'talavera' => ['value' => 'talavera', 'label' => 'Azulejo de talavera'],
     ];
 
     /** Esquinas de los paneles. */
     public const CORNERS = [
         'deco' => ['value' => 'deco', 'label' => 'Escalonadas art déco'],
         'encaje' => ['value' => 'lace', 'label' => 'Encaje'],
+        'flores' => ['value' => 'flowers', 'label' => 'Ramito de flores'],
         'ninguna' => ['value' => 'none', 'label' => 'Sin adorno'],
     ];
 
@@ -233,6 +245,7 @@ final class Catalog
         'papel' => ['value' => 'paper', 'label' => 'Papel'],
         'piedra' => ['value' => 'stone', 'label' => 'Piedra (beige con manchas suaves)'],
         'algodon' => ['value' => 'cotton', 'label' => 'Algodón (papel marfil con fibra)'],
+        'amate' => ['value' => 'amate', 'label' => 'Papel amate (fibras cruzadas)'],
         'ninguna' => ['value' => 'none', 'label' => 'Sin textura'],
     ];
 
@@ -277,6 +290,7 @@ final class Catalog
             ['value' => 'feston', 'label' => 'Festón (medias lunas)'],
             ['value' => 'recta', 'label' => 'Recta'],
             ['value' => 'encaje', 'label' => 'Encaje'],
+            ['value' => 'picado', 'label' => 'Papel picado'],
         ]],
         ['key' => 'silueta', 'label' => 'Silueta de la tarjeta', 'input' => 'select', 'help' => 'Vacío: la de toda la invitación.', 'options' => [
             ['value' => 'muesca', 'label' => 'Con muescas (esquinas recortadas)'],
@@ -372,6 +386,7 @@ final class Catalog
             ['value' => 'feston', 'label' => 'Festón (medias lunas)'],
             ['value' => 'recta', 'label' => 'Recta'],
             ['value' => 'encaje', 'label' => 'Encaje'],
+            ['value' => 'picado', 'label' => 'Papel picado'],
         ]],
         ['key' => 'botones', 'label' => 'Estilo de los botones', 'input' => 'select', 'options' => [
             ['value' => 'degradado', 'label' => 'Degradado metálico'],
@@ -382,6 +397,7 @@ final class Catalog
             ['value' => 'neon', 'label' => 'Neón'],
             ['value' => 'texto', 'label' => 'Texto subrayado'],
             ['value' => 'liston', 'label' => 'Listón de satén'],
+            ['value' => 'talavera', 'label' => 'Azulejo de talavera'],
         ]],
         ['key' => 'confeti', 'label' => 'Confeti que cae', 'input' => 'select', 'help' => 'Pedacitos de papel metálico con los colores de la paleta.', 'options' => [
             ['value' => 'SI', 'label' => 'Sí'],
@@ -394,6 +410,7 @@ final class Catalog
         ['key' => 'esquinas', 'label' => 'Esquinas de los paneles', 'input' => 'select', 'options' => [
             ['value' => 'deco', 'label' => 'Escalonadas art déco'],
             ['value' => 'encaje', 'label' => 'Encaje'],
+            ['value' => 'flores', 'label' => 'Ramito de flores'],
             ['value' => 'ninguna', 'label' => 'Sin adorno'],
         ]],
         ['key' => 'textura', 'label' => 'Textura de tela de los paneles', 'input' => 'select', 'help' => 'El fondo de cada panel con trama de tela: brillo en las crestas y sombra en los valles.', 'options' => [
@@ -404,6 +421,7 @@ final class Catalog
             ['value' => 'papel', 'label' => 'Papel'],
             ['value' => 'piedra', 'label' => 'Piedra (beige con manchas suaves)'],
             ['value' => 'algodon', 'label' => 'Algodón (papel marfil con fibra)'],
+            ['value' => 'amate', 'label' => 'Papel amate (fibras cruzadas)'],
             ['value' => 'ninguna', 'label' => 'Sin textura'],
         ]],
         ['key' => 'silueta', 'label' => 'Silueta de las tarjetas', 'input' => 'select', 'help' => 'Con muescas: las esquinas de cada tarjeta se recortan en cóncavo, como una tarjeta de papelería fina.', 'options' => [

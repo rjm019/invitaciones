@@ -41,6 +41,31 @@ describe('tema fiesta', () => {
     }
   })
 
+  it('enciende las opciones de página y los efectos nuevos de la fiesta', async () => {
+    const manifest = await loadTheme('fiesta')
+    expect(manifest?.edges).toEqual({ default: 'picado' })
+    expect(manifest?.buttons).toBe('talavera')
+    expect(manifest?.corners).toBe('flowers')
+    expect(manifest?.texture).toBe('amate')
+    const effects = (type: string) => manifest!.sections[type].effects
+    expect(effects('hero-envelope')).toEqual(['papel-picado', 'marigold'])
+    expect(effects('music-player')).toEqual(['music-notes'])
+    expect(effects('blessing')).toEqual(['heartbeat'])
+    expect(effects('save-the-date')).toEqual(['tile-flip'])
+    expect(effects('countdown')).toEqual(['papel-picado'])
+    expect(effects('location')).toEqual(['bloom'])
+    expect(effects('itinerary')).toEqual(['timeline-fill'])
+    expect(effects('dress-code')).toEqual(['sarape-drift'])
+    expect(effects('gallery')).toEqual(['bloom'])
+    expect(effects('gifts')).toEqual(['marigold'])
+    expect(effects('rsvp')).toEqual(['bloom'])
+    expect(effects('closing')).toEqual(['papel-picado', 'music-notes'])
+    const css = readFileSync(resolve(process.cwd(), 'src/effects/fiesta.css'), 'utf8')
+    for (const cls of ['.fab-flag', '.fab-marigold', '.fab-bloom', '.fab-heart', '.fab-note', '.fab-sarape', '.fab-tile']) {
+      expect(css, cls).toContain(cls)
+    }
+  })
+
   it('los adornos nuevos son compartidos: cualquier tema los encuentra', () => {
     const assets = themeAssets('fiesta')
     for (const file of [

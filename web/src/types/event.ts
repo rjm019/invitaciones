@@ -58,9 +58,16 @@ export type EffectName =
   | 'stamp'
   | 'gold-leaf'
   | 'letterpress'
+  | 'papel-picado'
+  | 'marigold'
+  | 'bloom'
+  | 'heartbeat'
+  | 'music-notes'
+  | 'sarape-drift'
+  | 'tile-flip'
 
 /** Forma de las orillas de una franja (sección difuminada con fondo). */
-export type EdgeStyle = 'fade' | 'torn' | 'city' | 'wave' | 'scallop' | 'straight' | 'lace'
+export type EdgeStyle = 'fade' | 'torn' | 'city' | 'wave' | 'scallop' | 'straight' | 'lace' | 'picado'
 
 /** Estilo de todos los botones de la invitación (bloque "pagina"). */
 export type ButtonStyle =
@@ -73,9 +80,10 @@ export type ButtonStyle =
   | 'link'
   | 'ribbon'
   | 'fine'
+  | 'talavera'
 
 /** Esquinas de los paneles. */
-export type CornerStyle = 'deco' | 'lace' | 'none'
+export type CornerStyle = 'deco' | 'lace' | 'flowers' | 'none'
 
 /** Textura de tela del fondo de los paneles. */
 export type TextureStyle =
@@ -86,6 +94,7 @@ export type TextureStyle =
   | 'paper'
   | 'stone'
   | 'cotton'
+  | 'amate'
   | 'none'
 
 /** Silueta de las tarjetas: con muescas (esquinas cóncavas recortadas) o recta. */

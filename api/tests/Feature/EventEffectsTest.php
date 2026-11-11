@@ -143,6 +143,38 @@ class EventEffectsTest extends TestCase
         $this->assertSame('lace', $sections->firstWhere('type', 'quote')['edge']);
     }
 
+    public function test_fiesta_page_options_and_effects(): void
+    {
+        $this->copyEventFixtures();
+        foreach ([
+            'pagina,,orilla,picado',
+            'pagina,,botones,talavera',
+            'pagina,,esquinas,flores',
+            'pagina,,textura,amate',
+            'cuenta_regresiva,,visible,SI',
+            'cuenta_regresiva,,efectos,"banderines petalos_cempasuchil flores_brotan corazon_late notas sarape azulejos_voltean"',
+            'frase,,visible,SI',
+            'frase,,efectos,"papel_picado cempasuchil"',
+            'frase,,orilla,picado',
+        ] as $line) {
+            $this->appendLine('nueva', 'invitacion.csv', $line);
+        }
+
+        $event = $this->getJson('/api/public/events/nueva')->assertOk()->json('event');
+
+        $this->assertSame('picado', $event['page']['edge']);
+        $this->assertSame('talavera', $event['page']['buttons']);
+        $this->assertSame('flowers', $event['page']['corners']);
+        $this->assertSame('amate', $event['page']['texture']);
+        $sections = collect($event['sections']);
+        $this->assertSame(
+            ['papel-picado', 'marigold', 'bloom', 'heartbeat', 'music-notes', 'sarape-drift', 'tile-flip'],
+            $sections->firstWhere('type', 'countdown')['effects'],
+        );
+        $this->assertSame(['papel-picado', 'marigold'], $sections->firstWhere('type', 'quote')['effects']);
+        $this->assertSame('picado', $sections->firstWhere('type', 'quote')['edge']);
+    }
+
     public function test_encaje_section_variants_pass_through(): void
     {
         $this->copyEventFixtures();

@@ -551,6 +551,13 @@ export const FABRIC_EFFECTS = [
   'petals',
   'light-dust',
   'tulle-breathe',
+  'papel-picado',
+  'marigold',
+  'bloom',
+  'heartbeat',
+  'music-notes',
+  'sarape-drift',
+  'tile-flip',
 ] as const
 
 export interface LaceDoily {
@@ -772,4 +779,135 @@ export function tulleVeils(seed: string): TulleVeil[] {
       skew: round(3.5 + rand(), 1),
     },
   ])
+}
+
+/* ------------------------------------------------------------------------------------
+ * Efectos de fiesta mexicana (globales): papel picado, cempasúchil, flores que brotan,
+ * notas musicales y cenefa de azulejos. También con semilla y sin DOM.
+ * ---------------------------------------------------------------------------------- */
+
+export interface BuntingFlag {
+  /** Hilera (0 = la de arriba) y posición en % del ancho de la sección. */
+  row: number
+  left: number
+  /** Cuál de los 7 colores de la paleta (índice, rota por hilera). */
+  color: number
+  /** Cuánto se mece (grados), cuánto dura cada vaivén y su retraso (segundos). */
+  sway: number
+  duration: number
+  delay: number
+}
+
+/** Dos hileras de banderas (5 a 7 cada una) colgadas de un hilo; cada una se mece a su ritmo. */
+export function buntingFlags(seed: string): BuntingFlag[] {
+  const rand = seededRandom(seed)
+  const flags: BuntingFlag[] = []
+  for (let row = 0; row < 2; row++) {
+    const count = 5 + Math.floor(rand() * 3)
+    for (let i = 0; i < count; i++) {
+      flags.push({
+        row,
+        left: round(((i + 0.5) / count) * 100 + (rand() - 0.5) * 2, 1),
+        color: (i + row * 3 + Math.floor(rand() * 2)) % 7,
+        sway: round(3 + rand() * 4, 1),
+        duration: round(2.6 + rand() * 2.2, 1),
+        delay: round(-rand() * 4, 1),
+      })
+    }
+  }
+  return flags
+}
+
+export interface MarigoldPetal extends Petal {
+  /** Tono del pétalo: 0 naranja, 1 rosa, 2 amarillo. */
+  tone: number
+}
+
+/** Pétalos de cempasúchil: la misma caída que `petals`, en tres tonos. */
+export function marigoldPetals(seed: string, count = 14): MarigoldPetal[] {
+  const tones = petals(`${seed}:marigold`, count)
+  const rand = seededRandom(`${seed}:tone`)
+  return tones.map((p) => ({ ...p, tone: Math.floor(rand() * 3) }))
+}
+
+export interface BloomFlower {
+  /** Esquina: arriba a la izquierda o abajo a la derecha. */
+  corner: 'tl' | 'br'
+  /** Cuál flor (índice): gerbera rosa, naranja, roja, palo o cempasúchil. */
+  kind: number
+  /** Posición desde la esquina, en rem, y tamaño en rem. */
+  x: number
+  y: number
+  size: number
+  /** Qué tanto se mece (grados), su vaivén y el retraso con que brota (segundos). */
+  sway: number
+  duration: number
+  delay: number
+}
+
+/** Tres flores por esquina (dos esquinas opuestas), escalonadas al brotar. */
+export function bloomFlowers(seed: string): BloomFlower[] {
+  const rand = seededRandom(seed)
+  const flowers: BloomFlower[] = []
+  let order = 0
+  for (const corner of ['tl', 'br'] as const) {
+    for (let i = 0; i < 3; i++) {
+      flowers.push({
+        corner,
+        kind: Math.floor(rand() * 5),
+        x: round(-0.6 + i * 1.9 + rand() * 0.6, 1),
+        y: round(-0.6 + (i % 2) * 2 + rand() * 0.6, 1),
+        size: round(3 + rand() * 1.6, 1),
+        sway: round(3 + rand() * 4, 1),
+        duration: round(4 + rand() * 3, 1),
+        delay: round(order * 0.22 + rand() * 0.12, 2),
+      })
+      order++
+    }
+  }
+  return flowers
+}
+
+export interface MusicNote {
+  /** Posición horizontal, en % de la sección. */
+  left: number
+  /** Tamaño en rem y glifo (0 = ♪, 1 = ♫). */
+  size: number
+  glyph: number
+  /** Cuánto sube (px) y cuánto se va de lado (px). */
+  rise: number
+  drift: number
+  delay: number
+  duration: number
+}
+
+/** Notas (8 a 10) que suben desde el pie con deriva lateral y se desvanecen. */
+export function musicNotes(seed: string): MusicNote[] {
+  const rand = seededRandom(seed)
+  const count = 8 + Math.floor(rand() * 3)
+  return Array.from({ length: count }, () => ({
+    left: round(4 + rand() * 92, 1),
+    size: round(1.1 + rand() * 0.9, 2),
+    glyph: rand() < 0.5 ? 0 : 1,
+    rise: Math.round(160 + rand() * 140),
+    drift: Math.round((rand() - 0.5) * 2 * 40),
+    delay: round(-rand() * 10),
+    duration: round(7 + rand() * 5),
+  }))
+}
+
+export interface FlipTile {
+  /** Cuál de los 4 azulejos (1 a 4), alternados. */
+  tile: number
+  /** Retraso con que se voltea (segundos). */
+  delay: number
+}
+
+/** Cenefa de 7 azulejos que se voltean uno tras otro. */
+export function flipTiles(seed: string, count = 7): FlipTile[] {
+  const rand = seededRandom(seed)
+  return Array.from({ length: count }, (_, i) => ({
+    tile: (i % 4) + 1,
+    delay: round(i * 0.18 + rand() * 0.08, 2),
+  }))
 }
