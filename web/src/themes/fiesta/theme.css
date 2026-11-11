@@ -1,0 +1,82 @@
+/*
+ * Fiesta mexicana: rosa mexicano terroso de fondo, papel crema, cobalto de talavera, verde
+ * nopal y los colores de la fiesta (cempasúchil, rojo, turquesa, amarillo). Tinta café casi
+ * negra sobre el crema; crema sobre rosa, cobalto y nopal. La paleta se puede cambiar por
+ * invitación (bloque "colores"). Los diseños de sección leen estos tokens.
+ */
+:root[data-theme='fiesta'] {
+  --color-bg: #b5475a;
+  --color-text: #3a2420;
+  --color-primary: #1f4fa3;
+  --color-primary-strong: #163b7a;
+  --color-primary-soft: #d9a99f;
+  --color-accent: #c8262e;
+  --color-accent-soft: #f3dcc4;
+  /* Botones del panel del dueño (letra blanca encima) */
+  --color-accent-strong: #a81e26;
+  --color-surface: #fbf4e6;
+  --color-frame: #d9a99f;
+  --color-on-button: #fbf4e6;
+  --color-paper: #f6ecd9;
+  --color-panel: #f6ecd9;
+  --color-panel-alt: #f3e4cb;
+  --color-panel-warm: #f8e9d2;
+  --color-panel-pearl: #fbf4e6;
+  --color-night: #3a2420;
+  --color-on-night: #f6ecd9;
+  /* Los colores de la fiesta */
+  --color-rosa: #e0348a;
+  --color-cempasuchil: #f08a1c;
+  --color-rojo: #c8262e;
+  --color-talavera: #1f4fa3;
+  --color-nopal: #5f8a4e;
+  --color-turquesa: #2aa7a0;
+  --color-amarillo: #f4c430;
+  --color-tinta: #3a2420;
+
+  --shadow-card:
+    0 1px 1px rgb(58 36 32 / 0.1), 0 6px 14px -6px rgb(58 36 32 / 0.3),
+    0 22px 40px -18px rgb(58 36 32 / 0.4);
+  --shadow-button: none;
+  --panel-radius: 6px;
+  --panel-shadow:
+    0 1px 1px rgb(58 36 32 / 0.08), 0 14px 30px -16px rgb(58 36 32 / 0.5);
+  --panel-border: none;
+}
+
+/* Las secciones sin panel van sobre el rosa de la página: letra crema. */
+:root[data-theme='fiesta'] .section--bare {
+  --color-text: #f6ecd9;
+  --color-primary: #f6ecd9;
+  --color-primary-strong: #fbf4e6;
+  --color-primary-soft: #f1c9c4;
+  --color-accent: #f4c430;
+  color-scheme: dark;
+}
+
+/* Papel crema: tinta oscura. */
+:root[data-theme='fiesta'] .section--bg-paper {
+  --color-text: #3a2420;
+  --color-bg: var(--color-paper);
+}
+
+/* Rosa mexicano, cobalto de talavera y verde nopal: letra crema y detalles en amarillo. */
+:root[data-theme='fiesta'] :is(.section--bg-rosa, .section--bg-talavera, .section--bg-nopal) {
+  --color-text: #f6ecd9;
+  --color-primary: #f6ecd9;
+  --color-primary-strong: #fbf4e6;
+  --color-primary-soft: #f1c9c4;
+  --color-accent: #f4c430;
+  --color-surface: #f6ecd9;
+  --color-frame: #f6ecd9;
+  color-scheme: dark;
+}
+:root[data-theme='fiesta'] .section--bg-rosa {
+  --color-bg: var(--color-rosa);
+}
+:root[data-theme='fiesta'] .section--bg-talavera {
+  --color-bg: var(--color-talavera);
+}
+:root[data-theme='fiesta'] .section--bg-nopal {
+  --color-bg: var(--color-nopal);
+}

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="18 0 128 140">
+<!-- Mariposa monarca vista de arriba, con la cabeza hacia la derecha. -->
+<g id="ala">
+<path d="M80 64C88 42 106 18 134 6C142 24 134 46 106 62Z" fill="#f08a1c" stroke="#2a1a14" stroke-width="3" stroke-linejoin="round"/>
+<path d="M80 62C70 48 46 36 24 44C22 58 46 70 78 70Z" fill="#f4a73a" stroke="#2a1a14" stroke-width="3" stroke-linejoin="round"/>
+<path d="M84 62L128 12M86 62L116 22M88 63L104 34M78 66L36 52M78 67L28 50M76 68L44 62" fill="none" stroke="#2a1a14" stroke-width="2" stroke-linecap="round"/>
+<path d="M104 38c5-9 11-17 22-26c5 14 0 30-20 46c-4-8-4-14-2-20Z" fill="#2a1a14" fill-opacity=".14"/>
+<g fill="#fff7e0"><circle cx="130" cy="13" r="2"/><circle cx="133" cy="22" r="1.8"/><circle cx="130" cy="31" r="1.7"/><circle cx="123" cy="40" r="1.6"/><circle cx="114" cy="49" r="1.6"/><circle cx="30" cy="48" r="1.8"/><circle cx="37" cy="56" r="1.7"/><circle cx="48" cy="63" r="1.6"/><circle cx="60" cy="68" r="1.5"/></g>
+</g>
+<use href="#ala" transform="translate(0 140) scale(1 -1)"/>
+<path d="M56 70C60 66 100 64 116 68C120 69 120 71 116 72C100 76 60 74 56 70Z" fill="#2a1a14"/>
+<circle cx="119" cy="70" r="5.2" fill="#2a1a14"/>
+<path d="M121 66C128 56 136 56 142 50M121 74C128 80 134 82 142 88" fill="none" stroke="#2a1a14" stroke-width="1.6" stroke-linecap="round"/>
+<g fill="#fff7e0"><circle cx="92" cy="68" r="1.2"/><circle cx="100" cy="68" r="1.2"/><circle cx="108" cy="68" r="1.2"/><circle cx="92" cy="72" r="1.2"/><circle cx="100" cy="72" r="1.2"/></g>
+</svg>

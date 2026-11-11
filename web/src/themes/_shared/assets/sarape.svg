@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+<!-- Sarape: franjas onduladas que repiten sin costura a lo ancho (cada onda entra y sale a la misma altura). -->
+<path d="M0 16Q25 2 50 16Q75 30 100 16Q125 2 150 16Q175 30 200 16Q225 2 250 16Q275 30 300 16Q325 2 350 16Q375 30 400 16V200H0Z" fill="#c8262e"/>
+<path d="M0 36Q50 48 100 36Q150 24 200 36Q250 48 300 36Q350 24 400 36V200H0Z" fill="#f08a1c"/>
+<path d="M0 56Q25 44 50 56Q75 68 100 56Q125 44 150 56Q175 68 200 56Q225 44 250 56Q275 68 300 56Q325 44 350 56Q375 68 400 56V200H0Z" fill="#f4c430"/>
+<path d="M0 76Q12.5 86 25 76Q37.5 66 50 76Q62.5 86 75 76Q87.5 66 100 76Q112.5 86 125 76Q137.5 66 150 76Q162.5 86 175 76Q187.5 66 200 76Q212.5 86 225 76Q237.5 66 250 76Q262.5 86 275 76Q287.5 66 300 76Q312.5 86 325 76Q337.5 66 350 76Q362.5 86 375 76Q387.5 66 400 76V200H0Z" fill="#5f8a4e"/>
+<path d="M0 98Q25 84 50 98Q75 112 100 98Q125 84 150 98Q175 112 200 98Q225 84 250 98Q275 112 300 98Q325 84 350 98Q375 112 400 98V200H0Z" fill="#2aa7a0"/>
+<path d="M0 120Q50 132 100 120Q150 108 200 120Q250 132 300 120Q350 108 400 120V200H0Z" fill="#1f4fa3"/>
+<path d="M0 142Q25 128 50 142Q75 156 100 142Q125 128 150 142Q175 156 200 142Q225 128 250 142Q275 156 300 142Q325 128 350 142Q375 156 400 142V200H0Z" fill="#e0348a"/>
+<path d="M0 162Q12.5 172 25 162Q37.5 152 50 162Q62.5 172 75 162Q87.5 152 100 162Q112.5 172 125 162Q137.5 152 150 162Q162.5 172 175 162Q187.5 152 200 162Q212.5 172 225 162Q237.5 152 250 162Q262.5 172 275 162Q287.5 152 300 162Q312.5 172 325 162Q337.5 152 350 162Q362.5 172 375 162Q387.5 152 400 162V200H0Z" fill="#f6ecd9"/>
+<path d="M0 180Q25 168 50 180Q75 192 100 180Q125 168 150 180Q175 192 200 180Q225 168 250 180Q275 192 300 180Q325 168 350 180Q375 192 400 180V200H0Z" fill="#7a4a2e"/>
+<path d="M0 20Q25 6 50 20Q75 34 100 20Q125 6 150 20Q175 34 200 20Q225 6 250 20Q275 34 300 20Q325 6 350 20Q375 34 400 20" fill="none" stroke="#f6ecd9" stroke-opacity=".55" stroke-width="1.4"/>
+<path d="M0 40Q50 52 100 40Q150 28 200 40Q250 52 300 40Q350 28 400 40" fill="none" stroke="#f6ecd9" stroke-opacity=".55" stroke-width="1.4"/>
+<path d="M0 60Q25 48 50 60Q75 72 100 60Q125 48 150 60Q175 72 200 60Q225 48 250 60Q275 72 300 60Q325 48 350 60Q375 72 400 60" fill="none" stroke="#f6ecd9" stroke-opacity=".55" stroke-width="1.4"/>
+<path d="M0 80Q12.5 90 25 80Q37.5 70 50 80Q62.5 90 75 80Q87.5 70 100 80Q112.5 90 125 80Q137.5 70 150 80Q162.5 90 175 80Q187.5 70 200 80Q212.5 90 225 80Q237.5 70 250 80Q262.5 90 275 80Q287.5 70 300 80Q312.5 90 325 80Q337.5 70 350 80Q362.5 90 375 80Q387.5 70 400 80" fill="none" stroke="#f6ecd9" stroke-opacity=".55" stroke-width="1.4"/>
+<path d="M0 102Q25 88 50 102Q75 116 100 102Q125 88 150 102Q175 116 200 102Q225 88 250 102Q275 116 300 102Q325 88 350 102Q375 116 400 102" fill="none" stroke="#f6ecd9" stroke-opacity=".55" stroke-width="1.4"/>
+<path d="M0 124Q50 136 100 124Q150 112 200 124Q250 136 300 124Q350 112 400 124" fill="none" stroke="#f6ecd9" stroke-opacity=".55" stroke-width="1.4"/>
+<path d="M0 146Q25 132 50 146Q75 160 100 146Q125 132 150 146Q175 160 200 146Q225 132 250 146Q275 160 300 146Q325 132 350 146Q375 160 400 146" fill="none" stroke="#f6ecd9" stroke-opacity=".55" stroke-width="1.4"/>
+<path d="M0 166Q12.5 176 25 166Q37.5 156 50 166Q62.5 176 75 166Q87.5 156 100 166Q112.5 176 125 166Q137.5 156 150 166Q162.5 176 175 166Q187.5 156 200 166Q212.5 176 225 166Q237.5 156 250 166Q262.5 176 275 166Q287.5 156 300 166Q312.5 176 325 166Q337.5 156 350 166Q362.5 176 375 166Q387.5 156 400 166" fill="none" stroke="#f6ecd9" stroke-opacity=".55" stroke-width="1.4"/>
+<path d="M0 184Q25 172 50 184Q75 196 100 184Q125 172 150 184Q175 196 200 184Q225 172 250 184Q275 196 300 184Q325 172 350 184Q375 196 400 184" fill="none" stroke="#f6ecd9" stroke-opacity=".55" stroke-width="1.4"/>
+<path d="M10 58.2l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M30 56.2l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M50 62l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M70 67.8l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M90 65.8l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M110 58.2l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M130 56.2l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M150 62l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M170 67.8l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M190 65.8l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M210 58.2l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M230 56.2l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M250 62l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M270 67.8l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M290 65.8l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M310 58.2l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M330 56.2l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M350 62l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M370 67.8l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M390 65.8l3.2 4l-3.2 4l-3.2-4Z" fill="#c8262e"/>
+<path d="M10 99.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M30 97.3l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M50 104l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M70 110.7l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M90 108.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M110 99.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M130 97.3l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M150 104l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M170 110.7l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M190 108.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M210 99.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M230 97.3l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M250 104l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M270 110.7l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M290 108.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M310 99.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M330 97.3l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M350 104l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M370 110.7l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M390 108.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M10 143.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M30 141.3l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M50 148l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M70 154.7l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M90 152.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M110 143.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M130 141.3l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M150 148l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M170 154.7l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M190 152.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M210 143.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M230 141.3l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M250 148l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M270 154.7l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M290 152.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M310 143.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M330 141.3l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M350 148l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M370 154.7l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<path d="M390 152.5l3.2 4l-3.2 4l-3.2-4Z" fill="#f6ecd9"/>
+<circle cx="8" cy="130.8" r="1.6" fill="#f4c430"/>
+<circle cx="24" cy="133.4" r="1.6" fill="#f4c430"/>
+<circle cx="40" cy="134.8" r="1.6" fill="#f4c430"/>
+<circle cx="56" cy="134.9" r="1.6" fill="#f4c430"/>
+<circle cx="72" cy="133.8" r="1.6" fill="#f4c430"/>
+<circle cx="88" cy="131.5" r="1.6" fill="#f4c430"/>
+<circle cx="104" cy="128.1" r="1.6" fill="#f4c430"/>
+<circle cx="120" cy="125.2" r="1.6" fill="#f4c430"/>
+<circle cx="136" cy="123.5" r="1.6" fill="#f4c430"/>
+<circle cx="152" cy="123" r="1.6" fill="#f4c430"/>
+<circle cx="168" cy="123.8" r="1.6" fill="#f4c430"/>
+<circle cx="184" cy="125.8" r="1.6" fill="#f4c430"/>
+<circle cx="200" cy="129" r="1.6" fill="#f4c430"/>
+<circle cx="216" cy="132.2" r="1.6" fill="#f4c430"/>
+<circle cx="232" cy="134.2" r="1.6" fill="#f4c430"/>
+<circle cx="248" cy="135" r="1.6" fill="#f4c430"/>
+<circle cx="264" cy="134.5" r="1.6" fill="#f4c430"/>
+<circle cx="280" cy="132.8" r="1.6" fill="#f4c430"/>
+<circle cx="296" cy="129.9" r="1.6" fill="#f4c430"/>
+<circle cx="312" cy="126.5" r="1.6" fill="#f4c430"/>
+<circle cx="328" cy="124.2" r="1.6" fill="#f4c430"/>
+<circle cx="344" cy="123.1" r="1.6" fill="#f4c430"/>
+<circle cx="360" cy="123.2" r="1.6" fill="#f4c430"/>
+<circle cx="376" cy="124.6" r="1.6" fill="#f4c430"/>
+<circle cx="392" cy="127.2" r="1.6" fill="#f4c430"/>
+</svg>

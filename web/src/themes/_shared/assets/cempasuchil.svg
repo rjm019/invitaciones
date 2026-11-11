@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 8 180 254">
+<defs><g id="p1"><path d="M-15 0 C-18.8 -16.5 -15 -29.4 -6 -30 C-2.2 -33.6 2.2 -33.6 6 -30 C15 -29.4 18.8 -16.5 15 0Z" fill="#f4a73a" stroke="#c9600f" stroke-width="1.1" stroke-linejoin="round"/><path d="M0 -6 Q2 -15 -1 -22.5" fill="none" stroke="#c9600f" stroke-width="1" stroke-linecap="round"/></g><g id="p2"><path d="M-13 0 C-16.2 -13.2 -13 -23.5 -5.2 -24 C-1.9 -26.9 1.9 -26.9 5.2 -24 C13 -23.5 16.2 -13.2 13 0Z" fill="#f08a1c" stroke="#c9600f" stroke-width="1.1" stroke-linejoin="round"/><path d="M0 -4.8 Q2 -12 -1 -18" fill="none" stroke="#c9600f" stroke-width="1" stroke-linecap="round"/></g><g id="p3"><path d="M-11 0 C-13.8 -10.5 -11 -18.6 -4.4 -19 C-1.6 -21.3 1.6 -21.3 4.4 -19 C11 -18.6 13.8 -10.5 11 0Z" fill="#e5710f" stroke="#a84a0a" stroke-width="1.1" stroke-linejoin="round"/><path d="M0 -3.8 Q2 -9.5 -1 -14.2" fill="none" stroke="#a84a0a" stroke-width="1" stroke-linecap="round"/></g><g id="p4"><path d="M-8 0 C-10 -7.2 -8 -12.7 -3.2 -13 C-1.2 -14.6 1.2 -14.6 3.2 -13 C8 -12.7 10 -7.2 8 0Z" fill="#f08a1c" stroke="#a84a0a" stroke-width="1.1" stroke-linejoin="round"/><path d="M0 -2.6 Q2 -6.5 -1 -9.8" fill="none" stroke="#a84a0a" stroke-width="1" stroke-linecap="round"/></g></defs>
+<!-- Cempasúchil: pompón de pétalos rizados, tallo y hojas dentadas. -->
+<path d="M100 150 C96 190 104 220 98 258" fill="none" stroke="#44693a" stroke-width="5" stroke-linecap="round"/>
+<path d="M0 0 C-6 -14 -22 -22 -40 -20 L-34 -28 L-44 -32 L-34 -38 L-44 -46 C-24 -48 -4 -34 0 0Z" transform="translate(100 224) rotate(-10)" fill="#5f8a4e" stroke="#44693a" stroke-width="1.4" stroke-linejoin="round"/>
+<path d="M0 0 C-6 -14 -22 -22 -40 -20 L-34 -28 L-44 -32 L-34 -38 L-44 -46 C-24 -48 -4 -34 0 0Z" transform="translate(99 196) scale(-1 1) rotate(8) scale(.85)" fill="#5f8a4e" stroke="#44693a" stroke-width="1.4" stroke-linejoin="round"/>
+<path d="M98 222 C84 214 72 210 62 206 M100 196 C112 190 124 186 134 184" fill="none" stroke="#8fb07a" stroke-width="1.3" stroke-linecap="round"/>
+<path d="M72 138 C80 158 120 158 128 138 C118 146 82 146 72 138Z" fill="#5f8a4e" stroke="#44693a" stroke-width="1.4" stroke-linejoin="round"/>
+<use href="#p1" transform="translate(100 54) rotate(0)"/>
+<use href="#p1" transform="translate(120.4 59) rotate(27.7)"/>
+<use href="#p1" transform="translate(136.2 73) rotate(55.4)"/>
+<use href="#p1" transform="translate(143.7 92.7) rotate(83.1)"/>
+<use href="#p1" transform="translate(141.1 113.6) rotate(110.8)"/>
+<use href="#p1" transform="translate(129.2 130.9) rotate(138.5)"/>
+<use href="#p1" transform="translate(110.5 140.7) rotate(166.2)"/>
+<use href="#p1" transform="translate(89.5 140.7) rotate(193.8)"/>
+<use href="#p1" transform="translate(70.8 130.9) rotate(221.5)"/>
+<use href="#p1" transform="translate(58.9 113.6) rotate(249.2)"/>
+<use href="#p1" transform="translate(56.3 92.7) rotate(276.9)"/>
+<use href="#p1" transform="translate(63.8 73) rotate(304.6)"/>
+<use href="#p1" transform="translate(79.6 59) rotate(332.3)"/>
+<use href="#p2" transform="translate(107.6 64.9) rotate(13)"/>
+<use href="#p2" transform="translate(123.2 73.1) rotate(43)"/>
+<use href="#p2" transform="translate(132.5 88.1) rotate(73)"/>
+<use href="#p2" transform="translate(133.1 105.6) rotate(103)"/>
+<use href="#p2" transform="translate(124.9 121.2) rotate(133)"/>
+<use href="#p2" transform="translate(109.9 130.5) rotate(163)"/>
+<use href="#p2" transform="translate(92.4 131.1) rotate(193)"/>
+<use href="#p2" transform="translate(76.8 122.9) rotate(223)"/>
+<use href="#p2" transform="translate(67.5 107.9) rotate(253)"/>
+<use href="#p2" transform="translate(66.9 90.4) rotate(283)"/>
+<use href="#p2" transform="translate(75.1 74.8) rotate(313)"/>
+<use href="#p2" transform="translate(90.1 65.5) rotate(343)"/>
+<use href="#p3" transform="translate(102 75.1) rotate(5)"/>
+<use href="#p3" transform="translate(115.1 80.6) rotate(41)"/>
+<use href="#p3" transform="translate(122.4 92.8) rotate(77)"/>
+<use href="#p3" transform="translate(121.2 107) rotate(113)"/>
+<use href="#p3" transform="translate(111.8 117.7) rotate(149)"/>
+<use href="#p3" transform="translate(98 120.9) rotate(185)"/>
+<use href="#p3" transform="translate(84.9 115.4) rotate(221)"/>
+<use href="#p3" transform="translate(77.6 103.2) rotate(257)"/>
+<use href="#p3" transform="translate(78.8 89) rotate(293)"/>
+<use href="#p3" transform="translate(88.2 78.3) rotate(329)"/>
+<use href="#p4" transform="translate(104.4 85.8) rotate(20)"/>
+<use href="#p4" transform="translate(111.8 92.5) rotate(65)"/>
+<use href="#p4" transform="translate(112.2 102.4) rotate(110)"/>
+<use href="#p4" transform="translate(105.5 109.8) rotate(155)"/>
+<use href="#p4" transform="translate(95.6 110.2) rotate(200)"/>
+<use href="#p4" transform="translate(88.2 103.5) rotate(245)"/>
+<use href="#p4" transform="translate(87.8 93.6) rotate(290)"/>
+<use href="#p4" transform="translate(94.5 86.2) rotate(335)"/>
+<circle cx="100" cy="98" r="9" fill="#d9760f"/>
+<circle cx="94.4" cy="98.3" r="3.2" fill="#f4c430" stroke="#c9600f" stroke-width=".8"/>
+<circle cx="97.5" cy="91.3" r="3.2" fill="#f4c430" stroke="#c9600f" stroke-width=".8"/>
+<circle cx="96.9" cy="92.1" r="3.2" fill="#f4c430" stroke="#c9600f" stroke-width=".8"/>
+<circle cx="100.1" cy="98.3" r="3.2" fill="#f4c430" stroke="#c9600f" stroke-width=".8"/>
+<circle cx="93.2" cy="103" r="3.2" fill="#f4c430" stroke="#c9600f" stroke-width=".8"/>
+<circle cx="105.3" cy="91.9" r="3.2" fill="#f4c430" stroke="#c9600f" stroke-width=".8"/>
+<circle cx="104.2" cy="97.9" r="3.2" fill="#f4c430" stroke="#c9600f" stroke-width=".8"/>
+<circle cx="97.8" cy="102.4" r="3.2" fill="#f4c430" stroke="#c9600f" stroke-width=".8"/>
+<circle cx="100.1" cy="98" r="3.2" fill="#f4c430" stroke="#c9600f" stroke-width=".8"/>
+<path d="M132.8 104.1 L154 108.1" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M127.3 80.6 L139.5 72.8" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M81.8 118 L69.7 131.3" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M80 78.9 L65.4 65" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M96.4 65.2 L94.6 49.5" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M92.7 68.6 L87.1 45.8" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M132.2 88.6 L151.8 82.9" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M93.1 65.6 L89.8 50.2" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M120.9 115.6 L135.9 128.2" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M111.3 71.9 L121 49.5" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M100.7 66.6 L101 48.6" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M130.3 110 L147.7 116.9" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M127.3 110 L149.6 119.8" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M111.8 66.3 L115.9 55.6" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>
+</svg>

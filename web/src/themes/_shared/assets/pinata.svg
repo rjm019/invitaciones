@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -2 252 270">
+<!-- Piñata de estrella de siete picos con flecos y serpentinas en las puntas. -->
+<path d="M120 28C116 16 124 8 120 2" fill="none" stroke="#7a4a2e" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M120 128L100 86.6L120 24L140 86.6Z" fill="#e0348a" stroke="#3a2420" stroke-width="1.6" stroke-linejoin="round"/>
+<path d="M102.4 68.6L120 57L137.6 68.6" fill="none" stroke="#f27bb5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M103.6 51.7L120 41L136.4 51.7" fill="none" stroke="#f27bb5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M107.4 34.8L120 25L132.6 34.8" fill="none" stroke="#f27bb5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M120 24Q116.8 0.4 121.2 -0.8" fill="none" stroke="#c8262e" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M120 128L140 86.6L201.3 63.2L164.8 117.8Z" fill="#f4c430" stroke="#3a2420" stroke-width="1.6" stroke-linejoin="round"/>
+<path d="M155.5 77.2L175.5 83.7L177.5 104.7" fill="none" stroke="#fbe07a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M169.4 67.7L188 73.8L189.8 93.2" fill="none" stroke="#fbe07a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M185 60.1L200.5 63.8L200.7 79.8" fill="none" stroke="#fbe07a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M201.3 63.2Q210.8 51.3 224.3 50" fill="none" stroke="#f08a1c" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M120 128L164.8 117.8L221.4 151.1L156 156.7Z" fill="#2aa7a0" stroke="#3a2420" stroke-width="1.6" stroke-linejoin="round"/>
+<path d="M181.9 124.1L189.2 143.8L174 158.4" fill="none" stroke="#6cc9c4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M198 129L204.8 147.4L190.7 160.9" fill="none" stroke="#6cc9c4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M213.6 136.4L220.4 150.9L208 161" fill="none" stroke="#6cc9c4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M221.4 151.1Q234.9 157.6 247.7 164" fill="none" stroke="#1f4fa3" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M120 128L156 156.7L165.1 221.7L120 174Z" fill="#c8262e" stroke="#3a2420" stroke-width="1.6" stroke-linejoin="round"/>
+<path d="M161.7 173.9L150.8 192L129.9 189.2" fill="none" stroke="#e66b70" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M167.8 189.6L157.7 206.4L138.4 203.8" fill="none" stroke="#e66b70" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M171.8 206.5L164.7 220.8L149.1 217.4" fill="none" stroke="#e66b70" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M165.1 221.7Q173.5 239.2 175.2 255.5" fill="none" stroke="#5f8a4e" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M120 128L120 174L74.9 221.7L84 156.7Z" fill="#f08a1c" stroke="#3a2420" stroke-width="1.6" stroke-linejoin="round"/>
+<path d="M110.1 189.2L89.2 192L78.3 173.9" fill="none" stroke="#f6b265" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M101.6 203.8L82.3 206.4L72.2 189.6" fill="none" stroke="#f6b265" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M90.9 217.4L75.3 220.8L68.2 206.5" fill="none" stroke="#f6b265" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M74.9 221.7Q64 246 58.5 255.5" fill="none" stroke="#e0348a" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M120 128L84 156.7L18.6 151.1L75.2 117.8Z" fill="#1f4fa3" stroke="#3a2420" stroke-width="1.6" stroke-linejoin="round"/>
+<path d="M66 158.4L50.8 143.8L58.1 124.1" fill="none" stroke="#5f86c9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M49.3 160.9L35.2 147.4L42 129" fill="none" stroke="#5f86c9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M32 161L19.6 150.9L26.4 136.4" fill="none" stroke="#5f86c9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M18.6 151.1Q-7.8 158.7 -7.8 164" fill="none" stroke="#f4c430" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M120 128L75.2 117.8L38.7 63.2L100 86.6Z" fill="#5f8a4e" stroke="#3a2420" stroke-width="1.6" stroke-linejoin="round"/>
+<path d="M62.5 104.7L64.5 83.7L84.5 77.2" fill="none" stroke="#95b886" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M50.2 93.2L52 73.8L70.6 67.7" fill="none" stroke="#95b886" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M39.3 79.8L39.5 63.8L55 60.1" fill="none" stroke="#95b886" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M38.7 63.2Q22.9 50 18.4 50" fill="none" stroke="#2aa7a0" stroke-width="2.6" stroke-linecap="round"/>
+<circle cx="120" cy="128" r="30" fill="#f6ecd9" stroke="#3a2420" stroke-width="1.6"/>
+<circle cx="120" cy="128" r="22" fill="none" stroke="#c8262e" stroke-width="3" stroke-dasharray="1.2 5" stroke-linecap="round"/>
+<circle cx="122.1" cy="116.2" r="3.4" fill="#e0348a"/>
+<circle cx="130.5" cy="122.3" r="3.4" fill="#f4c430"/>
+<circle cx="131.1" cy="132.7" r="3.4" fill="#2aa7a0"/>
+<circle cx="123.3" cy="139.6" r="3.4" fill="#c8262e"/>
+<circle cx="113" cy="137.7" r="3.4" fill="#f08a1c"/>
+<circle cx="108" cy="128.6" r="3.4" fill="#1f4fa3"/>
+<circle cx="112.1" cy="119" r="3.4" fill="#5f8a4e"/>
+<circle cx="120" cy="128" r="4" fill="#3a2420"/>
+</svg>
