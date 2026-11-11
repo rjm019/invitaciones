@@ -340,7 +340,7 @@ Con "menos movimiento": todo queda quieto y en su lugar (las flores ya brotadas,
 
 | Sección | Variante | Componente | Idea |
 |---|---|---|---|
-| portada | `papel-picado` | `HeroPapelPicado.vue` | collage de una carpeta de encaje con gerberas, cactus, corazón y azulejos, tapado por tres hileras de papel picado; al tocar, las banderas se levantan una tras otra, las flores brotan y arranca la música |
+| portada | `papel-picado` | `HeroPapelPicado.vue` | collage de una carpeta de encaje con gerberas, cactus, corazón y azulejos, tapado por **un solo papel picado gigante** (`papel-picado-grande.svg` vertical y `papel-picado-grande-ancho.svg` apaisada; van en línea como máscara SVG: el dibujo en blanco se ve y lo negro es hueco). Las **iniciales** van caladas al centro con la letra de títulos (`--pp-initials-font`): campo `iniciales` de la portada (`section.initials`), o el monograma, o el nombre; `NO` deja el corazón. El color de la hoja es `--pp-sheet-color` (si no, `--color-rosa`). Al tocar, la hoja se levanta desde su hilo (rotateX) y se desvanece; quedan las banderas chicas arriba |
 | música | `mariachi` | `MusicMariachi.vue` (con `MariachiBand`) | el trío en acuarela: al sonar, se mece y echa notas; en pausa queda quieto |
 | bendición | `retablo` | `BlessingRetablo.vue` | nicho de hojalata con el corazón sagrado arriba y los papás dentro; si la portada ya lleva a los papás (`sobre-lacre`), aquí van solo los demás grupos |
 | fecha | `loteria` | `SaveTheDateLoteria.vue` | carta de lotería que se voltea: el número es el día y el dorso enseña el mes con `MonthCalendar` |

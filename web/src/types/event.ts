@@ -259,6 +259,8 @@ export interface SectionConfig {
   layout?: 'side' | 'stack'
   /** Vestimenta: enlace https del botón "Ver ejemplos" (sin enlace, el botón no aparece). */
   link?: string
+  /** Portada de papel picado: iniciales caladas en la hoja ("NO" las quita; sin dato, las del monograma). */
+  initials?: string
   /** Itinerario: resalta el momento actual el día del evento. */
   live?: boolean
   /** Álbum: días que sigue abierto después del evento (5 a 20, ya acotado por el servidor). */

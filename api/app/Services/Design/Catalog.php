@@ -464,6 +464,7 @@ final class Catalog
                 ['key' => 'titulo', 'label' => 'Encabezado de la tarjeta', 'input' => 'text', 'placeholder' => 'Con todo el corazón', 'max_length' => 80, 'help' => 'Lo usa "Sobre con lacre y tarjeta de papelería".'],
                 ['key' => 'texto', 'label' => 'Frase antes de la fecha', 'input' => 'textarea', 'max_length' => 200, 'help' => 'Lo usa "Sobre con lacre y tarjeta de papelería".'],
                 ['key' => 'imagen', 'label' => 'Foto de la portada', 'input' => 'image', 'help' => 'La usa "Estatua de la Libertad" detrás del nombre.'],
+                ['key' => 'iniciales', 'label' => 'Iniciales en el papel picado', 'input' => 'text', 'placeholder' => 'M D', 'max_length' => 8, 'help' => 'Las usa "Collage tapado por papel picado": van caladas al centro de la hoja. Vacío: las del monograma o del nombre corto. Escribe NO para dejar el corazón.'],
                 ['key' => 'variante', 'label' => 'Cómo abre', 'input' => 'select', 'options' => [
                     ['value' => 'sobre', 'label' => 'Sobre'],
                     ['value' => 'elevador', 'label' => 'Elevador art déco'],

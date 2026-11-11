@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, useId } from 'vue'
 import handSvg from '@fortawesome/fontawesome-free/svgs/solid/hand-pointer.svg?raw'
 import { useCelebration } from '@/composables/useCelebration'
 import { useEvent } from '@/composables/useEvent'
 import { useInvitation } from '@/composables/useInvitation'
+import { useMonogram } from '@/composables/useMonogram'
 import { motionScale } from '@/composables/useMotionScale'
 import { useMusic } from '@/composables/useMusic'
 import { usePreview } from '@/composables/usePreview'
@@ -11,15 +12,17 @@ import { useReducedMotion } from '@/composables/useReducedMotion'
 import { useScrollLock } from '@/composables/useScrollLock'
 import { dateParts } from '@/services/dateFormatService'
 import { decorOr } from '@/services/decorService'
+import sheetTallSvg from '@/themes/_shared/assets/papel-picado-grande.svg?raw'
+import sheetWideSvg from '@/themes/_shared/assets/papel-picado-grande-ancho.svg?raw'
 import type { ResolvedSection } from '@/types/event'
 
 /**
  * Portada "papel picado" (`papel-picado`): un collage a pantalla completa (una carpeta de
  * encaje con la tarjeta de los nombres y la fecha, gerberas y cempasúchil en las esquinas,
  * cactus y nopal abajo, el corazón sagrado arriba y una cenefa de azulejos al pie) tapado
- * por tres hileras de papel picado, como una cortina. Al tocar: empieza la música, las
- * hileras se levantan una tras otra (cada bandera gira desde su hilo, rotateX con
- * perspectiva, y la hilera sube y se desvanece), las flores brotan (scale) y la tarjeta se
+ * por un solo papel picado gigante del tamaño de la portada (una hoja vertical en el celular
+ * y una apaisada en escritorio). Al tocar: empieza la música, la hoja se levanta desde su
+ * hilo (rotateX con perspectiva) y se desvanece, las flores brotan (scale) y la tarjeta se
  * asienta. Abierta queda una sola hilera de banderas arriba, meciéndose. Todo con transform
  * y opacity. Mientras está cerrada la página no hace scroll. Con "menos movimiento" ya
  * aparece abierta; en el gestor se ve abierta, salvo en "Ver como invitado". Sirve en
@@ -65,14 +68,52 @@ const FLAG_COLORS = [
   'var(--color-nopal, var(--color-primary))',
   'var(--color-rojo, var(--color-accent))',
 ]
-const ROWS = 3
-// 10: en el celular se ven 5 por hilera; en escritorio, las 10.
-const FLAGS_PER_ROW = 10
-const rows = computed(() =>
-  Array.from({ length: ROWS }, (_, r) =>
-    Array.from({ length: FLAGS_PER_ROW }, (_, j) => FLAG_COLORS[(r * 3 + j * 2) % FLAG_COLORS.length]),
-  ),
-)
+/*
+ * El papel picado gigante que tapa la portada: una hoja vertical (celular) y una apaisada
+ * (escritorio). Van en línea, como máscara, para poder calar en ellas las iniciales con la
+ * letra del tema: el dibujo en blanco se ve, y las letras en negro son huecos de la hoja.
+ */
+interface Sheet {
+  kind: 'tall' | 'wide'
+  width: number
+  height: number
+  d: string
+  cx: number
+  cy: number
+  r: number
+}
+function parseSheet(kind: Sheet['kind'], raw: string): Sheet {
+  const num = (re: RegExp) => Number(re.exec(raw)?.[1] ?? 0)
+  const box = /viewBox="0 0 ([\d.]+) ([\d.]+)"/.exec(raw)
+  return {
+    kind,
+    width: Number(box?.[1] ?? 320),
+    height: Number(box?.[2] ?? 400),
+    d: / d="([^"]+)"/.exec(raw)?.[1] ?? '',
+    cx: num(/data-cx="([\d.]+)"/),
+    cy: num(/data-cy="([\d.]+)"/),
+    r: num(/data-r="([\d.]+)"/),
+  }
+}
+const sheets = [parseSheet('tall', sheetTallSvg), parseSheet('wide', sheetWideSvg)]
+const maskId = useId()
+
+/*
+ * Las iniciales caladas al centro de la hoja: las de la portada (`iniciales`), o las del
+ * monograma de la invitación, o las que salen del nombre. "NO" deja el corazón.
+ */
+const initialsOff = computed(() => props.section.initials?.trim().toUpperCase() === 'NO')
+const monogram = useMonogram(() => (initialsOff.value ? undefined : props.section.initials))
+const initials = computed(() => {
+  if (initialsOff.value) return ''
+  const chars = monogram.value
+  return chars.length === 2 ? `${chars[0]}&${chars[1]}` : chars.join('')
+})
+// La letra se ajusta para que las iniciales quepan en el disco del centro.
+function initialsSize(sheet: Sheet): number {
+  const glyphs = Math.max(1, Array.from(initials.value).length)
+  return Math.min(sheet.r * 1.25, (sheet.r * 2 * 0.86) / (glyphs * 0.72))
+}
 // 14: en el celular se ven 7; en escritorio, las 14.
 const bunting = Array.from({ length: 14 }, (_, j) => ({ color: FLAG_COLORS[j % FLAG_COLORS.length], j }))
 // Más flores y cactus que solo se ven en escritorio (la escena se abre a lo ancho).
@@ -126,7 +167,7 @@ function open() {
   }
   celebration?.celebrate('stars')
   phase.value = 'opening'
-  // por si animationend no llega (las tres hileras tardan ~2.4 s a velocidad 1)
+  // por si animationend no llega (la hoja tarda ~1.5 s a velocidad 1)
   timer = setTimeout(() => (phase.value = 'open'), 2800 * motionScale())
 }
 function onLiftEnd(e: AnimationEvent) {
@@ -203,25 +244,50 @@ onBeforeUnmount(() => clearTimeout(timer))
           </div>
         </div>
 
-        <!-- Cerrada: las tres hileras de papel picado que la tapan. -->
+        <!-- Cerrada: un solo papel picado gigante que la tapa por completo. -->
         <template v-if="phase !== 'open'">
-          <div
-            v-for="(row, r) in rows"
-            :key="r"
-            class="pp-hero__row"
-            :class="`pp-hero__row--${r}`"
-            :style="{ '--r': r }"
-            :data-last="r === rows.length - 1 ? 'true' : undefined"
+          <svg
+            v-for="sheet in sheets"
+            :key="sheet.kind"
+            class="pp-hero__sheet"
+            :class="`pp-hero__sheet--${sheet.kind}`"
+            :viewBox="`0 0 ${sheet.width} ${sheet.height}`"
+            preserveAspectRatio="none"
+            data-last="true"
+            aria-hidden="true"
             @animationend="onLiftEnd"
           >
-            <span
-              v-for="(color, j) in row"
-              :key="j"
-              class="pp-hero__flag"
-              :class="{ 'pp-hero__wide': j >= 5 }"
-              :style="{ '--flag': color, '--j': j }"
+            <mask
+              :id="`${maskId}-${sheet.kind}`"
+              maskUnits="userSpaceOnUse"
+              x="0"
+              y="0"
+              :width="sheet.width"
+              :height="sheet.height"
+            >
+              <path fill="#fff" fill-rule="evenodd" :d="sheet.d" />
+              <!-- Con iniciales: el corazón se tapa con papel y las letras quedan caladas. -->
+              <template v-if="initials">
+                <circle :cx="sheet.cx" :cy="sheet.cy" :r="sheet.r" fill="#fff" />
+                <text
+                  class="pp-hero__initials"
+                  :x="sheet.cx"
+                  :y="sheet.cy + initialsSize(sheet) * 0.36"
+                  :font-size="initialsSize(sheet)"
+                  text-anchor="middle"
+                  fill="#000"
+                >
+                  {{ initials }}
+                </text>
+              </template>
+            </mask>
+            <rect
+              class="pp-hero__paper"
+              :width="sheet.width"
+              :height="sheet.height"
+              :mask="`url(#${maskId}-${sheet.kind})`"
             />
-          </div>
+          </svg>
           <p v-if="family" class="pp-hero__plate" data-text="to">{{ family }}</p>
         </template>
       </div>
@@ -264,7 +330,7 @@ onBeforeUnmount(() => clearTimeout(timer))
   cursor: pointer;
 }
 
-/* El marco: la escena y las hileras viven aquí; la perspectiva nace en cada hilera. */
+/* El marco: la escena y el papel picado gigante viven aquí. */
 .pp-hero__frame {
   position: relative;
   width: 100%;
@@ -473,54 +539,41 @@ onBeforeUnmount(() => clearTimeout(timer))
   animation-delay: calc(var(--j) * -0.7s * var(--motion-scale));
 }
 
-/* Las tres hileras de papel picado que tapan la escena. */
-.pp-hero__row {
+/*
+ * El papel picado gigante: una sola hoja del tamaño de la portada, calada, que la tapa por
+ * completo. Por los calados se asoma el collage. Cuelga de arriba y se mece apenas.
+ */
+.pp-hero__sheet {
   position: absolute;
-  left: -10%;
+  inset: 0;
   z-index: 3;
-  display: flex;
-  width: 150%;
-  top: calc(var(--r) * 33%);
-  perspective: 700px;
-  perspective-origin: 50% 0;
-  will-change: transform, opacity;
-}
-.pp-hero__row--1 {
-  left: -25%;
-}
-/* El hilo del que cuelgan. */
-.pp-hero__row::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: 2px;
-  background: var(--color-tinta, var(--color-text));
-  opacity: 0.6;
-}
-.pp-hero__flag {
-  flex: 0 0 20%;
-  aspect-ratio: 4 / 5;
-  background: var(--flag);
-  -webkit-mask: var(--pp-flag) center / 100% 100% no-repeat;
-  mask: var(--pp-flag) center / 100% 100% no-repeat;
+  width: 100%;
+  height: 100%;
   transform-origin: 50% 0;
-  will-change: transform;
+  will-change: transform, opacity;
+  animation: pp-sheet-sway calc(5s * var(--motion-scale)) ease-in-out infinite alternate;
 }
-/* Cada hilera arranca medio segundo después de la anterior; cada bandera, un poco después de su vecina. */
-.pp-hero--opening .pp-hero__row {
-  animation: pp-lift calc(1s * var(--motion-scale)) cubic-bezier(0.5, 0, 0.75, 0.4) both;
-  animation-delay: calc(var(--r) * 0.5s * var(--motion-scale));
+.pp-hero__sheet--wide {
+  display: none;
 }
-.pp-hero--opening .pp-hero__flag {
-  animation: pp-flip calc(0.8s * var(--motion-scale)) cubic-bezier(0.4, 0, 0.6, 1) both;
-  animation-delay: calc((var(--r) * 0.5s + var(--j) * 0.07s) * var(--motion-scale));
+.pp-hero__paper {
+  fill: var(--pp-sheet-color, var(--color-rosa, var(--color-accent)));
+}
+/* Las iniciales son un hueco más de la hoja: por ellas se ve el collage. */
+.pp-hero__initials {
+  font-family: var(--pp-initials-font, var(--font-display));
+  font-weight: 700;
+}
+/* Al tocar: la hoja se levanta desde su hilo, como si la alzara el aire, y se desvanece. */
+.pp-hero--opening .pp-hero__sheet {
+  animation: pp-lift calc(1.5s * var(--motion-scale)) cubic-bezier(0.5, 0, 0.75, 0.4) both;
 }
 
-/* Placa con el nombre de la familia, sobre la hilera de en medio. */
+/* Placa con el nombre de la familia, bajo el sol de la hoja (el centro es de las iniciales). */
 .pp-hero__plate {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 84%;
   z-index: 4;
   max-width: 70%;
   margin: 0;
@@ -588,14 +641,24 @@ onBeforeUnmount(() => clearTimeout(timer))
   }
 }
 @keyframes pp-lift {
+  from {
+    transform: perspective(900px) rotateX(0deg) translateY(0);
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
   to {
-    transform: translateY(-70%);
+    transform: perspective(900px) rotateX(-78deg) translateY(-35%);
     opacity: 0;
   }
 }
-@keyframes pp-flip {
+@keyframes pp-sheet-sway {
+  from {
+    transform: perspective(900px) rotateX(-1.2deg);
+  }
   to {
-    transform: rotateX(-100deg);
+    transform: perspective(900px) rotateX(1.2deg);
   }
 }
 @keyframes pp-plate-off {
@@ -626,8 +689,11 @@ onBeforeUnmount(() => clearTimeout(timer))
   .pp-hero__frame .pp-hero__wide {
     display: block;
   }
-  .pp-hero__flag {
-    flex-basis: 10%;
+  .pp-hero__sheet--tall {
+    display: none;
+  }
+  .pp-hero__sheet--wide {
+    display: block;
   }
   .pp-hero__lace {
     width: auto;
@@ -728,6 +794,7 @@ onBeforeUnmount(() => clearTimeout(timer))
 }
 @media (prefers-reduced-motion: reduce) {
   .pp-hero__swing,
+  .pp-hero__sheet,
   .pp-hero__tap-icon {
     animation: none;
   }

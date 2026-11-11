@@ -96,22 +96,24 @@ describe('diseños de la fiesta (variantes A)', () => {
     expect(sectionVariants.closing.serenata).toBeTypeOf('function')
   })
 
-  it('portada: cerrada tapa la escena con tres hileras y al tocar empieza a abrir', async () => {
+  it('portada: cerrada la tapa un solo papel picado gigante y al tocar empieza a abrir', async () => {
     reduceMotion(false)
     const w = render(HeroPapelPicado, section({ type: 'hero-envelope', button: 'Toca para abrir' }))
     expect(w.find('.pp-hero').classes()).toContain('pp-hero--closed')
-    expect(w.findAll('.pp-hero__row')).toHaveLength(3)
+    // una hoja vertical y una apaisada (CSS muestra una), con las iniciales caladas
+    expect(w.findAll('.pp-hero__sheet')).toHaveLength(2)
+    expect(w.find('.pp-hero__initials').text()).toBe('M&D')
     expect(w.find('.pp-hero__name').text()).toBe('Mariana y Diego')
     expect(w.find('.pp-hero__date').text()).toContain('octubre')
     await w.find('.pp-hero__tap').trigger('click')
     expect(w.find('.pp-hero').classes()).toContain('pp-hero--opening')
   })
 
-  it('portada: con menos movimiento llega abierta, sin hileras', () => {
+  it('portada: con menos movimiento llega abierta, sin el papel picado', () => {
     reduceMotion(true)
     const w = render(HeroPapelPicado, section({ type: 'hero-envelope' }))
     expect(w.find('.pp-hero').classes()).toContain('pp-hero--open')
-    expect(w.find('.pp-hero__row').exists()).toBe(false)
+    expect(w.find('.pp-hero__sheet').exists()).toBe(false)
     expect(w.find('.pp-hero__tap').exists()).toBe(false)
   })
 

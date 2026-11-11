@@ -222,6 +222,15 @@ class InvitationConfigBuilderTest extends TestCase
         );
     }
 
+    public function test_cover_initials_travel_only_when_written(): void
+    {
+        $off = $this->build($this->minimal([new DesignSection('portada', [])]));
+        $on = $this->build($this->minimal([new DesignSection('portada', ['iniciales' => ' M D '])]));
+
+        $this->assertArrayNotHasKey('initials', $off->config['sections'][0]);
+        $this->assertSame('M D', $on->config['sections'][0]['initials']);
+    }
+
     public function test_live_itinerary_is_only_flagged_when_asked(): void
     {
         $off = $this->build($this->minimal([new DesignSection('itinerario', [], [['hora' => '17:00', 'actividad' => 'Misa']])]));

@@ -555,7 +555,7 @@ Diseños de sección nuevos (`variante`; sirven en cualquier tema):
 
 | Sección | `variante` | Diseño |
 |---|---|---|
-| `portada` | `papel-picado` | Collage de carpeta de encaje, flores, cactus y azulejos tapado por papel picado; al tocar, las banderas se levantan y arranca la música |
+| `portada` | `papel-picado` | Collage de carpeta de encaje, flores, cactus y azulejos tapado por un solo papel picado gigante (hoja vertical en celular, apaisada en escritorio) con las iniciales caladas al centro; al tocar, la hoja se levanta y arranca la música. Campo `iniciales` de la portada: vacío usa las del monograma (`evento,,monograma`) o las del nombre corto; con texto, cala ese texto (hasta 8 caracteres); `NO` deja el corazón |
 | `musica` | `mariachi` | Trío de mariachis en acuarela que toca al sonar |
 | `bendicion` | `retablo` | Nicho de hojalata con el corazón sagrado y los papás dentro |
 | `fecha` | `loteria` | Carta de lotería que se voltea (el número es el día) |

@@ -532,6 +532,10 @@ final class InvitationConfigBuilder
         if ($kind === 'dedicatoria' && Normalizer::yes($f['muro'] ?? 'NO')) {
             $entry['wall'] = true;
         }
+        // Portada de papel picado: las iniciales caladas en la hoja ("NO" las quita; vacío, las del monograma).
+        if ($kind === 'portada' && trim($f['iniciales'] ?? '') !== '') {
+            $entry['initials'] = mb_substr(trim($f['iniciales']), 0, 8);
+        }
         // Itinerario en vivo: el día del evento resalta el momento actual (lo calcula la web).
         if ($kind === 'itinerario' && Normalizer::yes($f['en_vivo'] ?? '')) {
             $entry['live'] = true;

@@ -633,3 +633,4 @@ Rama `feature/tema-fiesta`, desde `main`. Sin unir, sin push y sin `fly deploy`.
 - **Plantilla:** `deploy/plantillas/fiesta/invitacion.csv` (en `deploy/plantillas/README.md`).
 - **Fallo conocido, ajeno al tema:** `DesignFormatTest::a personal link works and guests can confirm` (`api/tests/Feature/DesignFormatTest.php`, cerca de las líneas 52 y 83) falla desde el 10-nov-2026 porque su fecha límite fija es 2026-11-10.
 - **Pendiente:** decidir las preguntas 71 a 74 de `08-decisiones-pendientes.md` (nombre del tema y de la pareja, ilustraciones, música completa y mariachis).
+- **Mismo día, después del deploy v41:** la portada se tapa con un solo papel picado gigante con las iniciales caladas (campo `iniciales` en la portada, parametrizable; `NO` deja el corazón) y la bandera de las 6:30 del itinerario pasó de cobalto a amarillo para no perderse sobre el panel azul.

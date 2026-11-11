@@ -44,7 +44,7 @@ const { fill, active } = useTimelineProgress(
 const FLAGS = [
   { bg: 'var(--color-rosa, var(--color-accent))', fg: 'var(--color-paper, #fbf3e2)' },
   { bg: 'var(--color-cempasuchil, var(--color-accent))', fg: 'var(--color-tinta, #3a2420)' },
-  { bg: 'var(--color-talavera, var(--color-primary))', fg: 'var(--color-paper, #fbf3e2)' },
+  { bg: 'var(--color-amarillo, var(--color-primary-soft))', fg: 'var(--color-tinta, #3a2420)' },
   { bg: 'var(--color-nopal, var(--color-primary-strong))', fg: 'var(--color-paper, #fbf3e2)' },
   { bg: 'var(--color-rojo, var(--color-accent))', fg: 'var(--color-paper, #fbf3e2)' },
   { bg: 'var(--color-turquesa, var(--color-primary))', fg: 'var(--color-tinta, #3a2420)' },
