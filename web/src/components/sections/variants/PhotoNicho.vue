@@ -11,7 +11,8 @@ import type { ResolvedSection } from '@/types/event'
  * (la imagen del marco va encima y su hueco es transparente), con gerberas y cempasúchil
  * abrazando las esquinas de abajo y una monarca posada arriba. El título y el texto van
  * debajo. Con "parallax", la foto se mueve un poco más lento que el marco. Sirve en cualquier
- * tema: cada dibujo es una ranura de adorno.
+ * tema: cada dibujo es una ranura de adorno. La foto no es de carga diferida (`lazy`): con
+ * ella, el hueco del marco podía quedar gris si la foto llegaba tarde al pasar de largo.
  */
 const props = defineProps<{ section: ResolvedSection }>()
 const { event, resolveAsset } = useEvent()
@@ -49,7 +50,6 @@ const offset = useParallax(
           :alt="alt"
           class="pn__photo"
           :style="{ transform: offset ? `translateY(${offset}px)` : undefined }"
-          loading="lazy"
           decoding="async"
         />
       </div>

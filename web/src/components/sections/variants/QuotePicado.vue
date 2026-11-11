@@ -92,7 +92,7 @@ const author = computed(() => (props.section.text ? (props.section.title ?? '') 
   margin: 0;
   font-family: var(--t-text-font, var(--font-display));
   font-weight: 400;
-  font-size: calc(clamp(1.6rem, 9.5cqi, 2.4rem) * var(--t-text-size, 1));
+  font-size: calc(clamp(1.6rem, 9.5cqi, 3.2rem) * var(--t-text-size, 1));
   letter-spacing: 0.06em;
   line-height: 1.2;
   text-transform: uppercase;
@@ -108,6 +108,18 @@ const author = computed(() => (props.section.text ? (props.section.title ?? '') 
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--t-title-color, var(--color-paper, #f6ecd9));
+}
+/* Escritorio (media fila o más): la bandera crece con su contenedor. */
+@container section (min-width: 30rem) {
+  .qp {
+    max-width: 34rem;
+  }
+  .qp__flag {
+    padding-block: 4.4rem 5.6rem;
+  }
+  .qp__author {
+    font-size: calc(1rem * var(--t-title-size, 1));
+  }
 }
 @keyframes qp-sway {
   from {

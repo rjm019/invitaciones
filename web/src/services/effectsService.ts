@@ -558,6 +558,7 @@ export const FABRIC_EFFECTS = [
   'music-notes',
   'sarape-drift',
   'tile-flip',
+  'mariachi-band',
 ] as const
 
 export interface LaceDoily {

@@ -147,11 +147,17 @@
   content: '';
   position: absolute;
   inset: 0.2rem;
-  z-index: 1;
+  /* Detrás del contenido (que va después en el árbol): nunca tapan textos ni botones. */
+  z-index: 0;
   background:
-    url('./assets/flores-esquina-tl.svg') top left / 5rem no-repeat,
-    url('./assets/flores-esquina-br.svg') bottom right / 5rem no-repeat;
+    url('./assets/flores-esquina-tl.svg') top left / var(--corner-size, 5rem) no-repeat,
+    url('./assets/flores-esquina-br.svg') bottom right / var(--corner-size, 5rem) no-repeat;
   pointer-events: none;
+}
+@media (max-width: 40rem) {
+  .invitation[data-corners='flowers'] .section--panel::before {
+    --corner-size: 3.4rem;
+  }
 }
 
 /*
@@ -223,10 +229,20 @@
     radial-gradient(120% 85% at 50% 40%, rgb(255 255 255 / 0.22), transparent 72%),
     var(--section-bg-color, var(--color-cotton, #f5f0e6));
 }
+/* El amate se apaga con un velo del mismo color del fondo: poco sobre el crema y casi todo sobre
+   los paneles de color (ahí la fibra apenas se nota). */
+.invitation[data-texture='amate'] :is(.section--bg-rosa, .section--bg-talavera, .section--bg-nopal) {
+  --amate-veil: 93%;
+}
 .invitation[data-texture='amate'] :is(.section--panel, .section__fill) {
+  --amate-bg: var(--section-bg-color, var(--color-paper, #f6ecd9));
   background:
+    linear-gradient(
+      color-mix(in srgb, var(--amate-bg) var(--amate-veil, 35%), transparent),
+      color-mix(in srgb, var(--amate-bg) var(--amate-veil, 35%), transparent)
+    ),
     url('./assets/textura-amate.svg') 0 0 / 240px,
-    var(--section-bg-color, var(--color-paper, #f6ecd9));
+    var(--amate-bg);
 }
 
 /*

@@ -175,6 +175,24 @@ const flower = computed(() =>
     font-size: calc(clamp(1.6rem, 6cqi, 2.4rem) * var(--t-digits-size, 1));
   }
 }
+/* Pantalla ancha: los azulejos crecen para llenar la fila. */
+@container (min-width: 56rem) {
+  .ct__board {
+    width: min(100cqi, 52rem);
+  }
+  .ct__grid {
+    gap: 1.6rem;
+  }
+  .ct__number {
+    font-size: calc(4rem * var(--t-digits-size, 1));
+  }
+  .ct__label {
+    font-size: calc(1rem * var(--t-units-size, 1));
+  }
+  .ct__flower {
+    width: 3rem;
+  }
+}
 .ct__today,
 .ct__text {
   max-width: 26rem;

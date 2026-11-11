@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import MariachiBand from '@/components/ui/MariachiBand.vue'
 import FxText from '@/components/ui/FxText.vue'
 import { useEvent } from '@/composables/useEvent'
 import { useInView } from '@/composables/useInView'
@@ -8,13 +9,11 @@ import { useMusic } from '@/composables/useMusic'
 import { formatTime } from '@/services/audioService'
 import { spotifyEmbed as spotifyEmbedFor } from '@/services/spotifyService'
 import type { ResolvedSection } from '@/types/event'
-// El trío va en línea (no como imagen) para poder mecer a cada músico y hacer vibrar su instrumento.
-import mariachisSvg from '@/themes/_shared/assets/mariachis.svg?raw'
 
 /**
- * Música de mariachi (`mariachi`): el trío en acuarela. Al sonar, cada músico se mece
- * (desfasados entre sí), los instrumentos vibran apenas y suben notas; en pausa todo queda
- * quieto. Debajo, la canción y un botón redondo de play/pausa con una barra de avance. Es la
+ * Música de mariachi (`mariachi`): el trío en acuarela (`MariachiBand`). Al sonar, tocan:
+ * cada músico se mece, rasguea, abre y cierra el fuelle y echa notas desde su instrumento; en
+ * pausa todo queda quieto. En escritorio el trío crece. Debajo, la canción y un botón redondo de play/pausa con una barra de avance. Es la
  * misma canción que inicia la portada. Con la música en Spotify, el reproductor de Spotify
  * está presente (es el que suena) pero no se ve; en su lugar, un enlace a la lista.
  * Solo transform y opacity; con "menos movimiento" no hay mecido ni notas.
@@ -30,7 +29,6 @@ const title = computed(() => props.section.title ?? 'Nuestra canción')
 const progress = computed(() =>
   state.value?.duration ? Math.min(1, state.value.current / state.value.duration) : 0,
 )
-const NOTES = ['♪', '♫', '♪', '♬', '♫', '♪']
 
 const root = ref<HTMLElement | null>(null)
 const inView = useInView(root, { once: false, threshold: 0, rootMargin: '0px' })
@@ -52,16 +50,7 @@ onMounted(() => {
 <template>
   <div ref="root" class="mm" :class="{ 'is-playing': playing, 'is-off': !available }">
     <div class="mm__stage">
-      <!-- eslint-disable-next-line vue/no-v-html -->
-      <div class="mm__art" aria-hidden="true" v-html="mariachisSvg" />
-      <span
-        v-for="(note, i) in NOTES"
-        :key="i"
-        class="mm__note"
-        :style="{ '--n': i }"
-        aria-hidden="true"
-        >{{ note }}</span
-      >
+      <MariachiBand :playing="playing" />
     </div>
 
     <h2 class="mm__title" data-text="title"><FxText :text="title" :effects="section.effects" /></h2>
@@ -92,7 +81,7 @@ onMounted(() => {
     <p v-if="state?.error" class="mm__error" role="status">{{ state.error }}</p>
 
     <a v-if="spotifyLink" :href="spotifyLink" class="mm__link" target="_blank" rel="noopener">
-      Escuchar la lista completa
+      {{ spotifyLink.includes('/track/') ? 'Escuchar en Spotify' : 'Escuchar la lista completa' }}
     </a>
     <div v-if="hostsSpotify" ref="spotifyHost" class="mm__spotify-host" aria-hidden="true" />
   </div>
@@ -113,55 +102,6 @@ onMounted(() => {
   position: relative;
   width: 100%;
 }
-.mm__art {
-  width: 100%;
-}
-.mm__art :deep(svg) {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-/* Quietos por defecto; solo se mueven mientras suena. */
-.mm__art :deep([id^='musico-']) {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-}
-.mm__art :deep(.instrumento) {
-  transform-box: fill-box;
-  transform-origin: 50% 50%;
-}
-.is-playing .mm__art :deep(#musico-1) {
-  animation: mm-sway calc(2.4s * var(--motion-scale)) ease-in-out infinite alternate;
-}
-.is-playing .mm__art :deep(#musico-2) {
-  animation: mm-sway calc(2.4s * var(--motion-scale)) ease-in-out infinite alternate;
-  animation-delay: calc(-0.8s * var(--motion-scale));
-}
-.is-playing .mm__art :deep(#musico-3) {
-  animation: mm-sway calc(2.4s * var(--motion-scale)) ease-in-out infinite alternate;
-  animation-delay: calc(-1.6s * var(--motion-scale));
-}
-.is-playing .mm__art :deep(.instrumento) {
-  animation: mm-shake calc(0.22s * var(--motion-scale)) ease-in-out infinite alternate;
-}
-
-/* Las notas suben desde el trío mientras suena. */
-.mm__note {
-  position: absolute;
-  bottom: 38%;
-  left: calc(14% + var(--n) * 13%);
-  font-size: 1.5rem;
-  line-height: 1;
-  color: var(--t-title-color, var(--color-rosa, var(--color-accent)));
-  opacity: 0;
-  pointer-events: none;
-}
-.is-playing .mm__note {
-  animation: mm-note calc(3s * var(--motion-scale)) ease-out infinite;
-  animation-delay: calc(var(--n) * 0.5s * var(--motion-scale));
-}
-
 .mm__title {
   margin: 0;
   font-family: var(--t-title-font, var(--font-script));
@@ -250,42 +190,18 @@ onMounted(() => {
   clip-path: inset(50%);
 }
 
-@keyframes mm-sway {
-  from {
-    transform: rotate(-2deg);
+/* Escritorio: el trío, el título y el reproductor crecen con la fila completa. */
+@container section (min-width: 56rem) {
+  .mm {
+    max-width: 44rem;
+    gap: 1.1rem;
   }
-  to {
-    transform: rotate(2deg);
+  .mm__title {
+    font-size: calc(clamp(2.8rem, 6cqi, 4rem) * var(--t-title-size, 1));
   }
-}
-@keyframes mm-shake {
-  from {
-    transform: rotate(-1.2deg);
-  }
-  to {
-    transform: rotate(1.2deg);
-  }
-}
-@keyframes mm-note {
-  0% {
-    opacity: 0;
-    transform: translate(0, 0) scale(0.8);
-  }
-  15% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translate(0.8rem, -6rem) scale(1.1);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .is-playing .mm__art :deep(#musico-1),
-  .is-playing .mm__art :deep(#musico-2),
-  .is-playing .mm__art :deep(#musico-3),
-  .is-playing .mm__art :deep(.instrumento),
-  .is-playing .mm__note {
-    animation: none;
+  .mm__play {
+    width: 4.4rem;
+    font-size: 1.6rem;
   }
 }
 </style>

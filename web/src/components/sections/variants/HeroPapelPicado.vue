@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
+import handSvg from '@fortawesome/fontawesome-free/svgs/solid/hand-pointer.svg?raw'
 import { useCelebration } from '@/composables/useCelebration'
 import { useEvent } from '@/composables/useEvent'
 import { useInvitation } from '@/composables/useInvitation'
@@ -46,9 +47,10 @@ const flagMask = computed(() => resolveAsset.value('papel-picado.svg'))
 // La cenefa: los cuatro azulejos en fila (o el que ponga la ranura, repetido).
 const tiles = computed(() => {
   const own = decorOr(decor.value, 'tile', null)
-  if (own) return Array.from({ length: 8 }, () => own)
+  if (own) return Array.from({ length: 16 }, () => own)
   if ('tile' in decor.value) return []
-  return Array.from({ length: 8 }, (_, i) =>
+  // 16: en el celular se ven 8; en escritorio, la cenefa llena todo el ancho.
+  return Array.from({ length: 16 }, (_, i) =>
     resolveAsset.value(`azulejo-${(i % 4) + 1}.svg`),
   ).filter((t): t is string => !!t)
 })
@@ -64,13 +66,21 @@ const FLAG_COLORS = [
   'var(--color-rojo, var(--color-accent))',
 ]
 const ROWS = 3
-const FLAGS_PER_ROW = 5
+// 10: en el celular se ven 5 por hilera; en escritorio, las 10.
+const FLAGS_PER_ROW = 10
 const rows = computed(() =>
   Array.from({ length: ROWS }, (_, r) =>
     Array.from({ length: FLAGS_PER_ROW }, (_, j) => FLAG_COLORS[(r * 3 + j * 2) % FLAG_COLORS.length]),
   ),
 )
-const bunting = FLAG_COLORS.map((color, j) => ({ color, j }))
+// 14: en el celular se ven 7; en escritorio, las 14.
+const bunting = Array.from({ length: 14 }, (_, j) => ({ color: FLAG_COLORS[j % FLAG_COLORS.length], j }))
+// Más flores y cactus que solo se ven en escritorio (la escena se abre a lo ancho).
+const extras = computed(() =>
+  [gerbera.value, marigold.value, gerberaRed.value, gerberaOrange.value, nopal.value, gerbera.value, marigold.value]
+    .map((src, k) => ({ src, k }))
+    .filter((e): e is { src: string; k: number } => !!e.src),
+)
 
 const phase = ref<'closed' | 'opening' | 'open'>(
   !reduced.value || !!preview.value ? (preview.value?.envelopeOpen ? 'open' : 'closed') : 'open',
@@ -147,6 +157,15 @@ onBeforeUnmount(() => clearTimeout(timer))
           <img v-if="marigold" :src="marigold" alt="" class="pp-hero__bloom pp-hero__bloom--e" style="--i: 4" />
           <img v-if="saguaro" :src="saguaro" alt="" class="pp-hero__bloom pp-hero__bloom--f" style="--i: 5" />
           <img v-if="nopal" :src="nopal" alt="" class="pp-hero__bloom pp-hero__bloom--g" style="--i: 6" />
+          <img
+            v-for="e in extras"
+            :key="`x${e.k}`"
+            :src="e.src"
+            alt=""
+            class="pp-hero__bloom pp-hero__extra"
+            :class="`pp-hero__extra--${e.k}`"
+            :style="{ '--i': 7 + e.k }"
+          />
 
           <div class="pp-hero__card">
             <p v-if="event.subtitle" class="pp-hero__subtitle" data-text="subtitle">
@@ -163,7 +182,13 @@ onBeforeUnmount(() => clearTimeout(timer))
           </div>
 
           <div v-if="tiles.length" class="pp-hero__tiles" aria-hidden="true">
-            <img v-for="(tile, i) in tiles" :key="i" :src="tile" alt="" />
+            <img
+              v-for="(tile, i) in tiles"
+              :key="i"
+              :src="tile"
+              alt=""
+              :class="{ 'pp-hero__wide': i >= 8 }"
+            />
           </div>
 
           <!-- Abierta: una sola hilera de banderas, meciéndose arriba. -->
@@ -172,6 +197,7 @@ onBeforeUnmount(() => clearTimeout(timer))
               v-for="flag in bunting"
               :key="flag.j"
               class="pp-hero__swing"
+              :class="{ 'pp-hero__wide': flag.j >= 7 }"
               :style="{ '--flag': flag.color, '--j': flag.j }"
             />
           </div>
@@ -192,6 +218,7 @@ onBeforeUnmount(() => clearTimeout(timer))
               v-for="(color, j) in row"
               :key="j"
               class="pp-hero__flag"
+              :class="{ 'pp-hero__wide': j >= 5 }"
               :style="{ '--flag': color, '--j': j }"
             />
           </div>
@@ -200,14 +227,13 @@ onBeforeUnmount(() => clearTimeout(timer))
       </div>
     </div>
 
-    <button
-      v-if="phase === 'closed'"
-      type="button"
-      class="pp-hero__call hero__open inv-btn"
-      data-text="button"
-      @click="open"
-    >
-      {{ section.button ?? 'Toca para abrir' }}
+    <!-- La señal de tocar es discreta: solo el texto bajo la escena, con una manita que late. -->
+    <button v-if="phase === 'closed'" type="button" class="pp-hero__tap" @click="open">
+      <!-- eslint-disable-next-line vue/no-v-html -->
+      <span class="pp-hero__tap-icon" aria-hidden="true" v-html="handSvg" />
+      <span class="pp-hero__tap-text" data-text="button">{{
+        section.button ?? 'Toca para abrir'
+      }}</span>
     </button>
   </div>
 </template>
@@ -395,6 +421,12 @@ onBeforeUnmount(() => clearTimeout(timer))
   color: var(--t-place-color, var(--color-tinta, var(--color-text)));
 }
 
+/* Piezas que solo existen en escritorio (la escena se abre a lo ancho). */
+.pp-hero__frame .pp-hero__extra,
+.pp-hero__frame .pp-hero__wide {
+  display: none;
+}
+
 /* La cenefa de azulejos al pie. */
 .pp-hero__tiles {
   position: absolute;
@@ -507,10 +539,54 @@ onBeforeUnmount(() => clearTimeout(timer))
   animation: pp-plate-off calc(0.3s * var(--motion-scale)) ease-in forwards;
 }
 
-.pp-hero__call {
+.pp-hero__tap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.8rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-paper, #fbf3e2);
   cursor: pointer;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.55);
+}
+.pp-hero__tap:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+.pp-hero__tap-icon {
+  display: block;
+  width: 1.3rem;
+  height: 1.3rem;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.5));
+  animation: pp-tap-pulse calc(2.4s * var(--motion-scale)) ease-in-out infinite;
+}
+.pp-hero__tap-icon :deep(svg) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+.pp-hero__tap-text {
+  font-family: var(--t-button-font, var(--font-caps));
+  font-size: calc(1.05rem * var(--t-button-size, 1));
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--t-button-color, var(--color-paper, #fbf3e2));
 }
 
+@keyframes pp-tap-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
 @keyframes pp-lift {
   to {
     transform: translateY(-70%);
@@ -535,8 +611,124 @@ onBeforeUnmount(() => clearTimeout(timer))
     transform: rotate(4deg);
   }
 }
+/*
+ * Escritorio: la escena crece (3:2, sin pasarse del alto de la ventana) y el collage se abre
+ * hacia los lados: más flores, cactus y azulejos, y el papel picado de lado a lado.
+ */
+@container section (min-width: 56rem) {
+  .pp-hero__stage {
+    width: min(100cqi, 76rem, calc((100svh - 2 * var(--section-gap) - 7rem) * 1.5));
+  }
+  .pp-hero__frame {
+    aspect-ratio: 3 / 2;
+  }
+  .pp-hero__frame .pp-hero__extra,
+  .pp-hero__frame .pp-hero__wide {
+    display: block;
+  }
+  .pp-hero__flag {
+    flex-basis: 10%;
+  }
+  .pp-hero__lace {
+    width: auto;
+    height: 106%;
+  }
+  .pp-hero__heart {
+    top: 3%;
+    width: 9%;
+  }
+  .pp-hero__card {
+    width: 34%;
+    min-height: 44%;
+  }
+  .pp-hero__bloom--a {
+    left: -2%;
+    top: 1%;
+    width: 15%;
+  }
+  .pp-hero__bloom--b {
+    right: -2%;
+    top: 2%;
+    width: 14%;
+  }
+  .pp-hero__bloom--c {
+    right: 0;
+    top: 38%;
+    width: 11%;
+  }
+  .pp-hero__bloom--d {
+    left: 0;
+    top: 36%;
+    width: 11%;
+  }
+  .pp-hero__bloom--e {
+    right: 11%;
+    bottom: 11%;
+    width: 9%;
+  }
+  .pp-hero__bloom--f {
+    left: 3%;
+    bottom: 11%;
+    width: 6.5%;
+  }
+  .pp-hero__bloom--g {
+    left: 11%;
+    bottom: 11%;
+    width: 6.5%;
+  }
+  .pp-hero__extra--0 {
+    left: 10%;
+    top: 12%;
+    width: 9%;
+    rotate: 20deg;
+  }
+  .pp-hero__extra--1 {
+    right: 9%;
+    top: 13%;
+    width: 9%;
+    rotate: -10deg;
+  }
+  .pp-hero__extra--2 {
+    left: -1%;
+    top: 58%;
+    width: 10%;
+    rotate: 8deg;
+  }
+  .pp-hero__extra--3 {
+    right: -1%;
+    top: 60%;
+    width: 10%;
+    rotate: -18deg;
+  }
+  .pp-hero__extra--4 {
+    right: 3%;
+    bottom: 11%;
+    width: 6.5%;
+    transform-origin: 50% 100%;
+  }
+  .pp-hero__extra--5 {
+    right: 20%;
+    bottom: 10%;
+    width: 7%;
+    rotate: 12deg;
+  }
+  .pp-hero__extra--6 {
+    left: 19%;
+    bottom: 10%;
+    width: 7%;
+    rotate: -12deg;
+  }
+  .pp-hero__tap-icon {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+  .pp-hero__tap-text {
+    font-size: calc(1.2rem * var(--t-button-size, 1));
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .pp-hero__swing {
+  .pp-hero__swing,
+  .pp-hero__tap-icon {
     animation: none;
   }
   .pp-hero__bloom,

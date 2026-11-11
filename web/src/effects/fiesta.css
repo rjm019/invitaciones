@@ -106,12 +106,26 @@
  */
 .fab-bloom {
   position: absolute;
+  width: calc(var(--fab-size, 3rem) * var(--fab-k, 1));
+  height: calc(var(--fab-size, 3rem) * var(--fab-k, 1));
   background: center / contain no-repeat;
   scale: 0;
   rotate: -40deg;
 }
+.fab-bloom--tl {
+  left: calc(var(--fab-x, 0rem) * var(--fab-k, 1));
+  top: calc(var(--fab-y, 0rem) * var(--fab-k, 1));
+}
 .fab-bloom--br {
+  right: calc(var(--fab-x, 0rem) * var(--fab-k, 1));
+  bottom: calc(var(--fab-y, 0rem) * var(--fab-k, 1));
   transform-origin: 50% 50%;
+}
+/* En el celular (capa angosta) las flores se achican para dejar aire al texto. */
+@container (max-width: 34rem) {
+  .fab-bloom {
+    --fab-k: 0.62;
+  }
 }
 .fab.is-in .fab-bloom {
   animation:
@@ -270,6 +284,20 @@
 }
 .fx-tile-flip > .section__content {
   padding-top: 3.2rem;
+}
+
+/*
+ * mariachis (mariachi-band): el trío chico (7 rem de alto) al pie, centrado, tocando. La
+ * sección reserva el espacio de abajo para que no tape nada.
+ */
+.fab-band {
+  position: absolute;
+  bottom: 0.8rem;
+  left: 50%;
+  translate: -50% 0;
+}
+.fx-mariachi-band > .section__content {
+  padding-bottom: 8.6rem;
 }
 
 @media (prefers-reduced-motion: reduce) {

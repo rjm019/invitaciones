@@ -246,6 +246,17 @@ describe('SectionShell: efectos de fiesta mexicana', () => {
   })
 })
 
+describe('SectionShell: mariachis tocando', () => {
+  it('pinta el trío chico, tocando y con notas que salen de sus instrumentos', () => {
+    const wrapper = render({ effects: ['mariachi-band'] })
+    expect(wrapper.findAll('.ambience.fab')).toHaveLength(1)
+    expect(wrapper.find('.mb').classes()).toEqual(expect.arrayContaining(['mb--sm', 'is-playing']))
+    expect(wrapper.findAll('.musico')).toHaveLength(3)
+    expect(wrapper.findAll('.mb__note')).toHaveLength(9)
+    expect(wrapper.find('section').classes()).toContain('fx-mariachi-band')
+  })
+})
+
 describe('SectionShell: silueta y filete de la tarjeta', () => {
   it('marca la silueta y el filete de la sección para que el CSS los pinte', () => {
     const section = render({ silhouette: 'notch', fillet: 'burgundy' }).find('section')

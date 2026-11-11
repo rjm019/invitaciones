@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import MariachiBand from '@/components/ui/MariachiBand.vue'
 import doilyUrl from '@/themes/_shared/assets/encaje.svg?url'
 import drapeUrl from '@/themes/_shared/assets/cortinaje.svg?url'
 import bunting from '@/themes/_shared/assets/papel-picado.svg?url'
@@ -55,6 +56,7 @@ import type { ResolvedSection } from '@/types/event'
  * - notas (music-notes): notas musicales que suben y se desvanecen.
  * - sarape (sarape-drift): una franja de sarape al pie que se desliza de lado.
  * - azulejos_voltean (tile-flip): una cenefa de azulejos que se voltean uno tras otro al entrar.
+ * - mariachis (mariachi-band): el trío de mariachis, chico, al pie, tocando con sus notas.
  * Solo se anima transform, opacity y las propiedades individuales translate/rotate/scale
  * (que no repintan); nada de blur ni sombras animadas. `entered` arranca las entradas.
  */
@@ -88,6 +90,7 @@ const blooms = computed(() => (has('bloom') ? bloomFlowers(seed.value) : []))
 const heart = computed(() => has('heartbeat'))
 const notes = computed(() => (has('music-notes') ? musicNotes(seed.value) : []))
 const sarape = computed(() => has('sarape-drift'))
+const band = computed(() => has('mariachi-band'))
 const tiles = computed(() => (has('tile-flip') ? flipTiles(seed.value) : []))
 const bloomArt = [gerberaPink, gerberaOrange, gerberaRed, gerberaPale, marigoldFlower]
 const tileArt = [tile1, tile2, tile3, tile4]
@@ -302,10 +305,9 @@ const tileArt = [tile1, tile2, tile3, tile4]
       :class="`fab-bloom--${b.corner}`"
       :style="{
         backgroundImage: `url('${bloomArt[b.kind]}')`,
-        [b.corner === 'tl' ? 'left' : 'right']: `${b.x}rem`,
-        [b.corner === 'tl' ? 'top' : 'bottom']: `${b.y}rem`,
-        width: `${b.size}rem`,
-        height: `${b.size}rem`,
+        '--fab-x': `${b.x}rem`,
+        '--fab-y': `${b.y}rem`,
+        '--fab-size': `${b.size}rem`,
         '--fab-sway': `${b.sway}deg`,
         '--fab-grow-delay': motionTime(b.delay),
         '--fab-sway-time': motionTime(b.duration),
@@ -354,5 +356,9 @@ const tileArt = [tile1, tile2, tile3, tile4]
         }"
       />
     </div>
+  </div>
+
+  <div v-if="band" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <div class="fab-band"><MariachiBand :playing="true" size="sm" /></div>
   </div>
 </template>

@@ -103,7 +103,7 @@ describe('diseños de la fiesta (variantes A)', () => {
     expect(w.findAll('.pp-hero__row')).toHaveLength(3)
     expect(w.find('.pp-hero__name').text()).toBe('Mariana y Diego')
     expect(w.find('.pp-hero__date').text()).toContain('octubre')
-    await w.find('.pp-hero__call').trigger('click')
+    await w.find('.pp-hero__tap').trigger('click')
     expect(w.find('.pp-hero').classes()).toContain('pp-hero--opening')
   })
 
@@ -112,13 +112,13 @@ describe('diseños de la fiesta (variantes A)', () => {
     const w = render(HeroPapelPicado, section({ type: 'hero-envelope' }))
     expect(w.find('.pp-hero').classes()).toContain('pp-hero--open')
     expect(w.find('.pp-hero__row').exists()).toBe(false)
-    expect(w.find('.pp-hero__call').exists()).toBe(false)
+    expect(w.find('.pp-hero__tap').exists()).toBe(false)
   })
 
   it('música: el trío va en línea con sus tres músicos y un botón de play con aria-pressed', () => {
     const w = render(MusicMariachi, section({ type: 'music-player', title: 'Dale play' }))
-    expect(w.find('#musico-1').exists()).toBe(true)
-    expect(w.find('#musico-3').exists()).toBe(true)
+    expect(w.find('.musico-1').exists()).toBe(true)
+    expect(w.find('.musico-3').exists()).toBe(true)
     const play = w.find('.mm__play')
     expect(play.attributes('aria-pressed')).toBe('false')
     expect(play.attributes('aria-label')).toBe('Reproducir la música')
@@ -209,6 +209,6 @@ describe('diseños de la fiesta (variantes A)', () => {
     const w = render(ClosingSerenade, section({ type: 'closing', title: 'Gracias' }))
     expect(w.find('.cn__title').text()).toBe('Gracias')
     expect(w.find('.cn__signature').text()).toBe('Mariana y Diego')
-    expect(w.find('#musico-3').exists()).toBe(true)
+    expect(w.find('.musico-3').exists()).toBe(true)
   })
 })

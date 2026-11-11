@@ -117,11 +117,13 @@ final class Catalog
         'notas' => ['effect' => 'music-notes', 'label' => 'Notas musicales', 'help' => 'Notas musicales que suben desde abajo y se desvanecen.'],
         'sarape' => ['effect' => 'sarape-drift', 'label' => 'Sarape que se desliza', 'help' => 'Una franja de sarape al pie de la sección se desliza despacio de lado.'],
         'azulejos_voltean' => ['effect' => 'tile-flip', 'label' => 'Azulejos que se voltean', 'help' => 'Una cenefa de azulejos en la orilla de arriba; al llegar, se voltean uno tras otro.'],
+        'mariachis' => ['effect' => 'mariachi-band', 'label' => 'Mariachis tocando', 'help' => 'Un trío de mariachis chico al pie de la sección: se mecen, rasguean y abren el acordeón, y las notas salen de sus instrumentos.'],
         'letterpress' => ['effect' => 'letterpress', 'label' => 'Prensa (letterpress)', 'help' => 'El título se imprime al llegar: baja apenas, como presionado contra el papel, y queda en bajorrelieve.'],
     ];
 
     /** Otros nombres de efectos que ya aceptaba el Excel. */
     public const EFFECT_ALIASES = [
+        'serenata' => 'mariachis',
         'cambio_color' => 'cambio_de_color',
         'colores' => 'cambio_de_color',
         'ciudad' => 'horizonte',

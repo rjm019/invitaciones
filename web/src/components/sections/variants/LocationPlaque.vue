@@ -74,7 +74,7 @@ const flower = computed(() =>
     </h2>
 
     <article v-for="(place, i) in places" :key="i" class="lp__place">
-      <div class="lp__top">
+      <div class="lp__top" :class="{ 'lp__top--timed': place.time }">
         <div class="lp__plaque">
           <img
             v-for="(tile, t) in tiles"
@@ -198,7 +198,10 @@ const flower = computed(() =>
 .lp__top {
   position: relative;
   width: 100%;
-  padding-bottom: 2.6rem;
+}
+/* La hora cuelga de la orilla de abajo de la placa, al centro: no tapa el nombre del lugar. */
+.lp__top--timed {
+  padding-bottom: 5.4rem;
 }
 
 /* La placa: crema, filo cobalto y un segundo filo por dentro; un azulejo en cada esquina. */
@@ -258,16 +261,18 @@ const flower = computed(() =>
   line-height: 1.2;
   color: var(--t-place-color, var(--lp-blue));
   overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 /* El corazón de encaje: borde de puntitos (festoneado) y la hora al centro. */
 .lp__heart {
   position: absolute;
-  right: 0.6rem;
+  left: 50%;
   bottom: 0;
   display: grid;
   place-items: center;
   width: 7rem;
+  translate: -50% 0;
   aspect-ratio: 100 / 92;
   rotate: 6deg;
   filter: drop-shadow(0 4px 5px rgb(0 0 0 / 0.3));

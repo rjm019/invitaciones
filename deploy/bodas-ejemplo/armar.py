@@ -600,7 +600,7 @@ FIESTA = [
     ('evento', 'rsvp_pedir_cancion', 'SI'),
     ('evento', 'rsvp_pedir_mensaje', 'SI'),
     ('evento', 'musica_fuente', 'spotify'),
-    ('evento', 'spotify', 'https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO'),
+    ('evento', 'spotify', 'https://open.spotify.com/track/6SeodOpA6CpoTwAkG73fwz'),
     ('evento', 'tarjeta_frase', 'Nuestra boda'),
     ('evento', 'tarjeta_texto', 'Para toda la vida'),
 

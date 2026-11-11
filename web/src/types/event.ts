@@ -65,6 +65,7 @@ export type EffectName =
   | 'music-notes'
   | 'sarape-drift'
   | 'tile-flip'
+  | 'mariachi-band'
 
 /** Forma de las orillas de una franja (sección difuminada con fondo). */
 export type EdgeStyle = 'fade' | 'torn' | 'city' | 'wave' | 'scallop' | 'straight' | 'lace' | 'picado'

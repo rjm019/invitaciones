@@ -44,6 +44,11 @@
   --panel-border: none;
 }
 
+/* Un poco más de aire arriba y abajo en cada panel: las flores de las esquinas no pisan el texto. */
+:root[data-theme='fiesta'] .section--panel {
+  padding-block: calc(var(--section-padding-block, var(--space-4)) + 0.8rem);
+}
+
 /* Las secciones sin panel van sobre el rosa de la página: letra crema. */
 :root[data-theme='fiesta'] .section--bare {
   --color-text: #f6ecd9;

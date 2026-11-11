@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import FxText from '@/components/ui/FxText.vue'
+import MariachiBand from '@/components/ui/MariachiBand.vue'
 import { useEvent } from '@/composables/useEvent'
 import { useInView } from '@/composables/useInView'
 import { decorOr } from '@/services/decorService'
-// El trío va en línea (no como imagen) para poder mecer a cada músico.
-import mariachisSvg from '@/themes/_shared/assets/mariachis.svg?raw'
 import type { ResolvedSection } from '@/types/event'
 
 /**
  * Cierre de serenata ("serenata"): arriba, una hilera de papel picado de colores; después el
- * título en letra caligráfica grande, el texto y la firma. Al pie, los mariachis (en línea, se
- * mecen despacio mientras la sección está a la vista), un saguaro y un nopal a los lados y una
+ * título en letra caligráfica grande, el texto y la firma. Al pie, los mariachis (`MariachiBand`,
+ * tocan con sus notas mientras la sección está a la vista), un saguaro y un nopal a los lados y una
  * franja de sarape de orilla a orilla. Con "menos movimiento" quedan quietos. Sirve en
  * cualquier tema.
  */
@@ -32,7 +31,8 @@ const vars = computed(() => {
   if (sarape.value) out['--cn-sarape'] = `url("${sarape.value.replace(/"/g, '%22')}")`
   return out
 })
-const FLAG_COLORS = ['rosa', 'cempasuchil', 'turquesa', 'amarillo', 'talavera', 'nopal']
+// Sin cobalto: en un panel de talavera la bandera se perdería en el fondo.
+const FLAG_COLORS = ['rosa', 'cempasuchil', 'turquesa', 'amarillo', 'rojo', 'nopal']
 const flags = Array.from({ length: 8 }, (_, i) => ({
   color: `var(--color-${FLAG_COLORS[i % FLAG_COLORS.length]}, var(--color-accent))`,
   delay: `${(i % 4) * -0.8}s`,
@@ -61,8 +61,7 @@ const inView = useInView(root, { once: false, threshold: 0, rootMargin: '0px' })
 
     <div class="cn__stage" aria-hidden="true">
       <img v-if="saguaro" :src="saguaro" alt="" class="cn__cactus cn__cactus--left" />
-      <!-- eslint-disable-next-line vue/no-v-html -->
-      <div class="cn__band" v-html="mariachisSvg" />
+      <div class="cn__band"><MariachiBand :playing="inView" /></div>
       <img v-if="nopal" :src="nopal" alt="" class="cn__cactus cn__cactus--right" />
     </div>
     <span v-if="sarape" class="cn__sarape" aria-hidden="true" />
@@ -153,27 +152,6 @@ const inView = useInView(root, { once: false, threshold: 0, rootMargin: '0px' })
   flex: 0 1 62%;
   min-width: 0;
 }
-.cn__band :deep(svg) {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-.cn__band :deep([id^='musico-']) {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-}
-.is-live .cn__band :deep(#musico-1) {
-  animation: cn-rock calc(3.6s * var(--motion-scale)) ease-in-out infinite alternate;
-}
-.is-live .cn__band :deep(#musico-2) {
-  animation: cn-rock calc(3.6s * var(--motion-scale)) ease-in-out infinite alternate;
-  animation-delay: calc(-1.2s * var(--motion-scale));
-}
-.is-live .cn__band :deep(#musico-3) {
-  animation: cn-rock calc(3.6s * var(--motion-scale)) ease-in-out infinite alternate;
-  animation-delay: calc(-2.4s * var(--motion-scale));
-}
 .cn__cactus {
   display: block;
   flex: 0 1 19%;
@@ -207,17 +185,38 @@ const inView = useInView(root, { once: false, threshold: 0, rootMargin: '0px' })
     transform: rotate(4deg);
   }
 }
-@keyframes cn-rock {
-  from {
-    transform: rotate(-1.6deg);
+/* Escritorio: la sección ocupa la fila completa; el trío, el título y los cactus crecen. */
+@container section (min-width: 56rem) {
+  .cn {
+    max-width: 62rem;
+    gap: 1.6rem;
   }
-  to {
-    transform: rotate(1.6deg);
+  .cn__title {
+    font-size: calc(clamp(4.5rem, 9cqi, 6.4rem) * var(--t-title-size, 1));
+  }
+  .cn__text {
+    max-width: 40ch;
+    font-size: calc(1.5rem * var(--t-text-size, 1));
+  }
+  .cn__signature {
+    font-size: calc(3rem * var(--t-signature-size, 1));
+  }
+  .cn__band {
+    flex-basis: 56%;
+  }
+  .cn__cactus {
+    flex-basis: 15%;
+    max-height: 17rem;
+  }
+  .cn__cactus--right {
+    max-height: 11rem;
+  }
+  .cn__sarape {
+    height: 2.4rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .is-live .cn__flag,
-  .is-live .cn__band :deep([id^='musico-']) {
+  .is-live .cn__flag {
     animation: none;
   }
 }

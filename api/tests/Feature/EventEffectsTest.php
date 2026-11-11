@@ -152,7 +152,7 @@ class EventEffectsTest extends TestCase
             'pagina,,esquinas,flores',
             'pagina,,textura,amate',
             'cuenta_regresiva,,visible,SI',
-            'cuenta_regresiva,,efectos,"banderines petalos_cempasuchil flores_brotan corazon_late notas sarape azulejos_voltean"',
+            'cuenta_regresiva,,efectos,"banderines petalos_cempasuchil flores_brotan corazon_late notas sarape azulejos_voltean mariachis"',
             'frase,,visible,SI',
             'frase,,efectos,"papel_picado cempasuchil"',
             'frase,,orilla,picado',
@@ -168,7 +168,7 @@ class EventEffectsTest extends TestCase
         $this->assertSame('amate', $event['page']['texture']);
         $sections = collect($event['sections']);
         $this->assertSame(
-            ['papel-picado', 'marigold', 'bloom', 'heartbeat', 'music-notes', 'sarape-drift', 'tile-flip'],
+            ['papel-picado', 'marigold', 'bloom', 'heartbeat', 'music-notes', 'sarape-drift', 'tile-flip', 'mariachi-band'],
             $sections->firstWhere('type', 'countdown')['effects'],
         );
         $this->assertSame(['papel-picado', 'marigold'], $sections->firstWhere('type', 'quote')['effects']);
