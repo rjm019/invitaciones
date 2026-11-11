@@ -200,6 +200,13 @@ final class Catalog
         'papel' => ['slot' => 'paper', 'label' => 'Papel del sobre central'],
         'iglesia' => ['slot' => 'church', 'label' => 'Dibujo de la iglesia'],
         'forro' => ['slot' => 'lining', 'label' => 'Damasco del forro del sobre'],
+        'corazon' => ['slot' => 'sacred_heart', 'label' => 'Corazón sagrado'],
+        'cempasuchil' => ['slot' => 'marigold', 'label' => 'Cempasúchil'],
+        'nopal' => ['slot' => 'nopal', 'label' => 'Nopal'],
+        'saguaro' => ['slot' => 'saguaro', 'label' => 'Cactus saguaro'],
+        'azulejo' => ['slot' => 'tile', 'label' => 'Azulejo de talavera'],
+        'hojalata' => ['slot' => 'tin', 'label' => 'Marco de hojalata'],
+        'monarca' => ['slot' => 'monarch', 'label' => 'Mariposa monarca'],
     ];
 
     /** División entre secciones (la orilla de las franjas): nombre en el CSV → código. */
@@ -462,16 +469,17 @@ final class Catalog
                     ['value' => 'encaje', 'label' => 'Sobre de encaje'],
                     ['value' => 'sobre-central', 'label' => 'Sobre que abre desde el centro hacia arriba'],
                     ['value' => 'sobre-lacre', 'label' => 'Sobre con lacre y tarjeta de papelería'],
+                    ['value' => 'papel-picado', 'label' => 'Collage tapado por papel picado'],
                 ]],
             ],
             'linked' => ['festejada_corto', 'festejada', 'subtitulo'],
-            'slots' => ['sobre', 'tarjeta', 'flores', 'corona', 'mariposas', 'lacre', 'puerta', 'estatua', 'paisaje', 'cortinaje', 'telon', 'pliegues', 'tela', 'alcatraz', 'papel', 'forro'],
+            'slots' => ['sobre', 'tarjeta', 'flores', 'corona', 'mariposas', 'lacre', 'puerta', 'estatua', 'paisaje', 'cortinaje', 'telon', 'pliegues', 'tela', 'alcatraz', 'papel', 'forro', 'encaje', 'cempasuchil', 'nopal', 'saguaro', 'corazon', 'azulejo'],
             'texts' => ['subtitulo' => 'Frase (mis xv años)', 'nombre' => ['block' => 'name', 'label' => 'Nombre grande'], 'lugar' => ['block' => 'place', 'label' => 'Salón y ciudad'], 'para' => ['block' => 'to', 'label' => 'Nombre en el sobre'], 'boton' => 'Texto para abrir', 'titulo' => 'Encabezado de la tarjeta («Con todo el corazón»)', 'texto' => 'Frase antes de la fecha', 'fecha' => ['block' => 'date', 'label' => 'Fecha'], 'rol' => ['block' => 'role', 'label' => 'Quiénes son (papás)'], 'nombres' => ['block' => 'names', 'label' => 'Nombres de los papás']],
         ],
         'musica' => [
             'type' => 'music-player', 'label' => 'Música', 'icon' => 'music',
             'description' => 'El reproductor con la canción que suena al abrir el sobre.',
-            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Dale play', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'controles-oro', 'label' => 'Controles dorados'], ['value' => 'vinilo', 'label' => 'Tocadiscos'], ['value' => 'lacre', 'label' => 'Lacre como botón de play']]]],
+            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Dale play', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'controles-oro', 'label' => 'Controles dorados'], ['value' => 'vinilo', 'label' => 'Tocadiscos'], ['value' => 'lacre', 'label' => 'Lacre como botón de play'], ['value' => 'mariachi', 'label' => 'Trío de mariachis']]]],
             'linked' => ['musica_fuente', 'musica_audio', 'musica_inicio', 'spotify'],
             'texts' => ['titulo' => 'Título'],
         ],
@@ -481,21 +489,21 @@ final class Catalog
             'fields' => [
                 ['key' => 'texto', 'label' => 'Mensaje', 'input' => 'textarea', 'placeholder' => 'Con la bendición de Dios…', 'max_length' => 600],
                 ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'help' => 'Vacío: la frase de la portada.', 'max_length' => 80],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'programa', 'label' => 'Programa de teatro'], ['value' => 'editorial', 'label' => 'Editorial (padrinos en columnas)']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'programa', 'label' => 'Programa de teatro'], ['value' => 'editorial', 'label' => 'Editorial (padrinos en columnas)'], ['value' => 'retablo', 'label' => 'Retablo de hojalata']]],
             ],
             'list' => ['key' => 'familia', 'label' => 'Familia', 'item_label' => 'Grupo', 'max' => 12, 'fields' => [
                 ['key' => 'rol', 'label' => 'Quiénes son', 'input' => 'text', 'placeholder' => 'Mis papás', 'required' => true, 'max_length' => 60],
                 ['key' => 'nombres', 'label' => 'Nombres (uno por línea)', 'input' => 'lines', 'required' => true, 'max_length' => 400],
             ]],
-            'slots' => ['arco', 'hojas', 'divisor', 'lazo'],
+            'slots' => ['arco', 'hojas', 'divisor', 'lazo', 'corazon', 'flores'],
             'texts' => ['texto' => 'Mensaje', 'subtitulo' => 'Subtítulo', 'rol' => ['block' => 'role', 'label' => 'Quiénes son'], 'nombres' => ['block' => 'names', 'label' => 'Nombres']],
         ],
         'fecha' => [
             'type' => 'save-the-date', 'label' => 'Fecha', 'icon' => 'calendar-days',
             'description' => 'La fecha grande, el calendario del mes y "Agregar a mi calendario".',
-            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Save the date', 'max_length' => 60], ['key' => 'texto', 'label' => 'Texto del talón (diseño Boleto)', 'input' => 'text', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'boleto', 'label' => 'Boleto de Broadway'], ['value' => 'calendario', 'label' => 'Calendario en un sobre'], ['value' => 'editorial', 'label' => 'Tarjeta editorial (número grande y filetes)']]]],
+            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Save the date', 'max_length' => 60], ['key' => 'texto', 'label' => 'Texto del talón (diseño Boleto)', 'input' => 'text', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'boleto', 'label' => 'Boleto de Broadway'], ['value' => 'calendario', 'label' => 'Calendario en un sobre'], ['value' => 'editorial', 'label' => 'Tarjeta editorial (número grande y filetes)'], ['value' => 'loteria', 'label' => 'Carta de lotería que se voltea']]]],
             'linked' => ['inicia', 'zona_horaria'],
-            'slots' => ['destellos'],
+            'slots' => ['destellos', 'corazon'],
             'texts' => ['titulo' => 'Título', 'texto' => 'Talón del boleto', 'fecha' => ['block' => 'date', 'label' => 'Fecha grande'], 'calendario' => ['block' => 'calendar', 'label' => 'Calendario']],
         ],
         'foto' => [
@@ -504,9 +512,9 @@ final class Catalog
             'fields' => [
                 ['key' => 'imagen', 'label' => 'Foto (de preferencia sin fondo)', 'input' => 'image'],
                 ['key' => 'titulo', 'label' => 'Iniciales o apodo', 'input' => 'text', 'help' => 'Va en la esquina de la foto.', 'max_length' => 20],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'ventana', 'label' => 'Ventana de rascacielos'], ['value' => 'camafeo', 'label' => 'Camafeo de encaje']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'ventana', 'label' => 'Ventana de rascacielos'], ['value' => 'camafeo', 'label' => 'Camafeo de encaje'], ['value' => 'nicho', 'label' => 'Nicho de hojalata con flores']]],
             ],
-            'slots' => ['marco', 'estrellas', 'mariposas', 'encaje'],
+            'slots' => ['marco', 'estrellas', 'mariposas', 'encaje', 'hojalata', 'flores', 'cempasuchil', 'monarca'],
             'texts' => ['titulo' => 'Iniciales'],
         ],
         'galeria' => [
@@ -584,7 +592,7 @@ final class Catalog
             'type' => 'quote', 'label' => 'Frase', 'icon' => 'quote-left', 'repeatable' => true,
             'description' => 'Una frase corta con el divisor del tema.',
             'fields' => [
-                ['key' => 'texto', 'label' => 'Frase', 'input' => 'textarea', 'placeholder' => 'Hoy comienza el capítulo más bonito de mi historia', 'max_length' => 400], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'neon', 'label' => 'Letrero de neón'], ['value' => 'lamina', 'label' => 'Lámina de papel'], ['value' => 'sobre-imagen', 'label' => 'Sobre que se abre (con imágenes)']]],
+                ['key' => 'texto', 'label' => 'Frase', 'input' => 'textarea', 'placeholder' => 'Hoy comienza el capítulo más bonito de mi historia', 'max_length' => 400], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'neon', 'label' => 'Letrero de neón'], ['value' => 'picado', 'label' => 'Bandera de papel picado'], ['value' => 'lamina', 'label' => 'Lámina de papel'], ['value' => 'sobre-imagen', 'label' => 'Sobre que se abre (con imágenes)']]],
                 ['key' => 'zona_arriba', 'label' => 'Zona segura: arriba (%)', 'input' => 'number', 'min' => 0, 'max' => 45, 'step' => 1, 'help' => 'Con la lámina: cuánto de la imagen se deja libre arriba.'],
                 ['key' => 'zona_derecha', 'label' => 'Zona segura: derecha (%)', 'input' => 'number', 'min' => 0, 'max' => 45, 'step' => 1],
                 ['key' => 'zona_abajo', 'label' => 'Zona segura: abajo (%)', 'input' => 'number', 'min' => 0, 'max' => 45, 'step' => 1],
@@ -795,10 +803,10 @@ final class Catalog
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Inicia la cuenta regresiva', 'max_length' => 60],
                 ['key' => 'texto', 'label' => 'Frase', 'input' => 'textarea', 'max_length' => 400],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'tablero', 'label' => 'Tablero de Grand Central'], ['value' => 'corazon', 'label' => 'Corazón de encaje'], ['value' => 'banda', 'label' => 'Banda con números en serif']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'tablero', 'label' => 'Tablero de Grand Central'], ['value' => 'corazon', 'label' => 'Corazón de encaje'], ['value' => 'banda', 'label' => 'Banda con números en serif'], ['value' => 'azulejos', 'label' => 'Azulejos de talavera']]],
             ],
             'linked' => ['inicia'],
-            'slots' => ['corona', 'mariposa', 'encaje'],
+            'slots' => ['corona', 'mariposa', 'encaje', 'azulejo', 'flores'],
             'texts' => ['titulo' => 'Título', 'numeros' => ['block' => 'digits', 'label' => 'Números'], 'unidades' => ['block' => 'units', 'label' => 'Días, horas…'], 'texto' => 'Frase'],
         ],
         'confirmacion' => [

@@ -17,23 +17,28 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     telon: () => import('./sections/variants/HeroCurtain.vue'),
     'sobre-central': () => import('./sections/variants/HeroCenterEnvelope.vue'),
     'sobre-lacre': () => import('./sections/variants/HeroSealedEnvelope.vue'),
+    'papel-picado': () => import('./sections/variants/HeroPapelPicado.vue'),
   },
   'music-player': {
     vinilo: () => import('./sections/variants/MusicVinyl.vue'),
     lacre: () => import('./sections/variants/MusicSeal.vue'),
+    mariachi: () => import('./sections/variants/MusicMariachi.vue'),
   },
   blessing: {
     programa: () => import('./sections/variants/BlessingPlaybill.vue'),
     editorial: () => import('./sections/variants/BlessingEditorial.vue'),
+    retablo: () => import('./sections/variants/BlessingRetablo.vue'),
   },
   'save-the-date': {
     boleto: () => import('./sections/variants/SaveTheDateTicket.vue'),
     calendario: () => import('./sections/variants/SaveTheDateEnvelope.vue'),
     editorial: () => import('./sections/variants/SaveTheDateEditorial.vue'),
+    loteria: () => import('./sections/variants/SaveTheDateLoteria.vue'),
   },
   'photo-arch': {
     ventana: () => import('./sections/variants/PhotoTower.vue'),
     camafeo: () => import('./sections/variants/PhotoCameo.vue'),
+    nicho: () => import('./sections/variants/PhotoNicho.vue'),
   },
   location: {
     metro: () => import('./sections/variants/LocationMetro.vue'),
@@ -43,6 +48,7 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
   quote: {
     neon: () => import('./sections/variants/QuoteNeon.vue'),
     lamina: () => import('./sections/variants/QuoteSheet.vue'),
+    picado: () => import('./sections/variants/QuotePicado.vue'),
   },
   itinerary: {
     avenida: () => import('./sections/variants/ItineraryAvenue.vue'),
@@ -60,6 +66,7 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     tablero: () => import('./sections/variants/CountdownBoard.vue'),
     corazon: () => import('./sections/variants/CountdownHeart.vue'),
     banda: () => import('./sections/variants/CountdownBand.vue'),
+    azulejos: () => import('./sections/variants/CountdownTiles.vue'),
   },
   'envelope-rain': {
     sobre: () => import('./sections/variants/EnvelopeRainShower.vue'),
