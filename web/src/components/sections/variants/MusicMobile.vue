@@ -70,7 +70,7 @@ onMounted(() => {
     <h2 class="mb__title" data-text="title"><FxText :text="title" :effects="section.effects" /></h2>
     <p v-if="section.text" class="mb__song" data-text="text">{{ section.text }}</p>
 
-    <p class="mb__state" aria-live="polite">{{ playing ? 'Sonando' : 'Toca la luna para escuchar' }}</p>
+    <p v-if="available" class="mb__state" aria-live="polite">{{ playing ? 'Sonando' : 'Toca la luna para escuchar' }}</p>
 
     <div class="mb__progress">
       <span class="mb__time">{{ formatTime(state?.current ?? 0) }}</span>
@@ -137,7 +137,7 @@ onMounted(() => {
 }
 .mb__moon:disabled {
   cursor: default;
-  opacity: 0.75;
+  opacity: 0.7;
 }
 .mb__moon:focus-visible {
   outline: 2px solid var(--color-primary-strong, currentColor);

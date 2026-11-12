@@ -62,7 +62,7 @@ const theme: ThemeManifest = {
     'save-the-date': {
       desktop: 'half',
       variant: 'globos',
-      effects: ['cascade', 'ink', 'balloons', 'garland', 'shine'],
+      effects: ['cascade', 'ink', 'sparkle', 'garland', 'shine'],
     },
     location: {
       desktop: 'half',
@@ -71,7 +71,7 @@ const theme: ThemeManifest = {
     },
     countdown: {
       variant: 'cubos',
-      effects: ['reveal-zoom', 'ink', 'crib-mobile', 'garland', 'shine'],
+      effects: ['reveal-zoom', 'ink', 'garland', 'shine'],
     },
     itinerary: {
       desktop: 'half',
@@ -92,7 +92,7 @@ const theme: ThemeManifest = {
     gifts: {
       desktop: 'half',
       variant: 'cajas',
-      effects: ['reveal-tilt', 'ink', 'balloons', 'stork-flight', 'baby-strip', 'garland', 'shine'],
+      effects: ['reveal-tilt', 'ink', 'stork-flight', 'baby-strip', 'garland', 'shine'],
     },
     faq: { desktop: 'half', effects: ['reveal-slide', 'ink', 'baby-icons', 'garland', 'shine'] },
     trivia: { variant: 'juego', effects: ['reveal-slide', 'ink', 'goose-walk', 'garland', 'shine'] },

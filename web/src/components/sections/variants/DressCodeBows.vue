@@ -250,7 +250,25 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
 }
 .db__bow :deep(.rb) {
   width: 100%;
-  filter: drop-shadow(0 0.25rem 0.3rem rgb(0 0 0 / 0.14));
+  filter: drop-shadow(0 0.3rem 0.35rem color-mix(in srgb, var(--bow-color-dark, #3a2f45) 45%, transparent));
+}
+/* Cuerpo para los tonos pastel: borde de pigmento y lavados más marcados, del mismo tono. */
+.db__bow :deep(.edge),
+.db__bow :deep(.crease) {
+  stroke: color-mix(in srgb, var(--bow-color-dark, var(--color-primary-strong, #b9647a)) 72%, #2f2640);
+  stroke-opacity: 0.85;
+  stroke-width: 1.7;
+}
+.db__bow :deep(.edge--in) {
+  stroke-opacity: 0.55;
+}
+.db__bow :deep(.wash) {
+  opacity: 0.8;
+}
+.db__bow :deep(.shade),
+.db__bow :deep(.knot-shade) {
+  fill: color-mix(in srgb, var(--bow-color-dark, var(--color-primary-strong, #b9647a)) 60%, #2f2640);
+  opacity: 0.3;
 }
 
 /* Lo que conviene evitar, en una cintilla de papel con el filete del listón. */

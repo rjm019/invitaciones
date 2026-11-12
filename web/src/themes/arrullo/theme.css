@@ -111,3 +111,31 @@
   text-align: center;
   color: var(--t-subtitle-color, color-mix(in srgb, var(--color-oro) 80%, var(--color-text)));
 }
+
+/*
+ * Capas de fotos: velo claro crema y rosado detrás del texto (la foto sigue viéndose, pero
+ * suave) y letra en el rosa fuerte y el café del tema, con un halo crema en lugar de sombra.
+ */
+:root[data-theme='arrullo'] .section--layer .layer__window:first-child::after {
+  content: '';
+  position: absolute;
+  inset: 12% 0;
+  background: radial-gradient(
+    62% 58% at 50% 50%,
+    rgb(253 248 240 / 0.88),
+    rgb(246 230 226 / 0.6) 55%,
+    transparent 78%
+  );
+  pointer-events: none;
+}
+:root[data-theme='arrullo'] .section--layer .layer__window:first-child > * {
+  z-index: 1;
+}
+:root[data-theme='arrullo'] .section--layer .layer__title {
+  color: var(--t-title-color, var(--color-primary-strong));
+  text-shadow: 0 0 0.9rem rgb(253 248 240 / 0.9);
+}
+:root[data-theme='arrullo'] .section--layer .layer__text {
+  color: var(--t-text-color, var(--color-text));
+  text-shadow: 0 0 0.7rem rgb(253 248 240 / 0.95);
+}

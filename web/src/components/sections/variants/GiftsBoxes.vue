@@ -258,8 +258,9 @@ const onBack = (id: string, e: MouseEvent) => {
   text-wrap: balance;
 }
 .gb__cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1.1rem 0.9rem;
   margin: 0;
   padding: 0;
@@ -269,9 +270,12 @@ const onBack = (id: string, e: MouseEvent) => {
   display: grid;
   align-content: start;
   gap: 0.5rem;
+  flex: 1 1 min(100%, 11rem);
+  max-width: 15rem;
 }
 .gb__item--wide {
-  grid-column: 1 / -1;
+  flex-basis: 100%;
+  max-width: none;
 }
 .gb__item--wide .gb__card {
   width: min(100%, 15rem);

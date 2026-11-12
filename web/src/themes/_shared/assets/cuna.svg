@@ -26,6 +26,7 @@
 <path d="M44 96C54 100 62 100 70 96M142 96C132 100 124 100 116 96" fill="none" stroke="#d48a9a" stroke-width="3.6" stroke-linecap="round"/>
 <path d="M58 99C50 92 42 96 44 101C46 106 54 104 58 100Z" fill="#d48a9a" stroke="#b9647a" stroke-width="1.2"/>
 <path d="M128 99C136 92 144 96 142 101C140 106 132 104 128 100Z" fill="#d48a9a" stroke="#b9647a" stroke-width="1.2"/>
-<circle cx="92" cy="14" r="8" fill="#f5e3ad" stroke="#b8925a" stroke-width="1.6"/>
-<path d="M92 20C84 14 82 6 88 5C91 5 92 8 92 9C92 8 93 5 96 5C102 6 100 14 92 20Z" fill="#d48a9a" stroke="#b9647a" stroke-width="1.2" stroke-linejoin="round" transform="translate(0 -6) scale(1 .9) translate(0 2)"/>
+<path d="M92 15C86 8 78 8 78 14C78 20 86 21 92 15Z" fill="#d48a9a" stroke="#b9647a" stroke-width="1.2" stroke-linejoin="round"/>
+<path d="M92 15C98 8 106 8 106 14C106 20 98 21 92 15Z" fill="#d48a9a" stroke="#b9647a" stroke-width="1.2" stroke-linejoin="round"/>
+<circle cx="92" cy="15" r="3.2" fill="#f5e3ad" stroke="#b8925a" stroke-width="1.2"/>
 </svg>
