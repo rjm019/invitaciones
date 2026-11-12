@@ -71,6 +71,7 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     muestrario: () => import('./sections/variants/DressCodeSwatches.vue'),
     editorial: () => import('./sections/variants/DressCodeEditorial.vue'),
     sarape: () => import('./sections/variants/DressCodeSarape.vue'),
+    lazos: () => import('./sections/variants/DressCodeBows.vue'),
   },
   'no-kids': { cordon: () => import('./sections/variants/NoKidsRope.vue') },
   countdown: {
@@ -104,6 +105,7 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     sobre: () => import('./sections/variants/GiftsEnvelope.vue'),
     volteo: () => import('./sections/variants/GiftsFlip.vue'),
     pinata: () => import('./sections/variants/GiftsPinata.vue'),
+    cajas: () => import('./sections/variants/GiftsBoxes.vue'),
   },
   story: {
     editorial: () => import('./sections/variants/StoryEditorial.vue'),
@@ -116,6 +118,7 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     bordado: () => import('./sections/variants/ClosingEmbroidery.vue'),
     lacre: () => import('./sections/variants/ClosingSeal.vue'),
     serenata: () => import('./sections/variants/ClosingSerenade.vue'),
+    paseo: () => import('./sections/variants/ClosingStroll.vue'),
   },
 }
 
@@ -124,10 +127,10 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
  * `.section--<tipo>--<variante>`): no se descargan, pero cuentan como registrados.
  */
 export const skinVariants: Record<string, string[]> = {
-  rsvp: ['pase', 'carpeta'],
-  dedications: ['postal', 'muro', 'exvoto'],
+  rsvp: ['pase', 'carpeta', 'vichy'],
+  dedications: ['postal', 'muro', 'exvoto', 'deseos'],
   hotels: ['azulejo'],
-  trivia: ['tarjetas', 'papeleria'],
+  trivia: ['tarjetas', 'papeleria', 'juego'],
   faq: ['editorial'],
   video: ['encaje'],
   'social-post': ['encaje'],

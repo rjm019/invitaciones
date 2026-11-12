@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import BabyPram from '@/components/ui/BabyPram.vue'
 import TypewriterText from '@/components/ui/TypewriterText.vue'
@@ -110,8 +110,9 @@ onMounted(() => {
     (entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue
-        const i = roads.value.indexOf(entry.target as HTMLElement)
-        if (i < 0 || stage.value[i] !== 'idle') continue
+        // El lugar se lee de la marca del elemento: el orden de `roads` no está garantizado.
+        const i = Number((entry.target as HTMLElement).dataset.i)
+        if (!Number.isInteger(i) || stage.value[i] !== 'idle') continue
         observer?.unobserve(entry.target)
         stage.value[i] = 'go'
         timers.push(
@@ -121,9 +122,11 @@ onMounted(() => {
         )
       }
     },
-    { threshold: 0.6 },
+    // Basta con asomar un poco: el primer lugar suele quedar justo en el borde de la pantalla.
+    { threshold: 0.25 },
   )
-  roads.value.forEach((el) => observer?.observe(el))
+  // Con el DOM ya pintado: cada camino se observa, también el que ya está a la vista al montar.
+  void nextTick(() => roads.value.forEach((el) => observer?.observe(el)))
 })
 onBeforeUnmount(() => {
   observer?.disconnect()
@@ -144,6 +147,7 @@ onBeforeUnmount(() => {
     <article v-for="(place, i) in places" :key="i" class="lpa__place">
       <div
         ref="roads"
+        :data-i="i"
         class="lpa__road"
         :class="`is-${stage[i] ?? 'idle'}`"
         aria-hidden="true"

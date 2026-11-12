@@ -22,7 +22,7 @@ const NO_EFFECTS = ['ninguno', 'none']
  */
 export function resolveSections(
   event: Pick<EventConfig, 'sections' | 'page'>,
-  theme: Pick<ThemeManifest, 'sections'>,
+  theme: Pick<ThemeManifest, 'sections' | 'sectionPattern'>,
   resolveAsset: AssetResolver,
 ): ResolvedSection[] {
   const seen: Record<string, number> = {}
@@ -53,8 +53,18 @@ export function resolveSections(
           )
         : undefined
 
+      // El estampado de los paneles que pone el tema (solo si la sección no trae el suyo).
+      const panelPattern =
+        theme.sectionPattern &&
+        section.pattern === undefined &&
+        defaults.panel !== false &&
+        !effects.includes('blend')
+          ? theme.sectionPattern
+          : undefined
+
       return {
         ...section,
+        ...(panelPattern ? { pattern: panelPattern } : {}),
         id,
         variant: section.variant ?? defaults.variant,
         desktop: section.desktop ?? defaults.desktop ?? 'full',

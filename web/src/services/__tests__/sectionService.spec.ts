@@ -30,6 +30,37 @@ const section = (s: Partial<SectionConfig>): SectionConfig => ({
 })
 
 describe('resolveSections', () => {
+  it('sectionPattern: el tema da su estampado a los paneles y la sección puede pedir otro', () => {
+    const themed = {
+      sectionPattern: 'gingham-top' as const,
+      sections: { itinerary: {}, 'hero-envelope': { panel: false }, quote: { effects: ['blend'] } },
+    }
+    const out = resolveSections(
+      {
+        sections: [
+          section({}),
+          section({ type: 'itinerary', pattern: 'dots' }),
+          section({ type: 'itinerary', pattern: 'none' }),
+          section({ type: 'hero-envelope' }),
+          section({ type: 'quote' }),
+        ],
+      },
+      themed,
+      resolve,
+    )
+    expect(out.map((s) => s.pattern)).toEqual(['gingham-top', 'dots', 'none', undefined, undefined])
+  })
+
+  it('un tema sin sectionPattern no cambia el estampado de las secciones', () => {
+    const out = resolveSections(
+      { sections: [section({}), section({ pattern: 'gingham' })] },
+      theme,
+      resolve,
+    )
+    expect(out[0]).not.toHaveProperty('pattern')
+    expect(out[1]!.pattern).toBe('gingham')
+  })
+
   it('sin datos en el layout usa los defaults del tema y resuelve las decoraciones', () => {
     const [s] = resolveSections({ sections: [section({})] }, theme, resolve)
     expect(s).toMatchObject({

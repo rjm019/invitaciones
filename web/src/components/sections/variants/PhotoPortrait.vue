@@ -75,6 +75,16 @@ const daisy = computed(() =>
   transform-origin: 50% 0;
   animation: pp-swing calc(7s * var(--motion-scale)) ease-in-out infinite alternate;
 }
+/*
+ * Con la guirnalda de moño de la sección (`garland`) sobra el moño propio (un solo moño por
+ * sección): las tiras cuelgan del nudo de la guirnalda, que queda unos pasos arriba.
+ */
+:global(.fx-garland .pp__bow) {
+  display: none;
+}
+:global(.fx-garland .pp__hang) {
+  margin-top: calc(-0.15 * (100cqi + 2 * var(--section-padding-inline, 1rem)));
+}
 .pp__bow {
   position: relative;
   z-index: 2;

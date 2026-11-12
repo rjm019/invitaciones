@@ -405,6 +405,13 @@
 .fx-garland > .section__content {
   padding-top: calc(min(100%, 44rem) * 0.3);
 }
+/* Con el móvil de cuna: cuelga del nudo de la guirnalda (su gancho queda tras el moño) y el contenido baja lo que mide. */
+.fx-garland .fab-mobile {
+  top: calc(min(100cqi, 44rem) * 0.19);
+}
+.fx-garland.fx-crib-mobile > .section__content {
+  padding-top: calc(min(100%, 44rem) * 0.19 + 6.8rem);
+}
 
 @media (prefers-reduced-motion: reduce) {
   /* Todo quieto y ya puesto; globos, burbujas y nubes no se pintan. */

@@ -9,15 +9,16 @@ import { time12h } from '@/services/dateFormatService'
 import type { ResolvedSection } from '@/types/event'
 
 /**
- * Itinerario de tendedero de ropita (`ropita`): una cuerda baja en zigzag por la sección
- * (cada tramo cruza de un lado al otro con una ligera comba y da la vuelta en la orilla) y
- * cada momento es una prenda colgada con dos pinzas (se turnan mameluco, babero, calcetines,
- * gorrito y vestido, en acuarela). La prenda va de un lado y la actividad del otro, y se
- * alternan; la hora va en una etiquetita de papel cosida a la prenda. Cada prenda se mece con
- * la brisa desde sus pinzas (la fase sale de su lugar). Con "línea que se llena", cada prenda
- * se cuelga cuando la cuerda llega a ella (cae con un balanceo que se amortigua; antes está
- * tenue). Con "en vivo", el día del evento el momento actual se resalta y lo pasado se
- * atenúa, igual que en los otros itinerarios. Sirve en cualquier tema.
+ * Itinerario de tendedero de ropita (`ropita`): cada momento es un tramo de tendedero, una
+ * cuerda horizontal con una comba suave de lado a lado (con un nudito en cada extremo) de la
+ * que cuelga la prenda con dos pinzas (se turnan mameluco, babero, calcetines, gorrito y
+ * vestido, en acuarela). La prenda va de un lado (alternan izquierda y derecha) y, del otro y a
+ * su altura, la hora en una etiquetita de papel y debajo la actividad, alineadas. Entre un
+ * tramo y el siguiente, un hilo punteado vertical corto. Cada prenda se mece con la brisa desde
+ * sus pinzas. Con "línea que se llena", el hilo se llena y la prenda se cuelga cuando el hilo
+ * llega a ella (cae con un balanceo que se amortigua; antes está tenue). Con "en vivo", el día
+ * del evento el momento actual se resalta y lo pasado se atenúa, igual que en los otros
+ * itinerarios. Sirve en cualquier tema.
  */
 const props = defineProps<{ section: ResolvedSection }>()
 const { event, resolveAsset } = useEvent()
@@ -65,31 +66,40 @@ const rows = computed(() =>
         :style="{ '--i': i }"
         data-cascade
       >
-        <!-- Un tramo de la cuerda, con su comba; la vuelta de la orilla la dibuja el ::after. -->
-        <svg
-          ref="stops"
-          class="ic__rope"
-          viewBox="0 0 100 24"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <path d="M0 3Q50 21 100 3" class="ic__twine" />
-        </svg>
+        <!-- El hilo punteado que baja del tramo anterior; se llena al llegar a este. -->
+        <span v-if="i > 0" class="ic__thread" aria-hidden="true" />
 
-        <div class="ic__garment">
-          <div class="ic__sway">
-            <img v-if="item.garment" :src="item.garment" alt="" class="ic__img" loading="lazy" />
-            <template v-if="peg">
-              <img :src="peg" alt="" class="ic__peg ic__peg--a" aria-hidden="true" />
-              <img :src="peg" alt="" class="ic__peg ic__peg--b" aria-hidden="true" />
-            </template>
+        <div class="ic__span">
+          <!-- La cuerda: una sola curva de lado a lado, con un nudito en cada extremo. -->
+          <svg
+            ref="stops"
+            class="ic__rope"
+            viewBox="0 0 100 24"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <path d="M0 5Q50 19 100 5" class="ic__twine" />
+          </svg>
+          <span class="ic__knot ic__knot--l" aria-hidden="true" />
+          <span class="ic__knot ic__knot--r" aria-hidden="true" />
+
+          <div class="ic__garment">
+            <div class="ic__sway">
+              <img v-if="item.garment" :src="item.garment" alt="" class="ic__img" loading="lazy" />
+              <template v-if="peg">
+                <img :src="peg" alt="" class="ic__peg ic__peg--a" aria-hidden="true" />
+                <img :src="peg" alt="" class="ic__peg ic__peg--b" aria-hidden="true" />
+              </template>
+            </div>
+          </div>
+
+          <div class="ic__text">
             <time class="ic__tag" data-text="time" :datetime="item.time">{{
               time12h(item.time)
             }}</time>
+            <p class="ic__label" data-text="activity">{{ item.label }}</p>
           </div>
         </div>
-
-        <p class="ic__label" data-text="activity">{{ item.label }}</p>
       </li>
     </ol>
   </div>
@@ -98,6 +108,7 @@ const rows = computed(() =>
 <style scoped>
 .ic {
   --ic-twine: color-mix(in srgb, var(--color-oro, var(--color-primary)) 80%, var(--color-text));
+  --ic-garment: 7.4rem;
   container-type: inline-size;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -114,40 +125,73 @@ const rows = computed(() =>
   text-align: center;
   color: var(--t-title-color, var(--color-primary));
 }
-/* Las vueltas de la cuerda caben en el relleno de la lista. */
 .ic__list {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   width: 100%;
   margin: 0;
-  padding: 0.2rem 1.5rem 0;
+  padding: 0.4rem 0.6rem 0;
   list-style: none;
 }
 .ic__stop {
   position: relative;
   display: grid;
-  grid-template-columns: 7.6rem minmax(0, 1fr);
-  align-items: center;
-  column-gap: 0.8rem;
-  min-height: 9.6rem;
-}
-.ic__stop.is-right {
-  grid-template-columns: minmax(0, 1fr) 7.6rem;
-}
-.ic__stop.is-right .ic__garment {
-  order: 2;
+  grid-template-columns: minmax(0, 1fr);
 }
 .ic__stop.is-past {
   opacity: 0.55;
 }
 
-/* La cuerda: un tramo con comba arriba de cada fila y, en la orilla, la vuelta hacia la fila de abajo. */
+/* El hilo punteado de un tramo al siguiente: el tenue siempre, y el lleno crece al llegar. */
+.ic__thread {
+  position: relative;
+  justify-self: center;
+  width: 0.2rem;
+  height: 1.7rem;
+}
+.ic__thread::before,
+.ic__thread::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, var(--ic-twine) 0.09rem, transparent 0.11rem) 0 0 /
+    100% 0.42rem repeat-y;
+}
+.ic__thread::before {
+  opacity: 0.3;
+}
+.ic__thread::after {
+  transform-origin: 50% 0;
+}
+.ic--drop .ic__stop:not(.is-lit) .ic__thread::after {
+  transform: scaleY(0);
+}
+.ic--drop .ic__stop.is-lit .ic__thread::after {
+  animation: ic-fill calc(0.9s * var(--motion-scale)) ease-out both;
+}
+
+/* Un tramo: la cuerda arriba, la prenda de un lado y la hora con la actividad del otro. */
+.ic__span {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--ic-garment) minmax(0, 1fr);
+  align-items: center;
+  column-gap: 1rem;
+  min-height: 8.6rem;
+  padding: 1.7rem 0.4rem 0.4rem;
+}
+.ic__stop.is-right .ic__span {
+  grid-template-columns: minmax(0, 1fr) var(--ic-garment);
+}
+.ic__stop.is-right .ic__garment {
+  order: 2;
+}
 .ic__rope {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 1.2rem;
+  height: 1.7rem;
   overflow: visible;
   pointer-events: none;
 }
@@ -158,32 +202,29 @@ const rows = computed(() =>
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
 }
-.ic__stop:not(:last-child)::after {
-  content: '';
+/* El nudito de cada extremo. */
+.ic__knot {
   position: absolute;
-  top: calc(0.15rem - 1px);
-  width: 1.5rem;
-  height: 100%;
-  border: 2px solid var(--ic-twine);
-  pointer-events: none;
+  top: calc(5 / 24 * 1.7rem - 0.4rem);
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: var(--ic-twine);
+  box-shadow: 0 0 0 0.16rem color-mix(in srgb, var(--ic-twine) 30%, transparent);
 }
-.ic__stop.is-left:not(:last-child)::after {
-  right: -1.5rem;
-  border-left: 0;
-  border-radius: 0 1.5rem 1.5rem 0;
+.ic__knot--l {
+  left: -0.2rem;
 }
-.ic__stop.is-right:not(:last-child)::after {
-  left: -1.5rem;
-  border-right: 0;
-  border-radius: 1.5rem 0 0 1.5rem;
+.ic__knot--r {
+  right: -0.2rem;
 }
 
-/* La prenda: cuelga de dos pinzas; al llegar la cuerda cae y se amortigua. */
+/* La prenda: cuelga de dos pinzas; al llegar el hilo cae y se amortigua. */
 .ic__garment {
-  align-self: start;
   position: relative;
-  margin-top: 0.7rem;
-  width: 7.6rem;
+  align-self: start;
+  margin-top: 0.15rem;
+  width: var(--ic-garment);
 }
 .ic__sway {
   position: relative;
@@ -211,16 +252,24 @@ const rows = computed(() =>
 .ic__peg--b {
   right: 24%;
 }
-/* La etiquetita de papel, cosida con puntadas y un ojalillo, en la esquina de abajo. */
+
+/* La hora (etiquetita de papel) y, debajo, la actividad; a la altura de la prenda. */
+.ic__text {
+  display: grid;
+  justify-items: start;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.ic__stop.is-right .ic__text {
+  justify-items: end;
+}
 .ic__tag {
-  position: absolute;
-  bottom: -0.2rem;
-  left: 50%;
+  position: relative;
   display: grid;
   place-items: center;
   min-width: 4.4rem;
   padding: 0.28rem 0.7rem 0.28rem 1.1rem;
-  rotate: -5deg;
+  rotate: -3deg;
   border-radius: 0.2rem;
   background: var(--color-paper, #fdf8f0);
   box-shadow:
@@ -234,9 +283,7 @@ const rows = computed(() =>
   color: var(--t-time-color, var(--color-primary-strong, var(--color-text)));
 }
 .ic__stop.is-right .ic__tag {
-  left: auto;
-  right: 50%;
-  rotate: 5deg;
+  rotate: 3deg;
 }
 .ic__tag::before {
   content: '';
@@ -258,7 +305,6 @@ const rows = computed(() =>
 }
 .ic__label {
   margin: 0;
-  padding-top: 1.1rem;
   font-family: var(--t-activity-font, var(--font-serif));
   font-weight: 500;
   font-size: calc(clamp(1.1rem, 5cqi, 1.3rem) * var(--t-activity-size, 1));
@@ -274,7 +320,7 @@ const rows = computed(() =>
   text-align: right;
 }
 
-/* Con "línea que se llena": tenue y arriba hasta que la cuerda llega; luego se cuelga. */
+/* Con "línea que se llena": tenue y arriba hasta que el hilo llega; luego se cuelga. */
 .ic--drop .ic__stop:not(.is-lit) .ic__garment {
   opacity: 0.25;
   transform: translateY(-1.2rem);
@@ -301,6 +347,14 @@ const rows = computed(() =>
   }
   to {
     rotate: 2.6deg;
+  }
+}
+@keyframes ic-fill {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
   }
 }
 @keyframes ic-drop {
@@ -338,11 +392,15 @@ const rows = computed(() =>
 @media (prefers-reduced-motion: reduce) {
   .ic__sway,
   .ic--drop .ic__stop.is-lit .ic__garment,
+  .ic--drop .ic__stop.is-lit .ic__thread::after,
   .ic__stop.is-now .ic__tag {
     animation: none;
   }
   .ic--drop .ic__stop:not(.is-lit) .ic__garment {
     opacity: 1;
+    transform: none;
+  }
+  .ic--drop .ic__stop:not(.is-lit) .ic__thread::after {
     transform: none;
   }
 }

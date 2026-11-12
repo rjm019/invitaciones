@@ -52,25 +52,62 @@
   --color-text: #7a5a3c;
 }
 
-/* Sobre papel crema, las rayas son de un rosa pálido (crema sobre crema no se vería). */
-:root[data-theme='arrullo'] .section--bg-paper {
-  --pattern-ink: color-mix(in srgb, var(--color-primary-soft) 70%, transparent);
+/*
+ * Todas las secciones son el mismo panel de papel crema, con letra café dorado. Arriba lleva el
+ * vichy rosa pálido (crema sobre crema no se vería) que se desvanece; las rayas quedan solo
+ * en la página, detrás.
+ */
+:root[data-theme='arrullo'] .section--panel {
+  --pattern-ink: color-mix(in srgb, var(--color-primary-soft) 85%, transparent);
+  --pattern-size: 1.7rem;
+  --pattern-fade: 9rem;
 }
-
-/* Papel crema y rubor: letra café dorado. */
 :root[data-theme='arrullo'] .section--bg-paper {
   --color-text: #7a5a3c;
   --color-bg: var(--color-paper);
 }
+/* Si una invitación pide otro fondo en una sección, sigue leyéndose bien. */
 :root[data-theme='arrullo'] .section--bg-rubor {
   --color-text: #7a5a3c;
   --color-bg: var(--color-rubor);
 }
-
-/* Salvia clara: letra un poco más oscura para que el contraste alcance. */
 :root[data-theme='arrullo'] .section--bg-salvia-clara {
   --color-text: #5f4630;
   --color-primary-strong: #a4566c;
   --color-surface: #fdf8f0;
   --color-bg: var(--color-salvia-clara);
+}
+
+/*
+ * Una sola pieza: los títulos y subtítulos de todas las secciones son iguales (la misma
+ * manuscrita, el mismo tamaño y el mismo espacio hasta el contenido); el tamaño y el color
+ * se siguen pudiendo cambiar con `--t-title-*` desde el gestor.
+ */
+:root[data-theme='arrullo'] {
+  --arr-title-size: clamp(2.4rem, 11.5cqi, 3.1rem);
+  --arr-title-gap: var(--space-2);
+  --section-padding-block: var(--space-4);
+  --section-padding-inline: var(--space-2);
+}
+:root[data-theme='arrullo'] .section--panel h2[data-text='title'] {
+  margin: 0 0 var(--arr-title-gap);
+  font-family: var(--t-title-font, var(--font-script));
+  font-weight: 400;
+  font-size: calc(var(--arr-title-size) * var(--t-title-size, 1));
+  font-style: normal;
+  letter-spacing: normal;
+  text-transform: none;
+  line-height: 1.1;
+  text-align: center;
+  color: var(--t-title-color, var(--color-primary-strong));
+}
+/* Subtítulos: versalitas doradas. */
+:root[data-theme='arrullo'] .section--panel [data-text='subtitle'] {
+  font-family: var(--t-subtitle-font, var(--font-caps));
+  font-weight: 600;
+  font-size: calc(0.86rem * var(--t-subtitle-size, 1));
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--t-subtitle-color, color-mix(in srgb, var(--color-oro) 80%, var(--color-text)));
 }

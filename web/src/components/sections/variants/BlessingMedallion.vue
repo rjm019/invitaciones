@@ -144,6 +144,10 @@ const inView = useInView(root, { threshold: 0.35 })
   padding: 4.6rem 2rem 3.8rem;
 }
 
+/* Con la guirnalda de moño de la sección (`garland`), el moñito de línea sobra: un solo moño por sección. */
+:global(.fx-garland .bm__bow) {
+  display: none;
+}
 /* El moñito de línea: sobre el filete de arriba, centrado. */
 .bm__bow {
   position: absolute;

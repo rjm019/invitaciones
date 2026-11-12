@@ -668,3 +668,355 @@
 .section.section--dedications--exvoto :is(.dedication__sent, .dedication__note-card) .dedication__author {
   color: var(--t-author-color, var(--color-rojo, var(--card-ink)));
 }
+
+/*
+ * Vichy del tema `arrullo` (confirmación "vichy", dedicatorias "deseos" y trivia "juego"):
+ * cuadritos del color del listón sobre papel; los cruces salen más oscuros, como la tela.
+ */
+.section:is(.section--rsvp--vichy, .section--dedications--deseos, .section--trivia--juego) {
+  --vichy:
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--color-primary) 24%, transparent) 0 0.5rem, transparent 0.5rem 1rem),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 24%, transparent) 0 0.5rem, transparent 0.5rem 1rem),
+    color-mix(in srgb, var(--color-paper, #fff) 70%, #fff);
+  --vichy-line: color-mix(in srgb, var(--color-primary) 55%, transparent);
+  --vichy-field: rgb(255 255 255 / 0.72);
+}
+
+/*
+ * Confirmación "vichy": la tarjeta de respuesta de papel crema con una orilla de vichy
+ * (marco de cuadritos), doble filete por dentro y una margarita en dos esquinas. Es la
+ * confirmación de siempre (mismos estados): el formulario pierde su fondo para que se vea
+ * el papel, los campos llevan línea fina y esquinas suaves, y los textos de "ya confirmado" y
+ * "fuera de fecha" van en el color fuerte del listón.
+ */
+.section.section--rsvp--vichy .rsvp {
+  max-width: 27rem;
+  padding: 1.3rem 1rem 1.2rem;
+  border: 1rem solid transparent;
+  border-radius: 1.4rem;
+  background:
+    linear-gradient(var(--color-paper, #fdf8f0), var(--color-paper, #fdf8f0)) padding-box,
+    var(--vichy);
+  box-shadow:
+    inset 0 0 0 0.4rem var(--color-paper, #fdf8f0),
+    inset 0 0 0 calc(0.4rem + 1px) var(--vichy-line),
+    inset 0 0 0 0.62rem var(--color-paper, #fdf8f0),
+    inset 0 0 0 calc(0.62rem + 1px) color-mix(in srgb, var(--color-primary) 28%, transparent),
+    0 0.8rem 1.2rem -0.9rem rgb(0 0 0 / 0.45);
+  --color-primary: var(--color-primary-strong, var(--color-primary));
+}
+.section.section--rsvp--vichy .rsvp__card {
+  border-radius: 0;
+  background: transparent;
+}
+.section.section--rsvp--vichy .rsvp__card--image {
+  aspect-ratio: auto;
+}
+.section.section--rsvp--vichy .rsvp__card-bg,
+.section.section--rsvp--vichy .rsvp__flowers {
+  display: none;
+}
+.section.section--rsvp--vichy .rsvp__body {
+  padding: 1rem 0.6rem 0.4rem;
+}
+.section.section--rsvp--vichy .rsvp__subtitle {
+  letter-spacing: 0.08em;
+}
+.section.section--rsvp--vichy .rsvp::before,
+.section.section--rsvp--vichy .rsvp::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  width: 3.4rem;
+  aspect-ratio: 1;
+  background: url('../../../themes/_shared/assets/margarita.svg') center / contain no-repeat;
+  filter: drop-shadow(0 0.15rem 0.2rem rgb(0 0 0 / 0.25));
+  pointer-events: none;
+}
+.section.section--rsvp--vichy .rsvp::before {
+  top: -1.7rem;
+  left: -1.6rem;
+}
+.section.section--rsvp--vichy .rsvp::after {
+  right: -1.6rem;
+  bottom: -1.7rem;
+  rotate: 25deg;
+}
+.section.section--rsvp--vichy .guest-form {
+  padding: var(--space-2) 0 0;
+  background: transparent;
+  box-shadow: none;
+}
+.section.section--rsvp--vichy .guest-form__input,
+.section.section--rsvp--vichy .guest-form__locked {
+  border: 1px solid var(--vichy-line);
+  border-radius: 0.9rem;
+  background: var(--vichy-field);
+}
+.section.section--rsvp--vichy .guest-form__locked {
+  border-style: dashed;
+  background: color-mix(in srgb, var(--color-primary-soft, var(--color-primary)) 22%, var(--color-paper, #fff));
+}
+.section.section--rsvp--vichy .guest-form__input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.section.section--rsvp--vichy .guest-form__submit {
+  border-radius: var(--btn-radius, 999px);
+}
+.section.section--rsvp--vichy .guest-form__thanks,
+.section.section--rsvp--vichy .guest-form__closed,
+.section.section--rsvp--vichy .rsvp__closed {
+  color: var(--color-primary-strong, var(--color-primary));
+}
+
+/*
+ * Dedicatoria "deseos": cada dedicatoria (la enviada y las del muro) es una etiqueta de
+ * papel de esquinas redondeadas y perforada, que cuelga de un globo (la silueta de `globo.svg`
+ * pintada con un tono de la paleta, que se alterna). Los globos se mecen a destiempo desde el
+ * punto donde se atan. El formulario lleva la orilla de vichy y los campos de la confirmación.
+ */
+.section.section--dedications--deseos :is(.dedication__sent, .dedication__note-card) {
+  --wish: var(--color-primary);
+  --wish-delay: 0s;
+  position: relative;
+  margin-top: 6.6rem;
+  padding: 1.7rem 1.2rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--wish) 55%, transparent);
+  border-radius: 0.9rem;
+  background:
+    radial-gradient(
+      circle at 50% 0.75rem,
+      color-mix(in srgb, var(--wish) 30%, #fff) 0 0.15rem,
+      color-mix(in srgb, var(--wish) 75%, transparent) 0.15rem 0.22rem,
+      transparent 0.23rem
+    ),
+    var(--color-paper, #fdf8f0);
+  color: var(--color-text);
+  text-align: center;
+  box-shadow: 0 0.6rem 1rem -0.7rem rgb(0 0 0 / 0.5);
+}
+.section.section--dedications--deseos .dedication__note-card:nth-child(4n + 2) {
+  --wish: var(--color-accent);
+  --wish-delay: -1.3s;
+}
+.section.section--dedications--deseos .dedication__note-card:nth-child(4n + 3) {
+  --wish: var(--color-oro, var(--color-primary-strong));
+  --wish-delay: -2.4s;
+}
+.section.section--dedications--deseos .dedication__note-card:nth-child(4n) {
+  --wish: var(--color-cielo, var(--color-primary-soft));
+  --wish-delay: -3.3s;
+}
+.section.section--dedications--deseos :is(.dedication__sent, .dedication__note-card)::before,
+.section.section--dedications--deseos :is(.dedication__sent, .dedication__note-card)::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform-origin: 50% 100%;
+  pointer-events: none;
+  animation: skin-wish-sway calc(4.6s * var(--motion-scale, 1)) ease-in-out infinite alternate;
+  animation-delay: calc(var(--wish-delay) * var(--motion-scale, 1));
+}
+/* El globo: la silueta pintada con el tono, con un brillo suave arriba. */
+.section.section--dedications--deseos :is(.dedication__sent, .dedication__note-card)::before {
+  bottom: calc(100% - 0.15rem);
+  width: 3.5rem;
+  height: 6.16rem;
+  translate: -50% 0;
+  background:
+    radial-gradient(circle at 36% 24%, rgb(255 255 255 / 0.6), transparent 26%),
+    color-mix(in srgb, var(--wish) 70%, #fff);
+  -webkit-mask: url('../../../themes/_shared/assets/globo.svg') center / 100% 100% no-repeat;
+  mask: url('../../../themes/_shared/assets/globo.svg') center / 100% 100% no-repeat;
+}
+/* El hilo, del dorado de la paleta. */
+.section.section--dedications--deseos :is(.dedication__sent, .dedication__note-card)::after {
+  bottom: calc(100% - 0.15rem);
+  width: 1px;
+  height: 2.3rem;
+  background: color-mix(in srgb, var(--color-oro, var(--wish)) 80%, transparent);
+}
+.section.section--dedications--deseos :is(.dedication__sent, .dedication__note-card) .dedication__quote {
+  padding-top: 0;
+  font-style: italic;
+  color: var(--t-message-color, var(--color-text));
+}
+.section.section--dedications--deseos :is(.dedication__sent, .dedication__note-card) .dedication__author {
+  margin: 0.4rem 0 0;
+  color: var(--t-author-color, var(--color-primary-strong, var(--color-primary)));
+}
+.section.section--dedications--deseos .dedication__title {
+  font-family: var(--t-title-font, var(--font-script));
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--t-title-color, var(--color-primary-strong, var(--color-primary)));
+}
+.section.section--dedications--deseos .dedication__form {
+  padding: 1.1rem 1rem 1rem;
+  border: 0.85rem solid transparent;
+  border-radius: 1.3rem;
+  background:
+    linear-gradient(var(--color-paper, #fdf8f0), var(--color-paper, #fdf8f0)) padding-box,
+    var(--vichy);
+  box-shadow:
+    inset 0 0 0 0.3rem var(--color-paper, #fdf8f0),
+    inset 0 0 0 calc(0.3rem + 1px) color-mix(in srgb, var(--color-primary) 35%, transparent),
+    0 0.8rem 1.2rem -0.9rem rgb(0 0 0 / 0.45);
+}
+.section.section--dedications--deseos .dedication__field {
+  border: 1px solid var(--vichy-line);
+  border-radius: 0.9rem;
+  background: var(--vichy-field);
+}
+.section.section--dedications--deseos .dedication__field:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.section.section--dedications--deseos .dedication__submit {
+  border-radius: var(--btn-radius, 999px);
+}
+@keyframes skin-wish-sway {
+  from {
+    rotate: -3.5deg;
+  }
+  to {
+    rotate: 3.5deg;
+  }
+}
+
+/*
+ * Trivia "juego": cada pregunta es una tarjeta de juego de papel crema con pespunte y un
+ * cubo de juguete que asoma arriba; las opciones son cubos chatos (cara de arriba y sombra de
+ * bloque) en colores pastel de la paleta, con su letra, que se hunden al tocarlos. Es la
+ * trivia de siempre (mismo comportamiento): el acierto lo califica el servidor, así que los
+ * estados son el de la opción elegida y el de error.
+ */
+.section.section--trivia--juego .trivia__title {
+  font-family: var(--t-title-font, var(--font-script));
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--t-title-color, var(--color-primary-strong, var(--color-primary)));
+}
+.section.section--trivia--juego .trivia__panel {
+  --color-primary: var(--color-primary-strong, var(--color-primary));
+  position: relative;
+  margin-top: 3rem;
+  padding: 2.4rem 1.2rem 1.5rem;
+  border-radius: 1.2rem;
+  background: var(--color-paper, #fdf8f0);
+  box-shadow: 0 0.8rem 1.2rem -0.9rem rgb(0 0 0 / 0.5);
+}
+.section.section--trivia--juego .trivia__panel::before {
+  content: '';
+  position: absolute;
+  top: -2.2rem;
+  left: 50%;
+  width: 3.6rem;
+  aspect-ratio: 1;
+  translate: -50% 0;
+  background: url('../../../themes/_shared/assets/cubo.svg') center / contain no-repeat;
+  pointer-events: none;
+}
+/* El pespunte: una puntada discontinua y otra fina por dentro. */
+.section.section--trivia--juego .trivia__panel::after {
+  content: '';
+  position: absolute;
+  inset: 0.45rem;
+  border: 1.5px dashed var(--vichy-line);
+  border-radius: 0.9rem;
+  pointer-events: none;
+}
+.section.section--trivia--juego .trivia__panel > * {
+  position: relative;
+  z-index: 1;
+}
+.section.section--trivia--juego .trivia__bar {
+  background: color-mix(in srgb, var(--color-primary) 16%, transparent);
+}
+.section.section--trivia--juego .trivia__bar-fill {
+  background: var(--color-primary);
+}
+.section.section--trivia--juego .trivia__field {
+  border: 1px solid var(--vichy-line);
+  border-radius: 0.9rem;
+  background: var(--vichy-field);
+}
+.section.section--trivia--juego .trivia__submit {
+  border-radius: var(--btn-radius, 999px);
+}
+.section.section--trivia--juego .trivia__options {
+  counter-reset: juego-option;
+  gap: 0.9rem;
+}
+.section.section--trivia--juego .trivia__option {
+  --block: color-mix(in srgb, var(--color-primary) 30%, #fff);
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 3.4rem;
+  padding: 0.55rem 1rem 0.55rem 0.7rem;
+  border: 0;
+  border-radius: 1rem;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.55), transparent 55%),
+    var(--block);
+  color: var(--t-option-color, var(--color-text));
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.55),
+    0 0.38rem 0 color-mix(in srgb, var(--block) 68%, var(--color-primary-strong, #7a4a55));
+  transition: transform calc(0.15s * var(--motion-scale, 1)) ease;
+}
+.section.section--trivia--juego .trivia__option:nth-child(4n + 2) {
+  --block: color-mix(in srgb, var(--color-accent) 42%, #fff);
+}
+.section.section--trivia--juego .trivia__option:nth-child(4n + 3) {
+  --block: var(--color-cielo, color-mix(in srgb, var(--color-oro, var(--color-primary)) 40%, #fff));
+}
+.section.section--trivia--juego .trivia__option:nth-child(4n) {
+  --block: var(--color-mantequilla, color-mix(in srgb, var(--color-oro, var(--color-primary)) 28%, #fff));
+}
+.section.section--trivia--juego .trivia__option::before {
+  counter-increment: juego-option;
+  content: counter(juego-option, upper-alpha);
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.6rem;
+  background: var(--color-paper, #fff);
+  box-shadow: inset 0 -0.15rem 0 rgb(0 0 0 / 0.1);
+  font-family: var(--font-caps);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-primary-strong, var(--color-text));
+}
+.section.section--trivia--juego .trivia__option:active:not(:disabled),
+.section.section--trivia--juego .trivia__option[aria-pressed='true'] {
+  transform: translateY(0.28rem);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.55),
+    0 0.1rem 0 color-mix(in srgb, var(--block) 68%, var(--color-primary-strong, #7a4a55));
+}
+.section.section--trivia--juego .trivia__option[aria-pressed='true'] {
+  border: 0;
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+.section.section--trivia--juego .trivia__option:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+.section.section--trivia--juego .trivia__score {
+  color: var(--t-result-color, var(--color-primary-strong, var(--color-primary)));
+}
+@media (prefers-reduced-motion: reduce) {
+  .section.section--dedications--deseos :is(.dedication__sent, .dedication__note-card)::before,
+  .section.section--dedications--deseos :is(.dedication__sent, .dedication__note-card)::after {
+    animation: none;
+  }
+  .section.section--trivia--juego .trivia__option {
+    transition: none;
+  }
+}

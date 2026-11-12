@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { computed, defineComponent, h, nextTick, ref, type Component } from 'vue'
@@ -13,6 +15,9 @@ import PhotoPortrait from '../PhotoPortrait.vue'
 import GalleryMedallions from '../GalleryMedallions.vue'
 import LocationPath from '../LocationPath.vue'
 import ItineraryClothesline from '../ItineraryClothesline.vue'
+import ClosingStroll from '../ClosingStroll.vue'
+import DressCodeBows from '../DressCodeBows.vue'
+import GiftsBoxes from '../GiftsBoxes.vue'
 
 // La música se simula: un estado que cambia con toggle().
 const playing = ref(false)
@@ -271,6 +276,48 @@ describe('diseños de arrullo (variantes A)', () => {
     expect(w.findAll('.lpa__dot').length).toBeGreaterThan(20)
   })
 
+  it('ubicación: cada lugar arranca al entrar en pantalla, también el primero', async () => {
+    const places = [
+      { label: 'Ceremonia', name: 'Jardín', time: '16:00', address: 'Calle 1', maps_url: 'https://m/1' },
+      { label: 'Recepción', name: 'Salón', time: '18:00', address: 'Calle 2', maps_url: 'https://m/2' },
+    ]
+    const watched: Element[] = []
+    let notify: (entries: unknown[]) => void = () => {}
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(cb: (entries: unknown[]) => void) {
+          notify = cb
+        }
+        observe(el: Element) {
+          watched.push(el)
+        }
+        unobserve() {}
+        disconnect() {}
+      },
+    )
+    reduceMotion(false)
+    const w = render(
+      LocationPath,
+      section({ type: 'location', title: 'Dónde', places } as Partial<ResolvedSection>),
+    )
+    await nextTick()
+    // los dos caminos se observan, con la marca de su lugar (no por el orden de una lista)
+    const roads = watched.filter((el) => el.classList.contains('lpa__road'))
+    expect(roads.map((el) => (el as HTMLElement).dataset.i)).toEqual(['0', '1'])
+    expect(w.findAll('.lpa__road')[0]!.classes()).toContain('is-idle')
+    // el primer lugar ya estaba a la vista al montar: arranca solo con eso
+    notify([{ target: roads[0], isIntersecting: true }])
+    await nextTick()
+    expect(w.findAll('.lpa__road')[0]!.classes()).toContain('is-go')
+    expect(w.findAll('.lpa__road')[1]!.classes()).toContain('is-idle')
+    notify([{ target: roads[1], isIntersecting: true }])
+    await nextTick()
+    expect(w.findAll('.lpa__road')[1]!.classes()).toContain('is-go')
+    w.unmount()
+    vi.unstubAllGlobals()
+  })
+
   it('itinerario: una prenda por momento, con sus pinzas y su etiqueta de hora', () => {
     const original = event.itinerary
     event.itinerary = [
@@ -292,8 +339,127 @@ describe('diseños de arrullo (variantes A)', () => {
     expect(w.findAll('.ic__label')[3]!.text()).toBe('Pastel')
     expect(w.findAll('.ic__stop')[0]!.classes()).toContain('is-left')
     expect(w.findAll('.ic__stop')[1]!.classes()).toContain('is-right')
+    // cada momento es un tramo: su cuerda con nuditos, y un hilo punteado entre un tramo y el siguiente
+    expect(w.findAll('.ic__rope')).toHaveLength(6)
+    expect(w.findAll('.ic__knot')).toHaveLength(12)
+    expect(w.findAll('.ic__thread')).toHaveLength(5)
+    // la hora y la actividad van juntas, del lado contrario al de la prenda
+    expect(w.findAll('.ic__text')[0]!.find('.ic__tag').exists()).toBe(true)
+    expect(w.findAll('.ic__text')[0]!.find('.ic__label').text()).toBe('Bienvenida')
     // sin "línea que se llena" no hay caída de entrada
     expect(w.find('.ic').classes()).not.toContain('ic--drop')
     event.itinerary = original
+  })
+})
+
+describe('diseños de arrullo (variantes B)', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.useRealTimers()
+  })
+
+  it('cierre: el gansito empuja la carriola y una cigüeña cruza por arriba', () => {
+    reduceMotion(false)
+    const w = render(ClosingStroll, section({ type: 'closing', title: '¡Te esperamos!', text: 'Gracias' }))
+    expect(w.find('.cs__title').text()).toBe('¡Te esperamos!')
+    expect(w.find('.cs__text').text()).toBe('Gracias')
+    expect(w.find('.cs__signature').text()).toBe('Emilia')
+    expect(w.find('.cs__goose .pg').exists()).toBe(true)
+    expect(w.find('.cs__pram .bp').exists()).toBe(true)
+    expect(w.find('.cs__stork .fs').exists()).toBe(true)
+    expect(w.find('.cs__grass').exists()).toBe(true)
+    // con menos movimiento quedan quietos al centro y sin cigüeña
+    reduceMotion(true)
+    const still = render(ClosingStroll, section({ type: 'closing' }))
+    expect(still.find('.cs').classes()).toContain('is-still')
+    expect(still.find('.cs__stork').exists()).toBe(false)
+    expect(still.find('.cs__goose .pg').exists()).toBe(true)
+  })
+
+  it('vestimenta: un moño por color sugerido, que se atan uno tras otro', async () => {
+    reduceMotion(true)
+    event.dress_code.colors = ['#F3D3D8', '#DFE8D9', '#F5E3AD']
+    const w = render(
+      DressCodeBows,
+      section({ type: 'dress-code', title: 'Vestimenta', subtitle: 'Pastel', text: 'Cómodo', link: 'https://x.test', button: 'Ejemplos' }),
+    )
+    expect(w.findAll('.db__bow')).toHaveLength(3)
+    expect(w.findAll('.db__bow .rb')[1]!.attributes('style')).toContain('#DFE8D9')
+    expect(w.findAll('.db__bow .rb').every((b) => b.classes().includes('is-tied'))).toBe(true)
+    expect(w.find('.db__headline').text()).toBe('Pastel')
+    expect(w.find('a.db__button').text()).toBe('Ejemplos')
+    event.dress_code.colors = []
+    // sin colores sugeridos, tres moños con la paleta
+    const palette = render(DressCodeBows, section({ type: 'dress-code' }))
+    expect(palette.findAll('.db__bow')).toHaveLength(3)
+    expect(palette.find('.db__label').exists()).toBe(false)
+  })
+
+  it('vestimenta: sin menos movimiento los moños empiezan sin atar', () => {
+    reduceMotion(false)
+    event.dress_code.colors = ['#F3D3D8', '#DFE8D9']
+    const w = render(DressCodeBows, section({ type: 'dress-code' }))
+    expect(w.findAll('.db__bow')).toHaveLength(2)
+    expect(w.findAll('.db__bow .rb.is-tied')).toHaveLength(0)
+    event.dress_code.colors = []
+  })
+
+  it('regalos: cada mesa es una caja que gira al tocarla y deja el otro lado inerte', async () => {
+    reduceMotion(false)
+    const original = event.gifts
+    event.gifts = {
+      stores: [
+        { store: 'liverpool', name: 'Liverpool', note: 'Lluvia de pañales', url: 'https://l.test', event_number: '51234567' },
+        { store: 'amazon', name: 'Amazon', note: '', url: '', event_number: '' },
+      ],
+      envelope: { title: 'Sobres', text: '', bank: 'BBVA', account: '012345678901234567', holder: 'Sofía', box: false, hidden: false, private: true },
+    } as unknown as EventConfig['gifts']
+    const w = render(GiftsBoxes, section({ type: 'gifts', title: 'Mesa de regalos' }))
+    expect(w.findAll('.gb__card')).toHaveLength(3)
+    expect(w.findAll('.gb__bow')).toHaveLength(3)
+    expect(w.findAll('.gb__name')[0]!.text()).toBe('Liverpool')
+    expect(w.find('.gb__note').text()).toBe('Lluvia de pañales')
+    const card = w.findAll('.gb__card')[0]!
+    const toggle = card.find('button.gb__toggle')
+    expect(toggle.attributes('aria-pressed')).toBe('false')
+    expect(card.classes()).not.toContain('is-open')
+    expect(card.find('.gb__face--back').attributes('inert')).toBeDefined()
+    await toggle.trigger('click')
+    expect(toggle.attributes('aria-pressed')).toBe('true')
+    expect(card.classes()).toContain('is-open')
+    expect(card.find('.gb__face--front').attributes('inert')).toBeDefined()
+    expect(card.find('.gb__face--back').attributes('inert')).toBeUndefined()
+    expect(card.find('.gb__number').text()).toBe('51234567')
+    expect(card.find('a.gb__button').attributes('href')).toBe('https://l.test')
+    // "Ocultar" la vuelve a girar
+    await card.find('.gb__hide').trigger('click')
+    expect(card.classes()).not.toContain('is-open')
+    // la transferencia muestra la cuenta de 4 en 4
+    await w.findAll('.gb__card')[2]!.find('button.gb__toggle').trigger('click')
+    expect(w.findAll('.gb__card')[2]!.find('.gb__number').text()).toBe('0123 4567 8901 2345 67')
+    event.gifts = original
+  })
+
+  it('regalos: por el enlace general la caja de la transferencia no gira y avisa', () => {
+    const original = event.gifts
+    event.gifts = {
+      stores: [],
+      envelope: { title: 'Sobres', text: '', bank: '', account: '', holder: '', box: true, hidden: true, private: true },
+    } as unknown as EventConfig['gifts']
+    const w = render(GiftsBoxes, section({ type: 'gifts' }))
+    expect(w.find('button.gb__toggle').exists()).toBe(false)
+    expect(w.find('.gb__private').text()).toContain('invitación personal')
+    expect(w.find('.gb__face--back').exists()).toBe(false)
+    event.gifts = original
+  })
+
+  it('pieles: confirmación vichy, deseos y juego existen en skins.css', () => {
+    const skins = readFileSync(
+      resolve(process.cwd(), 'src/components/sections/variants/skins.css'),
+      'utf8',
+    )
+    for (const skin of ['rsvp--vichy', 'dedications--deseos', 'trivia--juego']) {
+      expect(skins, skin).toContain(`.section--${skin}`)
+    }
   })
 })

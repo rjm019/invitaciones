@@ -502,6 +502,7 @@ Adornos nuevos (`imagen_<adorno>`): `paisaje`, `cortinaje`, `telon`, `pliegues`,
 | `ubicacion` | `grabado` | Lámina oliva con la hacienda dibujada a línea, «Ver ubicación» y, con `calendario`, «Agregar al calendario» por lugar (`acomodo` y `tipo` como siempre) |
 | `galeria` | `bastidor` | Fotos en aros de bordado con tela y puntada |
 | `trivia` | `tarjetas` | Tarjeta de papel con encaje por pregunta (misma trivia) |
+| `trivia` | `juego` | Tarjeta de juego con pespunte y un cubo arriba; las opciones son cubos de juguete pastel con su letra que se hunden al tocarlos (misma trivia) |
 | `video`, `publicacion` | `encaje` | Marco ovalado con aro de perlas; sigue sin cargar nada de terceros hasta tocar play |
 
 Adorno nuevo: `imagen_hacienda` (en `ubicacion`) cambia o quita el dibujo de la hacienda; `imagen_divisor` (en `itinerario`) el hilo de perlas. En `vestimenta`, `enlace` es el destino del botón de ejemplos y `boton` su texto; la plantilla `deploy/plantillas/encaje/` los trae todos.
@@ -584,15 +585,20 @@ Diseños de sección nuevos (`variante`; sirven en cualquier tema):
 | `ubicacion` | `placa` | Placa de talavera por lugar con corazón de encaje para la hora |
 | `ubicacion` | `caminito` | Por lugar: tarjeta crema con filete y, arriba, un caminito punteado en curva que se marca punto por punto mientras la carriola lo recorre hasta el pin, que da un saltito. Mismos campos que `placa` (tipo, hora, dirección, foto, botones, calendario) |
 | `itinerario` | `tendedero` | Hilo con una bandera de papel picado por momento |
-| `itinerario` | `ropita` | Tendedero de ropita: un hilo en zigzag y una prenda por momento (mameluco, babero, calcetines, gorrito, vestido) con dos pinzas, la hora en una etiquetita y la actividad al lado; se mece con la brisa. Con `timeline-fill` cada prenda se cuelga cuando el hilo llega; soporta `en_vivo` |
+| `itinerario` | `ropita` | Tendedero de ropita: cada momento es un tramo de tendedero (una cuerda horizontal con una comba suave de lado a lado y un nudito en cada extremo) con su prenda colgada de dos pinzas (mameluco, babero, calcetines, gorrito, vestido; alternan izquierda y derecha) y, del otro lado y a su altura, la hora en una etiquetita de papel con la actividad debajo, alineadas; entre un tramo y el siguiente, un hilo punteado vertical. Las prendas se mecen con la brisa. Con `timeline-fill` el hilo se llena y cada prenda se cuelga cuando llega; soporta `en_vivo` |
 | `vestimenta` | `sarape` | Tarjeta entre franjas de sarape con listones de colores |
+| `vestimenta` | `lazos` | Texto en una tarjeta ovalada de doble filete y, debajo, un moño de listón por color sugerido (de 2 a 5; sin colores, tres con la paleta) que se ata al llegar, uno tras otro, y luego mece sus colas |
 | `hospedaje` | `azulejo` | Tarjetas con cenefa de azulejos |
 | `galeria` | `collage` | Polaroids giradas con cinta washi, con flores |
 | `galeria` | `medallones` | Un listón en guirnalda del que cuelgan las fotos en óvalos con moñito, a alturas alternas y meciéndose cada una a su ritmo; al tocar una se abre el visor |
 | `mesa_regalos` | `pinata` | Piñata que se mece; al tocarla cae confeti (las tarjetas siempre se ven) |
+| `mesa_regalos` | `cajas` | Una caja de regalo por tienda y por la transferencia (papel de rayas, vichy o lunares que se turnan, listón en cruz, moño y etiqueta con el nombre; la tapa da saltitos). Al tocarla gira y el dorso enseña el número de evento o la CLABE con «Copiar» y «Ver mesa»; las `nota` de cada tienda (p. ej. «lluvia de pañales») se leen debajo. Por el enlace general, la de la transferencia no gira y avisa que los datos vienen en la invitación personal |
 | `confirmacion` | `carpeta` | Tarjeta sobre una carpeta de encaje |
+| `confirmacion` | `vichy` | Tarjeta de respuesta con orilla de vichy, doble filete y margaritas en dos esquinas; campos con línea fina y esquinas suaves (misma confirmación y mismos estados) |
 | `dedicatoria` | `exvoto` | Cada dedicatoria es una laminita tipo exvoto |
+| `dedicatoria` | `deseos` | Cada dedicatoria es una etiqueta de papel perforada que cuelga de un globo (tono de la paleta, se mecen a destiempo); el formulario lleva orilla de vichy |
 | `cierre` | `serenata` | Papel picado, firma caligráfica y mariachis al pie con saguaro y nopal |
+| `cierre` | `paseo` | Título, texto y firma manuscrita grande con un moñito de línea; al pie, el gansito empuja la carriola por un pasto con margaritas en un paseo sin fin y, por arriba, una cigüeña cruza en sentido contrario (con «menos movimiento» quedan quietos al centro y sin cigüeña) |
 
 Adornos nuevos (`imagen_<adorno>`): `cempasuchil`, `nopal`, `saguaro`, `azulejo`, `hojalata`, `monarca`, `pinata` y `corazon` (corazón sagrado). Las secciones que ahora los piden: `portada` (`encaje`, `cempasuchil`, `nopal`, `saguaro`, `corazon`, `azulejo`), `bendicion` (`corazon`, `flores`), `fecha` (`corazon`), `foto` (`hojalata`, `flores`, `cempasuchil`, `monarca`), `galeria` (`flores`, `cempasuchil`, `monarca`), `ubicacion` (`azulejo`, `flores`), `hospedaje` (`azulejo`), `mesa_regalos` (`pinata`), `cuenta_regresiva` (`azulejo`, `flores`), `confirmacion` (`cempasuchil`) y `cierre` (`saguaro`, `nopal`).
 
@@ -601,6 +607,7 @@ Adornos nuevos (`imagen_<adorno>`): `cempasuchil`, `nopal`, `saguaro`, `azulejo`
 | Fila | Valores |
 |---|---|
 | `pagina,,estampado` / `<sección>,,estampado` | `rayas` (franjas verticales anchas y suaves), `vichy` (dos familias de franjas cruzadas; donde se cruzan se ve más intenso), `vichy_arriba` (el mismo vichy solo en la parte alta del panel, desvaneciéndose hacia abajo en `--pattern-fade`, 9 rem por defecto; el degradado termina en el color del panel, que debe ser un color liso), `lunares` (en tresbolillo) o `ninguno`: dibujo de tela quieto sobre el color del panel y sobre el fondo de la página, en un tono más claro (`--pattern-ink`, blanco al 45 % por defecto; `--pattern-size`). En la sección, vacío = el de la página y `ninguno` lo quita. Se pinta con cualquier textura. Un valor que no existe se avisa y se ignora |
+| `sectionPattern` (manifest del tema, no es una fila del CSV) | Estampado por defecto de los paneles (las secciones con panel, no la portada ni las difuminadas) cuando la sección no trae el suyo en `<sección>,,estampado`; la sección puede pedir otro o `ninguno`. Un tema que no lo declara no cambia. `arrullo` lo pone en `vichy_arriba`: todas sus secciones llevan el mismo remate (vichy rosa que se desvanece, la guirnalda de moño), el mismo papel crema y los mismos títulos (la manuscrita en `--color-primary-strong`, versalitas doradas en los subtítulos) |
 | `pagina,,orilla` / `<sección>,,orilla` | `holan`: holán fruncido con su pespunte entre las franjas |
 | `pagina,,botones` | `lazo`: píldora con pespunte punteado por dentro (arriba y abajo), como una cinta cosida, con los colores de la paleta (ya no lleva moñito: los botones con brillo recortan lo que sale de su caja) |
 | `pagina,,esquinas` | `ramitas`: ramita de hojas y bayas con una margarita en dos esquinas de los paneles |

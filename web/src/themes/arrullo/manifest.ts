@@ -2,12 +2,12 @@ import type { ThemeManifest } from '../types'
 
 /**
  * Tema "Arrullo · baby shower": acuarela suave de cuarto de bebé. La página es de un rubor
- * pálido; encima, los paneles se turnan entre papel crema, rubor, papel y salvia clara, con
- * letra café dorado. Caligrafía (Imperial Script) para el nombre y los títulos, Allura para
+ * pálido con rayas; encima, todas las secciones son el mismo panel de papel crema (con vichy
+ * rosa arriba y la guirnalda de moño), con letra café dorado. Caligrafía (Imperial Script) para el nombre y los títulos, Allura para
  * la manuscrita sencilla, Cormorant Infant para el texto y Nunito en los botones.
  *
- * Paleta, letras, paneles que se turnan y globos sueltos, con los detalles de toda la página
- * (estampado de rayas, orilla de holán, botón de lazo, esquinas de ramitas, papel de acuarela).
+ * Paleta, letras, panel único y globos sueltos, con los detalles de toda la página
+ * (estampado de rayas, orilla de holán, botón de lazo, papel de acuarela).
  * Efectos de cada sección: listones, globos, nubes, moño, burbujas, margaritas, móvil y gansito;
  * los diseños (portada, música, bendición, frase, fecha, cuenta regresiva, foto, galería, ubicación e itinerario) ya están; el resto llega en las etapas siguientes. Todo es global: cualquier tema puede usar los adornos de
  * `_shared/assets` (moño, carriola, gansito, globo, margarita, ramita, nube, luna, cubo,
@@ -26,11 +26,11 @@ const theme: ThemeManifest = {
     engraved: { family: 'Cormorant Infant', weights: [500, 600, 700] },
   },
   page: { color: 'bg' },
-  // Detalles de toda la página: holán fruncido, botón de lazo, esquinas de ramitas, papel de
+  // Detalles de toda la página: holán fruncido, botón de lazo, papel de
   // acuarela y rayas de tela (el vichy se pide por sección en el CSV: `estampado`).
   edges: { default: 'ruffle' },
   buttons: 'bow',
-  corners: 'sprigs',
+  corners: 'none',
   texture: 'watercolor',
   pattern: 'stripes',
   // Globos sueltos que cruzan la pantalla a destiempo.
@@ -39,35 +39,92 @@ const theme: ThemeManifest = {
     { file: 'globo.svg', size: '1.2rem', direction: 'rtl', duration: 38, delay: 20, flip: true },
     { file: 'globo.svg', size: '1.4rem', direction: 'ltr', duration: 46, delay: 33 },
   ],
-  // Papel, rubor, papel y salvia clara se turnan; la letra de cada uno la ajusta theme.css.
-  panels: [{ color: 'paper' }, { color: 'rubor' }, { color: 'paper' }, { color: 'salvia-clara' }],
+  // Un solo panel de papel crema para todas las secciones (las rayas quedan detrás, en la página)
+  // y el mismo remate arriba: vichy rosa que se desvanece y la guirnalda de moño.
+  panels: [{ color: 'paper' }],
+  sectionPattern: 'gingham-top',
+  // Cada sección: su entrada (se alternan), el título que se traza (caligrafía donde el diseño
+  // usa FxText; si no, tinta), la guirnalda que siempre se mece, un ambiente distinto al de sus
+  // vecinas y el brillo de los botones.
   sections: {
-    'hero-envelope': { panel: false, variant: 'lazo', effects: ['reveal', 'ribbon-curls', 'balloons'] },
-    'music-player': { variant: 'movil', effects: ['clouds'] },
-    blessing: { desktop: 'half', variant: 'medallon', effects: ['reveal'] },
-    story: { effects: ['reveal', 'bow-tie'] },
-    'save-the-date': { desktop: 'half', variant: 'globos', effects: ['reveal'] },
-    location: { desktop: 'half', variant: 'caminito', effects: ['reveal', 'daisies'] },
-    countdown: { variant: 'cubos', effects: ['reveal', 'crib-mobile'] },
-    itinerary: { desktop: 'half', variant: 'ropita', effects: ['timeline-fill', 'goose-walk'] },
-    'dress-code': { desktop: 'half', effects: ['reveal'] },
-    hotels: { effects: ['reveal', 'bow-tie'] },
-    gallery: { desktop: 'half', variant: 'medallones', effects: ['reveal'] },
-    gifts: { desktop: 'half', effects: ['reveal'] },
-    faq: { desktop: 'half', effects: ['reveal'] },
-    trivia: { effects: ['reveal'] },
-    rsvp: { desktop: 'half', effects: ['reveal'] },
-    dedications: { effects: ['reveal', 'bubbles'] },
-    'guest-album': { effects: ['reveal', 'bow-tie'] },
-    closing: { effects: ['reveal', 'ribbon-curls'] },
-    quote: { desktop: 'half', variant: 'nube', effects: ['reveal'] },
-    'photo-arch': { desktop: 'half', variant: 'retrato', effects: ['reveal'] },
-    'no-kids': { effects: ['reveal', 'bow-tie'] },
-    weather: { effects: ['reveal', 'bow-tie'] },
-    spotify: { effects: ['reveal', 'bow-tie'] },
-    'envelope-rain': { effects: ['reveal', 'bow-tie'] },
-    video: { effects: ['reveal', 'bow-tie'] },
-    'social-post': { effects: ['reveal', 'bow-tie'] },
+    'hero-envelope': { panel: false, variant: 'lazo', effects: ['reveal', 'ribbon-curls', 'balloons', 'shine'] },
+    'music-player': {
+      variant: 'movil',
+      effects: ['reveal-zoom', 'calligraphy', 'clouds', 'garland', 'shine'],
+    },
+    blessing: {
+      desktop: 'half',
+      variant: 'medallon',
+      effects: ['reveal-slide', 'calligraphy', 'stork-flight', 'garland', 'shine'],
+    },
+    story: { effects: ['reveal-tilt', 'ink', 'sparkle', 'garland', 'shine'] },
+    'save-the-date': {
+      desktop: 'half',
+      variant: 'globos',
+      effects: ['cascade', 'ink', 'balloons', 'garland', 'shine'],
+    },
+    location: {
+      desktop: 'half',
+      variant: 'caminito',
+      effects: ['reveal-tilt', 'ink', 'daisies', 'garland', 'shine'],
+    },
+    countdown: {
+      variant: 'cubos',
+      effects: ['reveal-zoom', 'ink', 'crib-mobile', 'garland', 'shine'],
+    },
+    itinerary: {
+      desktop: 'half',
+      variant: 'ropita',
+      effects: ['cascade', 'timeline-fill', 'ink', 'goose-walk', 'garland', 'shine'],
+    },
+    'dress-code': {
+      desktop: 'half',
+      variant: 'lazos',
+      effects: ['reveal-slide', 'ink', 'ribbon-curls', 'garland', 'shine'],
+    },
+    hotels: { effects: ['reveal-zoom', 'ink', 'sparkle', 'garland', 'shine'] },
+    gallery: {
+      desktop: 'half',
+      variant: 'medallones',
+      effects: ['reveal-zoom', 'ink', 'sparkle', 'garland', 'shine'],
+    },
+    gifts: {
+      desktop: 'half',
+      variant: 'cajas',
+      effects: ['reveal-tilt', 'ink', 'balloons', 'stork-flight', 'garland', 'shine'],
+    },
+    faq: { desktop: 'half', effects: ['reveal-slide', 'ink', 'sparkle', 'garland', 'shine'] },
+    trivia: { variant: 'juego', effects: ['reveal-slide', 'ink', 'goose-walk', 'garland', 'shine'] },
+    rsvp: {
+      desktop: 'half',
+      variant: 'vichy',
+      effects: ['cascade', 'ink', 'daisies', 'garland', 'shine'],
+    },
+    dedications: {
+      variant: 'deseos',
+      effects: ['reveal-zoom', 'ink', 'bubbles', 'garland', 'shine'],
+    },
+    'guest-album': { effects: ['reveal-tilt', 'ink', 'sparkle', 'garland', 'shine'] },
+    closing: {
+      variant: 'paseo',
+      effects: ['reveal-tilt', 'ink', 'stork-flight', 'ribbon-curls', 'garland', 'shine'],
+    },
+    quote: {
+      desktop: 'half',
+      variant: 'nube',
+      effects: ['reveal-tilt', 'ink', 'sparkle', 'clouds', 'garland', 'shine'],
+    },
+    'photo-arch': {
+      desktop: 'half',
+      variant: 'retrato',
+      effects: ['reveal-slide', 'ink', 'bubbles', 'garland', 'shine'],
+    },
+    'no-kids': { effects: ['reveal-zoom', 'ink', 'sparkle', 'garland', 'shine'] },
+    weather: { effects: ['reveal-slide', 'ink', 'sparkle', 'garland', 'shine'] },
+    spotify: { effects: ['reveal-tilt', 'ink', 'sparkle', 'garland', 'shine'] },
+    'envelope-rain': { effects: ['reveal-zoom', 'ink', 'sparkle', 'garland', 'shine'] },
+    video: { effects: ['reveal-slide', 'ink', 'sparkle', 'garland', 'shine'] },
+    'social-post': { effects: ['reveal-tilt', 'ink', 'sparkle', 'garland', 'shine'] },
     layer: { panel: false },
   },
 }

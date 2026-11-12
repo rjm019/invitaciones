@@ -16,7 +16,8 @@ describe('tema arrullo', () => {
     expect(listThemes()).toContain('arrullo')
     const manifest = await loadTheme('arrullo')
     expect(manifest?.label).toBe('Arrullo · baby shower')
-    expect(manifest?.panels?.map((p) => p.color)).toEqual(['paper', 'rubor', 'paper', 'salvia-clara'])
+    expect(manifest?.panels).toEqual([{ color: 'paper' }])
+    expect(manifest?.sectionPattern).toBe('gingham-top')
     const assets = themeAssets('arrullo')
     for (const section of Object.values(manifest!.sections)) {
       for (const file of Object.values(section.decor ?? {})) {
@@ -33,7 +34,8 @@ describe('tema arrullo', () => {
     const manifest = await loadTheme('arrullo')
     expect(manifest?.edges).toEqual({ default: 'ruffle' })
     expect(manifest?.buttons).toBe('bow')
-    expect(manifest?.corners).toBe('sprigs')
+    // sin esquinas de ramitas: chocarían con la guirnalda de cada sección
+    expect(manifest?.corners).toBe('none')
     expect(manifest?.texture).toBe('watercolor')
     expect(manifest?.pattern).toBe('stripes')
   })
@@ -41,17 +43,32 @@ describe('tema arrullo', () => {
   it('pone los efectos de baby shower en cada sección', async () => {
     const manifest = await loadTheme('arrullo')
     const effects = (type: string) => manifest!.sections[type].effects
-    expect(effects('hero-envelope')).toEqual(['reveal', 'ribbon-curls', 'balloons'])
-    expect(effects('music-player')).toEqual(['clouds'])
-    expect(effects('blessing')).toEqual(['reveal'])
-    expect(effects('save-the-date')).toEqual(['reveal'])
-    expect(effects('dedications')).toEqual(['reveal', 'bubbles'])
-    expect(effects('location')).toEqual(['reveal', 'daisies'])
-    expect(effects('itinerary')).toEqual(['timeline-fill', 'goose-walk'])
-    expect(effects('countdown')).toEqual(['reveal', 'crib-mobile'])
-    expect(effects('closing')).toEqual(['reveal', 'ribbon-curls'])
-    for (const type of ['hotels', 'weather', 'video', 'social-post']) {
-      expect(effects(type), type).toEqual(['reveal', 'bow-tie'])
+    // La portada no lleva panel: sin guirnalda (ya trae la suya) y con sus propios efectos.
+    expect(effects('hero-envelope')).toEqual(['reveal', 'ribbon-curls', 'balloons', 'shine'])
+    expect(effects('music-player')).toEqual(['reveal-zoom', 'calligraphy', 'clouds', 'garland', 'shine'])
+    expect(effects('blessing')).toEqual(['reveal-slide', 'calligraphy', 'stork-flight', 'garland', 'shine'])
+    expect(effects('quote')).toEqual(['reveal-tilt', 'ink', 'sparkle', 'clouds', 'garland', 'shine'])
+    expect(effects('save-the-date')).toEqual(['cascade', 'ink', 'balloons', 'garland', 'shine'])
+    expect(effects('countdown')).toEqual(['reveal-zoom', 'ink', 'crib-mobile', 'garland', 'shine'])
+    expect(effects('photo-arch')).toEqual(['reveal-slide', 'ink', 'bubbles', 'garland', 'shine'])
+    expect(effects('location')).toEqual(['reveal-tilt', 'ink', 'daisies', 'garland', 'shine'])
+    expect(effects('itinerary')).toEqual(['cascade', 'timeline-fill', 'ink', 'goose-walk', 'garland', 'shine'])
+    expect(effects('gallery')).toEqual(['reveal-zoom', 'ink', 'sparkle', 'garland', 'shine'])
+    expect(effects('dress-code')).toEqual(['reveal-slide', 'ink', 'ribbon-curls', 'garland', 'shine'])
+    expect(effects('gifts')).toEqual(['reveal-tilt', 'ink', 'balloons', 'stork-flight', 'garland', 'shine'])
+    expect(effects('rsvp')).toEqual(['cascade', 'ink', 'daisies', 'garland', 'shine'])
+    expect(effects('dedications')).toEqual(['reveal-zoom', 'ink', 'bubbles', 'garland', 'shine'])
+    expect(effects('trivia')).toEqual(['reveal-slide', 'ink', 'goose-walk', 'garland', 'shine'])
+    expect(effects('closing')).toEqual(['reveal-tilt', 'ink', 'stork-flight', 'ribbon-curls', 'garland', 'shine'])
+    // Todas las secciones con panel llevan el mismo remate, entrada, título trazado y brillo.
+    const entrances = ['reveal-zoom', 'reveal-slide', 'reveal-tilt', 'cascade']
+    for (const [type, section] of Object.entries(manifest!.sections)) {
+      if (section.panel === false) continue
+      const list = section.effects ?? []
+      expect(list, type).toContain('garland')
+      expect(list, type).toContain('shine')
+      expect(list.some((e) => entrances.includes(e)), type).toBe(true)
+      expect(list.some((e) => ['ink', 'calligraphy'].includes(e)), type).toBe(true)
     }
     const css = readFileSync(resolve(process.cwd(), 'src/effects/arrullo.css'), 'utf8')
     for (const cls of [
@@ -96,10 +113,6 @@ describe('tema arrullo', () => {
       expect(manifest?.sections[type].variant, type).toBe(variant)
       expect(sectionVariants[type][variant], type).toBeTypeOf('function')
     }
-    // conservan los efectos que ya tenían
-    expect(manifest?.sections.blessing.effects).toEqual(['reveal'])
-    expect(manifest?.sections['save-the-date'].effects).toEqual(['reveal'])
-    expect(manifest?.sections.countdown.effects).toEqual(['reveal', 'crib-mobile'])
   })
 
   it('la foto, la galería, la ubicación y el itinerario llevan sus diseños propios', async () => {
@@ -114,8 +127,6 @@ describe('tema arrullo', () => {
       expect(manifest?.sections[type].variant, type).toBe(variant)
       expect(sectionVariants[type][variant], type).toBeTypeOf('function')
     }
-    expect(manifest?.sections.location.effects).toEqual(['reveal', 'daisies'])
-    expect(manifest?.sections.itinerary.effects).toEqual(['timeline-fill', 'goose-walk'])
   })
 
   it('define los tokens de color de los paneles que se turnan', () => {
@@ -125,9 +136,7 @@ describe('tema arrullo', () => {
     ]) {
       expect(themeCss, token).toContain(`${token}:`)
     }
-    for (const bg of ['paper', 'rubor', 'salvia-clara']) {
-      expect(themeCss, bg).toContain(`.section--bg-${bg}`)
-    }
+    expect(themeCss).toContain('.section--bg-paper')
   })
 
   it('los adornos nuevos son compartidos: cualquier tema los encuentra', () => {

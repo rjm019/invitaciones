@@ -293,6 +293,7 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
 
 <style scoped>
 .hb {
+  --hb-w: min(100cqi, 30rem, calc((100svh - 2 * var(--section-gap) - 4.5rem) * 0.8));
   display: grid;
   place-content: start center;
   justify-items: center;
@@ -319,7 +320,7 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
   --hb-ribbon-soft: var(--color-primary-soft, var(--color-primary));
   position: relative;
   container-type: inline-size;
-  width: min(100cqi, 30rem, calc((100svh - 2 * var(--section-gap) - 4.5rem) * 0.8));
+  width: var(--hb-w);
   aspect-ratio: 4 / 5;
 }
 .hb--closed .hb__stage {
@@ -694,12 +695,12 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
   translate: 0 0;
 }
 
-/* La cigüeña cruza por arriba del medallón, de lado a lado. */
+/* La cigüeña cruza por arriba del medallón (grande, un poco sobre su borde), de lado a lado. */
 .hb__stork {
   position: absolute;
   left: 0;
-  top: 0;
-  width: 38cqi;
+  top: -22cqi;
+  width: 56cqi;
   pointer-events: none;
   animation: hb-stork calc(3.2s * var(--motion-scale)) linear both;
 }
@@ -791,7 +792,7 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
 }
 @keyframes hb-stork {
   from {
-    translate: -40cqi 0;
+    translate: -60cqi 0;
   }
   to {
     translate: 125cqi -3cqi;
@@ -858,10 +859,62 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
   }
 }
 
+/*
+ * Celular y tableta: la hoja cerrada es alta (llena ~80 % del alto de la pantalla). El escenario
+ * sigue siendo 4:5 (el medallón no cambia), pero el papel sale de él 45cqi por arriba y 37cqi
+ * por abajo; el ganso, el nombre y los globos se acomodan en ese alto. Las medidas van en cqi
+ * del escenario y los márgenes dejan sitio al papel (y a "Toca el moño" bajo él).
+ */
+@container section (max-width: 55.99rem) {
+  .hb--closed,
+  .hb--opening {
+    --hb-w: min(100cqi, 30rem, calc((100svh - 2 * var(--section-gap) - 4.5rem) / 2.07));
+  }
+  .hb--closed .hb__stage,
+  .hb--opening .hb__stage {
+    margin-block: calc(var(--hb-w) * 0.45) calc(var(--hb-w) * 0.37);
+  }
+  .hb__sheet-paper {
+    inset: -45cqi 0 -37cqi;
+  }
+  .hb__sheet-paper::before {
+    -webkit-mask-image: linear-gradient(180deg, #000 0, #000 44cqi, transparent 104cqi);
+    mask-image: linear-gradient(180deg, #000 0, #000 44cqi, transparent 104cqi);
+  }
+  .hb__garland {
+    top: -45cqi;
+  }
+  .hb__goose-shadow {
+    top: 88cqi;
+    width: 52cqi;
+    margin-left: -25cqi;
+  }
+  .hb__cover-goose {
+    top: 17cqi;
+    width: 76cqi;
+    margin-left: -38cqi;
+  }
+  .hb:not(.is-grown) .hb__content {
+    top: 82%;
+    height: 30%;
+  }
+  .hb:not(.is-grown) .hb__title {
+    font-size: calc(4.6cqi * var(--t-title-size, 1));
+  }
+  .hb:not(.is-grown) .hb__name {
+    font-size: min(
+      calc(29cqi * var(--t-name-size, 1)),
+      calc(220cqi / var(--hb-chars, 1) * var(--t-name-size, 1))
+    );
+  }
+}
+
 /* Escritorio: el medallón es el mismo; el escenario crece sin pasarse del alto de la ventana. */
 @container section (min-width: 56rem) {
-  .hb__stage {
-    width: min(100cqi, 40rem, calc((100svh - 2 * var(--section-gap) - 5rem) * 0.8));
+  .hb,
+  .hb--closed,
+  .hb--opening {
+    --hb-w: min(100cqi, 40rem, calc((100svh - 2 * var(--section-gap) - 5rem) * 0.8));
   }
   .hb__sheet {
     width: min(60rem, calc(100vw - 2rem));
@@ -870,6 +923,10 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
     left: 50%;
     width: min(100%, 112cqi);
     margin-left: calc(min(100%, 112cqi) / -2);
+  }
+  /* En escritorio el medallón queda arriba de la ventana: la cigüeña cruza más abajo para no cortarse. */
+  .hb__stork {
+    top: -7cqi;
   }
   .hb__tap-icon {
     width: 1.5rem;

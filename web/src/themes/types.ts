@@ -99,6 +99,11 @@ export interface ThemeManifest {
   fillet?: FilletStyle
   /** Estampado de tela de toda la página (rayas, vichy, lunares). */
   pattern?: PatternStyle
+  /**
+   * Estampado por defecto de los paneles (las secciones con panel) cuando la sección no trae el
+   * suyo en el layout (`estampado`). La portada y las secciones sin panel no lo llevan.
+   */
+  sectionPattern?: PatternStyle
   relief?: boolean
   /**
    * Fondos que se turnan los paneles sin fondo propio (en el layout o en el tema), para
