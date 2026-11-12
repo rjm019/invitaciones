@@ -573,3 +573,13 @@ Diseños de sección nuevos (`variante`; sirven en cualquier tema):
 | `cierre` | `serenata` | Papel picado, firma caligráfica y mariachis al pie con saguaro y nopal |
 
 Adornos nuevos (`imagen_<adorno>`): `cempasuchil`, `nopal`, `saguaro`, `azulejo`, `hojalata`, `monarca`, `pinata` y `corazon` (corazón sagrado). Las secciones que ahora los piden: `portada` (`encaje`, `cempasuchil`, `nopal`, `saguaro`, `corazon`, `azulejo`), `bendicion` (`corazon`, `flores`), `fecha` (`corazon`), `foto` (`hojalata`, `flores`, `cempasuchil`, `monarca`), `galeria` (`flores`, `cempasuchil`, `monarca`), `ubicacion` (`azulejo`, `flores`), `hospedaje` (`azulejo`), `mesa_regalos` (`pinata`), `cuenta_regresiva` (`azulejo`, `flores`), `confirmacion` (`cempasuchil`) y `cierre` (`saguaro`, `nopal`).
+
+## Piezas del tema `arrullo` (sirven en cualquier tema)
+
+| Fila | Valores |
+|---|---|
+| `pagina,,estampado` / `<sección>,,estampado` | `rayas` (franjas verticales anchas y suaves), `vichy` (dos familias de franjas cruzadas; donde se cruzan se ve más intenso), `lunares` (en tresbolillo) o `ninguno`: dibujo de tela quieto sobre el color del panel y sobre el fondo de la página, en un tono más claro (`--pattern-ink`, blanco al 45 % por defecto; `--pattern-size`). En la sección, vacío = el de la página y `ninguno` lo quita. Se pinta con cualquier textura. Un valor que no existe se avisa y se ignora |
+| `pagina,,orilla` / `<sección>,,orilla` | `holan`: holán fruncido con su pespunte entre las franjas |
+| `pagina,,botones` | `lazo`: píldora con pespunte punteado por dentro y un moñito a la izquierda, con los colores de la paleta |
+| `pagina,,esquinas` | `ramitas`: ramita de hojas y bayas con una margarita en dos esquinas de los paneles |
+| `pagina,,textura` | `acuarela`: papel de acuarela con grano fino y manchas suaves de pigmento |

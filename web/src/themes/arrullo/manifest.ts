@@ -6,10 +6,9 @@ import type { ThemeManifest } from '../types'
  * letra café dorado. Caligrafía (Imperial Script) para el nombre y los títulos, Allura para
  * la manuscrita sencilla, Cormorant Infant para el texto y Nunito en los botones.
  *
- * Esta es la base: paleta, letras, paneles que se turnan y globos sueltos. Todo lo propio del
- * tema (estampado de rayas y vichy, orilla de holán, botón de lazo, esquinas de ramitas, papel
- * de acuarela, efectos y diseños de cada sección) llega en las etapas siguientes; mientras
- * tanto solo usa lo que ya existe. Todo es global: cualquier tema puede usar los adornos de
+ * Paleta, letras, paneles que se turnan y globos sueltos, con los detalles de toda la página
+ * (estampado de rayas, orilla de holán, botón de lazo, esquinas de ramitas, papel de acuarela).
+ * Los efectos y diseños de cada sección llegan en las etapas siguientes. Todo es global: cualquier tema puede usar los adornos de
  * `_shared/assets` (moño, carriola, gansito, globo, margarita, ramita, nube, luna, cubo,
  * caja de regalo, pinza y ropita).
  */
@@ -26,11 +25,13 @@ const theme: ThemeManifest = {
     engraved: { family: 'Cormorant Infant', weights: [500, 600, 700] },
   },
   page: { color: 'bg' },
-  // Detalles de toda la página (valores que ya existen; los propios llegan en la etapa 2).
-  edges: { default: 'scallop' },
-  buttons: 'solid',
-  corners: 'none',
-  texture: 'paper',
+  // Detalles de toda la página: holán fruncido, botón de lazo, esquinas de ramitas, papel de
+  // acuarela y rayas de tela (el vichy se pide por sección en el CSV: `estampado`).
+  edges: { default: 'ruffle' },
+  buttons: 'bow',
+  corners: 'sprigs',
+  texture: 'watercolor',
+  pattern: 'stripes',
   // Globos sueltos que cruzan la pantalla a destiempo.
   flights: [
     { file: 'globo.svg', size: '1.6rem', direction: 'ltr', duration: 30, delay: 6 },

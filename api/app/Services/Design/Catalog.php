@@ -222,6 +222,7 @@ final class Catalog
         'recta' => ['value' => 'straight', 'label' => 'Recta'],
         'encaje' => ['value' => 'lace', 'label' => 'Encaje'],
         'picado' => ['value' => 'picado', 'label' => 'Papel picado'],
+        'holan' => ['value' => 'ruffle', 'label' => 'Holán fruncido'],
     ];
 
     /** Estilos de botón de toda la invitación. */
@@ -236,6 +237,7 @@ final class Catalog
         'liston' => ['value' => 'ribbon', 'label' => 'Listón de satén'],
         'fino' => ['value' => 'fine', 'label' => 'Contorno fino (papelería)'],
         'talavera' => ['value' => 'talavera', 'label' => 'Azulejo de talavera'],
+        'lazo' => ['value' => 'bow', 'label' => 'Lazo (pespunte y moñito)'],
     ];
 
     /** Esquinas de los paneles. */
@@ -243,6 +245,7 @@ final class Catalog
         'deco' => ['value' => 'deco', 'label' => 'Escalonadas art déco'],
         'encaje' => ['value' => 'lace', 'label' => 'Encaje'],
         'flores' => ['value' => 'flowers', 'label' => 'Ramito de flores'],
+        'ramitas' => ['value' => 'sprigs', 'label' => 'Ramita con margarita'],
         'ninguna' => ['value' => 'none', 'label' => 'Sin adorno'],
     ];
 
@@ -256,6 +259,7 @@ final class Catalog
         'piedra' => ['value' => 'stone', 'label' => 'Piedra (beige con manchas suaves)'],
         'algodon' => ['value' => 'cotton', 'label' => 'Algodón (papel marfil con fibra)'],
         'amate' => ['value' => 'amate', 'label' => 'Papel amate (fibras cruzadas)'],
+        'acuarela' => ['value' => 'watercolor', 'label' => 'Papel de acuarela (grano y manchas)'],
         'ninguna' => ['value' => 'none', 'label' => 'Sin textura'],
     ];
 
@@ -270,6 +274,14 @@ final class Catalog
         'borgona' => ['value' => 'burgundy', 'label' => 'Borgoña'],
         'oro' => ['value' => 'gold', 'label' => 'Oro'],
         'ninguno' => ['value' => 'none', 'label' => 'Sin filete'],
+    ];
+
+    /** Estampado de tela sobre el color del panel o de la página (quieto). */
+    public const PATTERNS = [
+        'rayas' => ['value' => 'stripes', 'label' => 'Rayas'],
+        'vichy' => ['value' => 'gingham', 'label' => 'Vichy (cuadros)'],
+        'lunares' => ['value' => 'dots', 'label' => 'Lunares'],
+        'ninguno' => ['value' => 'none', 'label' => 'Sin estampado'],
     ];
 
     /** Valor de imagen_<adorno> que quita ese adorno. */
@@ -301,6 +313,7 @@ final class Catalog
             ['value' => 'recta', 'label' => 'Recta'],
             ['value' => 'encaje', 'label' => 'Encaje'],
             ['value' => 'picado', 'label' => 'Papel picado'],
+            ['value' => 'holan', 'label' => 'Holán fruncido'],
         ]],
         ['key' => 'silueta', 'label' => 'Silueta de la tarjeta', 'input' => 'select', 'help' => 'Vacío: la de toda la invitación.', 'options' => [
             ['value' => 'muesca', 'label' => 'Con muescas (esquinas recortadas)'],
@@ -310,6 +323,12 @@ final class Catalog
             ['value' => 'borgona', 'label' => 'Borgoña'],
             ['value' => 'oro', 'label' => 'Oro'],
             ['value' => 'ninguno', 'label' => 'Sin filete'],
+        ]],
+        ['key' => 'estampado', 'label' => 'Estampado de tela', 'input' => 'select', 'help' => 'Vacío: el de toda la invitación.', 'options' => [
+            ['value' => 'rayas', 'label' => 'Rayas'],
+            ['value' => 'vichy', 'label' => 'Vichy (cuadros)'],
+            ['value' => 'lunares', 'label' => 'Lunares'],
+            ['value' => 'ninguno', 'label' => 'Sin estampado'],
         ]],
         ['key' => 'escritorio', 'label' => 'En computadora', 'input' => 'select', 'options' => [
             ['value' => 'completo', 'label' => 'Toda la fila'],
@@ -398,6 +417,7 @@ final class Catalog
             ['value' => 'recta', 'label' => 'Recta'],
             ['value' => 'encaje', 'label' => 'Encaje'],
             ['value' => 'picado', 'label' => 'Papel picado'],
+            ['value' => 'holan', 'label' => 'Holán fruncido'],
         ]],
         ['key' => 'botones', 'label' => 'Estilo de los botones', 'input' => 'select', 'options' => [
             ['value' => 'degradado', 'label' => 'Degradado metálico'],
@@ -409,6 +429,7 @@ final class Catalog
             ['value' => 'texto', 'label' => 'Texto subrayado'],
             ['value' => 'liston', 'label' => 'Listón de satén'],
             ['value' => 'talavera', 'label' => 'Azulejo de talavera'],
+            ['value' => 'lazo', 'label' => 'Lazo (pespunte y moñito)'],
         ]],
         ['key' => 'confeti', 'label' => 'Confeti que cae', 'input' => 'select', 'help' => 'Pedacitos de papel metálico con los colores de la paleta.', 'options' => [
             ['value' => 'SI', 'label' => 'Sí'],
@@ -422,6 +443,7 @@ final class Catalog
             ['value' => 'deco', 'label' => 'Escalonadas art déco'],
             ['value' => 'encaje', 'label' => 'Encaje'],
             ['value' => 'flores', 'label' => 'Ramito de flores'],
+            ['value' => 'ramitas', 'label' => 'Ramita con margarita'],
             ['value' => 'ninguna', 'label' => 'Sin adorno'],
         ]],
         ['key' => 'textura', 'label' => 'Textura de tela de los paneles', 'input' => 'select', 'help' => 'El fondo de cada panel con trama de tela: brillo en las crestas y sombra en los valles.', 'options' => [
@@ -433,6 +455,7 @@ final class Catalog
             ['value' => 'piedra', 'label' => 'Piedra (beige con manchas suaves)'],
             ['value' => 'algodon', 'label' => 'Algodón (papel marfil con fibra)'],
             ['value' => 'amate', 'label' => 'Papel amate (fibras cruzadas)'],
+            ['value' => 'acuarela', 'label' => 'Papel de acuarela (grano y manchas)'],
             ['value' => 'ninguna', 'label' => 'Sin textura'],
         ]],
         ['key' => 'silueta', 'label' => 'Silueta de las tarjetas', 'input' => 'select', 'help' => 'Con muescas: las esquinas de cada tarjeta se recortan en cóncavo, como una tarjeta de papelería fina.', 'options' => [
@@ -443,6 +466,12 @@ final class Catalog
             ['value' => 'borgona', 'label' => 'Borgoña'],
             ['value' => 'oro', 'label' => 'Oro'],
             ['value' => 'ninguno', 'label' => 'Sin filete'],
+        ]],
+        ['key' => 'estampado', 'label' => 'Estampado de tela de los paneles', 'input' => 'select', 'help' => 'Rayas, cuadros vichy o lunares sobre el color de cada panel, en un tono más claro. Quieto.', 'options' => [
+            ['value' => 'rayas', 'label' => 'Rayas'],
+            ['value' => 'vichy', 'label' => 'Vichy (cuadros)'],
+            ['value' => 'lunares', 'label' => 'Lunares'],
+            ['value' => 'ninguno', 'label' => 'Sin estampado'],
         ]],
         ['key' => 'relieve', 'label' => 'Títulos en relieve (letterpress)', 'input' => 'select', 'help' => 'Los títulos se ven impresos en el papel: una luz y una sombra finas, sin movimiento.', 'options' => [
             ['value' => 'SI', 'label' => 'Sí'],

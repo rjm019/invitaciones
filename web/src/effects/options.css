@@ -161,6 +161,27 @@
 }
 
 /*
+ * Esquinas de ramitas (esquinas="ramitas"): una ramita de hojas y bayas con una margarita en
+ * dos esquinas opuestas del panel (arriba a la izquierda y abajo a la derecha).
+ */
+.invitation[data-corners='sprigs'] .section--panel::before {
+  content: '';
+  position: absolute;
+  inset: 0.2rem;
+  /* Detrás del contenido (que va después en el árbol): nunca tapan textos ni botones. */
+  z-index: 0;
+  background:
+    url('./assets/ramitas-esquina-tl.svg') top left / var(--corner-size, 5rem) no-repeat,
+    url('./assets/ramitas-esquina-br.svg') bottom right / var(--corner-size, 5rem) no-repeat;
+  pointer-events: none;
+}
+@media (max-width: 40rem) {
+  .invitation[data-corners='sprigs'] .section--panel::before {
+    --corner-size: 3.4rem;
+  }
+}
+
+/*
  * Textura de tela (textura="..."): el fondo de cada panel (y de cada franja) lleva una
  * trama encima del color o degradado de la sección. Son capas neutras (luz y sombra con
  * transparencia), así que sirven con cualquier paleta. Sin animación.
@@ -185,6 +206,7 @@
       rgb(0 0 0 / 0.26)
     ),
     linear-gradient(180deg, rgb(255 255 255 / 0.08), transparent 30%, rgb(0 0 0 / 0.22)),
+    var(--pattern-layers, none),
     var(--section-bg-color, transparent);
 }
 .invitation[data-texture='satin'] :is(.section--panel, .section__fill) {
@@ -199,34 +221,40 @@
       transparent 80%,
       rgb(0 0 0 / 0.14)
     ),
+    var(--pattern-layers, none),
     var(--section-bg-color, transparent);
 }
 .invitation[data-texture='gauze'] :is(.section--panel, .section__fill) {
   background:
     url('./assets/textura-tul.svg') 0 0 / 14px 24px,
     radial-gradient(120% 90% at 50% 0%, rgb(255 255 255 / 0.2), transparent 70%),
+    var(--pattern-layers, none),
     var(--section-bg-color, transparent);
 }
 .invitation[data-texture='linen'] :is(.section--panel, .section__fill) {
   background:
     url('./assets/textura-lino.svg') 0 0 / 200px,
+    var(--pattern-layers, none),
     var(--section-bg-color, transparent);
 }
 .invitation[data-texture='paper'] :is(.section--panel, .section__fill) {
   background:
     url('../themes/_shared/assets/grano.svg') 0 0 / 240px,
     radial-gradient(120% 85% at 50% 42%, rgb(255 255 255 / 0.14), transparent 72%),
+    var(--pattern-layers, none),
     var(--section-bg-color, transparent);
 }
 .invitation[data-texture='stone'] :is(.section--panel, .section__fill) {
   background:
     url('./assets/textura-piedra.svg') 0 0 / 400px,
+    var(--pattern-layers, none),
     var(--section-bg-color, var(--color-stone, #d8cfc0));
 }
 .invitation[data-texture='cotton'] :is(.section--panel, .section__fill) {
   background:
     url('./assets/textura-algodon.svg') 0 0 / 320px,
     radial-gradient(120% 85% at 50% 40%, rgb(255 255 255 / 0.22), transparent 72%),
+    var(--pattern-layers, none),
     var(--section-bg-color, var(--color-cotton, #f5f0e6));
 }
 /* El amate se apaga con un velo del mismo color del fondo: poco sobre el crema y casi todo sobre
@@ -242,7 +270,69 @@
       color-mix(in srgb, var(--amate-bg) var(--amate-veil, 35%), transparent)
     ),
     url('./assets/textura-amate.svg') 0 0 / 240px,
+    var(--pattern-layers, none),
     var(--amate-bg);
+}
+/*
+ * Papel de acuarela (textura="acuarela"): manchas suaves de pigmento (rosa, azul y ocre muy
+ * tenues) y grano fino sobre el color del panel, con una luz suave al centro. Neutra: sirve
+ * con cualquier paleta (./assets/textura-acuarela.svg repite sin costura).
+ */
+.invitation[data-texture='watercolor'] :is(.section--panel, .section__fill) {
+  background:
+    url('./assets/textura-acuarela.svg') 0 0 / 320px,
+    radial-gradient(120% 85% at 50% 42%, rgb(255 255 255 / 0.12), transparent 72%),
+    var(--pattern-layers, none),
+    var(--section-bg-color, transparent);
+}
+
+/*
+ * Estampado de tela (estampado="rayas" | "vichy" | "lunares", en la página o en una sección):
+ * un dibujo quieto sobre el color del panel (y sobre el fondo de la página), en un tono más
+ * claro del mismo color: `--pattern-ink` (por defecto, blanco al 45 %; el tema la cambia) y
+ * `--pattern-size` (el lado de cada módulo). Cada elemento con estampado calcula sus capas en
+ * `--pattern-layers` (así `--pattern-ink` puede ser distinta en cada panel); las texturas de
+ * arriba pintan el fondo con `background` y la ponen justo sobre el color, debajo de su trama;
+ * sin textura, el panel pinta solo el estampado. Una sección con `estampado=ninguno` lo quita
+ * aunque la página lo tenga. El dibujo va en el fondo del panel: nunca tapa el contenido.
+ * - rayas: franjas verticales anchas, de orillas suaves.
+ * - vichy: dos familias de franjas cruzadas y semitransparentes; donde se cruzan, más intenso.
+ * - lunares: tresbolillo (cada fila va a medio módulo de la anterior).
+ */
+.invitation[data-pattern='stripes'],
+.invitation[data-pattern='stripes'] .section:not([data-pattern]),
+.section[data-pattern='stripes'] {
+  --pattern-layers: linear-gradient(90deg, transparent 0, var(--pattern-ink, rgb(255 255 255 / 0.45)) 9%, var(--pattern-ink, rgb(255 255 255 / 0.45)) 41%, transparent 50%) 0 0 /
+    var(--pattern-size, 3.2rem) 100%;
+}
+.invitation[data-pattern='gingham'],
+.invitation[data-pattern='gingham'] .section:not([data-pattern]),
+.section[data-pattern='gingham'] {
+  --pattern-layers:
+    linear-gradient(90deg, var(--pattern-ink, rgb(255 255 255 / 0.45)) 50%, transparent 50%) 0 0 / var(--pattern-size, 1.8rem)
+      var(--pattern-size, 1.8rem),
+    linear-gradient(0deg, var(--pattern-ink, rgb(255 255 255 / 0.45)) 50%, transparent 50%) 0 0 / var(--pattern-size, 1.8rem)
+      var(--pattern-size, 1.8rem);
+}
+.invitation[data-pattern='dots'],
+.invitation[data-pattern='dots'] .section:not([data-pattern]),
+.section[data-pattern='dots'] {
+  --pattern-layers:
+    radial-gradient(circle calc(var(--pattern-size, 2.4rem) * 0.11) at 25% 25%, var(--pattern-ink, rgb(255 255 255 / 0.45)) 92%, transparent 100%) 0 0 /
+      var(--pattern-size, 2.4rem) var(--pattern-size, 2.4rem),
+    radial-gradient(circle calc(var(--pattern-size, 2.4rem) * 0.11) at 75% 75%, var(--pattern-ink, rgb(255 255 255 / 0.45)) 92%, transparent 100%) 0 0 /
+      var(--pattern-size, 2.4rem) var(--pattern-size, 2.4rem);
+}
+.section[data-pattern='none'] {
+  --pattern-layers: none;
+}
+/* El fondo de la página. */
+.invitation[data-pattern]:not([data-pattern='none']) {
+  background-image: var(--pattern-layers);
+}
+/* Sin textura: el panel pinta el color y, encima, el estampado. */
+.invitation[data-pattern]:not([data-texture]) :is(.section--panel, .section__fill) {
+  background: var(--pattern-layers, none), var(--section-bg-color, transparent);
 }
 
 /*

@@ -68,7 +68,7 @@ export type EffectName =
   | 'mariachi-band'
 
 /** Forma de las orillas de una franja (sección difuminada con fondo). */
-export type EdgeStyle = 'fade' | 'torn' | 'city' | 'wave' | 'scallop' | 'straight' | 'lace' | 'picado'
+export type EdgeStyle = 'fade' | 'torn' | 'city' | 'wave' | 'scallop' | 'straight' | 'lace' | 'picado' | 'ruffle'
 
 /** Estilo de todos los botones de la invitación (bloque "pagina"). */
 export type ButtonStyle =
@@ -82,9 +82,10 @@ export type ButtonStyle =
   | 'ribbon'
   | 'fine'
   | 'talavera'
+  | 'bow'
 
 /** Esquinas de los paneles. */
-export type CornerStyle = 'deco' | 'lace' | 'flowers' | 'none'
+export type CornerStyle = 'deco' | 'lace' | 'flowers' | 'sprigs' | 'none'
 
 /** Textura de tela del fondo de los paneles. */
 export type TextureStyle =
@@ -96,6 +97,7 @@ export type TextureStyle =
   | 'stone'
   | 'cotton'
   | 'amate'
+  | 'watercolor'
   | 'none'
 
 /** Silueta de las tarjetas: con muescas (esquinas cóncavas recortadas) o recta. */
@@ -103,6 +105,9 @@ export type SilhouetteStyle = 'notch' | 'none'
 
 /** Filete fino por dentro de la silueta. */
 export type FilletStyle = 'burgundy' | 'gold' | 'none'
+
+/** Estampado de tela sobre el color del panel o de la página: rayas, vichy o lunares. */
+export type PatternStyle = 'stripes' | 'gingham' | 'dots' | 'none'
 
 /** Un recuerdo de la historia (sección "historia"). */
 export interface StoryMoment {
@@ -270,6 +275,8 @@ export interface SectionConfig {
   /** Silueta y filete de esta tarjeta (si no vienen, los de la página o los del tema). */
   silhouette?: SilhouetteStyle
   fillet?: FilletStyle
+  /** Estampado de tela de esta sección (si no viene, el de la página o el del tema). */
+  pattern?: PatternStyle
   /** Vestimenta: lo que se pide evitar (hasta 6) y fotos de referencia (hasta 4). */
   restrictions?: string[]
   /** Vestimenta: lista bajo la figura de hombre y la de mujer (hasta 6 cada una). */
@@ -470,6 +477,7 @@ export interface EventConfig {
     texture?: TextureStyle
     silhouette?: SilhouetteStyle
     fillet?: FilletStyle
+    pattern?: PatternStyle
     /** Títulos en relieve (letterpress estático). */
     relief?: boolean
   }

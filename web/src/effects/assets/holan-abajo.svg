@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="60" viewBox="0 0 80 60">
+  <!-- Orilla de abajo en holán fruncido: lo opaco es la franja (máscara: solo importa la forma); el pespunte es un renglón de huecos -->
+  <path fill-rule="evenodd" d="M0 0V24C5 52 35 52 40 24C45 52 75 52 80 24V0ZM1.5 12h5.0v1.6h-5.0zM9.5 12h5.0v1.6h-5.0zM17.5 12h5.0v1.6h-5.0zM25.5 12h5.0v1.6h-5.0zM33.5 12h5.0v1.6h-5.0zM41.5 12h5.0v1.6h-5.0zM49.5 12h5.0v1.6h-5.0zM57.5 12h5.0v1.6h-5.0zM65.5 12h5.0v1.6h-5.0zM73.5 12h5.0v1.6h-5.0z"/>
+</svg>

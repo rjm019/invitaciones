@@ -175,6 +175,38 @@ class EventEffectsTest extends TestCase
         $this->assertSame('picado', $sections->firstWhere('type', 'quote')['edge']);
     }
 
+    public function test_arrullo_page_options_and_pattern(): void
+    {
+        $this->copyEventFixtures();
+        foreach ([
+            'pagina,,orilla,holan',
+            'pagina,,botones,lazo',
+            'pagina,,esquinas,ramitas',
+            'pagina,,textura,acuarela',
+            'pagina,,estampado,rayas',
+            'frase,,visible,SI',
+            'frase,,orilla,holan',
+            'frase,,estampado,vichy',
+            'cierre,,visible,SI',
+            'cierre,,estampado,tartán',
+        ] as $line) {
+            $this->appendLine('nueva', 'invitacion.csv', $line);
+        }
+
+        $event = $this->getJson('/api/public/events/nueva')->assertOk()->json('event');
+
+        $this->assertSame('ruffle', $event['page']['edge']);
+        $this->assertSame('bow', $event['page']['buttons']);
+        $this->assertSame('sprigs', $event['page']['corners']);
+        $this->assertSame('watercolor', $event['page']['texture']);
+        $this->assertSame('stripes', $event['page']['pattern']);
+        $sections = collect($event['sections']);
+        $this->assertSame('ruffle', $sections->firstWhere('type', 'quote')['edge']);
+        $this->assertSame('gingham', $sections->firstWhere('type', 'quote')['pattern']);
+        // Uno que no existe se ignora (con aviso): la sección toma el de la página.
+        $this->assertArrayNotHasKey('pattern', $sections->firstWhere('type', 'closing'));
+    }
+
     public function test_encaje_section_variants_pass_through(): void
     {
         $this->copyEventFixtures();

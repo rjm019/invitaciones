@@ -143,6 +143,7 @@ const designAttrs = computed(() => {
   const texture = p?.texture ?? theme.value?.texture
   const silhouette = p?.silhouette ?? theme.value?.silhouette
   const fillet = p?.fillet ?? theme.value?.fillet
+  const pattern = p?.pattern ?? theme.value?.pattern
   return {
     'data-buttons': buttons || undefined,
     'data-metal': (p?.metal ?? theme.value?.metallic) ? '' : undefined,
@@ -150,6 +151,7 @@ const designAttrs = computed(() => {
     'data-texture': texture && texture !== 'none' ? texture : undefined,
     'data-silhouette': silhouette && silhouette !== 'none' ? silhouette : undefined,
     'data-fillet': fillet && fillet !== 'none' ? fillet : undefined,
+    'data-pattern': pattern && pattern !== 'none' ? pattern : undefined,
     'data-relief': (p?.relief ?? theme.value?.relief) ? '' : undefined,
   }
 })

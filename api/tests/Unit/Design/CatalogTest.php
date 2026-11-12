@@ -111,6 +111,28 @@ class CatalogTest extends TestCase
         }
     }
 
+    public function test_the_arrullo_options_are_in_the_catalog_and_offered_by_the_editor(): void
+    {
+        $this->assertSame('ruffle', Catalog::EDGES['holan']['value']);
+        $this->assertSame('bow', Catalog::BUTTONS['lazo']['value']);
+        $this->assertSame('sprigs', Catalog::CORNERS['ramitas']['value']);
+        $this->assertSame('watercolor', Catalog::TEXTURES['acuarela']['value']);
+        $this->assertSame(
+            ['rayas' => 'stripes', 'vichy' => 'gingham', 'lunares' => 'dots', 'ninguno' => 'none'],
+            array_map(fn ($p) => $p['value'], Catalog::PATTERNS),
+        );
+
+        // El gestor las ofrece en la página y el estampado también en cada sección.
+        $page = collect(Catalog::toArray()['page'])->keyBy('key');
+        $section = collect(Catalog::toArray()['common'])->keyBy('key');
+        $this->assertContains('rayas', array_column($section['estampado']['options'], 'value'));
+        $this->assertContains('holan', array_column($section['orilla']['options'], 'value'));
+        $this->assertContains('lunares', array_column($page['estampado']['options'], 'value'));
+        $this->assertContains('lazo', array_column($page['botones']['options'], 'value'));
+        $this->assertContains('ramitas', array_column($page['esquinas']['options'], 'value'));
+        $this->assertContains('acuarela', array_column($page['textura']['options'], 'value'));
+    }
+
     public function test_the_editor_gets_the_whole_catalog(): void
     {
         $catalog = Catalog::toArray();

@@ -118,6 +118,19 @@ class InvitationConfigBuilderTest extends TestCase
         $this->assertSame(['text' => ['color' => 'accent-strong']], $result->config['sections'][0]['text_styles']);
     }
 
+    public function test_an_unknown_pattern_is_reported_and_ignored(): void
+    {
+        $design = $this->minimal([new DesignSection('cierre', ['estampado' => 'tartán'])]);
+        $design->page = ['estampado' => 'ninguno'];
+
+        $result = $this->build($design, lenient: true);
+
+        $this->assertSame('none', $result->config['page']['pattern']);
+        $this->assertArrayNotHasKey('pattern', $result->config['sections'][0]);
+        $this->assertCount(1, $result->warnings());
+        $this->assertStringContainsString('cierre → estampado', $result->warnings()[0]);
+    }
+
     public function test_only_web_links_reach_the_buttons(): void
     {
         $design = $this->minimal(

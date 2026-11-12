@@ -5,6 +5,7 @@ import type {
   DesktopWidth,
   EdgeStyle,
   FilletStyle,
+  PatternStyle,
   SectionBackground,
   SilhouetteStyle,
   TextureStyle,
@@ -96,6 +97,8 @@ export interface ThemeManifest {
   /** Silueta y filete de las tarjetas, y títulos en relieve (los pone el tema, la invitación los cambia). */
   silhouette?: SilhouetteStyle
   fillet?: FilletStyle
+  /** Estampado de tela de toda la página (rayas, vichy, lunares). */
+  pattern?: PatternStyle
   relief?: boolean
   /**
    * Fondos que se turnan los paneles sin fondo propio (en el layout o en el tema), para

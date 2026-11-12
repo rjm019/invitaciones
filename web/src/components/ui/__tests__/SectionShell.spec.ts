@@ -271,6 +271,17 @@ describe('SectionShell: silueta y filete de la tarjeta', () => {
   })
 })
 
+describe('SectionShell: estampado de tela', () => {
+  it('marca el estampado de la sección para que el CSS lo pinte', () => {
+    expect(render({ pattern: 'gingham' }).find('section').attributes('data-pattern')).toBe('gingham')
+    expect(render({ pattern: 'none' }).find('section').attributes('data-pattern')).toBe('none')
+  })
+
+  it('sin estampado no marca nada', () => {
+    expect(render({}).find('section').attributes('data-pattern')).toBeUndefined()
+  })
+})
+
 describe('SectionShell: lienzo', () => {
   it('sin lienzo no monta nada y no recorta', () => {
     const wrapper = render({})

@@ -29,6 +29,15 @@ describe('tema arrullo', () => {
     }
   })
 
+  it('elige los detalles propios de toda la página', async () => {
+    const manifest = await loadTheme('arrullo')
+    expect(manifest?.edges).toEqual({ default: 'ruffle' })
+    expect(manifest?.buttons).toBe('bow')
+    expect(manifest?.corners).toBe('sprigs')
+    expect(manifest?.texture).toBe('watercolor')
+    expect(manifest?.pattern).toBe('stripes')
+  })
+
   it('cada diseño declarado está registrado (componente o piel de CSS)', async () => {
     const manifest = await loadTheme('arrullo')
     for (const [type, section] of Object.entries(manifest!.sections)) {

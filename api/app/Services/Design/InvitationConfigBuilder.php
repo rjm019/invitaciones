@@ -436,6 +436,7 @@ final class InvitationConfigBuilder
             'edge' => $edge,
             'silhouette' => $this->choice($f['silueta'] ?? '', Catalog::SILHOUETTES, $id, 'silueta'),
             'fillet' => $this->choice($f['filete'] ?? '', Catalog::FILLETS, $id, 'filete'),
+            'pattern' => $this->choice($f['estampado'] ?? '', Catalog::PATTERNS, $id, 'estampado'),
         ], fn ($v) => $v !== null);
 
         $entry['key'] = $id;
@@ -1353,6 +1354,7 @@ final class InvitationConfigBuilder
             'texture' => $this->choice($page['textura'] ?? '', Catalog::TEXTURES, 'pagina', 'textura'),
             'silhouette' => $this->choice($page['silueta'] ?? '', Catalog::SILHOUETTES, 'pagina', 'silueta'),
             'fillet' => $this->choice($page['filete'] ?? '', Catalog::FILLETS, 'pagina', 'filete'),
+            'pattern' => $this->choice($page['estampado'] ?? '', Catalog::PATTERNS, 'pagina', 'estampado'),
         ];
         foreach (['confetti' => 'confeti', 'metal' => 'metalico', 'relief' => 'relieve'] as $key => $field) {
             if (trim($page[$field] ?? '') !== '') {

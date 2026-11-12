@@ -133,6 +133,7 @@ const classes = computed(() => [
     :data-section-key="section.key"
     :data-silhouette="section.silhouette"
     :data-fillet="section.fillet"
+    :data-pattern="section.pattern"
     :class="classes"
     :style="style"
   >
@@ -283,6 +284,7 @@ const classes = computed(() => [
  *   --blend-rim, y su sombra, --blend-shade: las tres máscaras usan el mismo corrimiento).
  * - ciudad: los edificios de Manhattan suben (arriba) o recortan la franja (abajo).
  * - ola y feston: una onda suave o medias lunas.
+ * - holan: un holán fruncido con su pespunte (renglón de huecos).
  * - recta: sin forma ni degradado.
  */
 .section--edge-torn {
@@ -325,6 +327,13 @@ const classes = computed(() => [
   --blend-top: url('../../effects/assets/picado-arriba.svg');
   --blend-top-size: auto;
   --blend-bottom: url('../../effects/assets/picado-abajo.svg');
+  --blend-bottom-size: auto;
+}
+.section--edge-ruffle {
+  --blend-edge: clamp(2.4rem, 11vw, 3.4rem);
+  --blend-top: url('../../effects/assets/holan-arriba.svg');
+  --blend-top-size: auto;
+  --blend-bottom: url('../../effects/assets/holan-abajo.svg');
   --blend-bottom-size: auto;
 }
 .section--edge-straight {
