@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 8 78 98">
+<defs>
+<linearGradient id="ar-luna-m" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbeec2"/><stop offset="1" stop-color="#eccf84"/></linearGradient>
+</defs>
+<path d="M50 11A44 44 0 1 0 88.6 76.2A38 38 0 0 1 50 11Z" fill="url(#ar-luna-m)" stroke="#b8925a" stroke-opacity=".7" stroke-width="1.4" stroke-linejoin="round"/>
+<path d="M20 70C22 84 34 96 50 98C34 90 26 80 26 62C26 52 30 44 36 38C26 44 18 56 20 70Z" fill="#b8925a" fill-opacity=".22"/>
+<path d="M28 34C32 26 40 20 48 18" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M26 56C29 59 33 59 36 56" fill="none" stroke="#8a6a3e" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M27 60L25 63M30 61L29 64M33 60L33 63" stroke="#8a6a3e" stroke-width="1" stroke-linecap="round"/>
+<ellipse cx="34" cy="67" rx="5" ry="3.2" fill="#d48a9a" fill-opacity=".4"/>
+<path d="M22 66C20 68 20 71 22 73" fill="none" stroke="#b8925a" stroke-opacity=".6" stroke-width="1.2" stroke-linecap="round"/>
+</svg>

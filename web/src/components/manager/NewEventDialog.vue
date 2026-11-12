@@ -32,6 +32,7 @@ const TYPES = [
   { value: 'xv', label: 'XV años', icon: 'crown', name: 'Nombre de la festejada' },
   { value: 'boda', label: 'Boda', icon: 'ring', name: 'Nombres de los novios' },
   { value: 'bautizo', label: 'Bautizo', icon: 'dove', name: 'Nombre del bebé' },
+  { value: 'baby_shower', label: 'Baby shower', icon: 'star', name: 'Nombre del bebé' },
   { value: 'cumple', label: 'Cumpleaños', icon: 'cake-candles', name: 'Nombre del festejado' },
   { value: 'otro', label: 'Otro', icon: 'star', name: 'Nombre del evento' },
 ] as const

@@ -56,6 +56,7 @@ const TYPE: Record<string, string> = {
   boda: 'Boda',
   graduacion: 'Graduación',
   bautizo: 'Bautizo',
+  baby_shower: 'Baby shower',
   cumple: 'Cumpleaños',
   otro: 'Evento',
 }

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 14 184 104">
+<defs>
+<g id="ar-nube-n"><circle cx="52" cy="70" r="28"/><circle cx="86" cy="52" r="34"/><circle cx="124" cy="56" r="32"/><circle cx="152" cy="72" r="26"/><circle cx="100" cy="76" r="34"/><circle cx="34" cy="80" r="18"/><circle cx="172" cy="82" r="16"/><circle cx="70" cy="84" r="26"/><circle cx="130" cy="84" r="28"/><rect x="30" y="80" width="150" height="30" rx="14"/></g>
+</defs>
+<use href="#ar-nube-n" fill="none" stroke="#9db9c9" stroke-opacity=".75" stroke-width="3.4" stroke-linejoin="round"/>
+<use href="#ar-nube-n" fill="#fffdf9"/>
+<path d="M38 100C40 106 48 108 60 108H156C170 108 176 100 176 94C150 104 100 100 38 94Z" fill="#c3dbe8" fill-opacity=".6"/>
+<ellipse cx="86" cy="98" rx="40" ry="7" fill="#c3dbe8" fill-opacity=".45"/>
+
+<path d="M70 46C78 34 94 28 108 32M130 38C138 40 146 46 148 54" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-opacity=".9"/>
+<path d="M44 66C48 60 54 58 60 59" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-opacity=".85"/>
+</svg>

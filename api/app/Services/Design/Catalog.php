@@ -325,6 +325,7 @@ final class Catalog
                 ['value' => 'boda', 'label' => 'Boda'],
                 ['value' => 'graduacion', 'label' => 'Graduación'],
                 ['value' => 'bautizo', 'label' => 'Bautizo'],
+                ['value' => 'baby_shower', 'label' => 'Baby shower'],
                 ['value' => 'cumple', 'label' => 'Cumpleaños'],
                 ['value' => 'otro', 'label' => 'Otro'],
             ]],

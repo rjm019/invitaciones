@@ -1,0 +1,68 @@
+/*
+ * Arrullo · baby shower: rubor pálido de fondo, papel crema, rosa viejo (el listón), salvia
+ * (las hojas) y dorado suave. Letra café dorado (el dorado puro no da contraste sobre crema:
+ * queda para adornos). Los dibujos toman el listón de --color-primary y las hojas de
+ * --color-accent, así que cambiar `primario` en Estilo → Colores vuelve todo azul, verde o
+ * lila (versión niño o neutra). Los diseños de sección leen estos tokens.
+ */
+:root[data-theme='arrullo'] {
+  --color-bg: #f6e6e2;
+  --color-text: #7a5a3c;
+  --color-primary: #d48a9a;
+  --color-primary-strong: #b9647a;
+  --color-primary-soft: #f3d3d8;
+  --color-accent: #8fa686;
+  --color-accent-soft: #dfe8d9;
+  /* Botones del panel del dueño (letra blanca encima) */
+  --color-accent-strong: #5f7a58;
+  --color-surface: #fdf8f0;
+  --color-frame: #e3c3bf;
+  --color-on-button: #fdf8f0;
+  --color-paper: #fdf8f0;
+  --color-panel: #fdf8f0;
+  --color-panel-alt: #f6e6e2;
+  --color-panel-warm: #f8ece4;
+  --color-panel-pearl: #fffdf9;
+  --color-night: #5a4230;
+  --color-on-night: #fdf8f0;
+  /* Los colores de la fiesta */
+  --color-rubor: #f6e6e2;
+  --color-salvia: #8fa686;
+  --color-salvia-clara: #dfe8d9;
+  --color-oro: #b8925a;
+  --color-durazno: #f4cdb8;
+  --color-cielo: #c3dbe8;
+  --color-mantequilla: #f5e3ad;
+
+  --shadow-card:
+    0 1px 1px rgb(122 90 60 / 0.08), 0 6px 14px -6px rgb(122 90 60 / 0.22),
+    0 22px 40px -18px rgb(185 100 122 / 0.28);
+  --shadow-button: none;
+  --panel-radius: 14px;
+  --panel-shadow:
+    0 1px 1px rgb(122 90 60 / 0.06), 0 14px 30px -16px rgb(185 100 122 / 0.4);
+  --panel-border: none;
+}
+
+/* Las secciones sin panel (la portada) van sobre el rubor de la página: letra café. */
+:root[data-theme='arrullo'] .section--bare {
+  --color-text: #7a5a3c;
+}
+
+/* Papel crema y rubor: letra café dorado. */
+:root[data-theme='arrullo'] .section--bg-paper {
+  --color-text: #7a5a3c;
+  --color-bg: var(--color-paper);
+}
+:root[data-theme='arrullo'] .section--bg-rubor {
+  --color-text: #7a5a3c;
+  --color-bg: var(--color-rubor);
+}
+
+/* Salvia clara: letra un poco más oscura para que el contraste alcance. */
+:root[data-theme='arrullo'] .section--bg-salvia-clara {
+  --color-text: #5f4630;
+  --color-primary-strong: #a4566c;
+  --color-surface: #fdf8f0;
+  --color-bg: var(--color-salvia-clara);
+}
