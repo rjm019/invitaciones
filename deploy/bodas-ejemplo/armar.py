@@ -54,7 +54,7 @@ def panel_key():
     return '-'.join(''.join(secrets.choice(alphabet) for _ in range(4)) for _ in range(3))
 
 
-def install(slug, design, guests, media, credits='CREDITOS.md'):
+def install(slug, design, guests, media, credits='CREDITOS.md', dedications=None):
     d = os.path.join(ROOT, 'eventos', slug)
     os.makedirs(os.path.join(d, 'media'), exist_ok=True)
     rows = [list(i) if len(i) == 4 else [i[0], '', i[1], i[2]] for i in design]
@@ -77,6 +77,15 @@ def install(slug, design, guests, media, credits='CREDITOS.md'):
         ]
         write(os.path.join(d, 'invitaciones.csv'), ['id', 'token', 'invitados', 'para', 'creada'],
               [[r['id'], r['token'], r['invitados'], r['para'], r['creada']] for r in invitations])
+
+    # Dedicatorias de ejemplo (opcional): solo si el archivo no existe; cada una va ligada
+    # al id de un enlace (una por enlace) y la fecha es la de la instalación.
+    path = os.path.join(d, 'dedicatorias.csv')
+    if dedications and not os.path.exists(path):
+        now = datetime.now().strftime('%Y-%m-%d %H:%M')
+        by_id = {r['id']: r for r in invitations}
+        write(path, ['invitacion', 'para', 'nombre', 'dedicatoria', 'fecha'],
+              [[i, by_id[i]['para'], name, text, now] for i, name, text in dedications if i in by_id])
 
     src = os.path.join(HERE, media)
     for name in sorted(os.listdir(src)):
@@ -791,6 +800,9 @@ ARRULLO = [
     ('portada', 'texto', 'Una nueva vida llena de amor está por llegar'),
     ('portada', 'boton', 'Toca el moño'),
 
+    ('evento', 'musica_fuente', 'archivo'),
+    ('evento', 'musica_audio', 'cancion-de-cuna.mp3'),
+
     ('musica', 'visible', 'SI'),
     ('musica', 'titulo', 'Una canción de cuna'),
     ('musica', 'texto', 'Para esperar a Emilia'),
@@ -852,9 +864,8 @@ ARRULLO = [
 
     ('capa', 'visible', 'SI'),
     ('capa', 'variante', 'media'),
-    ('capa', 'imagen', 'pancita-rosa.webp'),
-    ('capa', 'titulo_color', '#FFFFFF'),
-    ('capa', 'texto_color', '#FFFFFF'),
+    ('capa', 'imagen', 'manita.webp'),
+    ('capa', 'sin_oscurecer', 'SI'),
     ('capa', 'titulo', 'Una tarde para esperarla'),
     ('capa', 'texto', 'Con juegos, dulces y mucho cariño.'),
 
@@ -901,9 +912,8 @@ ARRULLO = [
 ]) + [
     ('capa-2', 'visible', 'SI'),
     ('capa-2', 'variante', 'media'),
-    ('capa-2', 'imagen', 'moises.webp'),
-    ('capa-2', 'titulo_color', '#FFFFFF'),
-    ('capa-2', 'texto_color', '#FFFFFF'),
+    ('capa-2', 'imagen', 'pies-en-manos.webp'),
+    ('capa-2', 'sin_oscurecer', 'SI'),
     ('capa-2', 'titulo', 'Gracias por acompañarnos'),
     ('capa-2', 'texto', 'Sábado 20 de febrero de 2027 · Querétaro'),
 
@@ -922,6 +932,15 @@ ARRULLO = [
 ]
 
 
+# Deseos del muro de baby-shower-emilia: (id del enlace, nombre, mensaje); invitados ficticios.
+ARRULLO_DESEOS = [
+    ('1', 'Familia Soto', 'Bienvenida, pequeña Emilia. Ya tienes una casa llena de amor.'),
+    ('2', 'Lucía', 'Que crezcas rodeada de abrazos y de risas. ¡Te esperamos con ansias!'),
+    ('3', 'Abuela Carmen', 'Mi niña, que Dios te cuide siempre y te llene de sueños bonitos.'),
+    ('4', 'Tía Renata', 'Ya quiero conocerte, chiquita. Tendrás una tía que te consienta mucho.'),
+]
+
+
 if __name__ == '__main__':
     install('boda-isabella-mateo', LACRE,
             [('Familia Ortega Solís', 4), ('Sofía Herrera', 2)], 'media')
@@ -930,6 +949,7 @@ if __name__ == '__main__':
     install('boda-mariana-diego', FIESTA,
             [('Familia Serrano Luna', 4), ('Sofía Herrera', 2)], 'media')
     install('baby-shower-emilia', ARRULLO,
-            [('Familia Soto Ruiz', 4), ('Lucía Herrera', 2)], 'media-arrullo', 'CREDITOS-arrullo.md')
+            [('Familia Soto Ruiz', 4), ('Lucía Herrera', 2), ('Abuela Carmen', 1), ('Tía Renata', 2)],
+            'media-arrullo', 'CREDITOS-arrullo.md', ARRULLO_DESEOS)
     if '--sin-miniaturas' not in sys.argv:
         print('Si agregas fotos nuevas: docker compose exec -T api php artisan media:miniaturas <slug>')

@@ -13,3 +13,6 @@ Todas se descargaron de Wikimedia Commons (`commons.wikimedia.org`), con licenci
 | pancita-rayas.webp | William Stitt willpower | CC0 | https://commons.wikimedia.org/wiki/File:Any_day_now_1_(Unsplash).jpg |
 | pancita.webp | Joanna Malinowska | CC0 | https://commons.wikimedia.org/wiki/File:Expecting_(Unsplash).jpg |
 | pancita-rosa.webp | freestocks.org freestocks | CC0 | https://commons.wikimedia.org/wiki/File:Any_day_now_(Unsplash).jpg |
+| cancion-de-cuna.mp3 | Pracchia-78 (obra: Johannes Brahms, Wiegenlied op. 49 n.º 4, dominio público) | Dominio público (PD-self) | https://commons.wikimedia.org/wiki/File:Johannes_Brahms_ninna_nanna_op_49_n_4.ogg |
+
+`cancion-de-cuna.mp3`: la grabación original (OGG, 1:49) se convirtió a MP3 de 96 kbps estéreo (1.3 MB) con un fundido de salida de 4 s.

@@ -83,8 +83,7 @@ galeria,5,pie,En las manos de mamá
 galeria,6,pie,Cada día más cerca
 capa,,visible,NO
 capa,,variante,media
-capa,,titulo_color,#FFFFFF
-capa,,texto_color,#FFFFFF
+capa,,sin_oscurecer,SI
 capa,,titulo,Una tarde para esperarla
 capa,,texto,"Con juegos, dulces y mucho cariño."
 vestimenta,,visible,SI
@@ -148,8 +147,7 @@ trivia,5,opcion_3,La abuela Rosa
 trivia,5,correcta,2
 capa-2,,visible,NO
 capa-2,,variante,media
-capa-2,,titulo_color,#FFFFFF
-capa-2,,texto_color,#FFFFFF
+capa-2,,sin_oscurecer,SI
 capa-2,,titulo,Gracias por acompañarnos
 capa-2,,texto,Gracias por acompañarnos
 dedicatoria,,visible,SI
