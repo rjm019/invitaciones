@@ -171,3 +171,13 @@ Salieron durante la implementación y se juntaron para el final. Al responder un
 72. **Las ilustraciones:** ¿seguimos con ilustraciones SVG hechas para el tema, o prefieres recortes de fotos reales con licencia libre (flores, azulejos)?
 73. **La música:** la canción de Mariana & Diego («El milagro de tus ojos») suena por Spotify, y quien no tenga sesión abierta solo oye un fragmento. ¿Hay un MP3 con permiso para que suene completa, como en NAT?
 74. **Los mariachis:** hoy son dibujos vectoriales planos. ¿Los rehacemos con trazo de acuarela, como la referencia?
+
+**Tema `arrullo` y baby shower de ejemplo (12-nov)**
+
+75. **El nombre y el tono:** ¿se queda el tema `arrullo` («Arrullo · baby shower») y la bebé de ejemplo Emilia, o los cambiamos? ¿La muestra sale en rosa o en un tono neutro? (Con cambiar `primario` en *Estilo → Colores* se vuelve azul, verde o lila.)
+76. **Las fotos:** hoy el evento de ejemplo usa fotos de bebé libres y sin caras (piecitos, zapatitos, osito…). ¿Se quedan así o prefieres fotos con caras?
+77. **La landing:** ¿se suma el baby shower como muestra (`demo=SI`) además de la invitación regular, y la landing menciona baby shower entre los eventos?
+78. **La música:** `baby-shower-emilia` no trae fuente de música. ¿Un MP3 propio (una canción de cuna libre, para que suene completa como en NAT) o una lista de Spotify?
+79. **Fly:** ¿se sube a Fly como invitación de prueba y como plantilla del gestor? (Solo código y diseño: nunca CSV ni plantillas sin tu orden.)
+80. **La rama:** ¿el tema `arrullo` se une a `main`? Sigue en `feature/tema-arrullo`, sin push.
+81. **Fallos que no son del tema:** (a) dos pruebas de `DesignFormatTest` fallan desde el 11-nov porque usan la fecha fija `2026-11-10` ("La fecha límite no puede ser antes de hoy"): ¿las arreglo con una fecha relativa a hoy? (b) el botón "Agregar al calendario" de la fecha `loteria` del tema `fiesta` sale sin estilo (enlace azul): ¿lo estilizo con los botones de la página?

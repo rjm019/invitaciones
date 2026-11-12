@@ -112,13 +112,14 @@ manifest.ts      # fuentes, paletas, y por sección: variante, adornos, efectos,
 assets/          # WebP/PNG/SVG optimizados (solo decorativos; nunca fotos de personas)
 ```
 
-Hoy hay tres: `jardin-azul` (NAT), `marfil` (dibujos de línea, el de las muestras) y `nueva-york` (oscuro, con diseño propio en cada sección). `src/themes/_shared/` guarda los adornos que cualquier tema encuentra por nombre (`assets/`: puerta, estatua, puente, destellos, grano) y los destellos de título (`sprites.ts`).
+Hoy hay tres: `jardin-azul` (NAT), `marfil` (dibujos de línea, el de las muestras) y `nueva-york` (oscuro, con diseño propio en cada sección). Otros temas con diseño propio en cada sección: `encaje`, `lacre`, `fiesta` y `arrullo` (baby shower: rosa viejo, crema y salvia en acuarela). `src/themes/_shared/` guarda los adornos que cualquier tema encuentra por nombre (`assets/`: puerta, estatua, puente, destellos, grano) y los destellos de título (`sprites.ts`).
 
 **El manifiesto, además de fuentes y secciones** (forma completa en `themes/types.ts`):
 - **Fondos:** `panels` (los fondos que se turnan) y `panelColor`.
 - **Lo que cruza la página:** `floating` y `flights` (mariposas), y `confetti: { count }` (confeti metálico).
 - **`dark: true`:** el panel del dueño y la imagen para WhatsApp en su versión oscura.
 - **Opciones de toda la invitación:** `edges` (`{ default, <color>: <orilla> }`), `buttons`, `metallic` y `corners`.
+- **Estampado de tela:** `pattern` (el de toda la página; `arrullo` pone `stripes`) y `sectionPattern` (el de los paneles, p. ej. `gingham-top` en `arrullo`). La invitación lo cambia con `pagina,,estampado` o `<sección>,,estampado`.
 - **El diseño de cada sección:** `sections[tipo].variant`.
 
 La invitación puede cambiar todo eso desde `pagina` o en cada sección.

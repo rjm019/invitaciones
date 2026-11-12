@@ -360,3 +360,67 @@ Con "menos movimiento": todo queda quieto y en su lugar (las flores ya brotadas,
 **Adornos compartidos nuevos** (`themes/_shared/assets/`): `papel-picado.svg`, `sarape.svg`, `mariachis.svg` (el trío, dibujado en línea en `MariachiBand`), `pinata.svg`, `corazon-sagrado.svg`, `hojalata.svg` (marco de nicho), `monarca.svg`, `nopal.svg`, `saguaro.svg`, `cempasuchil.svg`, `gerbera.svg`, `gerbera-naranja.svg`, `gerbera-palo.svg`, `gerbera-roja.svg` y `azulejo-1.svg` a `azulejo-4.svg` (talavera). Ranuras nuevas: `cempasuchil`, `nopal`, `saguaro`, `azulejo`, `hojalata`, `monarca`, `pinata` y `corazon` (corazón sagrado).
 
 **Componente `MariachiBand.vue`** (`components/ui/`): el trío (guitarra, acordeón y guitarrón) en acuarela, en línea para que cada pieza se mueva por separado. Con `playing` se mece, rasguea, abre el fuelle y echa notas desde la boca de cada instrumento; sin `playing` queda quieto. `size` puede ser `md` (ancho de su contenedor) o `sm` (unos 7 rem de alto). Lo usan la música `mariachi`, el cierre `serenata` y el efecto `mariachi-band`. Sirve en cualquier tema.
+
+## Tema `arrullo` (baby shower): piezas nuevas
+
+Todo es global: el tema `arrullo` solo les pone valor en su manifest (`web/src/themes/arrullo/manifest.ts`). Detalle de cada fila del CSV en `eventos/README.md`, sección "Piezas del tema `arrullo`".
+
+**Opciones de página** (`Catalog::PAGE`, `EDGES`, `BUTTONS`, `CORNERS`, `TEXTURES` y `PATTERNS`; `designAttrs`):
+
+| Opción | Valor nuevo | Dónde vive |
+|---|---|---|
+| `estampado` (**opción nueva**, página y sección, como `silueta` y `filete`) | `rayas`, `vichy`, `vichy_arriba`, `lunares`, `ninguno` | Dibujo de tela quieto sobre el color del panel y del fondo de la página, en un tono más claro (`--pattern-ink`, `--pattern-size`). `vichy_arriba` (código `gingham-top`) lo pinta solo en la parte alta del panel y lo desvanece hacia abajo (`--pattern-fade`, 9 rem por defecto); el panel debe ser de un color liso. Reglas en `effects/options.css` |
+| `orilla` (página y sección) | `holan` | Holán fruncido con pespunte (`effects/assets/holan-arriba.svg` y `holan-abajo.svg`) (valor interno `ruffle`) |
+| `botones` | `lazo` | `effects/buttons.css`: píldora con pespunte punteado por dentro, con los colores de la paleta; sin moñito (los botones con brillo recortan lo que sale de su caja) |
+| `esquinas` | `ramitas` | Ramita de hojas y bayas con una margarita en dos esquinas; reglas en `effects/options.css`. Existe, pero el tema `arrullo` ya no la usa (`corners: 'none'`) |
+| `textura` | `acuarela` | Papel de acuarela con grano fino y manchas suaves de pigmento (`data-texture`, `effects/options.css`) |
+| `sectionPattern` (manifest, no es una fila del CSV) | `gingham-top` en `arrullo` | Estampado por defecto de los paneles cuando la sección no trae el suyo; la sección puede pedir otro o `ninguno`. Un tema que no lo declara no cambia. Con `panels: [{ color: 'paper' }]` todas las secciones llevan el mismo papel crema, el mismo remate y los mismos títulos. `pattern: 'stripes'` del manifest pone las rayas solo en el fondo de la página |
+
+**Efectos** (`Catalog::EFFECTS`, `EFFECT_ALIASES`, `EffectName` y `services/effectsService.ts`; los pinta `FabricAmbience.vue`; CSS en `effects/arrullo.css`):
+
+| CSV (`efectos`) | Id | Qué hace | Con "menos movimiento" |
+|---|---|---|---|
+| `globos` | `balloons` | globos con su hilo suben por los costados, meciéndose, y se pierden arriba | no se pintan |
+| `listones` | `ribbon-curls` | rizos de listón cuelgan de las esquinas de arriba y se mecen como resortes | quedan quietos |
+| `lazo_se_ata` (o `lazo`) | `bow-tie` | un moño arriba al centro se ata al llegar y luego mece sus colas (el tema usa `guirnalda`) | queda atado y quieto |
+| `nubes` | `clouds` | nubes suaves cruzan muy despacio, en dos capas | no se pintan |
+| `movil` (o `movil_cuna`) | `crib-mobile` | un móvil de cuna chico cuelga arriba y se balancea (`CribMobile`) | queda quieto |
+| `margaritas` | `daisies` | hilera de margaritas al pie que brotan una tras otra y se mecen | quedan brotadas |
+| `burbujas` | `bubbles` | burbujas de jabón que suben y se desvanecen | no se pintan |
+| `gansito` (o `ganso`) | `goose-walk` | el gansito con gorro y dos globos cruza la sección por el pie (`PartyGoose`) | queda parado cerca de una esquina |
+| `guirnalda` | `garland` | `RibbonGarland` como remate de la sección: se ata al llegar y luego se mece; reserva arriba el 30 % de su ancho | queda atada y quieta |
+| `ciguena` (o `ciguenas`) | `stork-flight` | una cigüeña grande cruza la franja de arriba y más tarde otra chica regresa (`FlyingStork`); reserva 5.4 rem arriba | una sola, quieta, en la esquina |
+| `juguetes` (o `cosas_bebe`) | `baby-icons` | dibujos de bebé a los costados, que entran uno tras otro y se mecen a destiempo | quietos y visibles |
+| `franja_bebe` (o `hilera_bebe`) | `baby-strip` | hilera de siete dibujos de bebé al pie, como juguetes en una repisa; reserva 5.4 rem abajo | quieta |
+
+**Diseños de sección** (`variante`; `components/sectionVariants.ts` → `components/sections/variants/`, o pieles en `variants/skins.css`):
+
+| Sección | Variante | Componente | Idea |
+|---|---|---|---|
+| portada | `lazo` | `HeroBow.vue` | cerrada: papel crema con vichy arriba, guirnalda a todo lo ancho, ganso sentado con globos y «Toca el moño». Al tocar, la guirnalda se desata, el ganso sube flotando, crece un medallón ovalado, el nombre se traza y la carriola entra rodando con el día y la hora a los lados; al final cruza una cigüeña |
+| música | `movil` | `MusicMobile.vue` | el móvil de cuna es el reproductor; el botón es una luna |
+| bendición | `medallon` | `BlessingMedallion.vue` | óvalo con doble filete y moñito de línea arriba, con papás y padrinos dentro |
+| frase | `nube` | `QuoteCloud.vue` | la frase en una nube que respira, con nubes chicas y estrellas |
+| fecha | `globos` | `SaveTheDateBalloons.vue` | racimo de globos que sube; el día va en el grande; debajo, `MonthCalendar` |
+| cuenta regresiva | `cubos` | `CountdownBlocks.vue` | cuatro cubos de juguete; el que cambia da un cuarto de vuelta |
+| foto | `retrato` | `PhotoPortrait.vue` | óvalo que cuelga de un moño y se mece como cuadro |
+| galería | `medallones` | `GalleryMedallions.vue` | fotos en óvalos con moñito, colgadas de un listón; al tocar una se abre el visor |
+| ubicación | `caminito` | `LocationPath.vue` | un camino punteado se marca y la carriola lo recorre hasta el pin |
+| itinerario | `ropita` | `ItineraryClothesline.vue` | tendedero de ropita, una prenda por momento con pinzas; soporta `en_vivo` |
+| vestimenta | `lazos` | `DressCodeBows.vue` | un moño (`RibbonBow`) por color sugerido, que se ata al llegar |
+| mesa de regalos | `cajas` | `GiftsBoxes.vue` | caja de regalo por mesa que gira al tocarla (lógica de `GiftsFlip.vue`); respeta `GiftPrivacy` |
+| confirmación | `vichy` | piel en `skins.css` | tarjeta con orilla de vichy, doble filete y margaritas |
+| dedicatorias | `deseos` | piel en `skins.css` | cada deseo es una etiqueta que cuelga de un globo |
+| trivia | `juego` | piel en `skins.css` | tarjeta de juego con pespunte y cubos como opciones |
+| cierre | `paseo` | `ClosingStroll.vue` | firma manuscrita y, al pie, el gansito empuja la carriola en un paseo sin fin; arriba cruza una cigüeña |
+
+**Adornos compartidos nuevos** (`themes/_shared/assets/`, acuarela): `mono.svg`, `mono-linea.svg`, `carriola.svg`, `gansito.svg`, `globo.svg`, `margarita.svg`, `ramita.svg`, `nube.svg`, `luna.svg`, `cubo.svg`, `caja-regalo.svg`, `pinza.svg`, `ropita-1.svg` a `ropita-5.svg` y los dibujos de bebé `biberon.svg`, `sonaja.svg`, `chupon.svg`, `osito.svg`, `zapatitos.svg`, `cuna.svg`, `patito.svg` y `huellitas.svg`. No hay ranuras nuevas en `Catalog`.
+
+**Componentes de `components/ui/`** (en línea, para mover cada pieza por separado; sirven en cualquier tema). Todos toman el listón de `--color-primary` (con `-strong` y `-soft`; `tone` los pisa) y las hojas de `--color-accent`: con otro `primario` en *Estilo → Colores*, la misma plantilla sale para niña, niño o neutro.
+
+- **`RibbonBow.vue`**: moño de listón. Props: `tied` (lo ata: los lazos crecen desde el nudo y caen las colas), `sway` (mece las colas), `size`, `tone`. Lo usan la vestimenta `lazos` y la foto `retrato`.
+- **`RibbonGarland.vue`**: moño grande con dos listones en guirnalda, ramas de hojas con bayas y una margarita. Props: `tied`, `sway`, `size` (`md` o `lg`), `tone`. Hojas en `--color-accent`; la margarita en `--color-paper` y `--color-mantequilla`. Lo usan el efecto `guirnalda` y la portada.
+- **`BabyPram.vue`**: carriola antigua. Props: `rolling` (gira las ruedas y mece la capota), `size`. Moño del listón, hojas en `--color-accent`, asa, chasis y ruedas en `--color-oro`.
+- **`PartyGoose.vue`**: gansito con gorro y moño. Props: `pose` (`standing` o `sitting`), `walking` (anda), `balloons` (cuántos globos), `flip`, `size`. Mejilla y moño del listón y detalles en `--color-oro`; pico y patas llevan su naranja fijo.
+- **`FlyingStork.vue`**: cigüeña blanca de alas con puntas negras que lleva un bultito de tela. Props: `flying` (aletea), `flip`, `size`. El bultito toma `--bow-color`; pico y patas llevan su naranja fijo.
+- **`CribMobile.vue`**: móvil de cuna con luna, estrellas, nube y globo. Props: `playing` (gira y cada pieza se balancea a su ritmo), `size`. El globo toma el listón; luna, estrellas y aro, `--color-oro`; la nube, `--color-paper`.
