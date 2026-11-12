@@ -274,9 +274,9 @@
     var(--amate-bg);
 }
 /*
- * Papel de acuarela (textura="acuarela"): manchas suaves de pigmento (rosa, azul y ocre muy
- * tenues) y grano fino sobre el color del panel, con una luz suave al centro. Neutra: sirve
- * con cualquier paleta (./assets/textura-acuarela.svg repite sin costura).
+ * Papel de acuarela (textura="acuarela"): papel prensado en frío, neutro: grano fino y una
+ * variación de luz muy leve sobre el color del panel (sin manchas de color, para que el
+ * estampado se lea limpio). Sirve con cualquier paleta (./assets/textura-acuarela.svg repite sin costura).
  */
 .invitation[data-texture='watercolor'] :is(.section--panel, .section__fill) {
   background:
@@ -328,7 +328,7 @@
 }
 /* El fondo de la página. */
 .invitation[data-pattern]:not([data-pattern='none']) {
-  background-image: var(--pattern-layers);
+  background: var(--pattern-layers), var(--page-bg-color, var(--color-bg));
 }
 /* Sin textura: el panel pinta el color y, encima, el estampado. */
 .invitation[data-pattern]:not([data-texture]) :is(.section--panel, .section__fill) {

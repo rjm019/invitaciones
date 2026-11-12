@@ -75,6 +75,14 @@ describe('tema arrullo', () => {
     }
   })
 
+  it('la portada y la música llevan sus diseños propios', async () => {
+    const manifest = await loadTheme('arrullo')
+    expect(manifest?.sections['hero-envelope'].variant).toBe('lazo')
+    expect(manifest?.sections['music-player'].variant).toBe('movil')
+    expect(sectionVariants['hero-envelope'].lazo).toBeTypeOf('function')
+    expect(sectionVariants['music-player'].movil).toBeTypeOf('function')
+  })
+
   it('define los tokens de color de los paneles que se turnan', () => {
     for (const token of [
       '--color-rubor', '--color-salvia', '--color-salvia-clara', '--color-oro',

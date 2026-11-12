@@ -565,7 +565,9 @@ Diseños de sección nuevos (`variante`; sirven en cualquier tema):
 | Sección | `variante` | Diseño |
 |---|---|---|
 | `portada` | `papel-picado` | Collage de carpeta de encaje, flores, cactus y azulejos tapado por un solo papel picado gigante (hoja vertical en celular, apaisada en escritorio) con las iniciales caladas al centro; al tocar, la hoja se levanta y arranca la música. Campo `iniciales` de la portada: vacío usa las del monograma (`evento,,monograma`) o las del nombre corto; con texto, cala ese texto (hasta 8 caracteres); `NO` deja el corazón |
+| `portada` | `lazo` | Medallón ovalado crema con filete, amarrado con dos bandas de listón y un moño grande entre ramitas y margaritas sobre las rayas de la página (`estampado`). Al tocar: el moño se desata, las bandas se van, el óvalo crece, el nombre se traza en caligrafía, la carriola entra rodando con el día a un lado y la hora al otro (salen de `evento,,inicia`) y el gansito asoma con sus globos; arranca la música. Campos de la portada: `titulo` (encabezado, p. ej. «Baby shower»), `texto` (frase bajo el nombre), `boton` («Toca el moño»), el nombre y la ciudad del evento |
 | `musica` | `mariachi` | Trío de mariachis en acuarela que toca al sonar |
+| `musica` | `movil` | Móvil de cuna en acuarela que gira y se balancea al sonar; el botón de play/pausa es una luna grande bajo el móvil (`aria-pressed`). Debajo, el título (`titulo`) y, si lo hay, el texto de la canción (`texto`) |
 | `bendicion` | `retablo` | Nicho de hojalata con el corazón sagrado y los papás dentro |
 | `fecha` | `loteria` | Carta de lotería que se voltea (el número es el día) |
 | `cuenta_regresiva` | `azulejos` | Cuatro azulejos de talavera con los números |

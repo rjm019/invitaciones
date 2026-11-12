@@ -1,23 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
-  <!-- Papel de acuarela: manchas suaves de pigmento (rosa, azul y ocre muy tenues) y grano fino. Sin costura. -->
-  <filter id="p" x="0" y="0" width="100%" height="100%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.008 0.01" numOctaves="3" seed="11" stitchTiles="stitch"/>
-    <feColorMatrix values="0 0 0 0 0.91  0 0 0 0 0.62  0 0 0 0 0.66  0 0 0 3.4 -1.7"/>
-  </filter>
-  <filter id="q" x="0" y="0" width="100%" height="100%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.011 0.008" numOctaves="3" seed="42" stitchTiles="stitch"/>
-    <feColorMatrix values="0 0 0 0 0.62  0 0 0 0 0.78  0 0 0 0 0.9  0 0 0 3.2 -1.65"/>
-  </filter>
-  <filter id="r" x="0" y="0" width="100%" height="100%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.007" numOctaves="2" seed="7" stitchTiles="stitch"/>
-    <feColorMatrix values="0 0 0 0 0.9  0 0 0 0 0.76  0 0 0 0 0.5  0 0 0 3 -1.62"/>
-  </filter>
+  <!-- Papel de acuarela prensado en frío, neutro: grano fino, un relieve apenas más grueso y una variación de luz muy leve. Sin manchas de color. Sin costura. -->
   <filter id="g" x="0" y="0" width="100%" height="100%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="3" stitchTiles="stitch"/>
-    <feColorMatrix values="0 0 0 0 0.45  0 0 0 0 0.36  0 0 0 0 0.3  0 0 0 1.4 -0.62"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="3" stitchTiles="stitch"/>
+    <feColorMatrix values="0 0 0 0 0.42  0 0 0 0 0.34  0 0 0 0 0.28  0 0 0 1.5 -0.78"/>
   </filter>
-  <rect width="320" height="320" filter="url(#p)" opacity=".4"/>
-  <rect width="320" height="320" filter="url(#q)" opacity=".35"/>
-  <rect width="320" height="320" filter="url(#r)" opacity=".3"/>
-  <rect width="320" height="320" filter="url(#g)" opacity=".5"/>
+  <filter id="t" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.28" numOctaves="2" seed="21" stitchTiles="stitch"/>
+    <feColorMatrix values="0 0 0 0 0.42  0 0 0 0 0.34  0 0 0 0 0.28  0 0 0 1.4 -0.78"/>
+  </filter>
+  <filter id="l" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.006" numOctaves="2" seed="7" stitchTiles="stitch"/>
+    <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.6 -0.7"/>
+  </filter>
+  <rect width="320" height="320" filter="url(#l)" opacity=".18"/>
+  <rect width="320" height="320" filter="url(#t)" opacity=".22"/>
+  <rect width="320" height="320" filter="url(#g)" opacity=".3"/>
 </svg>

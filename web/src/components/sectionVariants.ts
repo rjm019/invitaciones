@@ -18,11 +18,13 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     'sobre-central': () => import('./sections/variants/HeroCenterEnvelope.vue'),
     'sobre-lacre': () => import('./sections/variants/HeroSealedEnvelope.vue'),
     'papel-picado': () => import('./sections/variants/HeroPapelPicado.vue'),
+    lazo: () => import('./sections/variants/HeroBow.vue'),
   },
   'music-player': {
     vinilo: () => import('./sections/variants/MusicVinyl.vue'),
     lacre: () => import('./sections/variants/MusicSeal.vue'),
     mariachi: () => import('./sections/variants/MusicMariachi.vue'),
+    movil: () => import('./sections/variants/MusicMobile.vue'),
   },
   blessing: {
     programa: () => import('./sections/variants/BlessingPlaybill.vue'),

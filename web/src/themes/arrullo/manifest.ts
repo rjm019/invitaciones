@@ -42,8 +42,8 @@ const theme: ThemeManifest = {
   // Papel, rubor, papel y salvia clara se turnan; la letra de cada uno la ajusta theme.css.
   panels: [{ color: 'paper' }, { color: 'rubor' }, { color: 'paper' }, { color: 'salvia-clara' }],
   sections: {
-    'hero-envelope': { panel: false, effects: ['reveal', 'ribbon-curls', 'balloons'] },
-    'music-player': { effects: ['clouds'] },
+    'hero-envelope': { panel: false, variant: 'lazo', effects: ['reveal', 'ribbon-curls', 'balloons'] },
+    'music-player': { variant: 'movil', effects: ['clouds'] },
     blessing: { desktop: 'half', effects: ['reveal', 'bow-tie'] },
     story: { effects: ['reveal', 'bow-tie'] },
     'save-the-date': { desktop: 'half', effects: ['reveal', 'bubbles'] },

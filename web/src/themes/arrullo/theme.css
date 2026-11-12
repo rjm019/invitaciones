@@ -42,11 +42,19 @@
   --panel-shadow:
     0 1px 1px rgb(122 90 60 / 0.06), 0 14px 30px -16px rgb(185 100 122 / 0.4);
   --panel-border: none;
+  /* Rayas anchas: crema sobre el rubor de la página y de los paneles rubor. */
+  --pattern-ink: rgb(253 248 240 / 0.85);
+  --pattern-size: 4.2rem;
 }
 
 /* Las secciones sin panel (la portada) van sobre el rubor de la página: letra café. */
 :root[data-theme='arrullo'] .section--bare {
   --color-text: #7a5a3c;
+}
+
+/* Sobre papel crema, las rayas son de un rosa pálido (crema sobre crema no se vería). */
+:root[data-theme='arrullo'] .section--bg-paper {
+  --pattern-ink: color-mix(in srgb, var(--color-primary-soft) 70%, transparent);
 }
 
 /* Papel crema y rubor: letra café dorado. */

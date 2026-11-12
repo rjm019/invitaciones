@@ -515,6 +515,7 @@ final class Catalog
                     ['value' => 'sobre-central', 'label' => 'Sobre que abre desde el centro hacia arriba'],
                     ['value' => 'sobre-lacre', 'label' => 'Sobre con lacre y tarjeta de papelería'],
                     ['value' => 'papel-picado', 'label' => 'Collage tapado por papel picado'],
+                    ['value' => 'lazo', 'label' => 'Medallón amarrado con un moño'],
                 ]],
             ],
             'linked' => ['festejada_corto', 'festejada', 'subtitulo'],
@@ -524,7 +525,7 @@ final class Catalog
         'musica' => [
             'type' => 'music-player', 'label' => 'Música', 'icon' => 'music',
             'description' => 'El reproductor con la canción que suena al abrir el sobre.',
-            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Dale play', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'controles-oro', 'label' => 'Controles dorados'], ['value' => 'vinilo', 'label' => 'Tocadiscos'], ['value' => 'lacre', 'label' => 'Lacre como botón de play'], ['value' => 'mariachi', 'label' => 'Trío de mariachis']]]],
+            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Dale play', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'controles-oro', 'label' => 'Controles dorados'], ['value' => 'vinilo', 'label' => 'Tocadiscos'], ['value' => 'lacre', 'label' => 'Lacre como botón de play'], ['value' => 'mariachi', 'label' => 'Trío de mariachis'], ['value' => 'movil', 'label' => 'Móvil de cuna']]]],
             'linked' => ['musica_fuente', 'musica_audio', 'musica_inicio', 'spotify'],
             'texts' => ['titulo' => 'Título'],
         ],

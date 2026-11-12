@@ -178,19 +178,23 @@
 
 /*
  * Lazo: píldora del color principal con un pespunte punteado por dentro (arriba y abajo) y un
- * moñito a la izquierda (dos lazos y un nudo, hechos con degradados de la paleta). Todo va en
- * `--btn-bg`, así que no necesita elementos extra; el relleno de cada botón (1.3rem a los
- * lados) deja lugar al moñito.
+ * moñito a la izquierda (dos lazos en V y un nudo, hechos con degradados de la paleta). Todo va en
+ * `--btn-bg`, así que no necesita elementos extra; la sangría de la primera línea
+ * (`text-indent`) deja el lugar del moñito sin tocar el relleno de cada botón.
  */
 .invitation[data-buttons='bow'] .inv-btn {
   --btn-stitch: color-mix(in srgb, var(--color-on-button, var(--color-bg)) 85%, transparent);
   --btn-bg:
-    radial-gradient(circle 0.13rem at 50% 50%, var(--color-primary-strong, var(--color-primary)) 95%, transparent 100%)
-      0.2rem center / 1.1rem 1rem no-repeat,
-    radial-gradient(ellipse 22% 36% at 20% 50%, var(--color-primary-soft, #fff) 92%, transparent 100%)
-      0.2rem center / 1.1rem 1rem no-repeat,
-    radial-gradient(ellipse 22% 36% at 80% 50%, var(--color-primary-soft, #fff) 92%, transparent 100%)
-      0.2rem center / 1.1rem 1rem no-repeat,
+    radial-gradient(circle 0.16rem at 50% 50%, var(--color-primary-strong, var(--color-primary)) 94%, transparent 100%)
+      0.2rem center / 1rem 0.85rem no-repeat,
+    conic-gradient(
+        from 52deg at 50% 50%,
+        var(--color-primary-soft, #fff) 0 76deg,
+        transparent 77deg 179deg,
+        var(--color-primary-soft, #fff) 180deg 256deg,
+        transparent 257deg
+      )
+      0.2rem center / 1rem 0.85rem no-repeat,
     repeating-linear-gradient(90deg, var(--btn-stitch) 0 0.28rem, transparent 0.28rem 0.5rem)
       center 0.28rem / calc(100% - 3.2rem) 1.5px no-repeat,
     repeating-linear-gradient(90deg, var(--btn-stitch) 0 0.28rem, transparent 0.28rem 0.5rem)
@@ -205,4 +209,6 @@
   --btn-decoration: none;
   --btn-clip: none;
   --btn-glow: none;
+  /* El moñito ocupa hasta 1.2rem: el texto arranca después de él (sin tocar el relleno del botón). */
+  text-indent: 0.7rem;
 }
