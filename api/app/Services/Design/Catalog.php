@@ -118,6 +118,14 @@ final class Catalog
         'sarape' => ['effect' => 'sarape-drift', 'label' => 'Sarape que se desliza', 'help' => 'Una franja de sarape al pie de la sección se desliza despacio de lado.'],
         'azulejos_voltean' => ['effect' => 'tile-flip', 'label' => 'Azulejos que se voltean', 'help' => 'Una cenefa de azulejos en la orilla de arriba; al llegar, se voltean uno tras otro.'],
         'mariachis' => ['effect' => 'mariachi-band', 'label' => 'Mariachis tocando', 'help' => 'Un trío de mariachis chico al pie de la sección: se mecen, rasguean y abren el acordeón, y las notas salen de sus instrumentos.'],
+        'globos' => ['effect' => 'balloons', 'label' => 'Globos que suben', 'help' => 'Globos con su hilo suben desde abajo por los costados, meciéndose, y se pierden arriba, cada uno a su tiempo.'],
+        'listones' => ['effect' => 'ribbon-curls', 'label' => 'Listones rizados', 'help' => 'Rizos de listón cuelgan de las dos esquinas de arriba y se mecen como resortes suaves.'],
+        'lazo_se_ata' => ['effect' => 'bow-tie', 'label' => 'Moño que se ata', 'help' => 'Un moño arriba, al centro, se ata al llegar a la sección y luego mece sus colas.'],
+        'nubes' => ['effect' => 'clouds', 'label' => 'Nubes que pasan', 'help' => 'Nubes suaves cruzan la sección muy despacio, en dos capas a distinta velocidad.'],
+        'movil' => ['effect' => 'crib-mobile', 'label' => 'Móvil de cuna', 'help' => 'Un móvil de cuna chico cuelga arriba y se balancea con su luna, estrellas, nube y globo.'],
+        'margaritas' => ['effect' => 'daisies', 'label' => 'Margaritas que brotan', 'help' => 'Una hilera de margaritas al pie brota una tras otra al llegar a la sección y luego se mece apenas.'],
+        'burbujas' => ['effect' => 'bubbles', 'label' => 'Burbujas de jabón', 'help' => 'Burbujas de jabón, con su brillo, suben despacio y se desvanecen.'],
+        'gansito' => ['effect' => 'goose-walk', 'label' => 'Gansito que pasea', 'help' => 'Un gansito con gorro y dos globos cruza la sección por el pie, andando de un lado a otro.'],
         'letterpress' => ['effect' => 'letterpress', 'label' => 'Prensa (letterpress)', 'help' => 'El título se imprime al llegar: baja apenas, como presionado contra el papel, y queda en bajorrelieve.'],
     ];
 
@@ -141,6 +149,9 @@ final class Catalog
         'luz' => 'luz_rasante',
         'banderines' => 'papel_picado',
         'petalos_cempasuchil' => 'cempasuchil',
+        'lazo' => 'lazo_se_ata',
+        'movil_cuna' => 'movil',
+        'ganso' => 'gansito',
     ];
 
     /** Palabras que apagan los efectos que el tema trae por defecto. */

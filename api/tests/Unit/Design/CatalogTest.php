@@ -25,6 +25,7 @@ class CatalogTest extends TestCase
         'living-drawing',
         'typewriter-title', 'ink-dry', 'calligraphy', 'stamp', 'gold-leaf', 'letterpress',
         'papel-picado', 'marigold', 'bloom', 'heartbeat', 'music-notes', 'sarape-drift', 'tile-flip', 'mariachi-band',
+        'balloons', 'ribbon-curls', 'bow-tie', 'clouds', 'crib-mobile', 'daisies', 'bubbles', 'goose-walk',
     ];
 
     public function test_every_effect_maps_to_an_effect_the_web_paints(): void

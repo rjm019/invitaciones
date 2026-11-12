@@ -1,0 +1,363 @@
+/*
+ * Efectos de baby shower (globales; los pinta FabricAmbience.vue como capas detrás del
+ * contenido): globos, listones rizados, moño que se ata, nubes, móvil de cuna, margaritas,
+ * burbujas de jabón y el gansito que pasea. Reglas de siempre: solo transform, opacity y las
+ * propiedades individuales translate/rotate/scale; duraciones con --motion-scale; con "menos
+ * movimiento" todo queda quieto y ya puesto (moño atado, margaritas brotadas, móvil quieto,
+ * gansito parado) y globos, burbujas y nubes no se pintan; con la sección lejos de la pantalla
+ * (.is-idle) todo se pausa (ver effects.css). Solo tokens de color, con respaldo a los de
+ * cualquier otro tema, así que cambian con la paleta.
+ */
+
+/* Las capas que suben (globos y burbujas) miden contra el alto de la sección (cqb). */
+.fab--tall {
+  container-type: size;
+}
+
+/* globos (balloons): globos con hilo que suben por los costados, meciéndose. */
+.fab-balloon {
+  --fab-tone: var(--color-primary);
+  position: absolute;
+  bottom: -8rem;
+  aspect-ratio: 5 / 6;
+  border-radius: 50% 50% 48% 48% / 56% 56% 44% 44%;
+  background:
+    radial-gradient(ellipse at 30% 26%, rgb(255 255 255 / 0.75) 0 9%, transparent 10%),
+    linear-gradient(
+      150deg,
+      color-mix(in srgb, var(--fab-tone) 65%, #fff),
+      var(--fab-tone) 55%,
+      color-mix(in srgb, var(--fab-tone) 78%, #3f3550)
+    );
+  opacity: 0;
+  transform-origin: 50% 100%;
+  animation: fab-balloon calc(18s * var(--motion-scale)) ease-in-out infinite;
+}
+.fab-balloon::before {
+  content: '';
+  position: absolute;
+  top: 98%;
+  left: 50%;
+  width: 16%;
+  height: 8%;
+  translate: -50% 0;
+  background: var(--fab-tone);
+  clip-path: polygon(0 100%, 50% 0, 100% 100%);
+}
+.fab-balloon::after {
+  content: '';
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 50%;
+  width: 1px;
+  height: 3.4rem;
+  background: color-mix(in srgb, var(--color-text, #000) 45%, transparent);
+}
+.fab-balloon--t1 {
+  --fab-tone: var(--color-primary-strong, var(--color-primary));
+}
+.fab-balloon--t2 {
+  --fab-tone: var(--color-accent, var(--color-primary));
+}
+.fab-balloon--t3 {
+  --fab-tone: var(--color-durazno, var(--color-primary-soft, var(--color-primary)));
+}
+.fab-balloon--t4 {
+  --fab-tone: var(--color-cielo, var(--color-primary-soft, var(--color-primary)));
+}
+@keyframes fab-balloon {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-5deg);
+  }
+  8% {
+    opacity: 0.95;
+  }
+  50% {
+    transform: translate(calc(var(--fab-drift, 16px) * -1), calc(-0.5 * (100cqb + 8rem))) rotate(5deg);
+  }
+  92% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--fab-drift, 16px), calc(-100cqb - 8rem)) rotate(-5deg);
+  }
+}
+
+/* listones (ribbon-curls): rizos que cuelgan de las esquinas de arriba y se mecen como resortes. */
+.fab-curl {
+  position: absolute;
+  top: 0;
+  width: 2.1rem;
+  overflow: visible;
+  transform-origin: 50% 0;
+  animation:
+    fab-curl-swing calc(3.4s * var(--motion-scale)) ease-in-out infinite alternate,
+    fab-curl-spring calc(3.4s * var(--motion-scale)) ease-in-out infinite alternate;
+}
+.fab-curl--r .fab-curl__ribbon,
+.fab-curl--r .fab-curl__glint {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scaleX(-1);
+}
+.fab-curl__ribbon,
+.fab-curl__glint {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.fab-curl__ribbon {
+  stroke: var(--bow-color, var(--color-primary));
+  stroke-width: 3.6;
+}
+.fab-curl__glint {
+  stroke: rgb(255 255 255 / 0.55);
+  stroke-width: 1;
+  translate: -1px -1px;
+}
+@keyframes fab-curl-swing {
+  from {
+    rotate: calc(-1 * var(--fab-sway, 4deg));
+  }
+  to {
+    rotate: var(--fab-sway, 4deg);
+  }
+}
+@keyframes fab-curl-spring {
+  from {
+    scale: 1 0.94;
+  }
+  to {
+    scale: 1 1.05;
+  }
+}
+
+/* lazo_se_ata (bow-tie): un moño arriba al centro; RibbonBow lo ata y mece sus colas. */
+.fab-bowtie {
+  position: absolute;
+  top: 0.7rem;
+  left: 50%;
+  width: max-content;
+  translate: -50% 0;
+}
+.fx-bow-tie > .section__content {
+  padding-top: 5.6rem;
+}
+
+/* nubes (clouds): dos capas que cruzan despacio; la lejana es más chica, tenue y lenta. */
+.fab-cloud {
+  position: absolute;
+  left: 0;
+  aspect-ratio: 184 / 104;
+  background-color: color-mix(
+    in srgb,
+    var(--color-paper, #fff) 42%,
+    var(--color-cielo, var(--color-primary-soft, var(--color-primary)))
+  );
+  -webkit-mask: var(--fab-mask) center / contain no-repeat;
+  mask: var(--fab-mask) center / contain no-repeat;
+  transform: translateX(-100%);
+  animation: fab-cloud calc(70s * var(--motion-scale)) linear infinite;
+}
+.fab-cloud--l0 {
+  opacity: 0.6;
+}
+.fab-cloud--l1 {
+  opacity: 0.9;
+}
+@keyframes fab-cloud {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100cqi);
+  }
+}
+
+/* movil (crib-mobile): un móvil de cuna chico colgado arriba, centrado; CribMobile lo balancea. */
+.fab-mobile {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: max-content;
+  translate: -50% 0;
+}
+.fx-crib-mobile > .section__content {
+  padding-top: 6.8rem;
+}
+
+/*
+ * margaritas (daisies): hilera al pie. Al entrar la sección cada una brota desde la base del
+ * tallo (scale + rotate), de izquierda a derecha, y luego se mece apenas (rotate); el mecido
+ * empieza cuando termina el brote y gana por ir después en la lista.
+ */
+.fab-daisy {
+  position: absolute;
+  bottom: -0.7rem;
+  aspect-ratio: 60 / 100;
+  height: auto;
+  translate: -50% 0;
+  overflow: visible;
+  transform-origin: 50% 100%;
+  scale: 0;
+  rotate: -30deg;
+}
+.fab-daisy__stem {
+  fill: none;
+  stroke: var(--color-accent, var(--color-primary));
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.fab-daisy__leaf {
+  fill: color-mix(in srgb, var(--color-accent, var(--color-primary)) 80%, #fff);
+  stroke: var(--color-accent, var(--color-primary));
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+.fab-daisy__petal {
+  fill: color-mix(in srgb, var(--color-paper, #fff) 80%, var(--color-primary-soft, #fff));
+  stroke: color-mix(in srgb, var(--color-oro, var(--color-primary)) 60%, transparent);
+  stroke-width: 1;
+}
+.fab-daisy__eye {
+  fill: var(--color-mantequilla, var(--color-oro, var(--color-primary)));
+  stroke: var(--color-oro, var(--color-primary));
+  stroke-width: 1.2;
+}
+.fab.is-in .fab-daisy {
+  animation:
+    fab-daisy-grow calc(0.9s * var(--motion-scale)) cubic-bezier(0.3, 1.4, 0.5, 1)
+      var(--fab-grow-delay, 0s) both,
+    fab-daisy-sway var(--fab-sway-time, 5s) ease-in-out var(--fab-sway-delay, 1s) infinite
+      alternate;
+}
+@keyframes fab-daisy-grow {
+  from {
+    scale: 0;
+    rotate: -30deg;
+  }
+  to {
+    scale: 1;
+    rotate: 0deg;
+  }
+}
+@keyframes fab-daisy-sway {
+  from {
+    rotate: calc(-1 * var(--fab-sway, 3deg));
+  }
+  to {
+    rotate: var(--fab-sway, 3deg);
+  }
+}
+.fx-daisies > .section__content {
+  padding-bottom: 4.4rem;
+}
+
+/* burbujas (bubbles): aro fino con brillo que sube, crece un poco y se desvanece. */
+.fab-bubble {
+  position: absolute;
+  bottom: -3rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1.5px solid
+    color-mix(
+      in srgb,
+      var(--color-cielo, var(--color-primary-soft, var(--color-primary))) 80%,
+      var(--color-text, #000) 20%
+    );
+  background:
+    radial-gradient(circle at 30% 28%, rgb(255 255 255 / 0.95) 0 7%, transparent 8%),
+    radial-gradient(
+      circle,
+      transparent 56%,
+      color-mix(in srgb, var(--color-cielo, var(--color-primary-soft, var(--color-primary))) 45%, transparent)
+        100%
+    );
+  opacity: 0;
+  animation: fab-bubble calc(11s * var(--motion-scale)) ease-in-out infinite;
+}
+@keyframes fab-bubble {
+  0% {
+    opacity: 0;
+    scale: 0.7;
+    transform: translate(0, 0);
+  }
+  15% {
+    opacity: 0.9;
+  }
+  55% {
+    transform: translate(calc(var(--fab-drift, 20px) * -0.7), calc(-0.55cqb * var(--fab-rise, 50)));
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.15;
+    transform: translate(var(--fab-drift, 20px), calc(-1cqb * var(--fab-rise, 50)));
+  }
+}
+
+/*
+ * gansito (goose-walk): cruza el pie de la sección andando con dos globos. Hay dos (uno mira a
+ * cada lado) y cada uno recorre su mitad del ciclo: primero va a la derecha y, al salir, el otro
+ * regresa a la izquierda. La sección es contenedor (cqi), así que el recorrido mide lo que ella.
+ */
+.fab-goose {
+  position: absolute;
+  bottom: 0.3rem;
+  left: 0;
+  width: max-content;
+  transform: translateX(-6rem);
+  animation: fab-goose-ltr calc(80s * var(--motion-scale)) linear infinite;
+}
+.fab-goose--rtl {
+  transform: translateX(calc(100cqi + 1.4rem));
+  animation-name: fab-goose-rtl;
+}
+@keyframes fab-goose-ltr {
+  0% {
+    transform: translateX(-6rem);
+  }
+  46%,
+  100% {
+    transform: translateX(calc(100cqi + 1.4rem));
+  }
+}
+@keyframes fab-goose-rtl {
+  0%,
+  54% {
+    transform: translateX(calc(100cqi + 1.4rem));
+  }
+  100% {
+    transform: translateX(-6rem);
+  }
+}
+.fx-goose-walk > .section__content {
+  padding-bottom: 6.6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Todo quieto y ya puesto; globos, burbujas y nubes no se pintan. */
+  .fab-curl,
+  .fab.is-in .fab-daisy,
+  .fab-goose {
+    animation: none;
+  }
+  .fab-daisy {
+    scale: 1;
+    rotate: 0deg;
+  }
+  /* El gansito queda parado cerca de una esquina; el que regresa no se pinta. */
+  .fab-goose--ltr {
+    transform: translateX(6cqi);
+  }
+  .fab-goose--rtl,
+  .fab-balloon,
+  .fab-bubble,
+  .fab-cloud {
+    display: none;
+  }
+}

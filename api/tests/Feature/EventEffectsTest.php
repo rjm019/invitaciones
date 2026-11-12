@@ -207,6 +207,27 @@ class EventEffectsTest extends TestCase
         $this->assertArrayNotHasKey('pattern', $sections->firstWhere('type', 'closing'));
     }
 
+    public function test_arrullo_effects_and_aliases(): void
+    {
+        $this->copyEventFixtures();
+        foreach ([
+            'cuenta_regresiva,,visible,SI',
+            'cuenta_regresiva,,efectos,"globos listones lazo nubes movil_cuna margaritas burbujas ganso"',
+            'frase,,visible,SI',
+            'frase,,efectos,"lazo_se_ata movil gansito"',
+        ] as $line) {
+            $this->appendLine('nueva', 'invitacion.csv', $line);
+        }
+
+        $sections = collect($this->getJson('/api/public/events/nueva')->assertOk()->json('event.sections'));
+
+        $this->assertSame(
+            ['balloons', 'ribbon-curls', 'bow-tie', 'clouds', 'crib-mobile', 'daisies', 'bubbles', 'goose-walk'],
+            $sections->firstWhere('type', 'countdown')['effects'],
+        );
+        $this->assertSame(['bow-tie', 'crib-mobile', 'goose-walk'], $sections->firstWhere('type', 'quote')['effects']);
+    }
+
     public function test_encaje_section_variants_pass_through(): void
     {
         $this->copyEventFixtures();

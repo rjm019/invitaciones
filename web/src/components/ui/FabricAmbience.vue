@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import CribMobile from '@/components/ui/CribMobile.vue'
 import MariachiBand from '@/components/ui/MariachiBand.vue'
+import PartyGoose from '@/components/ui/PartyGoose.vue'
+import RibbonBow from '@/components/ui/RibbonBow.vue'
 import doilyUrl from '@/themes/_shared/assets/encaje.svg?url'
 import drapeUrl from '@/themes/_shared/assets/cortinaje.svg?url'
 import bunting from '@/themes/_shared/assets/papel-picado.svg?url'
@@ -11,6 +14,7 @@ import gerberaOrange from '@/themes/_shared/assets/gerbera-naranja.svg?url'
 import gerberaRed from '@/themes/_shared/assets/gerbera-roja.svg?url'
 import gerberaPale from '@/themes/_shared/assets/gerbera-palo.svg?url'
 import marigoldFlower from '@/themes/_shared/assets/cempasuchil.svg?url'
+import cloudUrl from '@/themes/_shared/assets/nube.svg?url'
 import tile1 from '@/themes/_shared/assets/azulejo-1.svg?url'
 import tile2 from '@/themes/_shared/assets/azulejo-2.svg?url'
 import tile3 from '@/themes/_shared/assets/azulejo-3.svg?url'
@@ -18,7 +22,11 @@ import tile4 from '@/themes/_shared/assets/azulejo-4.svg?url'
 import laceBottomUrl from '@/effects/assets/encaje-abajo.svg?url'
 import laceTopUrl from '@/effects/assets/encaje-arriba.svg?url'
 import {
+  balloonFlights,
   bloomFlowers,
+  cloudDrifts,
+  daisyRow,
+
   buntingFlags,
   flipTiles,
   laceDoilies,
@@ -30,6 +38,8 @@ import {
   pearlBeads,
   pearlStrands,
   petals,
+  ribbonCurls,
+  soapBubbles,
   tulleVeils,
 } from '@/services/effectsService'
 import type { ResolvedSection } from '@/types/event'
@@ -57,6 +67,14 @@ import type { ResolvedSection } from '@/types/event'
  * - sarape (sarape-drift): una franja de sarape al pie que se desliza de lado.
  * - azulejos_voltean (tile-flip): una cenefa de azulejos que se voltean uno tras otro al entrar.
  * - mariachis (mariachi-band): el trío de mariachis, chico, al pie, tocando con sus notas.
+ * - globos (balloons): globos con hilo que suben por los costados, meciéndose.
+ * - listones (ribbon-curls): rizos de listón que cuelgan de las esquinas de arriba y se mecen.
+ * - lazo_se_ata (bow-tie): un moño arriba al centro que se ata al entrar y mece sus colas.
+ * - nubes (clouds): nubes suaves que cruzan despacio, en dos capas.
+ * - movil (crib-mobile): un móvil de cuna chico, colgado arriba, que se balancea.
+ * - margaritas (daisies): hilera de margaritas al pie que brotan una tras otra.
+ * - burbujas (bubbles): burbujas de jabón que suben y se desvanecen.
+ * - gansito (goose-walk): el gansito, con dos globos, cruza la sección por el pie.
  * Solo se anima transform, opacity y las propiedades individuales translate/rotate/scale
  * (que no repintan); nada de blur ni sombras animadas. `entered` arranca las entradas.
  */
@@ -92,6 +110,16 @@ const notes = computed(() => (has('music-notes') ? musicNotes(seed.value) : []))
 const sarape = computed(() => has('sarape-drift'))
 const band = computed(() => has('mariachi-band'))
 const tiles = computed(() => (has('tile-flip') ? flipTiles(seed.value) : []))
+const balloons = computed(() => (has('balloons') ? balloonFlights(seed.value) : []))
+const curls = computed(() => (has('ribbon-curls') ? ribbonCurls(seed.value) : []))
+const bowTie = computed(() => has('bow-tie'))
+const clouds = computed(() => (has('clouds') ? cloudDrifts(seed.value) : []))
+const cribMobile = computed(() => has('crib-mobile'))
+const daisies = computed(() => (has('daisies') ? daisyRow(seed.value) : []))
+const bubbles = computed(() => (has('bubbles') ? soapBubbles(seed.value) : []))
+const goose = computed(() => has('goose-walk'))
+// Las ocho puntas de cada margarita: el mismo dibujo, girado.
+const DAISY_PETALS = Array.from({ length: 8 }, (_, i) => i * 45)
 const bloomArt = [gerberaPink, gerberaOrange, gerberaRed, gerberaPale, marigoldFlower]
 const tileArt = [tile1, tile2, tile3, tile4]
 </script>
@@ -360,5 +388,121 @@ const tileArt = [tile1, tile2, tile3, tile4]
 
   <div v-if="band" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
     <div class="fab-band"><MariachiBand :playing="true" size="sm" /></div>
+  </div>
+
+  <div v-if="balloons.length" class="ambience fab fab--tall" :class="[bleed, stateClass]" aria-hidden="true">
+    <span
+      v-for="(b, i) in balloons"
+      :key="i"
+      class="fab-balloon"
+      :class="`fab-balloon--t${b.tone}`"
+      :style="{
+        left: `${b.left}%`,
+        width: `${b.size}rem`,
+        '--fab-drift': `${b.drift}px`,
+        animationDelay: motionTime(b.delay),
+        animationDuration: motionTime(b.duration),
+      }"
+    />
+  </div>
+
+  <div v-if="curls.length" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <svg
+      v-for="(c, i) in curls"
+      :key="i"
+      class="fab-curl"
+      :class="`fab-curl--${c.corner}`"
+      viewBox="0 0 40 120"
+      preserveAspectRatio="none"
+      :style="{
+        [c.corner === 'l' ? 'left' : 'right']: `${c.x}rem`,
+        height: `${c.length}rem`,
+        '--fab-sway': `${c.sway}deg`,
+        animationDuration: motionTime(c.duration),
+        animationDelay: motionTime(c.delay),
+      }"
+    >
+      <path class="fab-curl__ribbon" d="M20 0V6C1 8 1 28 20 30C39 32 39 50 20 52C1 54 1 72 20 74C39 76 39 92 20 94C8 96 8 108 20 110" />
+      <path class="fab-curl__glint" d="M20 0V6C1 8 1 28 20 30C39 32 39 50 20 52C1 54 1 72 20 74C39 76 39 92 20 94C8 96 8 108 20 110" />
+    </svg>
+  </div>
+
+  <div v-if="bowTie" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <div class="fab-bowtie"><RibbonBow :tied="entered" :sway="entered" size="5.6rem" /></div>
+  </div>
+
+  <div v-if="clouds.length" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <span
+      v-for="(c, i) in clouds"
+      :key="i"
+      class="fab-cloud"
+      :class="`fab-cloud--l${c.layer}`"
+      :style="{
+        ...mask(cloudUrl),
+        top: `${c.top}%`,
+        width: `${c.width}cqi`,
+        animationDuration: motionTime(c.duration),
+        animationDelay: motionTime(c.delay),
+      }"
+    />
+  </div>
+
+  <div v-if="cribMobile" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <div class="fab-mobile"><CribMobile :playing="true" size="6.4rem" /></div>
+  </div>
+
+  <div v-if="daisies.length" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <svg
+      v-for="(d, i) in daisies"
+      :key="i"
+      class="fab-daisy"
+      viewBox="0 0 60 100"
+      :style="{
+        left: `${d.left}%`,
+        width: `${d.size}rem`,
+        '--fab-sway': `${d.sway}deg`,
+        '--fab-grow-delay': motionTime(d.delay),
+        '--fab-sway-time': motionTime(d.duration),
+        '--fab-sway-delay': motionTime(d.delay + 1),
+      }"
+    >
+      <path class="fab-daisy__stem" d="M30 34C28 58 32 80 30 100" />
+      <path class="fab-daisy__leaf" d="M30 70C20 70 12 64 8 54C20 52 28 58 30 70Z" />
+      <path class="fab-daisy__leaf" d="M30 86C40 86 48 80 52 70C40 68 32 74 30 86Z" />
+      <g class="fab-daisy__head">
+        <ellipse
+          v-for="a in DAISY_PETALS"
+          :key="a"
+          class="fab-daisy__petal"
+          cx="30"
+          cy="12"
+          rx="5.4"
+          ry="11"
+          :transform="`rotate(${a} 30 30)`"
+        />
+        <circle class="fab-daisy__eye" cx="30" cy="30" r="6.4" />
+      </g>
+    </svg>
+  </div>
+
+  <div v-if="bubbles.length" class="ambience fab fab--tall" :class="[bleed, stateClass]" aria-hidden="true">
+    <span
+      v-for="(b, i) in bubbles"
+      :key="i"
+      class="fab-bubble"
+      :style="{
+        left: `${b.left}%`,
+        width: `${b.size}px`,
+        '--fab-rise': b.rise,
+        '--fab-drift': `${b.drift}px`,
+        animationDelay: motionTime(b.delay),
+        animationDuration: motionTime(b.duration),
+      }"
+    />
+  </div>
+
+  <div v-if="goose" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <div class="fab-goose fab-goose--ltr"><PartyGoose :walking="true" :balloons="2" size="4.6rem" /></div>
+    <div class="fab-goose fab-goose--rtl"><PartyGoose :walking="true" :balloons="2" :flip="true" size="4.6rem" /></div>
   </div>
 </template>

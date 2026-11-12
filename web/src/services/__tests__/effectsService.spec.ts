@@ -12,6 +12,11 @@ import {
   bloomFlowers,
   musicNotes,
   flipTiles,
+  balloonFlights,
+  ribbonCurls,
+  cloudDrifts,
+  daisyRow,
+  soapBubbles,
   tulleVeils,
   cityLights,
   confetti,
@@ -385,5 +390,53 @@ describe('efectos de fiesta mexicana', () => {
     const tiles = flipTiles('fecha')
     expect(tiles.map((t) => t.tile)).toEqual([1, 2, 3, 4, 1, 2, 3])
     expect(tiles[6].delay).toBeGreaterThan(tiles[0].delay)
+  })
+})
+
+describe('efectos de baby shower', () => {
+  it('globos: siete, siempre a los costados y a destiempo', () => {
+    const balloons = balloonFlights('fecha')
+    expect(balloons).toEqual(balloonFlights('fecha'))
+    expect(balloons).toHaveLength(7)
+    for (const b of balloons) {
+      expect(b.left < 20 || b.left > 80).toBe(true)
+      expect(b.tone).toBeLessThan(5)
+      expect(b.duration).toBeGreaterThan(10)
+    }
+    expect(new Set(balloons.map((b) => b.delay)).size).toBeGreaterThan(3)
+  })
+
+  it('listones: dos rizos por esquina de arriba', () => {
+    const curls = ribbonCurls('portada')
+    expect(curls).toEqual(ribbonCurls('portada'))
+    expect(curls.map((c) => c.corner)).toEqual(['l', 'l', 'r', 'r'])
+    for (const c of curls) expect(c.length).toBeGreaterThan(3.5)
+  })
+
+  it('nubes: tres lejanas y dos cercanas, las lejanas más lentas', () => {
+    const clouds = cloudDrifts('musica')
+    expect(clouds).toEqual(cloudDrifts('musica'))
+    expect(clouds.map((c) => c.layer)).toEqual([0, 0, 0, 1, 1])
+    const far = Math.min(...clouds.filter((c) => c.layer === 0).map((c) => c.duration))
+    const near = Math.max(...clouds.filter((c) => c.layer === 1).map((c) => c.duration))
+    expect(far).toBeGreaterThan(near)
+  })
+
+  it('margaritas: nueve, de izquierda a derecha y brotando en orden', () => {
+    const daisies = daisyRow('ubicacion')
+    expect(daisies).toEqual(daisyRow('ubicacion'))
+    expect(daisies).toHaveLength(9)
+    expect(daisies[8].delay).toBeGreaterThan(daisies[0].delay)
+    expect(daisies[8].left).toBeGreaterThan(daisies[0].left)
+  })
+
+  it('burbujas: diez, suben entre 40 y 75 % del alto', () => {
+    const bubbles = soapBubbles('fecha')
+    expect(bubbles).toEqual(soapBubbles('fecha'))
+    expect(bubbles).toHaveLength(10)
+    for (const b of bubbles) {
+      expect(b.rise).toBeGreaterThanOrEqual(40)
+      expect(b.rise).toBeLessThanOrEqual(75)
+    }
   })
 })

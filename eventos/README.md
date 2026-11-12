@@ -283,6 +283,15 @@ Cada texto de la invitación es un **bloque**: los cuatro comunes (`titulo`, `su
   - `sarape`: una franja de sarape al pie de la sección se desliza despacio de lado.
   - `azulejos_voltean`: una cenefa de azulejos que se voltean uno tras otro al llegar.
   - `mariachis` (o `serenata`): un trío de mariachis chico al pie de la sección, tocando con sus notas.
+  - `globos`: siete globos con su hilo suben por los costados, meciéndose, y se pierden arriba, a destiempo.
+  - `listones`: rizos de listón cuelgan de las dos esquinas de arriba y se mecen como resortes suaves.
+  - `lazo_se_ata` (o `lazo`): un moño arriba, al centro, se ata al llegar a la sección y luego mece sus colas.
+  - `nubes`: nubes suaves cruzan muy despacio, en dos capas a distinta velocidad.
+  - `movil` (o `movil_cuna`): un móvil de cuna chico cuelga arriba y se balancea.
+  - `margaritas`: una hilera de margaritas al pie brota una tras otra al llegar y luego se mece apenas.
+  - `burbujas`: burbujas de jabón que suben y se desvanecen.
+  - `gansito` (o `ganso`): el gansito con gorro y dos globos cruza la sección por el pie, andando de un lado a otro.
+  - Estos ocho toman su color de la paleta (`primario`, `acento`, `oro`, `cielo`…); con "menos movimiento" el moño queda atado, las margaritas brotadas, el móvil quieto y el gansito parado, y los globos, las burbujas y las nubes no se pintan.
 - `difuminar` (o `sin_cortes`, `integrar`): la sección deja de ser tarjeta (ver abajo).
 - `ninguno` apaga los que el tema trae por defecto (no quita `difuminar` si la página lo pide).
 
@@ -549,7 +558,7 @@ En el bloque `pagina` (y, donde se indica, en cada sección):
 | `pagina,,esquinas` | `flores`: ramito de gerbera y cempasúchil en dos esquinas de los paneles |
 | `pagina,,botones` | `talavera`: botón de azulejo cobalto con filo doble |
 | `pagina,,textura` | `amate`: fibra de papel amate en el fondo de los paneles |
-| `<sección>,,efectos` | `papel_picado`, `cempasuchil`, `flores_brotan`, `corazon_late`, `notas`, `sarape`, `azulejos_voltean` y `mariachis` (ver arriba) |
+| `<sección>,,efectos` | `papel_picado`, `cempasuchil`, `flores_brotan`, `corazon_late`, `notas`, `sarape`, `azulejos_voltean`, `mariachis`, `globos`, `listones`, `lazo_se_ata`, `nubes`, `movil`, `margaritas`, `burbujas` y `gansito` (ver arriba) |
 
 Diseños de sección nuevos (`variante`; sirven en cualquier tema):
 

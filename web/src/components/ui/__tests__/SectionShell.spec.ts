@@ -257,6 +257,47 @@ describe('SectionShell: mariachis tocando', () => {
   })
 })
 
+describe('SectionShell: efectos de baby shower', () => {
+  const ALL = ['balloons', 'ribbon-curls', 'bow-tie', 'clouds', 'crib-mobile', 'daisies', 'bubbles', 'goose-walk']
+
+  it('pinta cada capa como ambiente, detrás del contenido', () => {
+    const wrapper = render({ effects: ALL })
+    expect(wrapper.findAll('.fab-balloon')).toHaveLength(7)
+    expect(wrapper.findAll('.fab-curl')).toHaveLength(4)
+    expect(wrapper.findAll('.fab-bowtie .rb')).toHaveLength(1)
+    expect(wrapper.findAll('.fab-cloud')).toHaveLength(5)
+    expect(wrapper.findAll('.fab-mobile .cm')).toHaveLength(1)
+    expect(wrapper.findAll('.fab-daisy')).toHaveLength(9)
+    expect(wrapper.findAll('.fab-bubble')).toHaveLength(10)
+    expect(wrapper.findAll('.fab-goose')).toHaveLength(2)
+    expect(wrapper.findAll('.fab-goose .pg')).toHaveLength(2)
+    expect(wrapper.findAll('.ambience.fab')).toHaveLength(8)
+    for (const layer of wrapper.findAll('.fab')) expect(layer.attributes('aria-hidden')).toBe('true')
+    expect(wrapper.find('section').classes()).toEqual(
+      expect.arrayContaining(['fx-bow-tie', 'fx-crib-mobile', 'fx-goose-walk', 'fx-daisies']),
+    )
+    const children = [...wrapper.find('section').element.children].map((el) => el.className)
+    const content = children.findIndex((c) => c.split(' ').includes('section__content'))
+    const layers = children.flatMap((c, i) => (c.split(' ').includes('fab') ? [i] : []))
+    expect(Math.max(...layers)).toBeLessThan(content)
+  })
+
+  it('su duración y retraso pasan por la velocidad de la invitación', () => {
+    const wrapper = render({ effects: ['balloons', 'ribbon-curls', 'clouds', 'daisies', 'bubbles'] })
+    for (const sel of ['.fab-balloon', '.fab-curl', '.fab-cloud', '.fab-daisy', '.fab-bubble']) {
+      expect(wrapper.find(sel).attributes('style')).toContain('--motion-scale')
+    }
+  })
+
+  it('el gansito camina con dos globos, uno mirando a cada lado', () => {
+    const wrapper = render({ effects: ['goose-walk'] })
+    const geese = wrapper.findAll('.fab-goose .pg')
+    expect(geese[0].classes()).toContain('is-walking')
+    expect(geese[0].classes()).not.toContain('pg--flip')
+    expect(geese[1].classes()).toContain('pg--flip')
+  })
+})
+
 describe('SectionShell: silueta y filete de la tarjeta', () => {
   it('marca la silueta y el filete de la sección para que el CSS los pinte', () => {
     const section = render({ silhouette: 'notch', fillet: 'burgundy' }).find('section')

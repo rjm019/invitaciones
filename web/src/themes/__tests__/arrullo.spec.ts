@@ -38,6 +38,29 @@ describe('tema arrullo', () => {
     expect(manifest?.pattern).toBe('stripes')
   })
 
+  it('pone los efectos de baby shower en cada sección', async () => {
+    const manifest = await loadTheme('arrullo')
+    const effects = (type: string) => manifest!.sections[type].effects
+    expect(effects('hero-envelope')).toEqual(['reveal', 'ribbon-curls', 'balloons'])
+    expect(effects('music-player')).toEqual(['clouds'])
+    expect(effects('blessing')).toEqual(['reveal', 'bow-tie'])
+    expect(effects('save-the-date')).toEqual(['reveal', 'bubbles'])
+    expect(effects('location')).toEqual(['reveal', 'daisies'])
+    expect(effects('itinerary')).toEqual(['timeline-fill', 'goose-walk'])
+    expect(effects('countdown')).toEqual(['reveal', 'crib-mobile'])
+    expect(effects('closing')).toEqual(['reveal', 'ribbon-curls'])
+    for (const type of ['hotels', 'weather', 'video', 'social-post']) {
+      expect(effects(type), type).toEqual(['reveal', 'bow-tie'])
+    }
+    const css = readFileSync(resolve(process.cwd(), 'src/effects/arrullo.css'), 'utf8')
+    for (const cls of [
+      '.fab-balloon', '.fab-curl', '.fab-bowtie', '.fab-cloud', '.fab-mobile', '.fab-daisy',
+      '.fab-bubble', '.fab-goose',
+    ]) {
+      expect(css, cls).toContain(cls)
+    }
+  })
+
   it('cada diseño declarado está registrado (componente o piel de CSS)', async () => {
     const manifest = await loadTheme('arrullo')
     for (const [type, section] of Object.entries(manifest!.sections)) {

@@ -559,6 +559,14 @@ export const FABRIC_EFFECTS = [
   'sarape-drift',
   'tile-flip',
   'mariachi-band',
+  'balloons',
+  'ribbon-curls',
+  'bow-tie',
+  'clouds',
+  'crib-mobile',
+  'daisies',
+  'bubbles',
+  'goose-walk',
 ] as const
 
 export interface LaceDoily {
@@ -910,5 +918,144 @@ export function flipTiles(seed: string, count = 7): FlipTile[] {
   return Array.from({ length: count }, (_, i) => ({
     tile: (i % 4) + 1,
     delay: round(i * 0.18 + rand() * 0.08, 2),
+  }))
+}
+
+/* ------------------------------------------------------------------------------------
+ * Efectos de baby shower (globales): globos, listones rizados, nubes, margaritas y burbujas.
+ * Con semilla y sin DOM; el moño, el móvil y el gansito son piezas con su propio movimiento.
+ * ---------------------------------------------------------------------------------- */
+
+export interface BalloonFlight {
+  /** Posición horizontal, en % del ancho: siempre a los costados (el centro queda libre). */
+  left: number
+  /** Ancho del globo en rem. */
+  size: number
+  /** Color de la paleta (índice 0 a 4). */
+  tone: number
+  /** Cuánto se va de lado al subir (px), su retraso y su duración (segundos). */
+  drift: number
+  delay: number
+  duration: number
+}
+
+/** Siete globos, repartidos entre los dos costados, que suben a destiempo. */
+export function balloonFlights(seed: string): BalloonFlight[] {
+  const rand = seededRandom(seed)
+  return Array.from({ length: 7 }, (_, i) => {
+    const leftSide = i % 2 === 0
+    return {
+      left: round(leftSide ? 2 + rand() * 13 : 85 + rand() * 11, 1),
+      size: round(1.7 + rand() * 0.9, 2),
+      tone: (i + Math.floor(rand() * 2)) % 5,
+      drift: Math.round((rand() - 0.5) * 2 * 22),
+      delay: round(-rand() * 18),
+      duration: round(15 + rand() * 9),
+    }
+  })
+}
+
+export interface RibbonCurl {
+  /** Esquina de la que cuelga y distancia a ella, en rem. */
+  corner: 'l' | 'r'
+  x: number
+  /** Alto en rem (el ancho sale de él). */
+  length: number
+  /** Cuánto se mece (grados), su vaivén y su retraso (segundos). */
+  sway: number
+  duration: number
+  delay: number
+}
+
+/** Dos rizos por esquina de arriba, de largos distintos, que se mecen cada uno a su ritmo. */
+export function ribbonCurls(seed: string): RibbonCurl[] {
+  const rand = seededRandom(seed)
+  const curls: RibbonCurl[] = []
+  for (const corner of ['l', 'r'] as const) {
+    for (let i = 0; i < 2; i++) {
+      curls.push({
+        corner,
+        x: round(0.4 + i * 1.9 + rand() * 0.5, 1),
+        length: round(i === 0 ? 5.4 + rand() * 1.2 : 3.8 + rand(), 1),
+        sway: round(3 + rand() * 3, 1),
+        duration: round(2.6 + rand() * 1.8, 1),
+        delay: round(-rand() * 3, 1),
+      })
+    }
+  }
+  return curls
+}
+
+export interface CloudDrift {
+  /** Capa: 0 = lejana (chica, lenta y tenue), 1 = cercana. */
+  layer: 0 | 1
+  /** Altura, en % de la sección, y ancho, en % del ancho de la sección. */
+  top: number
+  width: number
+  /** Segundos que tarda en cruzar y su retraso (negativo: ya va a medio camino). */
+  duration: number
+  delay: number
+}
+
+/** Cinco nubes en dos capas: tres lejanas y lentas, dos cercanas y más rápidas. */
+export function cloudDrifts(seed: string): CloudDrift[] {
+  const rand = seededRandom(seed)
+  return Array.from({ length: 5 }, (_, i) => {
+    const layer: 0 | 1 = i < 3 ? 0 : 1
+    const duration = layer === 0 ? 90 + rand() * 30 : 55 + rand() * 20
+    return {
+      layer,
+      top: round(layer === 0 ? 6 + rand() * 40 : 30 + rand() * 50, 1),
+      width: round(layer === 0 ? 22 + rand() * 10 : 36 + rand() * 12, 1),
+      duration: round(duration),
+      delay: round(-(i % 3 === 2 ? 0.7 : (i % 3) / 3) * duration - rand() * 6),
+    }
+  })
+}
+
+export interface Daisy {
+  /** Posición horizontal del tallo, en % del ancho. */
+  left: number
+  /** Ancho de la flor en rem. */
+  size: number
+  /** Cuánto se mece (grados), su vaivén (segundos) y el retraso con que brota. */
+  sway: number
+  duration: number
+  delay: number
+}
+
+/** Nueve margaritas al pie que brotan de izquierda a derecha, escalonadas. */
+export function daisyRow(seed: string): Daisy[] {
+  const rand = seededRandom(seed)
+  return Array.from({ length: 9 }, (_, i) => ({
+    left: round(((i + 0.5) / 9) * 100 + (rand() - 0.5) * 3, 1),
+    size: round(2.3 + rand() * 1.1, 1),
+    sway: round(2 + rand() * 2.5, 1),
+    duration: round(4 + rand() * 3, 1),
+    delay: round(i * 0.18 + rand() * 0.1, 2),
+  }))
+}
+
+export interface SoapBubble {
+  left: number
+  /** Diámetro en px. */
+  size: number
+  /** Cuánto sube (% del alto de la sección, de 40 a 75) y cuánto se va de lado (px). */
+  rise: number
+  drift: number
+  delay: number
+  duration: number
+}
+
+/** Diez burbujas de jabón que suben con deriva lateral y se desvanecen. */
+export function soapBubbles(seed: string): SoapBubble[] {
+  const rand = seededRandom(seed)
+  return Array.from({ length: 10 }, () => ({
+    left: round(3 + rand() * 94, 1),
+    size: Math.round(14 + rand() * 24),
+    rise: Math.round(40 + rand() * 35),
+    drift: Math.round((rand() - 0.5) * 2 * 34),
+    delay: round(-rand() * 12),
+    duration: round(8 + rand() * 6),
   }))
 }
