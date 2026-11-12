@@ -637,7 +637,7 @@ Rama `feature/tema-fiesta`, desde `main`. Sin unir, sin push y sin `fly deploy`.
 
 ## 12-nov · Tema `arrullo` y baby shower de ejemplo de Emilia
 
-Rama `feature/tema-arrullo`, desde `main`. Empezó el 11-nov. **Unida a `main` (avance directo) y publicada en Fly el 12-nov, release v43; sin push a GitHub.**
+Rama `feature/tema-arrullo`, desde `main`. Empezó el 11-nov. **Unida a `main` (avance directo), publicada en Fly el 12-nov (release v43) y en GitHub desde ese mismo día.**
 
 - **Publicación (12-nov):** `fly deploy --ha=false` desde `main`. Antes y después se guardó la config pública de las 11 invitaciones de producción (NAT, Alexa & Carlos, Mariana & Diego, las dos de Isabella & Mateo, las tres muestras, Regina, Valeria y Ximena): idénticas byte a byte. `baby-shower-emilia` no existía en el servidor: se subió con `deploy/subir-evento.sh baby-shower-emilia --forzar` (media y diseño) y, una sola vez, sus `ajustes.csv`, `invitaciones.csv` y `dedicatorias.csv` (regla de las invitaciones de ejemplo con slug nuevo). La plantilla, con `deploy/plantillas/subir.sh arrullo`. Suite previa: web 860 de 864 (las 4 son de la sesión del gestor, intermitentes: pasan al correr solos sus dos archivos); API 404 y las dos de `DesignFormatTest` de la pregunta 81.
 
