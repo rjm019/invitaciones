@@ -535,7 +535,7 @@ final class Catalog
             'fields' => [
                 ['key' => 'texto', 'label' => 'Mensaje', 'input' => 'textarea', 'placeholder' => 'Con la bendición de Dios…', 'max_length' => 600],
                 ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'help' => 'Vacío: la frase de la portada.', 'max_length' => 80],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'programa', 'label' => 'Programa de teatro'], ['value' => 'editorial', 'label' => 'Editorial (padrinos en columnas)'], ['value' => 'retablo', 'label' => 'Retablo de hojalata']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'programa', 'label' => 'Programa de teatro'], ['value' => 'editorial', 'label' => 'Editorial (padrinos en columnas)'], ['value' => 'retablo', 'label' => 'Retablo de hojalata'], ['value' => 'medallon', 'label' => 'Medallón con moñito']]],
             ],
             'list' => ['key' => 'familia', 'label' => 'Familia', 'item_label' => 'Grupo', 'max' => 12, 'fields' => [
                 ['key' => 'rol', 'label' => 'Quiénes son', 'input' => 'text', 'placeholder' => 'Mis papás', 'required' => true, 'max_length' => 60],
@@ -547,7 +547,7 @@ final class Catalog
         'fecha' => [
             'type' => 'save-the-date', 'label' => 'Fecha', 'icon' => 'calendar-days',
             'description' => 'La fecha grande, el calendario del mes y "Agregar a mi calendario".',
-            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Save the date', 'max_length' => 60], ['key' => 'texto', 'label' => 'Texto del talón (diseño Boleto)', 'input' => 'text', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'boleto', 'label' => 'Boleto de Broadway'], ['value' => 'calendario', 'label' => 'Calendario en un sobre'], ['value' => 'editorial', 'label' => 'Tarjeta editorial (número grande y filetes)'], ['value' => 'loteria', 'label' => 'Carta de lotería que se voltea']]]],
+            'fields' => [['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Save the date', 'max_length' => 60], ['key' => 'texto', 'label' => 'Texto del talón (diseño Boleto)', 'input' => 'text', 'max_length' => 60], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'boleto', 'label' => 'Boleto de Broadway'], ['value' => 'calendario', 'label' => 'Calendario en un sobre'], ['value' => 'editorial', 'label' => 'Tarjeta editorial (número grande y filetes)'], ['value' => 'loteria', 'label' => 'Carta de lotería que se voltea'], ['value' => 'globos', 'label' => 'Racimo de globos']]]],
             'linked' => ['inicia', 'zona_horaria'],
             'slots' => ['destellos', 'corazon'],
             'texts' => ['titulo' => 'Título', 'texto' => 'Talón del boleto', 'fecha' => ['block' => 'date', 'label' => 'Fecha grande'], 'calendario' => ['block' => 'calendar', 'label' => 'Calendario']],
@@ -638,7 +638,7 @@ final class Catalog
             'type' => 'quote', 'label' => 'Frase', 'icon' => 'quote-left', 'repeatable' => true,
             'description' => 'Una frase corta con el divisor del tema.',
             'fields' => [
-                ['key' => 'texto', 'label' => 'Frase', 'input' => 'textarea', 'placeholder' => 'Hoy comienza el capítulo más bonito de mi historia', 'max_length' => 400], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'neon', 'label' => 'Letrero de neón'], ['value' => 'picado', 'label' => 'Bandera de papel picado'], ['value' => 'lamina', 'label' => 'Lámina de papel'], ['value' => 'sobre-imagen', 'label' => 'Sobre que se abre (con imágenes)']]],
+                ['key' => 'texto', 'label' => 'Frase', 'input' => 'textarea', 'placeholder' => 'Hoy comienza el capítulo más bonito de mi historia', 'max_length' => 400], ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'neon', 'label' => 'Letrero de neón'], ['value' => 'picado', 'label' => 'Bandera de papel picado'], ['value' => 'nube', 'label' => 'Nube'], ['value' => 'lamina', 'label' => 'Lámina de papel'], ['value' => 'sobre-imagen', 'label' => 'Sobre que se abre (con imágenes)']]],
                 ['key' => 'zona_arriba', 'label' => 'Zona segura: arriba (%)', 'input' => 'number', 'min' => 0, 'max' => 45, 'step' => 1, 'help' => 'Con la lámina: cuánto de la imagen se deja libre arriba.'],
                 ['key' => 'zona_derecha', 'label' => 'Zona segura: derecha (%)', 'input' => 'number', 'min' => 0, 'max' => 45, 'step' => 1],
                 ['key' => 'zona_abajo', 'label' => 'Zona segura: abajo (%)', 'input' => 'number', 'min' => 0, 'max' => 45, 'step' => 1],
@@ -851,7 +851,7 @@ final class Catalog
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Inicia la cuenta regresiva', 'max_length' => 60],
                 ['key' => 'texto', 'label' => 'Frase', 'input' => 'textarea', 'max_length' => 400],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'tablero', 'label' => 'Tablero de Grand Central'], ['value' => 'corazon', 'label' => 'Corazón de encaje'], ['value' => 'banda', 'label' => 'Banda con números en serif'], ['value' => 'azulejos', 'label' => 'Azulejos de talavera']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'tablero', 'label' => 'Tablero de Grand Central'], ['value' => 'corazon', 'label' => 'Corazón de encaje'], ['value' => 'banda', 'label' => 'Banda con números en serif'], ['value' => 'azulejos', 'label' => 'Azulejos de talavera'], ['value' => 'cubos', 'label' => 'Cubos de juguete']]],
             ],
             'linked' => ['inicia'],
             'slots' => ['corona', 'mariposa', 'encaje', 'azulejo', 'flores'],

@@ -569,10 +569,14 @@ Diseños de sección nuevos (`variante`; sirven en cualquier tema):
 | `musica` | `mariachi` | Trío de mariachis en acuarela que toca al sonar |
 | `musica` | `movil` | Móvil de cuna en acuarela que gira y se balancea al sonar; el botón de play/pausa es una luna grande bajo el móvil (`aria-pressed`). Debajo, el título (`titulo`) y, si lo hay, el texto de la canción (`texto`) |
 | `bendicion` | `retablo` | Nicho de hojalata con el corazón sagrado y los papás dentro |
+| `bendicion` | `medallon` | Óvalo crema con doble filete del color del listón y un moñito de línea montado arriba, que se dibuja al llegar; dentro, `texto`, `subtitulo` y los grupos (`rol` en manuscrita, `nombres` en serif). Con más de dos grupos o un texto largo se alarga como píldora vertical. Ramitas chicas al pie |
 | `fecha` | `loteria` | Carta de lotería que se voltea (el número es el día) |
+| `fecha` | `globos` | Racimo de tres globos atados a un moñito que sube al llegar y se mece: el día va en el grande, el mes abreviado a la izquierda y la hora a la derecha (salen de `evento,,inicia`); debajo, el mes con el día marcado y el botón para agregar al calendario. Campo: `titulo` |
 | `cuenta_regresiva` | `azulejos` | Cuatro azulejos de talavera con los números |
+| `cuenta_regresiva` | `cubos` | Cuatro cubos de juguete (días, horas, minutos, segundos), de colores pastel de la paleta, apenas girados y a distinta altura; el que cambia da un cuarto de vuelta. Campos: `titulo`, `texto` |
 | `foto` | `nicho` | Foto en marco de hojalata con arco y flores |
 | `frase` | `picado` | Frase en una bandera grande de papel picado |
+| `frase` | `nube` | Frase dentro de una nube grande que se estira con el texto y respira, con nubes chicas y estrellas doradas detrás. Campos: `texto` y, si se quiere firma, `titulo` |
 | `ubicacion` | `placa` | Placa de talavera por lugar con corazón de encaje para la hora |
 | `itinerario` | `tendedero` | Hilo con una bandera de papel picado por momento |
 | `vestimenta` | `sarape` | Tarjeta entre franjas de sarape con listones de colores |

@@ -83,6 +83,24 @@ describe('tema arrullo', () => {
     expect(sectionVariants['music-player'].movil).toBeTypeOf('function')
   })
 
+  it('la bendición, la frase, la fecha y la cuenta regresiva llevan sus diseños propios', async () => {
+    const manifest = await loadTheme('arrullo')
+    const expected = {
+      blessing: 'medallon',
+      quote: 'nube',
+      'save-the-date': 'globos',
+      countdown: 'cubos',
+    }
+    for (const [type, variant] of Object.entries(expected)) {
+      expect(manifest?.sections[type].variant, type).toBe(variant)
+      expect(sectionVariants[type][variant], type).toBeTypeOf('function')
+    }
+    // conservan los efectos que ya tenían
+    expect(manifest?.sections.blessing.effects).toEqual(['reveal', 'bow-tie'])
+    expect(manifest?.sections['save-the-date'].effects).toEqual(['reveal', 'bubbles'])
+    expect(manifest?.sections.countdown.effects).toEqual(['reveal', 'crib-mobile'])
+  })
+
   it('define los tokens de color de los paneles que se turnan', () => {
     for (const token of [
       '--color-rubor', '--color-salvia', '--color-salvia-clara', '--color-oro',

@@ -30,12 +30,14 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     programa: () => import('./sections/variants/BlessingPlaybill.vue'),
     editorial: () => import('./sections/variants/BlessingEditorial.vue'),
     retablo: () => import('./sections/variants/BlessingRetablo.vue'),
+    medallon: () => import('./sections/variants/BlessingMedallion.vue'),
   },
   'save-the-date': {
     boleto: () => import('./sections/variants/SaveTheDateTicket.vue'),
     calendario: () => import('./sections/variants/SaveTheDateEnvelope.vue'),
     editorial: () => import('./sections/variants/SaveTheDateEditorial.vue'),
     loteria: () => import('./sections/variants/SaveTheDateLoteria.vue'),
+    globos: () => import('./sections/variants/SaveTheDateBalloons.vue'),
   },
   'photo-arch': {
     ventana: () => import('./sections/variants/PhotoTower.vue'),
@@ -52,6 +54,7 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     neon: () => import('./sections/variants/QuoteNeon.vue'),
     lamina: () => import('./sections/variants/QuoteSheet.vue'),
     picado: () => import('./sections/variants/QuotePicado.vue'),
+    nube: () => import('./sections/variants/QuoteCloud.vue'),
   },
   itinerary: {
     avenida: () => import('./sections/variants/ItineraryAvenue.vue'),
@@ -72,6 +75,7 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     corazon: () => import('./sections/variants/CountdownHeart.vue'),
     banda: () => import('./sections/variants/CountdownBand.vue'),
     azulejos: () => import('./sections/variants/CountdownTiles.vue'),
+    cubos: () => import('./sections/variants/CountdownBlocks.vue'),
   },
   'envelope-rain': {
     sobre: () => import('./sections/variants/EnvelopeRainShower.vue'),

@@ -5,6 +5,10 @@ import { provideEvent } from '@/composables/useEvent'
 import type { EventConfig, ResolvedSection } from '@/types/event'
 import HeroBow from '../HeroBow.vue'
 import MusicMobile from '../MusicMobile.vue'
+import BlessingMedallion from '../BlessingMedallion.vue'
+import QuoteCloud from '../QuoteCloud.vue'
+import SaveTheDateBalloons from '../SaveTheDateBalloons.vue'
+import CountdownBlocks from '../CountdownBlocks.vue'
 
 // La música se simula: un estado que cambia con toggle().
 const playing = ref(false)
@@ -36,7 +40,10 @@ const event = {
   starts_at: '2099-02-20T16:00:00-06:00',
   celebrant: { short_name: 'Emilia', full_name: 'Emilia' },
   venue: { name: 'Jardín', city: 'Querétaro', display_name: 'Jardín' },
-  family: [],
+  family: [
+    { role: 'Mis papás', names: ['Sofía', 'Andrés'] },
+    { role: 'Mis padrinos', names: ['Lucía'] },
+  ],
   media: { portrait: null },
   locations: [],
   itinerary: [],
@@ -143,5 +150,59 @@ describe('diseños de arrullo (variantes A)', () => {
     expect(w.find('.cm').classes()).toContain('is-playing')
     expect(w.find('.mb__title').text()).toBe('Arrullo')
     expect(w.find('.mb__song').text()).toBe('Canción de cuna')
+  })
+
+  it('bendición: el medallón lleva el moñito, el texto y los grupos', () => {
+    const w = render(BlessingMedallion, section({ type: 'blessing', title: 'Con amor', text: 'Gracias' }))
+    expect(w.find('.bm__bow').exists()).toBe(true)
+    expect(w.find('.bm__title').text()).toBe('Con amor')
+    expect(w.find('.bm__text').text()).toBe('Gracias')
+    expect(w.findAll('.bm__group')).toHaveLength(2)
+    expect(w.find('.bm__role').text()).toBe('Mis papás')
+    expect(w.find('.bm').classes()).not.toContain('bm--long')
+  })
+
+  it('bendición: con muchos grupos el óvalo se alarga', () => {
+    const w = render(BlessingMedallion, section({ type: 'blessing', text: 'Gracias' }))
+    expect(w.find('.bm').classes()).not.toContain('bm--long')
+    event.family.push({ role: 'Abuelos', names: ['A'] } as never)
+    const long = render(BlessingMedallion, section({ type: 'blessing' }))
+    expect(long.find('.bm').classes()).toContain('bm--long')
+    event.family.pop()
+  })
+
+  it('frase: va dentro de la nube con sus nubes y estrellas', () => {
+    const w = render(QuoteCloud, section({ type: 'quote', text: 'Un nuevo capítulo', title: 'Sofía' }))
+    expect(w.find('.qc__text').text()).toBe('Un nuevo capítulo')
+    expect(w.find('.qc__author').text()).toBe('Sofía')
+    expect(w.findAll('.qc__puff').length).toBeGreaterThanOrEqual(2)
+    expect(w.findAll('.qc__star').length).toBeGreaterThanOrEqual(2)
+    expect(w.findAll('.qc__lobe').length).toBeGreaterThan(4)
+  })
+
+  it('fecha: el día va en el globo grande, el mes y la hora en los otros', () => {
+    const w = render(SaveTheDateBalloons, section({ type: 'save-the-date', title: 'Guarda la fecha' }))
+    expect(w.find('.sb__balloon--day .sb__day').text()).toBe('20')
+    expect(w.find('.sb__balloon--month').text().toLowerCase()).toBe('feb')
+    expect(w.find('.sb__balloon--hour').text().toLowerCase()).toContain('4:00')
+    expect(w.findAll('.sb__string path')).toHaveLength(3)
+    expect(w.find('.calendar').exists()).toBe(true)
+    expect(w.find('.sb__add').attributes('href')).toContain('calendar')
+  })
+
+  it('cuenta regresiva: el cubo que cambia recibe la clase de giro', async () => {
+    reduceMotion(false)
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2099-02-19T10:00:00-06:00'))
+    const w = render(CountdownBlocks, section({ type: 'countdown', title: 'Falta poco' }))
+    expect(w.findAll('.cb__cube')).toHaveLength(4)
+    expect(w.findAll('.cb__cube.is-turning')).toHaveLength(0)
+    await vi.advanceTimersByTimeAsync(1000)
+    // cambian los segundos: solo el último cubo gira
+    expect(w.findAll('.cb__cube')[3]!.classes()).toContain('is-turning')
+    expect(w.findAll('.cb__cube')[0]!.classes()).not.toContain('is-turning')
+    expect(w.findAll('.cb__cube')[3]!.find('.cb__spin').attributes('style')).toContain('--turn: 1')
+    await vi.advanceTimersByTimeAsync(900)
+    expect(w.findAll('.cb__cube')[3]!.classes()).not.toContain('is-turning')
   })
 })
