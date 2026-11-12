@@ -126,6 +126,8 @@ final class Catalog
         'margaritas' => ['effect' => 'daisies', 'label' => 'Margaritas que brotan', 'help' => 'Una hilera de margaritas al pie brota una tras otra al llegar a la sección y luego se mece apenas.'],
         'burbujas' => ['effect' => 'bubbles', 'label' => 'Burbujas de jabón', 'help' => 'Burbujas de jabón, con su brillo, suben despacio y se desvanecen.'],
         'gansito' => ['effect' => 'goose-walk', 'label' => 'Gansito que pasea', 'help' => 'Un gansito con gorro y dos globos cruza la sección por el pie, andando de un lado a otro.'],
+        'guirnalda' => ['effect' => 'garland', 'label' => 'Guirnalda de listón', 'help' => 'Un moño grande arriba, al centro, del que cuelgan dos listones en guirnalda con ramas de hojas, bayas y una margarita: se ata al llegar a la sección y luego se mece apenas.'],
+        'ciguena' => ['effect' => 'stork-flight', 'label' => 'Cigüeñas que cruzan', 'help' => 'Una cigüeña con un bultito colgado del pico cruza la parte alta de la sección despacio, aleteando; más tarde otra, más chica, cruza en sentido contrario.'],
         'letterpress' => ['effect' => 'letterpress', 'label' => 'Prensa (letterpress)', 'help' => 'El título se imprime al llegar: baja apenas, como presionado contra el papel, y queda en bajorrelieve.'],
     ];
 
@@ -152,6 +154,7 @@ final class Catalog
         'lazo' => 'lazo_se_ata',
         'movil_cuna' => 'movil',
         'ganso' => 'gansito',
+        'ciguenas' => 'ciguena',
     ];
 
     /** Palabras que apagan los efectos que el tema trae por defecto. */
@@ -291,6 +294,7 @@ final class Catalog
     public const PATTERNS = [
         'rayas' => ['value' => 'stripes', 'label' => 'Rayas'],
         'vichy' => ['value' => 'gingham', 'label' => 'Vichy (cuadros)'],
+        'vichy_arriba' => ['value' => 'gingham-top', 'label' => 'Vichy arriba (se desvanece)'],
         'lunares' => ['value' => 'dots', 'label' => 'Lunares'],
         'ninguno' => ['value' => 'none', 'label' => 'Sin estampado'],
     ];
@@ -338,6 +342,7 @@ final class Catalog
         ['key' => 'estampado', 'label' => 'Estampado de tela', 'input' => 'select', 'help' => 'Vacío: el de toda la invitación.', 'options' => [
             ['value' => 'rayas', 'label' => 'Rayas'],
             ['value' => 'vichy', 'label' => 'Vichy (cuadros)'],
+            ['value' => 'vichy_arriba', 'label' => 'Vichy arriba (se desvanece)'],
             ['value' => 'lunares', 'label' => 'Lunares'],
             ['value' => 'ninguno', 'label' => 'Sin estampado'],
         ]],
@@ -481,6 +486,7 @@ final class Catalog
         ['key' => 'estampado', 'label' => 'Estampado de tela de los paneles', 'input' => 'select', 'help' => 'Rayas, cuadros vichy o lunares sobre el color de cada panel, en un tono más claro. Quieto.', 'options' => [
             ['value' => 'rayas', 'label' => 'Rayas'],
             ['value' => 'vichy', 'label' => 'Vichy (cuadros)'],
+            ['value' => 'vichy_arriba', 'label' => 'Vichy arriba (se desvanece)'],
             ['value' => 'lunares', 'label' => 'Lunares'],
             ['value' => 'ninguno', 'label' => 'Sin estampado'],
         ]],

@@ -297,6 +297,8 @@
  * aunque la página lo tenga. El dibujo va en el fondo del panel: nunca tapa el contenido.
  * - rayas: franjas verticales anchas, de orillas suaves.
  * - vichy: dos familias de franjas cruzadas y semitransparentes; donde se cruzan, más intenso.
+ * - vichy_arriba (gingham-top): el mismo vichy solo arriba del panel, que se desvanece hacia
+ *   abajo (`--pattern-fade`, 9rem por defecto).
  * - lunares: tresbolillo (cada fila va a medio módulo de la anterior).
  */
 .invitation[data-pattern='stripes'],
@@ -313,6 +315,25 @@
       var(--pattern-size, 1.8rem),
     linear-gradient(0deg, var(--pattern-ink, rgb(255 255 255 / 0.45)) 50%, transparent 50%) 0 0 / var(--pattern-size, 1.8rem)
       var(--pattern-size, 1.8rem);
+}
+.invitation[data-pattern='gingham-top'],
+.invitation[data-pattern='gingham-top'] .section:not([data-pattern]),
+.section[data-pattern='gingham-top'] {
+  /* El mismo vichy, pero solo en los primeros `--pattern-fade` (9rem) del panel y desvaneciéndose
+     hacia abajo: un degradado del color del panel (`--section-bg-color`, que debe ser un color)
+     lo cubre poco a poco. Cada capa lleva su propio tamaño: nada se pinta debajo de la franja. */
+  --_pf: var(--pattern-fade, 9rem);
+  --_ps: var(--pattern-size, 1.8rem);
+  --_pi: var(--pattern-ink, rgb(255 255 255 / 0.45));
+  --_pto: var(--section-bg-color, var(--color-paper, #fff));
+  --pattern-layers:
+    linear-gradient(180deg, transparent 0, transparent 14%, var(--_pto) 100%) 0 0 / 100% var(--_pf) no-repeat,
+    linear-gradient(90deg, var(--_pi) 50%, transparent 50%) 0 0 / var(--_ps) var(--_pf) repeat-x,
+    repeating-linear-gradient(0deg, var(--_pi) 0 calc(var(--_ps) / 2), transparent calc(var(--_ps) / 2) var(--_ps)) 0 0 / 100% var(--_pf) no-repeat;
+}
+/* En el fondo de la página, el degradado termina en el color de la página. */
+.invitation[data-pattern='gingham-top'] {
+  --_pto: var(--page-bg-color, var(--color-bg));
 }
 .invitation[data-pattern='dots'],
 .invitation[data-pattern='dots'] .section:not([data-pattern]),

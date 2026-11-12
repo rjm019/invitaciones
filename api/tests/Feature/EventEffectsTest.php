@@ -186,7 +186,7 @@ class EventEffectsTest extends TestCase
             'pagina,,estampado,rayas',
             'frase,,visible,SI',
             'frase,,orilla,holan',
-            'frase,,estampado,vichy',
+            'frase,,estampado,vichy_arriba',
             'cierre,,visible,SI',
             'cierre,,estampado,tartán',
         ] as $line) {
@@ -202,7 +202,7 @@ class EventEffectsTest extends TestCase
         $this->assertSame('stripes', $event['page']['pattern']);
         $sections = collect($event['sections']);
         $this->assertSame('ruffle', $sections->firstWhere('type', 'quote')['edge']);
-        $this->assertSame('gingham', $sections->firstWhere('type', 'quote')['pattern']);
+        $this->assertSame('gingham-top', $sections->firstWhere('type', 'quote')['pattern']);
         // Uno que no existe se ignora (con aviso): la sección toma el de la página.
         $this->assertArrayNotHasKey('pattern', $sections->firstWhere('type', 'closing'));
     }
@@ -215,6 +215,8 @@ class EventEffectsTest extends TestCase
             'cuenta_regresiva,,efectos,"globos listones lazo nubes movil_cuna margaritas burbujas ganso"',
             'frase,,visible,SI',
             'frase,,efectos,"lazo_se_ata movil gansito"',
+            'cierre,,visible,SI',
+            'cierre,,efectos,"guirnalda ciguenas"',
         ] as $line) {
             $this->appendLine('nueva', 'invitacion.csv', $line);
         }
@@ -226,6 +228,7 @@ class EventEffectsTest extends TestCase
             $sections->firstWhere('type', 'countdown')['effects'],
         );
         $this->assertSame(['bow-tie', 'crib-mobile', 'goose-walk'], $sections->firstWhere('type', 'quote')['effects']);
+        $this->assertSame(['garland', 'stork-flight'], $sections->firstWhere('type', 'closing')['effects']);
     }
 
     public function test_encaje_section_variants_pass_through(): void

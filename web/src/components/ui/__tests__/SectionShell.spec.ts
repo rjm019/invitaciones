@@ -298,6 +298,30 @@ describe('SectionShell: efectos de baby shower', () => {
   })
 })
 
+describe('SectionShell: guirnalda y cigüeñas', () => {
+  it('la guirnalda es una capa con RibbonGarland, atada solo al entrar', () => {
+    const wrapper = render({ effects: ['garland'] })
+    expect(wrapper.find('section').classes()).toContain('fx-garland')
+    expect(wrapper.findAll('.fab-garland .rg')).toHaveLength(1)
+    expect(wrapper.find('.fab').attributes('aria-hidden')).toBe('true')
+    const children = [...wrapper.find('section').element.children].map((el) => el.className)
+    const content = children.findIndex((c) => c.split(' ').includes('section__content'))
+    const layer = children.findIndex((c) => c.split(' ').includes('fab'))
+    expect(layer).toBeLessThan(content)
+  })
+
+  it('dos cigüeñas aleteando: la grande hacia la derecha y la chica, volteada, hacia la izquierda', () => {
+    const wrapper = render({ effects: ['stork-flight'] })
+    expect(wrapper.find('section').classes()).toContain('fx-stork-flight')
+    const storks = wrapper.findAll('.fab-stork .fs')
+    expect(storks).toHaveLength(2)
+    expect(storks[0].classes()).toContain('is-flying')
+    expect(storks[0].classes()).not.toContain('fs--flip')
+    expect(storks[1].classes()).toContain('fs--flip')
+    expect(wrapper.find('.fab-stork').attributes('style')).toContain('--motion-scale')
+  })
+})
+
 describe('SectionShell: silueta y filete de la tarjeta', () => {
   it('marca la silueta y el filete de la sección para que el CSS los pinte', () => {
     const section = render({ silhouette: 'notch', fillet: 'burgundy' }).find('section')

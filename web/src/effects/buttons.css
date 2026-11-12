@@ -177,28 +177,19 @@
 }
 
 /*
- * Lazo: píldora del color principal con un pespunte punteado por dentro (arriba y abajo) y un
- * moñito a la izquierda (dos lazos en V y un nudo, hechos con degradados de la paleta). Todo va en
- * `--btn-bg`, así que no necesita elementos extra; la sangría de la primera línea
- * (`text-indent`) deja el lugar del moñito sin tocar el relleno de cada botón.
+ * Lazo: píldora del color principal con un pespunte punteado por dentro (arriba y abajo), como
+ * una cinta cosida. Antes llevaba un moñito de degradados a la izquierda: se leía como dos
+ * triángulos (el ícono de "retroceder") y chocaba con los íconos de los botones; un moño que
+ * cuelga sobre el borde tampoco cabe, porque los botones con brillo (.btn-shine) recortan todo
+ * lo que sale de su caja. Todo va en `--btn-bg`, así que no necesita elementos extra.
  */
 .invitation[data-buttons='bow'] .inv-btn {
   --btn-stitch: color-mix(in srgb, var(--color-on-button, var(--color-bg)) 85%, transparent);
   --btn-bg:
-    radial-gradient(circle 0.16rem at 50% 50%, var(--color-primary-strong, var(--color-primary)) 94%, transparent 100%)
-      0.2rem center / 1rem 0.85rem no-repeat,
-    conic-gradient(
-        from 52deg at 50% 50%,
-        var(--color-primary-soft, #fff) 0 76deg,
-        transparent 77deg 179deg,
-        var(--color-primary-soft, #fff) 180deg 256deg,
-        transparent 257deg
-      )
-      0.2rem center / 1rem 0.85rem no-repeat,
     repeating-linear-gradient(90deg, var(--btn-stitch) 0 0.28rem, transparent 0.28rem 0.5rem)
-      center 0.28rem / calc(100% - 3.2rem) 1.5px no-repeat,
+      center 0.28rem / calc(100% - 2.2rem) 1.5px no-repeat,
     repeating-linear-gradient(90deg, var(--btn-stitch) 0 0.28rem, transparent 0.28rem 0.5rem)
-      center calc(100% - 0.28rem) / calc(100% - 3.2rem) 1.5px no-repeat,
+      center calc(100% - 0.28rem) / calc(100% - 2.2rem) 1.5px no-repeat,
     linear-gradient(var(--color-primary), var(--color-primary));
   --btn-color: var(--color-on-button, var(--color-bg));
   --btn-border: 0;
@@ -209,6 +200,4 @@
   --btn-decoration: none;
   --btn-clip: none;
   --btn-glow: none;
-  /* El moñito ocupa hasta 1.2rem: el texto arranca después de él (sin tocar el relleno del botón). */
-  text-indent: 0.7rem;
 }

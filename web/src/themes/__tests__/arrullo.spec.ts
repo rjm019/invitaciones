@@ -56,7 +56,7 @@ describe('tema arrullo', () => {
     const css = readFileSync(resolve(process.cwd(), 'src/effects/arrullo.css'), 'utf8')
     for (const cls of [
       '.fab-balloon', '.fab-curl', '.fab-bowtie', '.fab-cloud', '.fab-mobile', '.fab-daisy',
-      '.fab-bubble', '.fab-goose',
+      '.fab-bubble', '.fab-goose', '.fab-garland', '.fab-stork', '.fx-garland', '.fx-stork-flight',
     ]) {
       expect(css, cls).toContain(cls)
     }

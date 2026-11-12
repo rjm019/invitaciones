@@ -24,4 +24,16 @@ describe('PartyGoose', () => {
     expect(mount(PartyGoose, { props: { balloons: 9 } }).findAll('.pg__balloon')).toHaveLength(3)
     expect(mount(PartyGoose, { props: { balloons: -1 } }).findAll('.pg__balloon')).toHaveLength(0)
   })
+
+  it('pose sitting dibuja al gansito sentado, con patas, moño, cabeza y globos', () => {
+    expect(mount(PartyGoose).find('.pg').classes()).not.toContain('pg--sit')
+    const w = mount(PartyGoose, { props: { pose: 'sitting', balloons: 2 } })
+    expect(w.find('.pg').classes()).toContain('pg--sit')
+    expect(w.find('.pg__head').exists()).toBe(true)
+    expect(w.find('.pg__bow').exists()).toBe(true)
+    expect(w.findAll('.pg__bow-tail')).toHaveLength(2)
+    expect(w.findAll('.pg__leg')).toHaveLength(2)
+    expect(w.findAll('.pg__balloon')).toHaveLength(2)
+    expect(w.find('.pg__lid').exists()).toBe(true)
+  })
 })

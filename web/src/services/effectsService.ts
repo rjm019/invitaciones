@@ -567,6 +567,8 @@ export const FABRIC_EFFECTS = [
   'daisies',
   'bubbles',
   'goose-walk',
+  'garland',
+  'stork-flight',
 ] as const
 
 export interface LaceDoily {
@@ -1058,4 +1060,50 @@ export function soapBubbles(seed: string): SoapBubble[] {
     delay: round(-rand() * 12),
     duration: round(8 + rand() * 6),
   }))
+}
+
+export interface StorkFlight {
+  /** Distancia al borde de arriba (rem). */
+  top: number
+  /** Ancho de la cigüeña (rem). */
+  size: number
+  /** Cruza de derecha a izquierda (y mira hacia allá). */
+  reverse: boolean
+  /** Cuánto sube y baja al ondular (px). */
+  wave: number
+  /** Segundos por ondulación (a velocidad 1). */
+  waveTime: number
+  /** Segundos del ciclo completo: cruza una vez y la otra cruza en la otra mitad. */
+  duration: number
+  delay: number
+}
+
+/**
+ * Dos cigüeñas que cruzan la franja de arriba: una grande hacia la derecha y, más tarde, una
+ * más chica y más alta hacia la izquierda (el ciclo es largo y cada sección arranca en otro
+ * punto). Cada una ondula suave mientras cruza.
+ */
+export function storkFlights(seed: string): StorkFlight[] {
+  const rand = seededRandom(seed)
+  const delay = round(-rand() * 40)
+  return [
+    {
+      top: round(0.5 + rand() * 0.5, 1),
+      size: round(6 + rand() * 0.6, 1),
+      reverse: false,
+      wave: Math.round(7 + rand() * 5),
+      waveTime: round(4.6 + rand() * 1.4, 1),
+      duration: 90,
+      delay,
+    },
+    {
+      top: round(0.9 + rand() * 0.6, 1),
+      size: round(4 + rand() * 0.5, 1),
+      reverse: true,
+      wave: Math.round(5 + rand() * 4),
+      waveTime: round(4 + rand() * 1.4, 1),
+      duration: 90,
+      delay,
+    },
+  ]
 }

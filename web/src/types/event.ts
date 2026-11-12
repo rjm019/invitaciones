@@ -74,6 +74,8 @@ export type EffectName =
   | 'daisies'
   | 'bubbles'
   | 'goose-walk'
+  | 'garland'
+  | 'stork-flight'
 
 /** Forma de las orillas de una franja (sección difuminada con fondo). */
 export type EdgeStyle = 'fade' | 'torn' | 'city' | 'wave' | 'scallop' | 'straight' | 'lace' | 'picado' | 'ruffle'
@@ -114,8 +116,8 @@ export type SilhouetteStyle = 'notch' | 'none'
 /** Filete fino por dentro de la silueta. */
 export type FilletStyle = 'burgundy' | 'gold' | 'none'
 
-/** Estampado de tela sobre el color del panel o de la página: rayas, vichy o lunares. */
-export type PatternStyle = 'stripes' | 'gingham' | 'dots' | 'none'
+/** Estampado de tela sobre el color del panel o de la página: rayas, vichy (entero o solo arriba, desvaneciéndose) o lunares. */
+export type PatternStyle = 'stripes' | 'gingham' | 'gingham-top' | 'dots' | 'none'
 
 /** Un recuerdo de la historia (sección "historia"). */
 export interface StoryMoment {

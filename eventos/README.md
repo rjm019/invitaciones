@@ -292,6 +292,9 @@ Cada texto de la invitación es un **bloque**: los cuatro comunes (`titulo`, `su
   - `burbujas`: burbujas de jabón que suben y se desvanecen.
   - `gansito` (o `ganso`): el gansito con gorro y dos globos cruza la sección por el pie, andando de un lado a otro.
   - Estos ocho toman su color de la paleta (`primario`, `acento`, `oro`, `cielo`…); con "menos movimiento" el moño queda atado, las margaritas brotadas, el móvil quieto y el gansito parado, y los globos, las burbujas y las nubes no se pintan.
+  - `guirnalda` (`garland`): `RibbonGarland`, un moño grande arriba al centro del que cuelgan dos listones en guirnalda hasta las esquinas (dan una vuelta y cuelgan en un rizo), con una rama de hojas con nervadura y racimos de bayas a lo largo de cada uno y una margarita en el extremo derecho. Mide el ancho del panel (hasta 44 rem) y reserva arriba el 30 % de ese ancho (`.fx-garland`). Al llegar se ata (crecen los lazos, los listones se despliegan hacia los lados y brotan hojas y bayas) y luego se mece; con "menos movimiento" queda atada y quieta.
+  - `ciguena` (o `ciguenas`; `stork-flight`): `FlyingStork`, una cigüeña blanca de alas con puntas negras que aletea y lleva en el pico un bultito de tela (color del listón) que se balancea. Una grande cruza la franja de arriba hacia la derecha, ondulando suave, y más tarde una chica cruza hacia la izquierda (ciclo de 90 s, cada sección arranca en otro punto). Reserva 5.4 rem arriba (`.fx-stork-flight`) para no tapar el título; con "menos movimiento" queda una sola, quieta, en la esquina de arriba.
+  - Piezas en línea (colores de la paleta, sirven en cualquier tema): `RibbonGarland` (`tied`, `sway`, `size` `md`/`lg`, `tone`), `FlyingStork` (`flying`, `flip`, `size`, el bultito toma `--bow-color`; pico y patas llevan su naranja fijo) y `PartyGoose` con `pose` `standing` (de pie) o `sitting` (sentado de perfil, patas al frente, gorro ladeado, moño grande de colas largas al cuello y globos tras el ala; mueve la cabeza, parpadea y mece las colas del moño y los globos).
 - `difuminar` (o `sin_cortes`, `integrar`): la sección deja de ser tarjeta (ver abajo).
 - `ninguno` apaga los que el tema trae por defecto (no quita `difuminar` si la página lo pide).
 
@@ -558,7 +561,7 @@ En el bloque `pagina` (y, donde se indica, en cada sección):
 | `pagina,,esquinas` | `flores`: ramito de gerbera y cempasúchil en dos esquinas de los paneles |
 | `pagina,,botones` | `talavera`: botón de azulejo cobalto con filo doble |
 | `pagina,,textura` | `amate`: fibra de papel amate en el fondo de los paneles |
-| `<sección>,,efectos` | `papel_picado`, `cempasuchil`, `flores_brotan`, `corazon_late`, `notas`, `sarape`, `azulejos_voltean`, `mariachis`, `globos`, `listones`, `lazo_se_ata`, `nubes`, `movil`, `margaritas`, `burbujas` y `gansito` (ver arriba) |
+| `<sección>,,efectos` | `papel_picado`, `cempasuchil`, `flores_brotan`, `corazon_late`, `notas`, `sarape`, `azulejos_voltean`, `mariachis`, `globos`, `listones`, `lazo_se_ata`, `nubes`, `movil`, `margaritas`, `burbujas`, `gansito`, `guirnalda` y `ciguena` (ver arriba) |
 
 Diseños de sección nuevos (`variante`; sirven en cualquier tema):
 
@@ -597,8 +600,8 @@ Adornos nuevos (`imagen_<adorno>`): `cempasuchil`, `nopal`, `saguaro`, `azulejo`
 
 | Fila | Valores |
 |---|---|
-| `pagina,,estampado` / `<sección>,,estampado` | `rayas` (franjas verticales anchas y suaves), `vichy` (dos familias de franjas cruzadas; donde se cruzan se ve más intenso), `lunares` (en tresbolillo) o `ninguno`: dibujo de tela quieto sobre el color del panel y sobre el fondo de la página, en un tono más claro (`--pattern-ink`, blanco al 45 % por defecto; `--pattern-size`). En la sección, vacío = el de la página y `ninguno` lo quita. Se pinta con cualquier textura. Un valor que no existe se avisa y se ignora |
+| `pagina,,estampado` / `<sección>,,estampado` | `rayas` (franjas verticales anchas y suaves), `vichy` (dos familias de franjas cruzadas; donde se cruzan se ve más intenso), `vichy_arriba` (el mismo vichy solo en la parte alta del panel, desvaneciéndose hacia abajo en `--pattern-fade`, 9 rem por defecto; el degradado termina en el color del panel, que debe ser un color liso), `lunares` (en tresbolillo) o `ninguno`: dibujo de tela quieto sobre el color del panel y sobre el fondo de la página, en un tono más claro (`--pattern-ink`, blanco al 45 % por defecto; `--pattern-size`). En la sección, vacío = el de la página y `ninguno` lo quita. Se pinta con cualquier textura. Un valor que no existe se avisa y se ignora |
 | `pagina,,orilla` / `<sección>,,orilla` | `holan`: holán fruncido con su pespunte entre las franjas |
-| `pagina,,botones` | `lazo`: píldora con pespunte punteado por dentro y un moñito a la izquierda, con los colores de la paleta |
+| `pagina,,botones` | `lazo`: píldora con pespunte punteado por dentro (arriba y abajo), como una cinta cosida, con los colores de la paleta (ya no lleva moñito: los botones con brillo recortan lo que sale de su caja) |
 | `pagina,,esquinas` | `ramitas`: ramita de hojas y bayas con una margarita en dos esquinas de los paneles |
 | `pagina,,textura` | `acuarela`: papel de acuarela con grano fino y manchas suaves de pigmento |

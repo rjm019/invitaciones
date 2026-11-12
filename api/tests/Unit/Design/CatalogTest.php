@@ -26,6 +26,7 @@ class CatalogTest extends TestCase
         'typewriter-title', 'ink-dry', 'calligraphy', 'stamp', 'gold-leaf', 'letterpress',
         'papel-picado', 'marigold', 'bloom', 'heartbeat', 'music-notes', 'sarape-drift', 'tile-flip', 'mariachi-band',
         'balloons', 'ribbon-curls', 'bow-tie', 'clouds', 'crib-mobile', 'daisies', 'bubbles', 'goose-walk',
+        'garland', 'stork-flight',
     ];
 
     public function test_every_effect_maps_to_an_effect_the_web_paints(): void
@@ -119,7 +120,7 @@ class CatalogTest extends TestCase
         $this->assertSame('sprigs', Catalog::CORNERS['ramitas']['value']);
         $this->assertSame('watercolor', Catalog::TEXTURES['acuarela']['value']);
         $this->assertSame(
-            ['rayas' => 'stripes', 'vichy' => 'gingham', 'lunares' => 'dots', 'ninguno' => 'none'],
+            ['rayas' => 'stripes', 'vichy' => 'gingham', 'vichy_arriba' => 'gingham-top', 'lunares' => 'dots', 'ninguno' => 'none'],
             array_map(fn ($p) => $p['value'], Catalog::PATTERNS),
         );
 
@@ -127,6 +128,8 @@ class CatalogTest extends TestCase
         $page = collect(Catalog::toArray()['page'])->keyBy('key');
         $section = collect(Catalog::toArray()['common'])->keyBy('key');
         $this->assertContains('rayas', array_column($section['estampado']['options'], 'value'));
+        $this->assertContains('vichy_arriba', array_column($section['estampado']['options'], 'value'));
+        $this->assertContains('vichy_arriba', array_column($page['estampado']['options'], 'value'));
         $this->assertContains('holan', array_column($section['orilla']['options'], 'value'));
         $this->assertContains('lunares', array_column($page['estampado']['options'], 'value'));
         $this->assertContains('lazo', array_column($page['botones']['options'], 'value'));

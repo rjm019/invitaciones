@@ -2,8 +2,10 @@
 import { computed } from 'vue'
 import CribMobile from '@/components/ui/CribMobile.vue'
 import MariachiBand from '@/components/ui/MariachiBand.vue'
+import FlyingStork from '@/components/ui/FlyingStork.vue'
 import PartyGoose from '@/components/ui/PartyGoose.vue'
 import RibbonBow from '@/components/ui/RibbonBow.vue'
+import RibbonGarland from '@/components/ui/RibbonGarland.vue'
 import doilyUrl from '@/themes/_shared/assets/encaje.svg?url'
 import drapeUrl from '@/themes/_shared/assets/cortinaje.svg?url'
 import bunting from '@/themes/_shared/assets/papel-picado.svg?url'
@@ -40,6 +42,7 @@ import {
   petals,
   ribbonCurls,
   soapBubbles,
+  storkFlights,
   tulleVeils,
 } from '@/services/effectsService'
 import type { ResolvedSection } from '@/types/event'
@@ -75,6 +78,8 @@ import type { ResolvedSection } from '@/types/event'
  * - margaritas (daisies): hilera de margaritas al pie que brotan una tras otra.
  * - burbujas (bubbles): burbujas de jabón que suben y se desvanecen.
  * - gansito (goose-walk): el gansito, con dos globos, cruza la sección por el pie.
+ * - guirnalda (garland): el moño grande con dos listones en guirnalda, hojas y bayas arriba, a todo el ancho.
+ * - ciguena (stork-flight): una cigüeña con su bultito cruza la franja de arriba; más tarde, otra al revés.
  * Solo se anima transform, opacity y las propiedades individuales translate/rotate/scale
  * (que no repintan); nada de blur ni sombras animadas. `entered` arranca las entradas.
  */
@@ -118,6 +123,8 @@ const cribMobile = computed(() => has('crib-mobile'))
 const daisies = computed(() => (has('daisies') ? daisyRow(seed.value) : []))
 const bubbles = computed(() => (has('bubbles') ? soapBubbles(seed.value) : []))
 const goose = computed(() => has('goose-walk'))
+const garland = computed(() => has('garland'))
+const storks = computed(() => (has('stork-flight') ? storkFlights(seed.value) : []))
 // Las ocho puntas de cada margarita: el mismo dibujo, girado.
 const DAISY_PETALS = Array.from({ length: 8 }, (_, i) => i * 45)
 const bloomArt = [gerberaPink, gerberaOrange, gerberaRed, gerberaPale, marigoldFlower]
@@ -504,5 +511,30 @@ const tileArt = [tile1, tile2, tile3, tile4]
   <div v-if="goose" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
     <div class="fab-goose fab-goose--ltr"><PartyGoose :walking="true" :balloons="2" size="4.6rem" /></div>
     <div class="fab-goose fab-goose--rtl"><PartyGoose :walking="true" :balloons="2" :flip="true" size="4.6rem" /></div>
+  </div>
+
+  <div v-if="garland" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <div class="fab-garland"><RibbonGarland :tied="entered" :sway="entered" /></div>
+  </div>
+
+  <div v-if="storks.length" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <div
+      v-for="(k, i) in storks"
+      :key="i"
+      class="fab-stork"
+      :class="k.reverse ? 'fab-stork--rtl' : 'fab-stork--ltr'"
+      :style="{
+        top: `${k.top}rem`,
+        animationDuration: motionTime(k.duration),
+        animationDelay: motionTime(k.delay),
+      }"
+    >
+      <div
+        class="fab-stork__wave"
+        :style="{ '--fab-wave': `${k.wave}px`, animationDuration: motionTime(k.waveTime) }"
+      >
+        <FlyingStork :flying="true" :flip="k.reverse" :size="`${k.size}rem`" />
+      </div>
+    </div>
   </div>
 </template>

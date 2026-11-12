@@ -1,7 +1,7 @@
 /*
  * Efectos de baby shower (globales; los pinta FabricAmbience.vue como capas detrás del
  * contenido): globos, listones rizados, moño que se ata, nubes, móvil de cuna, margaritas,
- * burbujas de jabón y el gansito que pasea. Reglas de siempre: solo transform, opacity y las
+ * burbujas de jabón, el gansito que pasea, la guirnalda de listón y las cigüeñas. Reglas de siempre: solo transform, opacity y las
  * propiedades individuales translate/rotate/scale; duraciones con --motion-scale; con "menos
  * movimiento" todo queda quieto y ya puesto (moño atado, margaritas brotadas, móvil quieto,
  * gansito parado) y globos, burbujas y nubes no se pintan; con la sección lejos de la pantalla
@@ -339,11 +339,80 @@
   padding-bottom: 6.6rem;
 }
 
+/*
+ * ciguena (stork-flight): una cigüeña grande cruza la franja de arriba hacia la derecha y, más
+ * tarde, una chica cruza hacia la izquierda (el ciclo es largo, la sección arranca en otro punto).
+ * Cada una ondula suave (translate y rotate) mientras cruza; FlyingStork aletea. Reserva la
+ * franja de arriba para que no tape el título.
+ */
+.fab-stork {
+  position: absolute;
+  left: 0;
+  width: max-content;
+  transform: translateX(-9rem);
+  animation: fab-stork-ltr calc(90s * var(--motion-scale)) linear infinite;
+}
+.fab-stork--rtl {
+  transform: translateX(calc(100cqi + 2rem));
+  animation-name: fab-stork-rtl;
+}
+.fab-stork__wave {
+  animation: fab-stork-wave calc(5s * var(--motion-scale)) ease-in-out infinite alternate;
+}
+@keyframes fab-stork-ltr {
+  0% {
+    transform: translateX(-9rem);
+  }
+  46%,
+  100% {
+    transform: translateX(calc(100cqi + 2rem));
+  }
+}
+@keyframes fab-stork-rtl {
+  0%,
+  54% {
+    transform: translateX(calc(100cqi + 2rem));
+  }
+  100% {
+    transform: translateX(-9rem);
+  }
+}
+@keyframes fab-stork-wave {
+  from {
+    transform: translateY(calc(var(--fab-wave, 8px) * -1)) rotate(-2.5deg);
+  }
+  to {
+    transform: translateY(var(--fab-wave, 8px)) rotate(2deg);
+  }
+}
+.fx-stork-flight > .section__content {
+  padding-top: 5.4rem;
+}
+
+/*
+ * guirnalda (garland): RibbonGarland a lo ancho del panel (hasta 44rem) pegada arriba; se ata y
+ * se mece al llegar (`entered`). Mide 0.38 de su ancho; el contenido arranca bajo el moño y sus
+ * colas (0.3 del ancho), y los rizos de las esquinas caen a los lados, fuera del texto. Va
+ * después de ciguena: si piden las dos, manda este alto.
+ */
+.fab-garland {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(100cqi, 44rem);
+  translate: -50% 0;
+}
+.fx-garland > .section__content {
+  padding-top: calc(min(100%, 44rem) * 0.3);
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* Todo quieto y ya puesto; globos, burbujas y nubes no se pintan. */
   .fab-curl,
   .fab.is-in .fab-daisy,
-  .fab-goose {
+  .fab-goose,
+  .fab-stork,
+  .fab-stork__wave {
     animation: none;
   }
   .fab-daisy {
@@ -354,6 +423,11 @@
   .fab-goose--ltr {
     transform: translateX(6cqi);
   }
+  /* Una sola cigüeña, quieta, en la esquina de arriba (la guirnalda ya queda atada y quieta). */
+  .fab-stork--ltr {
+    transform: translateX(calc(100cqi - 8rem));
+  }
+  .fab-stork--rtl,
   .fab-goose--rtl,
   .fab-balloon,
   .fab-bubble,

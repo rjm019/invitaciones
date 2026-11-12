@@ -17,6 +17,7 @@ import {
   cloudDrifts,
   daisyRow,
   soapBubbles,
+  storkFlights,
   tulleVeils,
   cityLights,
   confetti,
@@ -437,6 +438,22 @@ describe('efectos de baby shower', () => {
     for (const b of bubbles) {
       expect(b.rise).toBeGreaterThanOrEqual(40)
       expect(b.rise).toBeLessThanOrEqual(75)
+    }
+  })
+
+  it('cigüeñas: dos, una grande hacia la derecha y otra chica hacia la izquierda, con semilla', () => {
+    const storks = storkFlights('itinerario')
+    expect(storks).toEqual(storkFlights('itinerario'))
+    expect(storks).not.toEqual(storkFlights('cierre'))
+    expect(storks).toHaveLength(2)
+    expect(storks[0].reverse).toBe(false)
+    expect(storks[1].reverse).toBe(true)
+    expect(storks[0].size).toBeGreaterThan(storks[1].size)
+    // Cruzan en la franja de arriba y a destiempo (ciclo largo, mismo para las dos).
+    for (const s of storks) {
+      expect(s.top).toBeLessThan(2)
+      expect(s.duration).toBeGreaterThanOrEqual(80)
+      expect(s.wave).toBeGreaterThan(0)
     }
   })
 })
