@@ -5,7 +5,7 @@ import { computed, useId } from 'vue'
  * Cigüeña blanca en vuelo, de perfil y en acuarela (mira a la derecha; `flip` la voltea): cuello
  * estirado al frente, alas grandes con las puntas negras, pico largo y patas largas hacia atrás
  * en naranja rojizo, y colgando del pico un bultito de tela (un pañal anudado, del color del
- * listón y con un moñito) que se mece como péndulo. Con `flying` aletea: cada ala es un grupo
+ * listón, con las dos puntas del nudo) que se mece como péndulo. Con `flying` aletea: cada ala es un grupo
  * que sube y baja (rotate y scaleY) desde el hombro, la lejana a destiempo, el cuerpo sube y baja
  * a contratiempo y el bultito se balancea. Sin `flying` queda con las alas en alto, quieta. Cada
  * forma lleva dos lavados, borde de pigmento y luces en blanco; el grano viene de un filtro
@@ -74,12 +74,12 @@ const WING_RIB = 'M246 114C214 84 170 54 110 28'
           <g :filter="`url(#${fid})`">
             <path class="white" d="M98 134L58 130L62 142L100 146C130 160 220 158 270 142C300 130 296 112 266 106C204 96 124 108 98 134Z" />
             <path class="white-2" transform="translate(2 3)" d="M98 134C124 108 204 96 266 106C296 112 300 130 270 142C220 158 130 160 100 146Z" />
-            <path class="shade" d="M100 146C130 160 220 158 270 142C294 132 296 116 280 110C284 126 262 146 214 150C170 154 130 152 100 146Z" />
-            <path class="edge" d="M98 134L58 130L62 142L100 146C130 160 220 158 270 142C300 130 296 112 266 106C204 96 124 108 98 134Z" />
+            <path class="shade" d="M100 146C130 160 220 158 262 146C240 152 210 154 170 152C140 151 118 149 100 146Z" />
+            <path class="edge" d="M258 105C204 96 124 108 98 134L58 130L62 142L100 146C130 160 220 158 262 144" />
             <path class="feather" d="M70 134L100 138M72 140L104 142" />
             <!-- cuello estirado y cabeza -->
-            <path class="white" d="M256 106C288 96 318 94 342 100L346 118C324 122 298 126 266 142Z" />
-            <path class="white-2" transform="translate(1 3)" d="M262 112C292 104 320 106 342 110L346 118C324 122 298 126 266 142Z" />
+            <path class="white" d="M240 104C288 94 318 94 342 100L346 118C324 122 298 126 252 146Z" />
+            <path class="white-2" transform="translate(1 3)" d="M270 112C294 106 320 106 342 110L346 118C324 122 298 126 280 134Z" />
             <path class="edge" d="M256 106C288 96 318 94 342 100M346 118C324 122 298 126 266 142" />
             <ellipse class="white" cx="348" cy="108" rx="17" ry="13.5" />
             <path class="shade" d="M334 114C344 122 360 120 364 110C362 122 346 126 334 114Z" />
@@ -108,25 +108,28 @@ const WING_RIB = 'M246 114C214 84 170 54 110 28'
             </g>
           </g>
 
-          <!-- bultito colgado del pico: se mece como péndulo -->
+          <!-- bultito colgado del pico: pañal de tela anudado que se mece como péndulo -->
           <g class="fs__bundle">
             <g :filter="`url(#${fid})`">
-              <path class="cord" d="M398 118C396 126 396 132 398 138" />
-              <g transform="translate(398 140)">
-                <path class="cloth" d="M0 0C-14 4 -28 22 -27 44C-26 66 -8 76 0 76C8 76 26 66 27 44C28 22 14 4 0 0Z" />
-                <path class="cloth cloth--2" transform="translate(3 3)" d="M0 0C-14 4 -28 22 -27 44C-26 66 -8 76 0 76C8 76 26 66 27 44C28 22 14 4 0 0Z" />
-                <path class="cloth-shade" d="M27 44C26 66 8 76 0 76C-8 76 -26 66 -27 44C-16 62 14 64 27 44Z" />
-                <path class="cloth-edge" d="M0 0C-14 4 -28 22 -27 44C-26 66 -8 76 0 76C8 76 26 66 27 44C28 22 14 4 0 0Z" />
-                <path class="fold" d="M-6 8C-14 28 -14 50 -6 70M8 10C16 30 16 50 10 68" />
-                <path class="gloss" d="M-17 26C-20 38 -19 48 -15 56" />
-                <!-- orejitas del nudo y moñito -->
-                <path class="cloth" d="M0 0C-8 -8 -14 -8 -15 -2C-14 3 -6 3 0 0ZM0 0C8 -8 14 -8 15 -2C14 3 6 3 0 0Z" />
-                <path class="cloth-edge" d="M0 0C-8 -8 -14 -8 -15 -2C-14 3 -6 3 0 0ZM0 0C8 -8 14 -8 15 -2C14 3 6 3 0 0Z" />
-                <g transform="translate(0 14)">
-                  <path class="bow-loop" d="M0 0C-5 -9 -17 -10 -18 -2C-18 6 -6 6 0 1ZM0 0C5 -9 17 -10 18 -2C18 6 6 6 0 1Z" />
-                  <path class="bow-loop" d="M-1 2C-5 9 -7 14 -9 18L-3 15L-1 20ZM1 2C5 9 7 14 9 18L3 15L1 20Z" />
-                  <circle class="bow-knot" cx="0" cy="0.5" r="3.4" />
-                </g>
+              <path class="cord" d="M398 119C397 125 397 130 398 136" />
+              <g transform="translate(398 138)">
+                <!-- puntas del nudo -->
+                <path class="cloth" d="M-1 4C-8 -6 -18 -10 -26 -8C-22 -1 -14 3 -4 8Z" />
+                <path class="cloth" d="M1 4C8 -6 19 -12 28 -8C23 0 14 3 4 8Z" />
+                <path class="cloth-edge" d="M-1 4C-8 -6 -18 -10 -26 -8C-22 -1 -14 3 -4 8M1 4C8 -6 19 -12 28 -8C23 0 14 3 4 8" />
+                <!-- hamaca de tela en gota ancha -->
+                <path class="cloth" d="M0 4C-12 8 -32 20 -37 44C-41 66 -22 84 0 84C22 84 41 66 37 44C32 20 12 8 0 4Z" />
+                <path class="cloth cloth--2" transform="translate(3 3)" d="M0 4C-12 8 -32 20 -37 44C-41 66 -22 84 0 84C22 84 41 66 37 44C32 20 12 8 0 4Z" />
+                <path class="cloth-soft" d="M-17 62C-23 46 -12 28 0 22C12 28 23 46 17 62C10 74 -10 74 -17 62Z" />
+                <path class="cloth-shade" d="M37 44C41 66 22 84 0 84C-22 84 -41 66 -37 44C-24 70 24 70 37 44Z" />
+                <path class="cloth-edge" d="M0 4C-12 8 -32 20 -37 44C-41 66 -22 84 0 84C22 84 41 66 37 44C32 20 12 8 0 4Z" />
+                <!-- pliegues que suben al nudo -->
+                <path class="fold" d="M-22 62C-24 44 -14 24 -3 10M-10 76C-10 52 -6 30 -2 12M0 80C0 54 0 32 0 12M10 76C10 52 6 30 2 12M22 62C24 44 14 24 3 10" />
+                <path class="gloss" d="M-26 36C-30 48 -28 58 -22 66" />
+                <!-- nudo -->
+                <path class="cloth cloth--knot" d="M-8 8C-10 0 -4 -3 0 -3C5 -3 10 0 8 8C5 13 -5 13 -8 8Z" />
+                <path class="cloth-edge" d="M-8 8C-10 0 -4 -3 0 -3C5 -3 10 0 8 8C5 13 -5 13 -8 8Z" />
+                <path class="fold" d="M-4 0C-2 4 -2 8 -3 11M3 0C4 4 4 8 3 11" />
               </g>
             </g>
           </g>
@@ -289,16 +292,13 @@ const WING_RIB = 'M246 114C214 84 170 54 110 28'
   stroke-width: 1.2;
   stroke-linecap: round;
 }
-.bow-loop {
+.cloth-soft {
   fill: var(--_bow-soft);
-  stroke: var(--_bow-dark);
-  stroke-opacity: 0.5;
-  stroke-width: 0.9;
-  stroke-linejoin: round;
+  fill-opacity: 0.7;
 }
-.bow-knot {
+.cloth--knot {
   fill: var(--_bow-dark);
-  fill-opacity: 0.75;
+  fill-opacity: 0.45;
 }
 
 /* Cada grupo gira o sube desde su apoyo (px del dibujo): ala desde el hombro, bultito desde el pico. */

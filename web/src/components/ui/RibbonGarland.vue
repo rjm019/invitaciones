@@ -36,29 +36,14 @@ const rootStyle = computed(() => {
 
 // `lg` estira el dibujo hacia abajo (los listones cuelgan más); el nudo y los lazos no cambian.
 const K = computed(() => (props.size === 'lg' ? 1.5 : 1))
-const BASE_H = 380
-const KNOT_Y = 118
+const BASE_H = 350
+const KNOT_Y = 150
 const H = computed(() => Math.round(KNOT_Y + (BASE_H - KNOT_Y) * K.value))
 const Y = (y: number) => (y <= KNOT_Y ? y : Math.round((KNOT_Y + (y - KNOT_Y) * K.value) * 10) / 10)
 const P = (pts: number[]) => pts.map((v, i) => (i % 2 ? Y(v) : v)).join(' ')
 
-// Listón del lado izquierdo (el derecho es el mismo, volteado): del nudo a la esquina, y el rizo.
-const mainD = computed(() => `M484 ${Y(128)} C${P([432, 188, 342, 230, 260, 220])} C${P([180, 210, 142, 176, 106, 170])}`)
-const curlD = computed(
-  () =>
-    `M106 ${Y(170)} C${P([70, 164, 36, 182, 36, 214])} C${P([36, 244, 82, 252, 94, 220])} C${P([104, 192, 70, 176, 54, 200])} C${P([44, 216, 54, 242, 58, 266])} C${P([62, 292, 38, 306, 44, 334])}`,
-)
-// La punta en V cuelga del final del rizo.
-const tailT = computed(() => `translate(44 ${Y(334)}) rotate(4)`)
-
-// Rama de hojas: curvas cúbicas que siguen al listón por arriba (puntos en el dibujo base).
 type Pt = [number, number]
 type Seg = [Pt, Pt, Pt, Pt]
-const STEM: Seg[] = [
-  [[432, 176], [392, 196], [330, 206], [262, 198]],
-  [[262, 198], [184, 188], [146, 154], [108, 148]],
-  [[108, 148], [72, 142], [44, 156], [30, 184]],
-]
 const bez = (s: Seg, t: number): Pt => {
   const u = 1 - t
   const f = (i: 0 | 1) =>
@@ -71,6 +56,77 @@ const bezAngle = (s: Seg, t: number): number => {
     3 * u * u * (s[1][i] - s[0][i]) + 6 * u * t * (s[2][i] - s[1][i]) + 3 * t * t * (s[3][i] - s[2][i])
   return (Math.atan2(d(1), d(0)) * 180) / Math.PI
 }
+// El mismo dibujo con la Y estirada (solo cambia en `lg`).
+const stretch = (segs: Seg[]): Seg[] => segs.map((s) => s.map(([x, y]) => [x, Y(y)]) as Seg)
+
+// Listón plano: una forma cerrada que sigue la línea central y se angosta (`pinch`) donde se tuerce;
+// con `notch` la punta lleva el corte en V.
+const strip = (segs: Seg[], w0: number, w1: number, notch = 0, pinch = 0): string => {
+  const S = stretch(segs)
+  const per = 16
+  const total = S.length * per
+  const left: string[] = []
+  const right: string[] = []
+  let end = ''
+  for (let k = 0; k <= total; k++) {
+    const i = Math.min(S.length - 1, Math.floor(k / per))
+    const t = k === total ? 1 : (k % per) / per
+    const [x, y] = bez(S[i], t)
+    const a = (bezAngle(S[i], t) * Math.PI) / 180
+    const u = k / total
+    const w = (w0 + (w1 - w0) * u) * (1 - pinch * Math.sin(Math.PI * u)) * 0.5
+    const nx = Math.sin(a)
+    const ny = -Math.cos(a)
+    left.push(`${(x + nx * w).toFixed(1)} ${(y + ny * w).toFixed(1)}`)
+    right.push(`${(x - nx * w).toFixed(1)} ${(y - ny * w).toFixed(1)}`)
+    if (k === total) end = `${(x - Math.cos(a) * notch).toFixed(1)} ${(y - Math.sin(a) * notch).toFixed(1)}`
+  }
+  return `M${left.join('L')}${notch ? `L${end}` : ''}L${right.reverse().join('L')}Z`
+}
+const centerD = (segs: Seg[]) => {
+  const S = stretch(segs)
+  return `M${S[0][0].join(' ')} ` + S.map((s) => `C${s[1].join(' ')} ${s[2].join(' ')} ${s[3].join(' ')}`).join(' ')
+}
+
+// Listón del lado izquierdo (el derecho es el mismo, volteado): sale de detrás del nudo, cuelga en
+// catenaria hasta la esquina, ahí se dobla y cuelga una cola ondulada con la punta en V.
+const GARLAND: Seg[] = [
+  [[488, 152], [436, 196], [366, 266], [282, 256]],
+  [[282, 256], [200, 246], [150, 176], [98, 138]],
+]
+const CORNER_TAIL: Seg[] = [
+  [[86, 138], [56, 196], [124, 232], [92, 284]],
+  [[92, 284], [70, 316], [102, 330], [86, 344]],
+]
+const CENTER_TAIL: Seg[] = [[[490, 164], [502, 214], [534, 248], [550, 308]]]
+const garlandD = computed(() => strip(GARLAND, 66, 54, 0, 0.1))
+const garlandSheen = computed(() => centerD(GARLAND))
+const cornerTailD = computed(() => strip(CORNER_TAIL, 54, 46, 20, 0.12))
+const cornerTailSheen = computed(() => centerD(CORNER_TAIL))
+const centerTailD = computed(() => strip(CENTER_TAIL, 48, 42, 18, 0.06))
+const CORNER = { x: 98, y: 138 }
+// Doblez de la esquina: el triángulo del revés, más oscuro.
+const foldD = computed(() => `M112 113L60 128L${CORNER.x} ${Y(154)}Z`)
+
+// Lazo: banda ancha que sube y sale del nudo, da la vuelta y regresa (el revés va más oscuro).
+const LOOP_OUTER =
+  'M484 144C470 70 410 -2 330 4C240 10 166 56 154 116C144 172 210 204 292 198C372 192 440 164 490 150Z'
+const LOOP_INNER =
+  'M468 142C454 92 410 50 340 52C276 54 222 84 212 122C206 156 252 152 306 144C372 136 430 138 474 150Z'
+const LOOP = `${LOOP_OUTER}${LOOP_INNER}`
+const LOOP_BACK =
+  'M154 116C144 172 210 204 292 198C372 192 440 164 490 150L474 150C430 138 372 136 306 144C252 152 206 156 212 122Z'
+const LOOP_PLEATS =
+  'M488 144L452 84L462 82ZM488 146L440 110L448 104ZM489 150L432 134L434 144ZM490 152L436 168L444 174Z'
+const LOOP_SHEEN = 'M462 112C430 52 380 24 316 26'
+const GARLAND_PLEATS = 'M488 152L450 162L452 172ZM490 156L444 186L456 192ZM490 160L460 206L470 204Z'
+
+// Rama de hojas: curvas cúbicas por encima del listón (puntos en el dibujo base).
+const STEM: Seg[] = [
+  [[470, 152], [410, 174], [340, 200], [270, 196]],
+  [[270, 196], [200, 192], [150, 150], [100, 118]],
+  [[100, 118], [76, 104], [54, 100], [30, 104]],
+]
 const along = (u: number) => {
   const g = Math.min(0.9999, Math.max(0, u)) * STEM.length
   const i = Math.floor(g)
@@ -95,28 +151,26 @@ interface Sprig {
   rot: number
   i: number
 }
-const LEAF_AT = [0.05, 0.14, 0.23, 0.32, 0.41, 0.5, 0.59, 0.68, 0.77, 0.85, 0.93]
+const PAIRS = 11
 const foliage = computed(() => {
   const leaves: Leaf[] = []
   const sprigs: Sprig[] = []
-  LEAF_AT.forEach((u, j) => {
+  for (let j = 0; j < PAIRS; j++) {
+    const u = 0.03 + (j / (PAIRS - 1)) * 0.93
     const { seg, t } = along(u)
     const [x, y] = bez(seg, t)
     const a = bezAngle(seg, t) + 180 // la rama se recorre del nudo hacia la esquina (hacia la izquierda)
-    const size = 1.3 - j * 0.04
-    // Hojas pareadas: una a cada lado de la rama, la de abajo un poco más atrás.
-    leaves.push({ x, y: Y(y), rot: a - 48 + (j % 2) * 8, s: size, i: j * 2 })
-    leaves.push({ x, y: Y(y), rot: a + 50 - (j % 2) * 6, s: size * 0.94, i: j * 2 + 1 })
-  })
-  for (const [n, u] of [0.38, 0.72].entries()) {
+    // Hojas pareadas de tamaños distintos, una a cada lado de la rama.
+    const size = (1.5 + ((j * 3) % 4) * 0.14) * (1 - u * 0.2)
+    leaves.push({ x, y: Y(y), rot: a - 46 + (j % 2) * 9, s: size, i: j * 2 })
+    leaves.push({ x, y: Y(y), rot: a + 48 - (j % 3) * 5, s: size * (0.82 + ((j * 5) % 3) * 0.08), i: j * 2 + 1 })
+  }
+  // Racimos de tres bayas con brillo, repartidos a lo largo.
+  for (const [n, u] of [0.2, 0.54, 0.9].entries()) {
     const { seg, t } = along(u)
     const [x, y] = bez(seg, t)
-    sprigs.push({ x, y: Y(y), rot: bezAngle(seg, t) + 180 + (n ? 62 : -64), i: 22 + n * 2 })
+    sprigs.push({ x, y: Y(y), rot: bezAngle(seg, t) + 180 + (n % 2 ? 66 : -68), i: 22 + n * 2 })
   }
-  // Punta de la rama: una hoja terminal y un racimo de bayas.
-  const end = STEM[STEM.length - 1]
-  leaves.push({ x: end[3][0], y: Y(end[3][1]), rot: bezAngle(end, 1) + 180 - 8, s: 1, i: 21 })
-  sprigs.push({ x: end[3][0], y: Y(end[3][1]), rot: bezAngle(end, 1) + 180 + 34, i: 26 })
   return { leaves, sprigs }
 })
 
@@ -126,21 +180,21 @@ const wag = (i: number, side: 'l' | 'r') => ({
   '--wl': `${-(((i * 5) % 7) * 0.6) - (side === 'r' ? 1.3 : 0)}s`,
 })
 
-const LEAF = 'M0 0C6 -8 22 -10 34 0C22 9 6 8 0 0Z'
-const LEAF_BACK = 'M0 0C8 1 24 3 34 0C22 9 6 8 0 0Z'
-const LEAF_VEINS = 'M7 0.2H30M12 0C14 -3 17 -4.4 20 -4.8M12 0C14 3 17 4.2 20 4.6M21 0C23 -2.4 25 -3.2 27 -3.4M21 0C23 2.4 25 3 27 3.2'
-// Cada lazo es una banda de listón abierta (se ve el fondo por dentro), no una mancha.
-const LOOP_BAND =
-  'M492 124C470 52 404 14 340 34C276 54 244 120 276 160C308 198 404 176 490 140'
-const TAIL = 'M490 140C470 188 440 228 410 262'
+const LEAF = 'M0 0C5 -7 20 -11 36 0C20 11 5 7 0 0Z'
+const LEAF_BACK = 'M0 0C9 1 24 3 36 0C20 11 5 7 0 0Z'
+const LEAF_VEINS = 'M6 0.2H31M12 0C14 -3.4 18 -5 22 -5.4M12 0C14 3.4 18 4.8 22 5.2M22 0C24 -2.4 27 -3.4 29 -3.4M22 0C24 2.4 27 3.2 29 3.2'
 const loops = [
   { key: 'l', t: '' },
-  { key: 'r', t: 'translate(1000 0) scale(-1 1) rotate(3 500 118)' },
+  { key: 'r', t: `translate(1000 0) scale(-1 1) rotate(3 500 ${KNOT_Y})` },
 ]
 const sides = [
   { key: 'l', t: '' },
   { key: 'r', t: 'translate(1000 0) scale(-1 1)' },
 ]
+const daisies = computed(() => [
+  { key: 'big', t: `translate(944 ${Y(124)}) scale(1.08)` },
+  { key: 'small', t: `translate(58 ${Y(118)}) scale(0.55)` },
+])
 const DAISY_PETALS = Array.from({ length: 12 }, (_, i) => i * 30)
 </script>
 
@@ -162,77 +216,71 @@ const DAISY_PETALS = Array.from({ length: 12 }, (_, i) => i * 30)
         </filter>
       </defs>
 
-      <!-- lazos -->
+      <!-- lazos y colas del centro: bandas de satén, el revés más oscuro -->
       <g v-for="l in loops" :key="l.key" class="rg__loop" :class="`rg__loop--${l.key}`">
         <g class="rg__loop-sway">
           <g :transform="l.t || undefined">
             <g :filter="`url(#${fid})`">
-              <path class="rim" :d="LOOP_BAND" />
-              <path class="band" :d="LOOP_BAND" />
-              <path class="band band--2" transform="translate(3 4)" :d="LOOP_BAND" />
-              <path class="sheen" transform="translate(-3 -5)" :d="LOOP_BAND" />
-              <path class="rim" :d="TAIL" />
-              <path class="band" :d="TAIL" />
-              <path class="band band--2" transform="translate(2 3)" :d="TAIL" />
-              <path class="sheen" transform="translate(-3 -4)" :d="TAIL" />
-              <g transform="translate(410 262) rotate(40)">
-                <path class="rim rim--fill" d="M-13 -3L13 -3L14 44L0 31L-14 44Z" />
-                <path class="band band--fill" d="M-12 -3L12 -3L12 42L0 30L-12 42Z" />
-              </g>
+              <path class="wash" :d="centerTailD" />
+              <path class="wash wash--2" transform="translate(3 4)" :d="centerTailD" />
+              <path class="pigment" :d="centerTailD" />
+              <path class="wash" :d="LOOP" />
+              <path class="wash wash--2" transform="translate(4 5)" :d="LOOP" />
+              <path class="back" :d="LOOP_BACK" />
+              <path class="pleat" :d="LOOP_PLEATS" />
+              <path class="pigment" :d="LOOP" />
+              <path class="sheen" :d="LOOP_SHEEN" />
             </g>
           </g>
         </g>
       </g>
 
-      <!-- cada lado: listón en guirnalda, rama de hojas y rizo; sale del nudo y se despliega -->
+      <!-- cada lado: listón en guirnalda, cola de la esquina y rama de hojas; sale del nudo y se despliega -->
       <g v-for="s in sides" :key="s.key" class="rg__side" :class="`rg__side--${s.key}`">
         <g class="rg__sway">
           <g :transform="s.t || undefined">
             <g :filter="`url(#${fid})`">
               <g class="rg__ribbon">
-                <path class="rim" :d="mainD" />
-                <path class="band" :d="mainD" />
-                <path class="band band--2" transform="translate(2 3)" :d="mainD" />
-                <path class="sheen" transform="translate(-3 -4)" :d="mainD" />
+                <path class="wash" :d="garlandD" />
+                <path class="wash wash--2" transform="translate(3 5)" :d="garlandD" />
+                <path class="pigment" :d="garlandD" />
+                <path class="pleat" :d="GARLAND_PLEATS" />
+                <path class="sheen" transform="translate(-3 -10)" :d="garlandSheen" />
               </g>
             </g>
 
-            <!-- rizo de la esquina: se balancea desde donde se une al listón -->
-            <g class="rg__curl" :style="{ transformOrigin: `106px ${Y(170)}px` }">
+            <!-- cola de la esquina: se dobla y cuelga; se balancea desde el doblez -->
+            <g class="rg__curl" :style="{ transformOrigin: `${CORNER.x}px ${Y(CORNER.y)}px` }">
               <g :filter="`url(#${fid})`">
                 <g class="rg__ribbon">
-                  <path class="rim" :d="curlD" />
-                  <path class="band" :d="curlD" />
-                  <path class="band band--2" transform="translate(2 3)" :d="curlD" />
-                  <path class="sheen" transform="translate(-3 -4)" :d="curlD" />
-                </g>
-                <g :transform="tailT">
-                  <path class="rim rim--fill" d="M-13 -3L13 -3L14 44L0 31L-14 44Z" />
-                  <path class="band band--fill" d="M-12 -3L12 -3L12 42L0 30L-12 42Z" />
-                  <path class="crease" d="M-6 -2V32M6 -2V32" />
+                  <path class="wash" :d="cornerTailD" />
+                  <path class="wash wash--2" transform="translate(3 4)" :d="cornerTailD" />
+                  <path class="back" :d="cornerTailD" />
+                  <path class="pigment" :d="cornerTailD" />
+                  <path class="sheen" transform="translate(-6 0)" :d="cornerTailSheen" />
+                  <path class="fold-tri" :d="foldD" />
                 </g>
               </g>
             </g>
 
-            <!-- rama de hojas con nervadura y racimos de bayas -->
+            <!-- rama de hojas lanceoladas con nervadura y racimos de bayas -->
             <g class="rg__foliage">
               <path class="stem" :d="stemD" :filter="`url(#${fid})`" />
               <g
                 v-for="(p, n) in foliage.sprigs"
                 :key="`s${n}`"
-                :transform="`translate(${p.x} ${p.y}) rotate(${p.rot}) scale(1.6)`"
+                :transform="`translate(${p.x} ${p.y}) rotate(${p.rot}) scale(2)`"
               >
                 <g class="rg__leaf" :style="wag(p.i, s.key as 'l' | 'r')" :filter="`url(#${fid})`">
                   <g class="rg__wag">
-                    <path class="stem stem--thin" d="M0 0C8 -5 18 -7 28 -5" />
-                    <path class="stem stem--thin" d="M19 -6.4C21 -12 25 -15 30 -16" />
-                    <circle class="berry" cx="28" cy="-5" r="6.4" />
-                    <circle class="berry berry--2" cx="34" cy="-14" r="5.4" />
-                    <circle class="berry" cx="22" cy="-15" r="5" />
-                    <circle class="berry berry--2" cx="38" cy="-4" r="4.2" />
-                    <circle class="glint" cx="26.4" cy="-7" r="1.6" />
-                    <circle class="glint" cx="32.6" cy="-16" r="1.4" />
-                    <circle class="glint" cx="20.6" cy="-17" r="1.3" />
+                    <path class="stem stem--thin" d="M0 0C8 -5 18 -7 26 -5" />
+                    <path class="stem stem--thin" d="M16 -6C18 -11 21 -14 25 -15" />
+                    <circle class="berry" cx="27" cy="-5" r="6.4" />
+                    <circle class="berry berry--2" cx="26" cy="-16" r="5.6" />
+                    <circle class="berry" cx="17" cy="-12" r="5" />
+                    <circle class="glint" cx="25.2" cy="-7" r="1.8" />
+                    <circle class="glint" cx="24.4" cy="-17.6" r="1.6" />
+                    <circle class="glint" cx="15.6" cy="-13.6" r="1.4" />
                   </g>
                 </g>
               </g>
@@ -244,6 +292,7 @@ const DAISY_PETALS = Array.from({ length: 12 }, (_, i) => i * 30)
                 <g class="rg__leaf" :style="wag(l.i, s.key as 'l' | 'r')" :filter="`url(#${fid})`">
                   <g class="rg__wag">
                     <path class="leaf" :d="LEAF" />
+                    <path class="leaf leaf--2" transform="translate(1 1.4)" :d="LEAF" />
                     <path class="leaf leaf--back" :d="LEAF_BACK" />
                     <path class="leaf-edge" :d="LEAF" />
                     <path class="vein" :d="LEAF_VEINS" />
@@ -255,8 +304,8 @@ const DAISY_PETALS = Array.from({ length: 12 }, (_, i) => i * 30)
         </g>
       </g>
 
-      <!-- margarita del extremo derecho -->
-      <g class="rg__daisy-pos" :transform="`translate(962 ${Y(190)})`">
+      <!-- margaritas: una grande en el extremo derecho y otra chica a la izquierda -->
+      <g v-for="d in daisies" :key="d.key" :transform="d.t">
         <g class="rg__daisy" :filter="`url(#${fid})`">
           <g class="rg__daisy-sway">
             <ellipse
@@ -285,14 +334,15 @@ const DAISY_PETALS = Array.from({ length: 12 }, (_, i) => i * 30)
         </g>
       </g>
 
-      <!-- nudo -->
+      <!-- nudo: almohadilla con dos arrugas, más intensa que los lazos -->
       <g class="rg__knot">
         <g :filter="`url(#${fid})`">
-          <path class="rim rim--fill" d="M473 100C485 88 515 88 527 100C535 114 533 138 525 148C513 158 487 158 475 148C467 136 467 114 473 100Z" />
-          <path class="band band--fill" d="M474 101C486 90 514 90 526 101C533 114 531 137 524 147C512 156 488 156 476 147C469 135 469 114 474 101Z" />
-          <path class="shade" d="M526 104C533 118 531 138 524 147C512 156 490 156 480 149C500 150 518 142 526 104Z" />
-          <path class="crease" d="M483 98C479 114 479 134 485 150M497 92C493 114 494 136 499 154M512 92C510 114 512 134 516 152" />
-          <path class="gloss gloss--knot" d="M481 106C486 98 498 95 512 96" />
+          <path class="knot" d="M470 138C480 120 520 120 530 138C539 156 535 178 525 186C511 196 489 196 475 186C465 176 461 156 470 138Z" />
+          <path class="knot knot--2" transform="translate(2 3)" d="M470 138C480 120 520 120 530 138C539 156 535 178 525 186C511 196 489 196 475 186C465 176 461 156 470 138Z" />
+          <path class="shade" d="M529 142C538 160 534 180 525 187C511 197 490 196 480 190C502 192 522 180 529 142Z" />
+          <path class="crease" d="M483 128C478 146 478 168 486 190M512 126C510 148 512 170 518 190" />
+          <path class="pigment" d="M470 138C480 120 520 120 530 138C539 156 535 178 525 186C511 196 489 196 475 186C465 176 461 156 470 138Z" />
+          <path class="gloss gloss--knot" d="M480 140C486 130 498 126 514 128" />
         </g>
       </g>
     </svg>
@@ -318,73 +368,59 @@ const DAISY_PETALS = Array.from({ length: 12 }, (_, i) => i * 30)
   overflow: visible;
 }
 
-/* Pintura: borde de pigmento más oscuro, lavados translúcidos encima y luces en blanco. */
-.rim {
+/* Pintura: formas rellenas en dos lavados, borde fino de pigmento y luces en blanco. */
+.wash {
+  fill: var(--_bow);
+  fill-opacity: 0.55;
+  fill-rule: evenodd;
+}
+.wash--2 {
+  fill-opacity: 0.35;
+}
+.pigment {
   fill: none;
   stroke: var(--_bow-dark);
-  stroke-opacity: 0.3;
-  stroke-width: 25;
+  stroke-opacity: 0.34;
+  stroke-width: 1.4;
   stroke-linejoin: round;
 }
-.rim--fill {
+.back {
   fill: var(--_bow-dark);
-  fill-opacity: 0.3;
-  stroke: none;
+  fill-opacity: 0.2;
 }
-.band {
-  fill: none;
-  stroke: var(--_bow);
-  stroke-opacity: 0.5;
-  stroke-width: 20;
-  stroke-linejoin: round;
+.fold-tri {
+  fill: var(--_bow-dark);
+  fill-opacity: 0.36;
 }
-.band--2 {
-  stroke-opacity: 0.24;
-  stroke-width: 20;
+.pleat {
+  fill: var(--_bow-dark);
+  fill-opacity: 0.24;
 }
-.band--wide {
-  stroke-width: 34;
-  stroke-opacity: 0.14;
+.knot {
+  fill: var(--_bow-dark);
+  fill-opacity: 0.5;
 }
-.band--fill {
+.knot--2 {
   fill: var(--_bow);
-  fill-opacity: 0.52;
-  stroke: none;
+  fill-opacity: 0.42;
 }
-.band--fill.band--2 {
-  fill-opacity: 0.26;
+.shade {
+  fill: var(--_cool);
+  fill-opacity: 0.28;
 }
 .sheen {
   fill: none;
   stroke: #fff;
-  stroke-opacity: 0.55;
-  stroke-width: 3;
+  stroke-opacity: 0.5;
+  stroke-width: 4;
   stroke-linecap: round;
-  stroke-dasharray: 90 40 30 36;
-}
-.back {
-  fill: var(--_bow-soft);
-  fill-opacity: 0.85;
-}
-.shade {
-  fill: var(--_cool);
-  fill-opacity: 0.26;
-}
-.edge {
-  fill: none;
-  stroke: var(--_bow-dark);
-  stroke-opacity: 0.3;
-  stroke-width: 1;
-}
-.pleat {
-  fill: var(--_bow-dark);
-  fill-opacity: 0.2;
+  stroke-dasharray: 120 50 40 60;
 }
 .crease {
   fill: none;
   stroke: var(--_bow-dark);
-  stroke-opacity: 0.32;
-  stroke-width: 1.3;
+  stroke-opacity: 0.38;
+  stroke-width: 1.5;
   stroke-linecap: round;
 }
 .gloss {
@@ -394,13 +430,9 @@ const DAISY_PETALS = Array.from({ length: 12 }, (_, i) => i * 30)
   stroke-width: 3.4;
   stroke-linecap: round;
 }
-.gloss--low {
-  stroke-opacity: 0.38;
-  stroke-width: 2.4;
-}
 .gloss--knot {
   stroke-opacity: 0.7;
-  stroke-width: 2.8;
+  stroke-width: 3.2;
 }
 
 /* Rama, hojas y bayas */
@@ -417,6 +449,9 @@ const DAISY_PETALS = Array.from({ length: 12 }, (_, i) => i * 30)
 .leaf {
   fill: var(--_leaf);
   fill-opacity: 0.62;
+}
+.leaf--2 {
+  fill-opacity: 0.3;
 }
 .leaf--back {
   fill: var(--_leaf-dark);
@@ -489,7 +524,7 @@ const DAISY_PETALS = Array.from({ length: 12 }, (_, i) => i * 30)
 .rg__loop,
 .rg__loop-sway,
 .rg__knot {
-  transform-origin: 500px 118px;
+  transform-origin: 500px 150px;
 }
 .rg__daisy,
 .rg__daisy-sway {
