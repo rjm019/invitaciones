@@ -575,13 +575,17 @@ Diseños de sección nuevos (`variante`; sirven en cualquier tema):
 | `cuenta_regresiva` | `azulejos` | Cuatro azulejos de talavera con los números |
 | `cuenta_regresiva` | `cubos` | Cuatro cubos de juguete (días, horas, minutos, segundos), de colores pastel de la paleta, apenas girados y a distinta altura; el que cambia da un cuarto de vuelta. Campos: `titulo`, `texto` |
 | `foto` | `nicho` | Foto en marco de hojalata con arco y flores |
+| `foto` | `retrato` | Foto en óvalo con doble filete colgada de un moño con dos tiras de listón, que se mece como cuadro; ramita con margaritas al pie. Campos: `imagen`, `titulo`, `texto` |
 | `frase` | `picado` | Frase en una bandera grande de papel picado |
 | `frase` | `nube` | Frase dentro de una nube grande que se estira con el texto y respira, con nubes chicas y estrellas doradas detrás. Campos: `texto` y, si se quiere firma, `titulo` |
 | `ubicacion` | `placa` | Placa de talavera por lugar con corazón de encaje para la hora |
+| `ubicacion` | `caminito` | Por lugar: tarjeta crema con filete y, arriba, un caminito punteado en curva que se marca punto por punto mientras la carriola lo recorre hasta el pin, que da un saltito. Mismos campos que `placa` (tipo, hora, dirección, foto, botones, calendario) |
 | `itinerario` | `tendedero` | Hilo con una bandera de papel picado por momento |
+| `itinerario` | `ropita` | Tendedero de ropita: un hilo en zigzag y una prenda por momento (mameluco, babero, calcetines, gorrito, vestido) con dos pinzas, la hora en una etiquetita y la actividad al lado; se mece con la brisa. Con `timeline-fill` cada prenda se cuelga cuando el hilo llega; soporta `en_vivo` |
 | `vestimenta` | `sarape` | Tarjeta entre franjas de sarape con listones de colores |
 | `hospedaje` | `azulejo` | Tarjetas con cenefa de azulejos |
 | `galeria` | `collage` | Polaroids giradas con cinta washi, con flores |
+| `galeria` | `medallones` | Un listón en guirnalda del que cuelgan las fotos en óvalos con moñito, a alturas alternas y meciéndose cada una a su ritmo; al tocar una se abre el visor |
 | `mesa_regalos` | `pinata` | Piñata que se mece; al tocarla cae confeti (las tarjetas siempre se ven) |
 | `confirmacion` | `carpeta` | Tarjeta sobre una carpeta de encaje |
 | `dedicatoria` | `exvoto` | Cada dedicatoria es una laminita tipo exvoto |

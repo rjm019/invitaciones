@@ -558,7 +558,7 @@ final class Catalog
             'fields' => [
                 ['key' => 'imagen', 'label' => 'Foto (de preferencia sin fondo)', 'input' => 'image'],
                 ['key' => 'titulo', 'label' => 'Iniciales o apodo', 'input' => 'text', 'help' => 'Va en la esquina de la foto.', 'max_length' => 20],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'ventana', 'label' => 'Ventana de rascacielos'], ['value' => 'camafeo', 'label' => 'Camafeo de encaje'], ['value' => 'nicho', 'label' => 'Nicho de hojalata con flores']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'ventana', 'label' => 'Ventana de rascacielos'], ['value' => 'camafeo', 'label' => 'Camafeo de encaje'], ['value' => 'nicho', 'label' => 'Nicho de hojalata con flores'], ['value' => 'retrato', 'label' => 'Retrato colgado de un moño']]],
             ],
             'slots' => ['marco', 'estrellas', 'mariposas', 'encaje', 'hojalata', 'flores', 'cempasuchil', 'monarca'],
             'texts' => ['titulo' => 'Iniciales'],
@@ -569,7 +569,7 @@ final class Catalog
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Galería', 'max_length' => 60],
                 ['key' => 'subtitulo', 'label' => 'Subtítulo', 'input' => 'text', 'max_length' => 120],
-                ['key' => 'variante', 'label' => 'Presentación', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Cuadrícula'], ['value' => 'marcos', 'label' => 'Marcos de plata'], ['value' => 'carrusel', 'label' => 'Carrusel (se desliza de lado)'], ['value' => 'diapositivas', 'label' => 'Se cambian solas (como un gif)'], ['value' => 'bastidor', 'label' => 'Bastidores de bordado'], ['value' => 'editorial', 'label' => 'Editorial (marcos finos y pies de foto)'], ['value' => 'collage', 'label' => 'Collage de polaroids con washi']]],
+                ['key' => 'variante', 'label' => 'Presentación', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Cuadrícula'], ['value' => 'marcos', 'label' => 'Marcos de plata'], ['value' => 'carrusel', 'label' => 'Carrusel (se desliza de lado)'], ['value' => 'diapositivas', 'label' => 'Se cambian solas (como un gif)'], ['value' => 'bastidor', 'label' => 'Bastidores de bordado'], ['value' => 'editorial', 'label' => 'Editorial (marcos finos y pies de foto)'], ['value' => 'collage', 'label' => 'Collage de polaroids con washi'], ['value' => 'medallones', 'label' => 'Medallones en un listón']]],
             ],
             'list' => ['key' => 'fotos', 'label' => 'Fotos', 'item_label' => 'Foto', 'max' => 24, 'fields' => [
                 ['key' => 'foto', 'label' => 'Foto', 'input' => 'image', 'required' => true],
@@ -617,7 +617,7 @@ final class Catalog
             'fields' => [
                 ['key' => 'titulo', 'label' => 'Título', 'input' => 'text', 'placeholder' => 'Ubicación', 'max_length' => 60],
                 ['key' => 'boton', 'label' => 'Texto del botón', 'input' => 'text', 'placeholder' => 'Ver en Maps', 'max_length' => 40],
-                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'metro', 'label' => 'Letrero del metro'], ['value' => 'grabado', 'label' => 'Hacienda en grabado'], ['value' => 'papeleria', 'label' => 'Tarjetitas de papel con dibujo de línea'], ['value' => 'placa', 'label' => 'Placa de talavera con corazón de encaje']]],
+                ['key' => 'variante', 'label' => 'Diseño', 'input' => 'select', 'options' => [['value' => 'clasica', 'label' => 'Clásica'], ['value' => 'metro', 'label' => 'Letrero del metro'], ['value' => 'grabado', 'label' => 'Hacienda en grabado'], ['value' => 'papeleria', 'label' => 'Tarjetitas de papel con dibujo de línea'], ['value' => 'placa', 'label' => 'Placa de talavera con corazón de encaje'], ['value' => 'caminito', 'label' => 'Caminito con carriola']]],
                 ['key' => 'acomodo', 'label' => 'Acomodo de los lugares', 'input' => 'select', 'help' => 'Lado a lado (en el celular se apilan) o uno debajo del otro.', 'options' => [['value' => 'lado a lado', 'label' => 'Lado a lado'], ['value' => 'uno debajo del otro', 'label' => 'Uno debajo del otro']]],
                 ['key' => 'calendario', 'label' => 'Botón "Agregar al calendario"', 'input' => 'select', 'options' => [['value' => 'SI', 'label' => 'Sí'], ['value' => 'NO', 'label' => 'No']]],
             ],
@@ -677,6 +677,7 @@ final class Catalog
                     ['value' => 'minuto', 'label' => 'Minuta editorial (hora en versalitas)'],
                     ['value' => 'sello', 'label' => 'Hilo con un lacre que baja y dibujos de línea'],
                     ['value' => 'tendedero', 'label' => 'Tendedero de banderas de papel picado'],
+                    ['value' => 'ropita', 'label' => 'Tendedero de ropita'],
                 ]],
             ],
             'list' => ['key' => 'momentos', 'label' => 'Momentos', 'item_label' => 'Momento', 'max' => 12, 'fields' => [

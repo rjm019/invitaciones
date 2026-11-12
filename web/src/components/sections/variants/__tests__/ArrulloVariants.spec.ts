@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { computed, defineComponent, h, ref, type Component } from 'vue'
+import { computed, defineComponent, h, nextTick, ref, type Component } from 'vue'
 import { provideEvent } from '@/composables/useEvent'
 import type { EventConfig, ResolvedSection } from '@/types/event'
 import HeroBow from '../HeroBow.vue'
@@ -9,6 +9,10 @@ import BlessingMedallion from '../BlessingMedallion.vue'
 import QuoteCloud from '../QuoteCloud.vue'
 import SaveTheDateBalloons from '../SaveTheDateBalloons.vue'
 import CountdownBlocks from '../CountdownBlocks.vue'
+import PhotoPortrait from '../PhotoPortrait.vue'
+import GalleryMedallions from '../GalleryMedallions.vue'
+import LocationPath from '../LocationPath.vue'
+import ItineraryClothesline from '../ItineraryClothesline.vue'
 
 // La música se simula: un estado que cambia con toggle().
 const playing = ref(false)
@@ -204,5 +208,86 @@ describe('diseños de arrullo (variantes A)', () => {
     expect(w.findAll('.cb__cube')[3]!.find('.cb__spin').attributes('style')).toContain('--turn: 1')
     await vi.advanceTimersByTimeAsync(900)
     expect(w.findAll('.cb__cube')[3]!.classes()).not.toContain('is-turning')
+  })
+
+  it('foto: el óvalo cuelga de un moño con su título y su texto', () => {
+    const w = render(
+      PhotoPortrait,
+      section({ type: 'photo-arch', image: '/m/foto.jpg', title: 'Emilia', text: 'Ya casi llega' }),
+    )
+    expect(w.find('.pp__bow').exists()).toBe(true)
+    expect(w.findAll('.pp__strap')).toHaveLength(2)
+    expect(w.find('.pp__photo').attributes('src')).toBe('/m/foto.jpg')
+    expect(w.find('.pp__title').text()).toBe('Emilia')
+    expect(w.find('.pp__text').text()).toBe('Ya casi llega')
+    // sin foto el óvalo queda vacío
+    const empty = render(PhotoPortrait, section({ type: 'photo-arch' }))
+    expect(empty.find('.pp__photo').exists()).toBe(false)
+    expect(empty.find('.pp__oval').exists()).toBe(true)
+  })
+
+  it('galería: cada foto es un botón con etiqueta y tocarla abre el visor', async () => {
+    const photos = [1, 2, 3].map((n) => ({ photo: `g${n}.jpg`, caption: `Foto ${n}` }))
+    const w = render(
+      GalleryMedallions,
+      section({ type: 'gallery', title: 'Galería', photos } as Partial<ResolvedSection>),
+    )
+    const buttons = w.findAll('button.gm__oval')
+    expect(buttons).toHaveLength(3)
+    expect(buttons[1]!.attributes('aria-label')).toBe('Foto 2')
+    expect(w.findAll('.gm__item')[0]!.classes()).toContain('is-short')
+    expect(w.findAll('.gm__item')[1]!.classes()).toContain('is-long')
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    await buttons[1]!.trigger('click')
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull()
+    w.unmount()
+  })
+
+  it('ubicación: un caminito y un botón "Ver ubicación" por lugar', async () => {
+    const places = [
+      { label: 'Ceremonia', name: 'Jardín', time: '16:00', address: 'Calle 1', maps_url: 'https://m/1' },
+      { label: 'Recepción', name: 'Salón', time: '18:00', address: 'Calle 2', maps_url: 'https://m/2' },
+    ]
+    reduceMotion(true)
+    const w = render(
+      LocationPath,
+      section({ type: 'location', title: 'Dónde', places } as Partial<ResolvedSection>),
+    )
+    expect(w.findAll('.lpa__place')).toHaveLength(2)
+    expect(w.findAll('.lpa__road')).toHaveLength(2)
+    expect(w.findAll('.lpa__pram')).toHaveLength(2)
+    expect(w.findAll('a.lpa__button')).toHaveLength(2)
+    expect(w.findAll('.lpa__name')[1]!.text()).toBe('Salón')
+    expect(w.findAll('.lpa__time')[0]!.text()).toContain('4:00')
+    // con menos movimiento el camino llega completo
+    await nextTick()
+    expect(w.findAll('.lpa__road')[0]!.classes()).toContain('is-done')
+    expect(w.findAll('.lpa__dot').length).toBeGreaterThan(20)
+  })
+
+  it('itinerario: una prenda por momento, con sus pinzas y su etiqueta de hora', () => {
+    const original = event.itinerary
+    event.itinerary = [
+      { time: '16:00', label: 'Bienvenida' },
+      { time: '17:00', label: 'Juegos' },
+      { time: '18:00', label: 'Comida' },
+      { time: '19:00', label: 'Pastel' },
+      { time: '20:00', label: 'Regalos' },
+      { time: '21:00', label: 'Despedida' },
+    ]
+    const w = render(ItineraryClothesline, section({ type: 'itinerary', title: 'Programa' }))
+    expect(w.findAll('.ic__stop')).toHaveLength(6)
+    expect(w.findAll('.ic__img')).toHaveLength(6)
+    expect(w.findAll('.ic__peg')).toHaveLength(12)
+    // las prendas se turnan: la sexta vuelve a ser la primera
+    expect(w.findAll('.ic__img')[5]!.attributes('src')).toBe('/m/ropita-1.svg')
+    expect(w.findAll('.ic__img')[2]!.attributes('src')).toBe('/m/ropita-3.svg')
+    expect(w.findAll('.ic__tag')[0]!.text().toLowerCase()).toContain('4:00')
+    expect(w.findAll('.ic__label')[3]!.text()).toBe('Pastel')
+    expect(w.findAll('.ic__stop')[0]!.classes()).toContain('is-left')
+    expect(w.findAll('.ic__stop')[1]!.classes()).toContain('is-right')
+    // sin "línea que se llena" no hay caída de entrada
+    expect(w.find('.ic').classes()).not.toContain('ic--drop')
+    event.itinerary = original
   })
 })

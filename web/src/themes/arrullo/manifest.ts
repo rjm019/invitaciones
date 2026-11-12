@@ -9,7 +9,7 @@ import type { ThemeManifest } from '../types'
  * Paleta, letras, paneles que se turnan y globos sueltos, con los detalles de toda la página
  * (estampado de rayas, orilla de holán, botón de lazo, esquinas de ramitas, papel de acuarela).
  * Efectos de cada sección: listones, globos, nubes, moño, burbujas, margaritas, móvil y gansito;
- * los diseños (portada, música, bendición, frase, fecha y cuenta regresiva) ya están; el resto llega en las etapas siguientes. Todo es global: cualquier tema puede usar los adornos de
+ * los diseños (portada, música, bendición, frase, fecha, cuenta regresiva, foto, galería, ubicación e itinerario) ya están; el resto llega en las etapas siguientes. Todo es global: cualquier tema puede usar los adornos de
  * `_shared/assets` (moño, carriola, gansito, globo, margarita, ramita, nube, luna, cubo,
  * caja de regalo, pinza y ropita).
  */
@@ -44,24 +44,24 @@ const theme: ThemeManifest = {
   sections: {
     'hero-envelope': { panel: false, variant: 'lazo', effects: ['reveal', 'ribbon-curls', 'balloons'] },
     'music-player': { variant: 'movil', effects: ['clouds'] },
-    blessing: { desktop: 'half', variant: 'medallon', effects: ['reveal', 'bow-tie'] },
+    blessing: { desktop: 'half', variant: 'medallon', effects: ['reveal'] },
     story: { effects: ['reveal', 'bow-tie'] },
-    'save-the-date': { desktop: 'half', variant: 'globos', effects: ['reveal', 'bubbles'] },
-    location: { desktop: 'half', effects: ['reveal', 'daisies'] },
+    'save-the-date': { desktop: 'half', variant: 'globos', effects: ['reveal'] },
+    location: { desktop: 'half', variant: 'caminito', effects: ['reveal', 'daisies'] },
     countdown: { variant: 'cubos', effects: ['reveal', 'crib-mobile'] },
-    itinerary: { desktop: 'half', effects: ['timeline-fill', 'goose-walk'] },
+    itinerary: { desktop: 'half', variant: 'ropita', effects: ['timeline-fill', 'goose-walk'] },
     'dress-code': { desktop: 'half', effects: ['reveal'] },
     hotels: { effects: ['reveal', 'bow-tie'] },
-    gallery: { desktop: 'half', effects: ['reveal'] },
+    gallery: { desktop: 'half', variant: 'medallones', effects: ['reveal'] },
     gifts: { desktop: 'half', effects: ['reveal'] },
     faq: { desktop: 'half', effects: ['reveal'] },
     trivia: { effects: ['reveal'] },
     rsvp: { desktop: 'half', effects: ['reveal'] },
-    dedications: { effects: ['reveal'] },
+    dedications: { effects: ['reveal', 'bubbles'] },
     'guest-album': { effects: ['reveal', 'bow-tie'] },
     closing: { effects: ['reveal', 'ribbon-curls'] },
     quote: { desktop: 'half', variant: 'nube', effects: ['reveal'] },
-    'photo-arch': { desktop: 'half', effects: ['reveal'] },
+    'photo-arch': { desktop: 'half', variant: 'retrato', effects: ['reveal'] },
     'no-kids': { effects: ['reveal', 'bow-tie'] },
     weather: { effects: ['reveal', 'bow-tie'] },
     spotify: { effects: ['reveal', 'bow-tie'] },

@@ -43,12 +43,14 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     ventana: () => import('./sections/variants/PhotoTower.vue'),
     camafeo: () => import('./sections/variants/PhotoCameo.vue'),
     nicho: () => import('./sections/variants/PhotoNicho.vue'),
+    retrato: () => import('./sections/variants/PhotoPortrait.vue'),
   },
   location: {
     metro: () => import('./sections/variants/LocationMetro.vue'),
     grabado: () => import('./sections/variants/LocationEngraving.vue'),
     papeleria: () => import('./sections/variants/LocationStationery.vue'),
     placa: () => import('./sections/variants/LocationPlaque.vue'),
+    caminito: () => import('./sections/variants/LocationPath.vue'),
   },
   quote: {
     neon: () => import('./sections/variants/QuoteNeon.vue'),
@@ -62,6 +64,7 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     minuto: () => import('./sections/variants/ItineraryMinute.vue'),
     sello: () => import('./sections/variants/ItinerarySeal.vue'),
     tendedero: () => import('./sections/variants/ItineraryBunting.vue'),
+    ropita: () => import('./sections/variants/ItineraryClothesline.vue'),
   },
   'dress-code': {
     vitrinas: () => import('./sections/variants/DressCodeWindows.vue'),
@@ -89,6 +92,7 @@ export const sectionVariants: Record<string, Record<string, Loader>> = {
     bastidor: () => import('./sections/variants/GalleryHoops.vue'),
     editorial: () => import('./sections/variants/GalleryEditorial.vue'),
     collage: () => import('./sections/variants/GalleryCollage.vue'),
+    medallones: () => import('./sections/variants/GalleryMedallions.vue'),
   },
   hotels: {
     colgantes: () => import('./sections/variants/HotelsHangers.vue'),

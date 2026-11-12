@@ -43,8 +43,9 @@ describe('tema arrullo', () => {
     const effects = (type: string) => manifest!.sections[type].effects
     expect(effects('hero-envelope')).toEqual(['reveal', 'ribbon-curls', 'balloons'])
     expect(effects('music-player')).toEqual(['clouds'])
-    expect(effects('blessing')).toEqual(['reveal', 'bow-tie'])
-    expect(effects('save-the-date')).toEqual(['reveal', 'bubbles'])
+    expect(effects('blessing')).toEqual(['reveal'])
+    expect(effects('save-the-date')).toEqual(['reveal'])
+    expect(effects('dedications')).toEqual(['reveal', 'bubbles'])
     expect(effects('location')).toEqual(['reveal', 'daisies'])
     expect(effects('itinerary')).toEqual(['timeline-fill', 'goose-walk'])
     expect(effects('countdown')).toEqual(['reveal', 'crib-mobile'])
@@ -96,9 +97,25 @@ describe('tema arrullo', () => {
       expect(sectionVariants[type][variant], type).toBeTypeOf('function')
     }
     // conservan los efectos que ya tenían
-    expect(manifest?.sections.blessing.effects).toEqual(['reveal', 'bow-tie'])
-    expect(manifest?.sections['save-the-date'].effects).toEqual(['reveal', 'bubbles'])
+    expect(manifest?.sections.blessing.effects).toEqual(['reveal'])
+    expect(manifest?.sections['save-the-date'].effects).toEqual(['reveal'])
     expect(manifest?.sections.countdown.effects).toEqual(['reveal', 'crib-mobile'])
+  })
+
+  it('la foto, la galería, la ubicación y el itinerario llevan sus diseños propios', async () => {
+    const manifest = await loadTheme('arrullo')
+    const expected = {
+      'photo-arch': 'retrato',
+      gallery: 'medallones',
+      location: 'caminito',
+      itinerary: 'ropita',
+    }
+    for (const [type, variant] of Object.entries(expected)) {
+      expect(manifest?.sections[type].variant, type).toBe(variant)
+      expect(sectionVariants[type][variant], type).toBeTypeOf('function')
+    }
+    expect(manifest?.sections.location.effects).toEqual(['reveal', 'daisies'])
+    expect(manifest?.sections.itinerary.effects).toEqual(['timeline-fill', 'goose-walk'])
   })
 
   it('define los tokens de color de los paneles que se turnan', () => {
