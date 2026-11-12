@@ -109,8 +109,10 @@ describe('diseños de arrullo (variantes A)', () => {
     // el día y la hora salen de la fecha del evento
     expect(w.find('.hb__side--day').text().toLowerCase()).toContain('feb')
     expect(w.find('.hb__side--hour').text().toLowerCase()).toContain('4:00')
-    expect(w.findAll('.hb__band')).toHaveLength(4)
-    expect(w.find('.hb__bow').exists()).toBe(true)
+    expect(w.find('.hb__sheet').exists()).toBe(true)
+    expect(w.find('.hb__garland').exists()).toBe(true)
+    expect(w.find('.hb__cover-goose').exists()).toBe(true)
+    expect(w.find('.hb__stork').exists()).toBe(false)
     expect(w.find('.hb__tap').text()).toBe('Toca el moño')
     await w.find('.hb__tap').trigger('click')
     expect(w.find('.hb').classes()).toContain('hb--opening')
@@ -127,17 +129,21 @@ describe('diseños de arrullo (variantes A)', () => {
     expect(w.find('.hb').classes()).not.toContain('is-pram')
     await vi.advanceTimersByTimeAsync(3500)
     expect(w.find('.hb').classes()).toContain('is-pram')
+    await vi.advanceTimersByTimeAsync(1200)
+    expect(w.find('.hb__stork').exists()).toBe(true) // la cigüeña cruza al final
     await vi.advanceTimersByTimeAsync(4000)
     expect(w.find('.hb').classes()).toContain('hb--open')
-    expect(w.find('.hb__bands').exists()).toBe(false)
+    expect(w.find('.hb__sheet').exists()).toBe(false)
+    expect(w.find('.hb__stork').exists()).toBe(false)
   })
 
-  it('portada: con menos movimiento llega abierta, sin bandas ni moño', () => {
+  it('portada: con menos movimiento llega abierta, sin hoja ni cigüeña', () => {
     reduceMotion(true)
     const w = render(HeroBow, section({ title: 'Baby shower' }))
     expect(w.find('.hb').classes()).toContain('hb--open')
     expect(w.find('.hb').classes()).toContain('is-goose')
-    expect(w.find('.hb__bands').exists()).toBe(false)
+    expect(w.find('.hb__sheet').exists()).toBe(false)
+    expect(w.find('.hb__stork').exists()).toBe(false)
     expect(w.find('.hb__tap').exists()).toBe(false)
     expect(w.find('.hb__name').text()).toBe('Emilia')
   })

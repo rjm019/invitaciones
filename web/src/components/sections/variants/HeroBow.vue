@@ -3,8 +3,9 @@ import { computed, onBeforeUnmount, ref } from 'vue'
 import handSvg from '@fortawesome/fontawesome-free/svgs/solid/hand-pointer.svg?raw'
 import BabyPram from '@/components/ui/BabyPram.vue'
 import FxText from '@/components/ui/FxText.vue'
+import FlyingStork from '@/components/ui/FlyingStork.vue'
 import PartyGoose from '@/components/ui/PartyGoose.vue'
-import RibbonBow from '@/components/ui/RibbonBow.vue'
+import RibbonGarland from '@/components/ui/RibbonGarland.vue'
 import { useEvent } from '@/composables/useEvent'
 import { useInvitation } from '@/composables/useInvitation'
 import { motionScale } from '@/composables/useMotionScale'
@@ -16,24 +17,21 @@ import { dateParts, hourMinute, time12h } from '@/services/dateFormatService'
 import type { ResolvedSection } from '@/types/event'
 
 /**
- * Portada "medallón amarrado" (`lazo`): sobre las rayas de la página, un medallón ovalado
- * de papel crema con filete fino, amarrado con dos bandas de listón que se cruzan y un moño
- * grande en el cruce, entre ramitas con bayas y margaritas. Al tocar empieza la música y:
+ * Portada "medallón amarrado" (`lazo`). Cerrada es una hoja de papel crema con vichy rosa
+ * arriba que se desvanece, una guirnalda de moño a todo lo ancho, el gansito sentado con sus
+ * globos, el encabezado, el nombre en manuscrita y "Toca el moño". Al tocar empieza la música y:
  *
- * 1. el moño se desata (los lazos y las colas se recogen al nudo y el nudo se desvanece);
- * 2. las bandas se van cada mitad hacia su lado;
- * 3. el óvalo crece a su tamaño y aparece arriba un moñito de línea, mientras las ramitas
- *    y las margaritas se acomodan en sus esquinas;
+ * 1. la guirnalda se desata (se recoge al nudo) y el encabezado y el nombre se desvanecen;
+ * 2. el nudo se va hacia arriba y el gansito sube flotando con sus globos hasta salir;
+ * 3. la hoja se desvanece y el medallón ovalado crece sobre las rayas de la página;
  * 4. entran el encabezado, el nombre (en caligrafía, se traza) y el texto;
- * 5. la carriola entra rodando desde la izquierda, frena al centro con un rebote corto y
- *    deja de rodar; a un lado queda el día y al otro la hora (salen de la fecha del evento);
- * 6. el gansito asoma por la esquina de abajo y se queda meciendo sus globos.
+ * 5. la carriola entra rodando con el día a un lado y la hora al otro;
+ * 6. el gansito de pie asoma por la esquina; al final cruza una cigüeña, una sola vez.
  *
- * Abierta la composición queda quieta, salvo los globos del gansito (el moño grande y las
- * bandas ya no están). Mientras está cerrada la página no hace scroll. Con "menos
- * movimiento" ya aparece abierta; en el gestor se ve abierta, salvo en "Ver como invitado".
- * Todo con transform y opacity. Sirve en cualquier tema: los dibujos toman el listón de
- * `--color-primary` y las hojas de `--color-accent`.
+ * Abierta, las colas del moñito, las ramitas y la carriola se mecen apenas. Mientras está
+ * cerrada la página no hace scroll. Con "menos movimiento" (o en la vista previa del gestor)
+ * ya aparece abierta y quieta, sin cigüeña. Todo con transform y opacity. Sirve en cualquier
+ * tema: los dibujos toman el listón de `--color-primary` y las hojas de `--color-accent`.
  */
 defineProps<{ section: ResolvedSection }>()
 const { event, resolveAsset } = useEvent()
@@ -51,6 +49,7 @@ useScrollLock(() => phase.value === 'closed' || phase.value === 'opening')
 /** Los pasos de la apertura (0 = cerrada, 6 = todo puesto). */
 const step = ref(phase.value === 'open' ? 6 : 0)
 const rolling = ref(false)
+const stork = ref(false) // la cigüeña cruza al final, una sola vez
 
 const name = computed(
   () => event.value.celebrant.short_name || event.value.celebrant.full_name || event.value.title,
@@ -102,6 +101,13 @@ const daisies = [
   { k: 'd', left: 72, top: 2, width: 8, rotate: -14, dx: -14, dy: 50 },
 ]
 
+// Margaritas chicas y quietas de la hoja cerrada (en % de la hoja, ancho en cqi del escenario).
+const coverDaisies = [
+  { k: 'a', left: 5, top: 54, width: 9, rotate: -12 },
+  { k: 'b', left: 85, top: 60, width: 8, rotate: 14 },
+  { k: 'c', left: 78, top: 31, width: 6, rotate: -6 },
+]
+
 // Al abrir, la portada deja de ocupar toda la pantalla: la escena se queda donde estaba.
 const root = ref<HTMLElement | null>(null)
 const stage = ref<HTMLElement | null>(null)
@@ -128,17 +134,19 @@ function open() {
     return
   }
   phase.value = 'opening'
-  step.value = 1 // el moño se desata
-  later(650, () => (step.value = 2)) // las bandas se van
-  later(1250, () => (step.value = 3)) // el óvalo crece
-  later(1950, () => (step.value = 4)) // los textos
-  later(2700, () => {
+  step.value = 1 // la guirnalda se desata
+  later(500, () => (step.value = 2)) // el nudo se va y el ganso sube
+  later(1500, () => (step.value = 3)) // la hoja se va y el óvalo crece
+  later(2200, () => (step.value = 4)) // los textos
+  later(2900, () => {
     step.value = 5 // la carriola rueda
     rolling.value = true
   })
-  later(4250, () => (rolling.value = false))
+  later(4450, () => (rolling.value = false))
   later(4000, () => (step.value = 6)) // el gansito asoma
-  later(5500, () => (phase.value = 'open'))
+  later(4300, () => (stork.value = true)) // la cigüeña cruza
+  later(5200, () => (phase.value = 'open'))
+  later(7700, () => (stork.value = false))
 }
 onBeforeUnmount(() => timers.forEach(clearTimeout))
 </script>
@@ -152,7 +160,7 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
       {
         'hb--pinned': lift !== null,
         'is-untied': step >= 1,
-        'is-bands-off': step >= 2,
+        'is-lift': step >= 2,
         'is-grown': step >= 3,
         'is-texts': step >= 4,
         'is-pram': step >= 5,
@@ -162,6 +170,37 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
     :style="heroStyle"
   >
     <div ref="stage" class="hb__stage" :style="stageStyle" @click="open">
+      <!-- La hoja cerrada: papel crema con vichy arriba, guirnalda, globos y el ganso sentado. -->
+      <div v-if="phase !== 'open'" class="hb__sheet" aria-hidden="true">
+        <span class="hb__sheet-paper" />
+        <div class="hb__garland">
+          <RibbonGarland
+            :tied="step < 1"
+            :sway="phase === 'closed'"
+            size="lg"
+            tone="var(--color-primary-strong, var(--color-primary))"
+          />
+        </div>
+        <span class="hb__loose hb__loose--a" />
+        <span class="hb__loose hb__loose--b" />
+        <span class="hb__loose hb__loose--c" />
+        <img
+          v-for="d in coverDaisies"
+          v-show="daisySrc"
+          :key="`c${d.k}`"
+          :src="daisySrc ?? undefined"
+          alt=""
+          class="hb__cover-daisy"
+          :style="{ left: `${d.left}%`, top: `${d.top}%`, width: `${d.width}cqi`, '--r': `${d.rotate}deg` }"
+        />
+        <span class="hb__goose-shadow" />
+        <div class="hb__cover-goose">
+          <div class="hb__cover-goose-sway">
+            <PartyGoose pose="sitting" :balloons="2" />
+          </div>
+        </div>
+      </div>
+
       <!-- El medallón: óvalo crema con filete. Cerrado es chico y queda atado. -->
       <div class="hb__oval" aria-hidden="true" />
 
@@ -171,7 +210,7 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
           {{ section.title }}
         </p>
         <h1 class="hb__name hb__in" style="--i: 1" data-text="name">
-          <FxText :text="name" :effects="['calligraphy']" :active="step >= 4" />
+          <FxText :text="name" :effects="['calligraphy']" :active="phase === 'closed' || step >= 4" />
         </h1>
         <p v-if="section.text" class="hb__text hb__in" style="--i: 2" data-text="text">
           {{ section.text }}
@@ -234,22 +273,12 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
         />
       </div>
 
-      <!-- Las bandas de listón que amarran el medallón (cada mitad se va a su lado). -->
-      <div v-if="phase !== 'open'" class="hb__bands" aria-hidden="true">
-        <span class="hb__band hb__band--left" />
-        <span class="hb__band hb__band--right" />
-        <span class="hb__band hb__band--top" />
-        <span class="hb__band hb__band--bottom" />
-        <div class="hb__bow"><RibbonBow
-            :tied="step < 1"
-            :sway="phase === 'closed'"
-            size="100%"
-            tone="var(--color-primary-strong, var(--color-primary))"
-          /></div>
-      </div>
-
       <div class="hb__goose" aria-hidden="true">
         <PartyGoose :balloons="2" />
+      </div>
+
+      <div v-if="stork" class="hb__stork" aria-hidden="true">
+        <div class="hb__stork-bob"><FlyingStork flying /></div>
       </div>
     </div>
 
@@ -312,10 +341,14 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
     0 1.4cqi 3.4cqi -1cqi color-mix(in srgb, var(--hb-ribbon-dark) 45%, transparent),
     inset 0 0 0 1.6cqi var(--color-paper, #fdf8f0),
     inset 0 0 0 1.9cqi color-mix(in srgb, var(--hb-ribbon) 55%, transparent);
+  opacity: 0;
   transform: scale(0.72);
-  transition: transform calc(1s * var(--motion-scale)) cubic-bezier(0.34, 1.3, 0.64, 1);
+  transition:
+    transform calc(1s * var(--motion-scale)) cubic-bezier(0.34, 1.3, 0.64, 1),
+    opacity calc(0.5s * var(--motion-scale)) ease;
 }
 .is-grown .hb__oval {
+  opacity: 1;
   transform: scale(1);
 }
 
@@ -479,6 +512,11 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
   position: absolute;
   inset: 0;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity calc(0.6s * var(--motion-scale)) ease;
+}
+.is-grown .hb__garden {
+  opacity: 1;
 }
 .hb__sprig,
 .hb__daisy {
@@ -506,104 +544,182 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
   scale: -1 1;
 }
 
-/* Las bandas de listón: satén con un brillo, y la punta de cada una cortada en V. */
-.hb__bands {
+/* La hoja cerrada: papel crema, con el vichy rosa arriba que se desvanece hacia abajo. */
+.hb__sheet {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  translate: -50% 0;
+  pointer-events: none;
+  transition: opacity calc(0.8s * var(--motion-scale)) ease;
+}
+.is-grown .hb__sheet {
+  opacity: 0;
+}
+.hb__sheet-paper {
   position: absolute;
   inset: 0;
-  pointer-events: none;
+  border-radius: 4cqi;
+  overflow: hidden;
+  background: var(--color-paper, #fdf8f0);
+  box-shadow: 0 1.2cqi 4cqi -1.4cqi color-mix(in srgb, var(--hb-ribbon-dark) 40%, transparent);
 }
-.hb__band {
+.hb__sheet-paper::before {
+  content: '';
   position: absolute;
+  inset: 0;
   background:
-    linear-gradient(
-      var(--_a, 180deg),
-      color-mix(in srgb, var(--hb-ribbon-dark) 55%, transparent) 0,
-      transparent 22%,
-      rgb(255 255 255 / 0.4) 40%,
-      transparent 62%,
-      color-mix(in srgb, var(--hb-ribbon-dark) 45%, transparent) 100%
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--hb-ribbon-soft) 70%, transparent) 0 6cqi,
+      transparent 6cqi 12cqi
     ),
-    var(--hb-ribbon);
-  box-shadow: 0 0.6cqi 1.4cqi -0.4cqi color-mix(in srgb, var(--hb-ribbon-dark) 50%, transparent);
-  transition:
-    translate calc(0.9s * var(--motion-scale)) cubic-bezier(0.55, 0, 0.8, 0.4),
-    opacity calc(0.7s * var(--motion-scale)) ease-in calc(0.2s * var(--motion-scale));
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--hb-ribbon-soft) 70%, transparent) 0 6cqi,
+      transparent 6cqi 12cqi
+    );
+  -webkit-mask-image: linear-gradient(180deg, #000 0, #000 12%, transparent 52%);
+  mask-image: linear-gradient(180deg, #000 0, #000 12%, transparent 52%);
 }
-.hb__band--left,
-.hb__band--right {
-  top: 38.8%;
-  width: 50%;
-  height: 8.4%;
-  --_a: 180deg;
-}
-.hb__band--left {
-  left: 0;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 3.4cqi 50%);
-}
-.hb__band--right {
-  right: 0;
-  clip-path: polygon(0 0, 100% 0, calc(100% - 3.4cqi) 50%, 100% 100%, 0 100%);
-}
-.hb__band--top,
-.hb__band--bottom {
-  left: 44.4%;
-  width: 11.2%;
-  height: 50%;
-  --_a: 90deg;
-}
-.hb__band--top {
-  top: 0;
-  clip-path: polygon(0 0, 50% 3.4cqi, 100% 0, 100% 100%, 0 100%);
-}
-.hb__band--bottom {
-  top: 50%;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 3.4cqi), 0 100%);
-}
-/*
- * Cada banda se pierde debajo del moño (el moño es semitransparente, como la acuarela: si la
- * banda siguiera debajo se vería a través). Termina donde empiezan los lazos.
- */
-.hb__band--left {
-  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 21cqi), transparent calc(100% - 20cqi));
-  mask-image: linear-gradient(90deg, #000 calc(100% - 21cqi), transparent calc(100% - 20cqi));
-}
-.hb__band--right {
-  -webkit-mask-image: linear-gradient(270deg, #000 calc(100% - 21cqi), transparent calc(100% - 20cqi));
-  mask-image: linear-gradient(270deg, #000 calc(100% - 21cqi), transparent calc(100% - 20cqi));
-}
-.hb__band--top {
-  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 14.5cqi), transparent calc(100% - 13.5cqi));
-  mask-image: linear-gradient(180deg, #000 calc(100% - 14.5cqi), transparent calc(100% - 13.5cqi));
-}
-.hb__band--bottom {
-  -webkit-mask-image: linear-gradient(0deg, #000 calc(100% - 2.5cqi), transparent calc(100% - 1.5cqi));
-  mask-image: linear-gradient(0deg, #000 calc(100% - 2.5cqi), transparent calc(100% - 1.5cqi));
-}
-.is-bands-off .hb__band {
-  opacity: 0;
-}
-.is-bands-off .hb__band--left {
-  translate: -70% 0;
-}
-.is-bands-off .hb__band--right {
-  translate: 70% 0;
-}
-.is-bands-off .hb__band--top {
-  translate: 0 -70%;
-}
-.is-bands-off .hb__band--bottom {
-  translate: 0 70%;
-}
-/* El moño grande, en el cruce: el centro del nudo queda en (50, 53.75). */
-.hb__bow {
+.hb__garland {
   position: absolute;
-  left: 23%;
-  top: 27.2%;
-  width: 54%;
-  transition: opacity calc(0.5s * var(--motion-scale)) ease-in;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transition:
+    translate calc(1s * var(--motion-scale)) cubic-bezier(0.5, 0, 0.8, 0.5),
+    opacity calc(0.8s * var(--motion-scale)) ease-in;
 }
-.is-bands-off .hb__bow {
+.is-lift .hb__garland {
+  translate: 0 -30%;
   opacity: 0;
+}
+.hb__cover-daisy {
+  position: absolute;
+  height: auto;
+  rotate: var(--r, 0deg);
+  filter: drop-shadow(0 0.4cqi 0.6cqi rgb(0 0 0 / 0.14));
+}
+/* Globos sueltos que suben a los costados. */
+.hb__loose {
+  position: absolute;
+  width: 7cqi;
+  aspect-ratio: 5 / 6;
+  border-radius: 50% 50% 48% 48%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgb(255 255 255 / 0.75),
+    var(--_c, var(--hb-ribbon-soft)) 45%,
+    var(--hb-ribbon) 130%
+  );
+  opacity: 0.85;
+  animation: hb-rise calc(6s * var(--motion-scale)) ease-in-out infinite;
+}
+.hb__loose::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 0.25cqi;
+  height: 14cqi;
+  background: color-mix(in srgb, var(--hb-ink) 35%, transparent);
+}
+.hb__loose--a {
+  left: 6%;
+  top: 38%;
+}
+.hb__loose--b {
+  right: 7%;
+  top: 44%;
+  width: 6cqi;
+  --_c: var(--color-accent, var(--hb-ribbon-soft));
+  animation-delay: calc(-2.2s * var(--motion-scale));
+}
+.hb__loose--c {
+  right: 18%;
+  top: 33%;
+  width: 4.5cqi;
+  animation-delay: calc(-4s * var(--motion-scale));
+}
+.hb__goose-shadow {
+  position: absolute;
+  left: 50%;
+  top: 69%;
+  width: 36cqi;
+  height: 4cqi;
+  margin-left: -17cqi;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--hb-ink) 22%, transparent), transparent);
+  transition: opacity calc(0.5s * var(--motion-scale)) ease;
+}
+.is-lift .hb__goose-shadow {
+  opacity: 0;
+}
+/* El ganso sentado, grande al centro; al tocar sube flotando con sus globos. */
+.hb__cover-goose {
+  position: absolute;
+  left: 50%;
+  top: 27%;
+  width: 50cqi;
+  margin-left: -25cqi;
+  transition:
+    translate calc(1.9s * var(--motion-scale)) cubic-bezier(0.45, 0, 0.7, 0.6),
+    opacity calc(0.5s * var(--motion-scale)) ease calc(1.5s * var(--motion-scale));
+}
+.is-lift .hb__cover-goose {
+  translate: 0 -135cqi;
+  opacity: 0;
+}
+.is-lift .hb__cover-goose-sway {
+  animation: hb-bob calc(1.3s * var(--motion-scale)) ease-in-out infinite;
+}
+
+/* Cerrada, el encabezado y el nombre van bajo el ganso; lo demás espera al medallón. */
+.hb:not(.is-grown) .hb__content {
+  left: 0;
+  top: 70%;
+  width: 100%;
+  height: 26%;
+  padding: 0 6cqi;
+}
+.hb:not(.is-grown) :is(.hb__mono, .hb__text, .hb__row, .hb__place, .hb__to) {
+  position: absolute;
+  visibility: hidden;
+}
+.hb--closed .hb__in {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* La cigüeña cruza por arriba del medallón, de lado a lado. */
+.hb__stork {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 38cqi;
+  pointer-events: none;
+  animation: hb-stork calc(3.2s * var(--motion-scale)) linear both;
+}
+.hb__stork-bob {
+  animation: hb-bob calc(1.6s * var(--motion-scale)) ease-in-out infinite;
+}
+
+/* Abierta, todo se mece apenas. */
+.hb--open .hb__mono {
+  animation: hb-wag calc(4.5s * var(--motion-scale)) ease-in-out infinite;
+  transform-origin: 50% 40%;
+}
+.hb--open .hb__sprig,
+.hb--open .hb__daisy {
+  animation: hb-tremble calc(5s * var(--motion-scale)) ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.9s * var(--motion-scale));
+}
+.hb--open .hb__pram-roll {
+  animation: hb-rock calc(7s * var(--motion-scale)) ease-in-out infinite;
+  transform-origin: 50% 100%;
 }
 
 /* El gansito asoma por la esquina de abajo del óvalo y se queda con sus globos. */
@@ -673,6 +789,63 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
     translate: 0 0;
   }
 }
+@keyframes hb-stork {
+  from {
+    translate: -40cqi 0;
+  }
+  to {
+    translate: 125cqi -3cqi;
+  }
+}
+@keyframes hb-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2.5deg);
+  }
+  50% {
+    transform: translateY(-1.6cqi) rotate(2.5deg);
+  }
+}
+@keyframes hb-rise {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3cqi);
+  }
+}
+@keyframes hb-wag {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(2.2deg);
+  }
+}
+@keyframes hb-tremble {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(1.6deg);
+  }
+}
+@keyframes hb-rock {
+  0%,
+  72%,
+  100% {
+    transform: rotate(0);
+  }
+  80% {
+    transform: rotate(-1.4deg);
+  }
+  90% {
+    transform: rotate(1.2deg);
+  }
+}
 @keyframes hb-pulse {
   0%,
   100% {
@@ -690,6 +863,14 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
   .hb__stage {
     width: min(100cqi, 40rem, calc((100svh - 2 * var(--section-gap) - 5rem) * 0.8));
   }
+  .hb__sheet {
+    width: min(60rem, calc(100vw - 2rem));
+  }
+  .hb__garland {
+    left: 50%;
+    width: min(100%, 112cqi);
+    margin-left: calc(min(100%, 112cqi) / -2);
+  }
   .hb__tap-icon {
     width: 1.5rem;
     height: 1.5rem;
@@ -706,11 +887,22 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
   .hb__side,
   .hb__sprig,
   .hb__daisy,
-  .hb__band,
-  .hb__bow,
+  .hb__garden,
+  .hb__sheet,
+  .hb__garland,
+  .hb__cover-goose,
+  .hb__goose-shadow,
   .hb__goose {
     transition: none;
   }
+  .hb__loose,
+  .hb__stork,
+  .hb__stork-bob,
+  .hb__cover-goose-sway,
+  .hb--open .hb__mono,
+  .hb--open .hb__sprig,
+  .hb--open .hb__daisy,
+  .hb--open .hb__pram-roll,
   .hb__tap-icon,
   .hb--opening.is-pram .hb__pram-roll {
     animation: none;
