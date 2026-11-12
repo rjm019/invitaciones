@@ -767,6 +767,160 @@ FIESTA = [
     ('cierre', 'texto', 'Mariana & Diego'),
 ]
 
+ARRULLO = [
+    ('evento', 'tipo', 'baby_shower'),
+    ('evento', 'tema', 'arrullo'),
+    ('evento', 'festejada', 'Emilia'),
+    ('evento', 'festejada_corto', 'Emilia'),
+    ('evento', 'subtitulo', 'baby shower'),
+    ('evento', 'titulo', 'Baby shower de Emilia'),
+    ('evento', 'inicia', '2027-02-20 16:00'),
+    ('evento', 'zona_horaria', 'America/Mexico_City'),
+    ('evento', 'salon', 'Jardín Las Palomas'),
+    ('evento', 'salon_ciudad', 'Querétaro, Qro.'),
+    ('evento', 'salon_direccion', 'Calle de los Jazmines 12'),
+    ('evento', 'salon_maps', 'https://maps.google.com/?q=Queretaro'),
+    ('evento', 'rsvp_modo', 'token'),
+    ('evento', 'rsvp_limite', '2027-02-10'),
+    ('evento', 'rsvp_pedir_mensaje', 'SI'),
+    ('evento', 'tarjeta_frase', 'Baby shower de Emilia'),
+    ('evento', 'tarjeta_texto', 'Sábado 20 de febrero'),
+
+    ('portada', 'visible', 'SI'),
+    ('portada', 'titulo', 'Baby shower'),
+    ('portada', 'texto', 'Una nueva vida llena de amor está por llegar'),
+    ('portada', 'boton', 'Toca el moño'),
+
+    ('musica', 'visible', 'SI'),
+    ('musica', 'titulo', 'Una canción de cuna'),
+    ('musica', 'texto', 'Para esperar a Emilia'),
+
+    ('bendicion', 'visible', 'SI'),
+    ('bendicion', 'texto', 'Con la bendición de Dios y el cariño de nuestras familias, esperamos a nuestra bebé.'),
+    ('bendicion', '1', 'rol', 'Sus papás'),
+    ('bendicion', '1', 'nombres', 'Sofía\nAndrés'),
+    ('bendicion', '2', 'rol', 'Sus abuelos'),
+    ('bendicion', '2', 'nombres', 'Rosa y Carlos\nMargarita y Jorge'),
+    ('bendicion', '3', 'rol', 'Sus padrinos'),
+    ('bendicion', '3', 'nombres', 'Lupita Navarro\nJorge Vega'),
+
+    ('frase', 'visible', 'SI'),
+    ('frase', 'texto', 'Pequeños pasos, grandes sueños,\nun mundo entero de amor\npara ti, Emilia.\n— Sofía y Andrés'),
+
+    ('fecha', 'visible', 'SI'),
+    ('fecha', 'titulo', 'Guarda la fecha'),
+
+    ('cuenta_regresiva', 'visible', 'SI'),
+    ('cuenta_regresiva', 'titulo', 'Faltan'),
+    ('cuenta_regresiva', 'texto', 'para el baby shower de Emilia'),
+
+    ('foto', 'visible', 'SI'),
+    ('foto', 'imagen', 'corazon.webp'),
+    ('foto', 'titulo', 'Emilia'),
+    ('foto', 'texto', 'Muy pronto estará con nosotros'),
+
+    ('ubicacion', 'visible', 'SI'),
+    ('ubicacion', 'titulo', 'Dónde'),
+    ('ubicacion', 'boton', 'Ver ubicación'),
+    ('ubicacion', 'calendario', 'SI'),
+    ('ubicacion', '1', 'tipo', 'recepcion'),
+    ('ubicacion', '1', 'etiqueta', 'Recepción'),
+    ('ubicacion', '1', 'lugar', 'Jardín Las Palomas'),
+    ('ubicacion', '1', 'hora', '16:00'),
+    ('ubicacion', '1', 'direccion', 'Calle de los Jazmines 12, Querétaro, Qro.'),
+    ('ubicacion', '1', 'maps', 'https://maps.google.com/?q=Queretaro'),
+
+    ('itinerario', 'visible', 'SI'),
+    ('itinerario', 'titulo', 'Programa'),
+    ('itinerario', 'en_vivo', 'SI'),
+    ('itinerario', '1', 'hora', '16:00'), ('itinerario', '1', 'actividad', 'Bienvenida'),
+    ('itinerario', '2', 'hora', '16:45'), ('itinerario', '2', 'actividad', 'Juegos y concursos'),
+    ('itinerario', '3', 'hora', '17:30'), ('itinerario', '3', 'actividad', 'Merienda'),
+    ('itinerario', '4', 'hora', '18:30'), ('itinerario', '4', 'actividad', 'Pastel y brindis'),
+    ('itinerario', '5', 'hora', '19:15'), ('itinerario', '5', 'actividad', 'Apertura de regalos'),
+    ('itinerario', '6', 'hora', '20:00'), ('itinerario', '6', 'actividad', 'Despedida'),
+
+    ('galeria', 'visible', 'SI'),
+    ('galeria', 'titulo', 'Su espera'),
+    ('galeria', 'subtitulo', 'Antes de llegar'),
+    ('galeria', '1', 'foto', 'piecitos.webp'), ('galeria', '1', 'pie', 'Sus piecitos'),
+    ('galeria', '2', 'foto', 'manita.webp'), ('galeria', '2', 'pie', 'Su manita'),
+    ('galeria', '3', 'foto', 'zapatitos.webp'), ('galeria', '3', 'pie', 'Sus primeros zapatitos'),
+    ('galeria', '4', 'foto', 'pancita.webp'), ('galeria', '4', 'pie', 'La pancita de mamá'),
+    ('galeria', '5', 'foto', 'pies-en-manos.webp'), ('galeria', '5', 'pie', 'En las manos de mamá'),
+    ('galeria', '6', 'foto', 'pancita-rayas.webp'), ('galeria', '6', 'pie', 'Cada día más cerca'),
+
+    ('capa', 'visible', 'SI'),
+    ('capa', 'variante', 'media'),
+    ('capa', 'imagen', 'pancita-rosa.webp'),
+    ('capa', 'titulo_color', '#FFFFFF'),
+    ('capa', 'texto_color', '#FFFFFF'),
+    ('capa', 'titulo', 'Una tarde para esperarla'),
+    ('capa', 'texto', 'Con juegos, dulces y mucho cariño.'),
+
+    ('vestimenta', 'visible', 'SI'),
+    ('vestimenta', 'titulo', 'Código de vestimenta'),
+    ('vestimenta', 'subtitulo', 'Cómodo y de colores suaves'),
+    ('vestimenta', 'texto', 'Es una tarde en el jardín: vístete cómodo y alegre. Los tonos pastel son bienvenidos.'),
+    ('vestimenta', 'colores', '#F3D3D8 #DFE8D9 #F5E3AD #C3DBE8 #F4CDB8'),
+    ('vestimenta', 'restricciones', 'Blanco total\nNegro total'),
+
+    ('mesa_regalos', 'visible', 'SI'),
+    ('mesa_regalos', 'titulo', 'Mesa de regalos'),
+    ('mesa_regalos', 'texto', 'Su presencia es el mejor regalo. Si desean tener un detalle con nosotros, les dejamos algunas opciones.'),
+    ('mesa_regalos', 'boton', 'Ver mesa'),
+    ('mesa_regalos', '1', 'tienda', 'liverpool'),
+    ('mesa_regalos', '1', 'nota', 'Mesa de regalos del baby shower'),
+    ('mesa_regalos', '1', 'numero_evento', '51234567'),
+    ('mesa_regalos', '1', 'enlace', 'https://mesaderegalos.liverpool.com.mx/'),
+    ('mesa_regalos', '2', 'tienda', 'amazon'),
+    ('mesa_regalos', '2', 'nota', 'Lista de deseos de Emilia'),
+    ('mesa_regalos', '2', 'numero_evento', '3EM1L1A7Q2K9'),
+    ('mesa_regalos', '2', 'enlace', 'https://www.amazon.com.mx/'),
+    ('mesa_regalos', '3', 'tienda', 'otra'),
+    ('mesa_regalos', '3', 'nombre', 'Tienda del Bebé'),
+    ('mesa_regalos', '3', 'nota', 'Lluvia de pañales: etapas 1 y 2'),
+    ('mesa_regalos', '3', 'numero_evento', '998877'),
+    ('mesa_regalos', 'sobres_titulo', 'Lluvia de sobres'),
+    ('mesa_regalos', 'sobres_texto', 'Si lo prefieren, también pueden hacernos una transferencia. Datos de ejemplo.'),
+    ('mesa_regalos', 'banco', 'Banco Ejemplo'),
+    ('mesa_regalos', 'cuenta', '123456789012345678'),
+    ('mesa_regalos', 'titular', 'Sofía Ramírez Cuevas'),
+    ('mesa_regalos', 'sobre_fisico', 'SI'),
+
+    ('trivia', 'visible', 'SI'),
+    ('trivia', 'titulo', 'Juegos del baby shower'),
+    ('trivia', 'texto', 'Contesta y gana un premio'),
+    ('trivia', 'boton', 'Empezar'),
+] + trivia([
+    ('¿Cuánto pesó Sofía al nacer?', ['2.8 kg', '3.1 kg', '3.5 kg', '4 kg'], 2),
+    ('¿Dónde se conocieron Sofía y Andrés?', ['En la universidad', 'En una boda', 'En el trabajo'], 1),
+    ('¿Cuál es el antojo favorito de Sofía en el embarazo?', ['Mangos con chile', 'Helado de vainilla', 'Pan dulce'], 1),
+    ('¿Cuál será el color del cuarto de Emilia?', ['Rosa pálido y crema', 'Azul rey', 'Verde bosque'], 1),
+    ('¿Quién cantará la primera canción de cuna?', ['Andrés', 'Sofía', 'La abuela Rosa'], 2),
+]) + [
+    ('capa-2', 'visible', 'SI'),
+    ('capa-2', 'variante', 'media'),
+    ('capa-2', 'imagen', 'moises.webp'),
+    ('capa-2', 'titulo_color', '#FFFFFF'),
+    ('capa-2', 'texto_color', '#FFFFFF'),
+    ('capa-2', 'titulo', 'Gracias por acompañarnos'),
+    ('capa-2', 'texto', 'Sábado 20 de febrero de 2027 · Querétaro'),
+
+    ('dedicatoria', 'visible', 'SI'),
+    ('dedicatoria', 'titulo', 'Deseos para Emilia'),
+    ('dedicatoria', 'texto', 'Un deseo, un consejo o un recuerdo para la bebé.'),
+    ('dedicatoria', 'muro', 'SI'),
+
+    ('confirmacion', 'visible', 'SI'),
+    ('confirmacion', 'titulo', 'Confirma tu asistencia'),
+    ('confirmacion', 'subtitulo', 'Nos ayudará mucho saber si nos acompañas'),
+
+    ('cierre', 'visible', 'SI'),
+    ('cierre', 'titulo', '¡Te esperamos!'),
+    ('cierre', 'texto', 'Será una tarde llena de cariño, juegos y dulces. Con amor, Sofía y Andrés.'),
+]
+
 
 if __name__ == '__main__':
     install('boda-isabella-mateo', LACRE,
@@ -775,5 +929,7 @@ if __name__ == '__main__':
             [('Familia Ruiz Carrillo', 4), ('Sofía Herrera', 2)], 'media-encaje', 'CREDITOS-encaje.md')
     install('boda-mariana-diego', FIESTA,
             [('Familia Serrano Luna', 4), ('Sofía Herrera', 2)], 'media')
+    install('baby-shower-emilia', ARRULLO,
+            [('Familia Soto Ruiz', 4), ('Lucía Herrera', 2)], 'media-arrullo', 'CREDITOS-arrullo.md')
     if '--sin-miniaturas' not in sys.argv:
         print('Si agregas fotos nuevas: docker compose exec -T api php artisan media:miniaturas <slug>')

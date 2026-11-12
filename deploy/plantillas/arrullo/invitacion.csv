@@ -1,0 +1,164 @@
+﻿seccion,elemento,campo,valor
+evento,,tipo,baby_shower
+evento,,tema,arrullo
+evento,,festejada,Nombre
+evento,,festejada_corto,Nombre
+evento,,subtitulo,baby shower
+evento,,titulo,Baby shower
+evento,,inicia,2027-02-20 16:00
+evento,,zona_horaria,America/Mexico_City
+evento,,salon,Nombre del salón
+evento,,salon_ciudad,"Ciudad, Estado"
+evento,,salon_direccion,Calle y número
+evento,,salon_maps,https://maps.google.com/?q=Queretaro
+evento,,rsvp_modo,token
+evento,,rsvp_limite,2027-02-10
+evento,,rsvp_pedir_mensaje,SI
+evento,,tarjeta_frase,Baby shower
+evento,,tarjeta_texto,Te esperamos
+portada,,visible,SI
+portada,,titulo,Baby shower
+portada,,texto,Una nueva vida llena de amor está por llegar
+portada,,boton,Toca el moño
+musica,,visible,SI
+musica,,titulo,Una canción de cuna
+musica,,texto,Para esperar a la bebé
+bendicion,,visible,SI
+bendicion,,texto,"Con la bendición de Dios y el cariño de nuestras familias, esperamos a nuestra bebé."
+bendicion,1,rol,Sus papás
+bendicion,1,nombres,"Nombre Apellido
+Nombre Apellido"
+bendicion,2,rol,Sus abuelos
+bendicion,2,nombres,"Nombre Apellido
+Nombre Apellido"
+bendicion,3,rol,Sus padrinos
+bendicion,3,nombres,"Nombre Apellido
+Nombre Apellido"
+frase,,visible,SI
+frase,,texto,"Pequeños pasos, grandes sueños,
+un mundo entero de amor
+para ti.
+— Nombre y Nombre"
+fecha,,visible,SI
+fecha,,titulo,Guarda la fecha
+cuenta_regresiva,,visible,SI
+cuenta_regresiva,,titulo,Faltan
+cuenta_regresiva,,texto,para el baby shower
+foto,,visible,NO
+foto,,titulo,Nombre
+foto,,texto,Muy pronto estará con nosotros
+ubicacion,,visible,SI
+ubicacion,,titulo,Dónde
+ubicacion,,boton,Ver ubicación
+ubicacion,,calendario,SI
+ubicacion,1,tipo,recepcion
+ubicacion,1,etiqueta,Recepción
+ubicacion,1,lugar,Nombre del salón
+ubicacion,1,hora,16:00
+ubicacion,1,direccion,"Calle y número, Ciudad, Estado"
+ubicacion,1,maps,https://maps.google.com/?q=Queretaro
+itinerario,,visible,SI
+itinerario,,titulo,Programa
+itinerario,,en_vivo,SI
+itinerario,1,hora,16:00
+itinerario,1,actividad,Bienvenida
+itinerario,2,hora,16:45
+itinerario,2,actividad,Juegos y concursos
+itinerario,3,hora,17:30
+itinerario,3,actividad,Merienda
+itinerario,4,hora,18:30
+itinerario,4,actividad,Pastel y brindis
+itinerario,5,hora,19:15
+itinerario,5,actividad,Apertura de regalos
+itinerario,6,hora,20:00
+itinerario,6,actividad,Despedida
+galeria,,visible,NO
+galeria,,titulo,Su espera
+galeria,,subtitulo,Antes de llegar
+galeria,1,pie,Sus piecitos
+galeria,2,pie,Su manita
+galeria,3,pie,Sus primeros zapatitos
+galeria,4,pie,La pancita de mamá
+galeria,5,pie,En las manos de mamá
+galeria,6,pie,Cada día más cerca
+capa,,visible,NO
+capa,,variante,media
+capa,,titulo_color,#FFFFFF
+capa,,texto_color,#FFFFFF
+capa,,titulo,Una tarde para esperarla
+capa,,texto,"Con juegos, dulces y mucho cariño."
+vestimenta,,visible,SI
+vestimenta,,titulo,Código de vestimenta
+vestimenta,,subtitulo,Cómodo y de colores suaves
+vestimenta,,texto,Es una tarde en el jardín: vístete cómodo y alegre. Los tonos pastel son bienvenidos.
+vestimenta,,colores,#F3D3D8 #DFE8D9 #F5E3AD #C3DBE8 #F4CDB8
+vestimenta,,restricciones,"Blanco total
+Negro total"
+mesa_regalos,,visible,SI
+mesa_regalos,,titulo,Mesa de regalos
+mesa_regalos,,texto,"Su presencia es el mejor regalo. Si desean tener un detalle con nosotros, les dejamos algunas opciones."
+mesa_regalos,,boton,Ver mesa
+mesa_regalos,1,tienda,liverpool
+mesa_regalos,1,nota,Mesa de regalos del baby shower
+mesa_regalos,1,numero_evento,00000000
+mesa_regalos,1,enlace,https://mesaderegalos.liverpool.com.mx/
+mesa_regalos,2,tienda,amazon
+mesa_regalos,2,nota,Lista de deseos de la bebé
+mesa_regalos,2,numero_evento,00000000
+mesa_regalos,2,enlace,https://www.amazon.com.mx/
+mesa_regalos,3,tienda,otra
+mesa_regalos,3,nombre,Tienda del Bebé
+mesa_regalos,3,nota,Lluvia de pañales: etapas 1 y 2
+mesa_regalos,3,numero_evento,00000000
+mesa_regalos,,sobres_titulo,Lluvia de sobres
+mesa_regalos,,sobres_texto,"Si lo prefieren, también pueden hacernos una transferencia. Datos de ejemplo."
+mesa_regalos,,banco,Banco
+mesa_regalos,,cuenta,000000000000000000
+mesa_regalos,,titular,Nombre Apellido
+mesa_regalos,,sobre_fisico,SI
+trivia,,visible,SI
+trivia,,titulo,Juegos del baby shower
+trivia,,texto,Contesta y gana un premio
+trivia,,boton,Empezar
+trivia,1,pregunta,¿Cuánto pesó la mamá al nacer?
+trivia,1,opcion_1,2.8 kg
+trivia,1,opcion_2,3.1 kg
+trivia,1,opcion_3,3.5 kg
+trivia,1,opcion_4,4 kg
+trivia,1,correcta,2
+trivia,2,pregunta,¿Dónde se conocieron la mamá y el papá?
+trivia,2,opcion_1,En la universidad
+trivia,2,opcion_2,En una boda
+trivia,2,opcion_3,En el trabajo
+trivia,2,correcta,1
+trivia,3,pregunta,¿Cuál es el antojo favorito de la mamá en el embarazo?
+trivia,3,opcion_1,Mangos con chile
+trivia,3,opcion_2,Helado de vainilla
+trivia,3,opcion_3,Pan dulce
+trivia,3,correcta,1
+trivia,4,pregunta,¿Cuál será el color del cuarto de la bebé?
+trivia,4,opcion_1,Rosa pálido y crema
+trivia,4,opcion_2,Azul rey
+trivia,4,opcion_3,Verde bosque
+trivia,4,correcta,1
+trivia,5,pregunta,¿Quién cantará la primera canción de cuna?
+trivia,5,opcion_1,El papá
+trivia,5,opcion_2,La mamá
+trivia,5,opcion_3,La abuela Rosa
+trivia,5,correcta,2
+capa-2,,visible,NO
+capa-2,,variante,media
+capa-2,,titulo_color,#FFFFFF
+capa-2,,texto_color,#FFFFFF
+capa-2,,titulo,Gracias por acompañarnos
+capa-2,,texto,Gracias por acompañarnos
+dedicatoria,,visible,SI
+dedicatoria,,titulo,Deseos para la bebé
+dedicatoria,,texto,"Un deseo, un consejo o un recuerdo para la bebé."
+dedicatoria,,muro,SI
+confirmacion,,visible,SI
+confirmacion,,titulo,Confirma tu asistencia
+confirmacion,,subtitulo,Nos ayudará mucho saber si nos acompañas
+cierre,,visible,SI
+cierre,,titulo,¡Te esperamos!
+cierre,,texto,"Será una tarde llena de cariño, juegos y dulces. Con amor, Nombre y Nombre."
