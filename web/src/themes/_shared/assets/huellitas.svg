@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 170">
+<defs>
+<g id="ar-huella">
+<path d="M22 72C22 56 32 51 43 52C55 53 61 62 60 76C59 90 57 98 55 108C53 120 45 126 37 124C28 122 24 112 24 100C23 90 22 80 22 72Z" fill="#d48a9a" fill-opacity=".88" stroke="#b9647a" stroke-opacity=".6" stroke-width="1.6" stroke-linejoin="round"/>
+<circle cx="57" cy="39" r="8.4" fill="#d48a9a" fill-opacity=".88" stroke="#b9647a" stroke-opacity=".6" stroke-width="1.4"/>
+<circle cx="44" cy="31" r="6.4" fill="#d48a9a" fill-opacity=".88" stroke="#b9647a" stroke-opacity=".6" stroke-width="1.4"/>
+<circle cx="32" cy="34" r="5.8" fill="#d48a9a" fill-opacity=".88" stroke="#b9647a" stroke-opacity=".6" stroke-width="1.4"/>
+<circle cx="24" cy="43" r="5.2" fill="#d48a9a" fill-opacity=".88" stroke="#b9647a" stroke-opacity=".6" stroke-width="1.4"/>
+<circle cx="18" cy="54" r="4.4" fill="#d48a9a" fill-opacity=".88" stroke="#b9647a" stroke-opacity=".6" stroke-width="1.4"/>
+<path d="M32 66C34 60 40 58 46 60" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M30 80C30 92 32 104 34 112" fill="none" stroke="#f3d3d8" stroke-opacity=".7" stroke-width="2" stroke-linecap="round"/>
+<path d="M54 30C56 30 58 31 59 32" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.6" stroke-linecap="round"/>
+</g>
+</defs>
+<use href="#ar-huella" transform="translate(-4 20) rotate(-6 40 80)"/>
+<use href="#ar-huella" transform="translate(130 4) scale(-1 1) rotate(-6 40 80) translate(0 2)"/>
+<path d="M104 24C99 20 100 14 104 14C106 14 107 15.6 107 16.6C107 15.6 108 14 110 14C114 14 114 20 107 26Z" fill="#e3a0ae" fill-opacity=".7" transform="translate(-6 -2)"/>
+</svg>

@@ -72,6 +72,8 @@ export type EffectName =
   | 'clouds'
   | 'crib-mobile'
   | 'daisies'
+  | 'baby-icons'
+  | 'baby-strip'
   | 'bubbles'
   | 'goose-walk'
   | 'garland'

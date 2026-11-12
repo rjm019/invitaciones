@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
+<defs>
+<linearGradient id="ar-chupon-s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3f0f7"/><stop offset="1" stop-color="#b3d0e1"/></linearGradient>
+<radialGradient id="ar-chupon-n" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fbeec3"/><stop offset="1" stop-color="#eccf7e"/></radialGradient>
+</defs>
+<ellipse cx="75" cy="144" rx="50" ry="4.5" fill="#b9647a" fill-opacity=".13"/>
+<circle cx="75" cy="102" r="33" fill="none" stroke="#d48a9a" stroke-width="10"/>
+<circle cx="75" cy="102" r="33" fill="none" stroke="#b9647a" stroke-opacity=".5" stroke-width="1.2"/>
+<path d="M52 82C47 92 47 108 56 120" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M75 10C46 2 12 14 12 40C12 62 42 72 75 68C108 72 138 62 138 40C138 14 104 2 75 10Z" fill="url(#ar-chupon-s)" stroke="#8fb5ca" stroke-width="2" stroke-linejoin="round"/>
+<path d="M75 16C50 10 22 20 20 40C20 44 22 48 26 52C34 36 52 24 75 22Z" fill="#fff" fill-opacity=".35"/>
+<ellipse cx="38" cy="38" rx="9" ry="6.5" fill="#fdf8f0" stroke="#8fb5ca" stroke-width="1.4"/>
+<ellipse cx="112" cy="38" rx="9" ry="6.5" fill="#fdf8f0" stroke="#8fb5ca" stroke-width="1.4"/>
+<path d="M75 22C70 30 70 54 75 62C80 54 80 30 75 22Z" fill="none" stroke="#6f98ae" stroke-opacity=".3" stroke-width="1.2"/>
+<circle cx="75" cy="42" r="21" fill="#e9c2cb" stroke="#d48a9a" stroke-width="1.6"/>
+<circle cx="75" cy="42" r="14" fill="url(#ar-chupon-n)" stroke="#d9bd73" stroke-width="1.4"/>
+<path d="M68 36C70 32 74 31 78 32" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="2.4" stroke-linecap="round"/>
+<path d="M75 50C69 46 69 41 72 40C74 40 75 41.5 75 42.5C75 41.5 76 40 78 40C81 41 81 46 75 50Z" fill="#d48a9a" fill-opacity=".8"/>
+<path d="M28 58C50 70 100 70 122 58" fill="none" stroke="#6f98ae" stroke-opacity=".35" stroke-width="1.2" stroke-linecap="round"/>
+</svg>

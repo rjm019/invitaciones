@@ -21,9 +21,21 @@ import tile1 from '@/themes/_shared/assets/azulejo-1.svg?url'
 import tile2 from '@/themes/_shared/assets/azulejo-2.svg?url'
 import tile3 from '@/themes/_shared/assets/azulejo-3.svg?url'
 import tile4 from '@/themes/_shared/assets/azulejo-4.svg?url'
+import babyOsito from '@/themes/_shared/assets/osito.svg?url'
+import babyBiberon from '@/themes/_shared/assets/biberon.svg?url'
+import babySonaja from '@/themes/_shared/assets/sonaja.svg?url'
+import babyPatito from '@/themes/_shared/assets/patito.svg?url'
+import babyZapatitos from '@/themes/_shared/assets/zapatitos.svg?url'
+import babyChupon from '@/themes/_shared/assets/chupon.svg?url'
+import babyCuna from '@/themes/_shared/assets/cuna.svg?url'
+import babyHuellitas from '@/themes/_shared/assets/huellitas.svg?url'
+import babyCubo from '@/themes/_shared/assets/cubo.svg?url'
+import babyLuna from '@/themes/_shared/assets/luna.svg?url'
 import laceBottomUrl from '@/effects/assets/encaje-abajo.svg?url'
 import laceTopUrl from '@/effects/assets/encaje-arriba.svg?url'
 import {
+  babyIcons,
+  babyShelf,
   balloonFlights,
   bloomFlowers,
   cloudDrifts,
@@ -79,6 +91,8 @@ import type { ResolvedSection } from '@/types/event'
  * - burbujas (bubbles): burbujas de jabón que suben y se desvanecen.
  * - gansito (goose-walk): el gansito, con dos globos, cruza la sección por el pie.
  * - guirnalda (garland): el moño grande con dos listones en guirnalda, hojas y bayas arriba, a todo el ancho.
+ * - juguetes (baby-icons): cosas de bebé (osito, biberón, sonaja…) a los costados, que entran una tras otra y se mecen.
+ * - franja_bebe (baby-strip): una hilera de esas cosas al pie, parejas en la base, cada una con su vaivén o saltito.
  * - ciguena (stork-flight): una cigüeña con su bultito cruza la franja de arriba; más tarde, otra al revés.
  * Solo se anima transform, opacity y las propiedades individuales translate/rotate/scale
  * (que no repintan); nada de blur ni sombras animadas. `entered` arranca las entradas.
@@ -125,6 +139,20 @@ const bubbles = computed(() => (has('bubbles') ? soapBubbles(seed.value) : []))
 const goose = computed(() => has('goose-walk'))
 const garland = computed(() => has('garland'))
 const storks = computed(() => (has('stork-flight') ? storkFlights(seed.value) : []))
+const babyArt: Record<string, string> = {
+  osito: babyOsito,
+  biberon: babyBiberon,
+  sonaja: babySonaja,
+  patito: babyPatito,
+  zapatitos: babyZapatitos,
+  chupon: babyChupon,
+  cuna: babyCuna,
+  huellitas: babyHuellitas,
+  cubo: babyCubo,
+  luna: babyLuna,
+}
+const toys = computed(() => (has('baby-icons') ? babyIcons(seed.value) : []))
+const shelf = computed(() => (has('baby-strip') ? babyShelf(seed.value) : []))
 // Las ocho puntas de cada margarita: el mismo dibujo, girado.
 const DAISY_PETALS = Array.from({ length: 8 }, (_, i) => i * 45)
 const bloomArt = [gerberaPink, gerberaOrange, gerberaRed, gerberaPale, marigoldFlower]
@@ -535,6 +563,46 @@ const tileArt = [tile1, tile2, tile3, tile4]
       >
         <FlyingStork :flying="true" :flip="k.reverse" :size="`${k.size}rem`" />
       </div>
+    </div>
+  </div>
+
+  <div v-if="toys.length" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <span
+      v-for="(t, i) in toys"
+      :key="i"
+      class="fab-toy"
+      :style="{
+        top: `${t.top}%`,
+        [t.side]: `${t.inset}rem`,
+        width: `${t.size}rem`,
+        '--fab-sway': `${t.sway}deg`,
+        '--fab-bob': `${-t.bob}px`,
+        '--fab-enter-delay': motionTime(t.enter),
+        '--fab-sway-time': motionTime(t.duration),
+        '--fab-sway-delay': motionTime(t.delay),
+      }"
+    >
+      <img class="fab-toy__img" :src="babyArt[t.name]" alt="" />
+    </span>
+  </div>
+
+  <div v-if="shelf.length" class="ambience fab" :class="[bleed, stateClass]" aria-hidden="true">
+    <div class="fab-shelf">
+      <span
+        v-for="(t, i) in shelf"
+        :key="i"
+        class="fab-shelf__toy"
+        :class="`fab-shelf__toy--${t.motion}`"
+        :style="{
+          width: `${t.size}rem`,
+          '--fab-amount': t.motion === 'hop' ? `${-t.amount}px` : `${t.amount}deg`,
+          '--fab-enter-delay': motionTime(t.enter),
+          '--fab-sway-time': motionTime(t.duration),
+          '--fab-sway-delay': motionTime(t.delay),
+        }"
+      >
+        <img class="fab-shelf__img" :src="babyArt[t.name]" alt="" />
+      </span>
     </div>
   </div>
 </template>

@@ -887,7 +887,7 @@
 
 /*
  * Trivia "juego": cada pregunta es una tarjeta de juego de papel crema con pespunte y un
- * cubo de juguete que asoma arriba; las opciones son cubos chatos (cara de arriba y sombra de
+ * cubo de juguete que asoma arriba y un osito de peluche sentado en la esquina; las opciones son cubos chatos (cara de arriba y sombra de
  * bloque) en colores pastel de la paleta, con su letra, que se hunden al tocarlos. Es la
  * trivia de siempre (mismo comportamiento): el acierto lo califica el servidor, así que los
  * estados son el de la opción elegida y el de error.
@@ -904,7 +904,9 @@
   margin-top: 3rem;
   padding: 2.4rem 1.2rem 1.5rem;
   border-radius: 1.2rem;
-  background: var(--color-paper, #fdf8f0);
+  background:
+    url('../../../themes/_shared/assets/osito.svg') right 1.1rem top 0.55rem / auto 2.7rem no-repeat,
+    var(--color-paper, #fdf8f0);
   box-shadow: 0 0.8rem 1.2rem -0.9rem rgb(0 0 0 / 0.5);
 }
 .section.section--trivia--juego .trivia__panel::before {

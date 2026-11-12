@@ -128,6 +128,8 @@ final class Catalog
         'gansito' => ['effect' => 'goose-walk', 'label' => 'Gansito que pasea', 'help' => 'Un gansito con gorro y dos globos cruza la sección por el pie, andando de un lado a otro.'],
         'guirnalda' => ['effect' => 'garland', 'label' => 'Guirnalda de listón', 'help' => 'Un moño grande arriba, al centro, del que cuelgan dos listones en guirnalda con ramas de hojas, bayas y una margarita: se ata al llegar a la sección y luego se mece apenas.'],
         'ciguena' => ['effect' => 'stork-flight', 'label' => 'Cigüeñas que cruzan', 'help' => 'Una cigüeña con un bultito colgado del pico cruza la parte alta de la sección despacio, aleteando; más tarde otra, más chica, cruza en sentido contrario.'],
+        'juguetes' => ['effect' => 'baby-icons', 'label' => 'Juguetes de bebé', 'help' => 'Un osito, un biberón, una sonaja, un patito, zapatitos y más, chicos, a los costados de la sección: entran uno tras otro y se mecen a destiempo.'],
+        'franja_bebe' => ['effect' => 'baby-strip', 'label' => 'Hilera de juguetes', 'help' => 'Una hilera de cosas de bebé al pie de la sección, parejas en la base, como juguetes en una repisa; cada una se mece o da un saltito a su tiempo.'],
         'letterpress' => ['effect' => 'letterpress', 'label' => 'Prensa (letterpress)', 'help' => 'El título se imprime al llegar: baja apenas, como presionado contra el papel, y queda en bajorrelieve.'],
     ];
 
@@ -155,6 +157,8 @@ final class Catalog
         'movil_cuna' => 'movil',
         'ganso' => 'gansito',
         'ciguenas' => 'ciguena',
+        'cosas_bebe' => 'juguetes',
+        'hilera_bebe' => 'franja_bebe',
     ];
 
     /** Palabras que apagan los efectos que el tema trae por defecto. */

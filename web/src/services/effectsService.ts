@@ -569,6 +569,8 @@ export const FABRIC_EFFECTS = [
   'goose-walk',
   'garland',
   'stork-flight',
+  'baby-icons',
+  'baby-strip',
 ] as const
 
 export interface LaceDoily {
@@ -1106,4 +1108,95 @@ export function storkFlights(seed: string): StorkFlight[] {
       delay,
     },
   ]
+}
+
+/** Dibujos de bebé (`_shared/assets/<nombre>.svg`) que usan `baby-icons` y `baby-strip`. */
+export const BABY_ICONS = [
+  'osito',
+  'biberon',
+  'sonaja',
+  'patito',
+  'zapatitos',
+  'chupon',
+  'cuna',
+  'huellitas',
+  'cubo',
+  'luna',
+] as const
+
+export interface BabyIcon {
+  name: (typeof BABY_ICONS)[number]
+  /** Altura en % de la sección y lado en que asoma. */
+  top: number
+  side: 'left' | 'right'
+  /** Distancia a la orilla en rem (negativa: medio fuera, para no pisar el texto). */
+  inset: number
+  /** Ancho en rem (de 2.2 a 3.4). */
+  size: number
+  /** Cuánto se mece (grados, ±) y cuánto flota (px). */
+  sway: number
+  bob: number
+  /** Segundos de cada vaivén y retraso con que se empieza a mecer. */
+  duration: number
+  delay: number
+  /** Retraso con que entra (uno tras otro). */
+  enter: number
+}
+
+/**
+ * Cosas de bebé a los costados de la sección (osito, biberón, sonaja, patito…), chicas,
+ * a distintas alturas y medio fuera de la orilla, que entran una tras otra y se mecen a
+ * destiempo. Nunca se repite un dibujo ni se meten al centro, donde va el texto.
+ */
+export function babyIcons(seed: string, count = 6): BabyIcon[] {
+  const rand = seededRandom(seed)
+  const start = Math.floor(rand() * BABY_ICONS.length)
+  return Array.from({ length: Math.min(count, BABY_ICONS.length) }, (_, i) => ({
+    name: BABY_ICONS[(start + i * 3) % BABY_ICONS.length],
+    top: round(((i + 0.5) / count) * 90 + (rand() - 0.5) * 6),
+    side: i % 2 === 0 ? 'left' : 'right',
+    inset: round(-1.2 + rand() * 0.8, 2),
+    size: round(2.2 + rand() * 1.2, 2),
+    sway: round(3.5 + rand() * 2.5, 1),
+    bob: Math.round(3 + rand() * 4),
+    duration: round(4 + rand() * 3, 1),
+    delay: round(-rand() * 5, 1),
+    enter: round(i * 0.3 + rand() * 0.15, 2),
+  }))
+}
+
+export interface BabyShelfToy {
+  name: (typeof BABY_ICONS)[number]
+  /** Ancho en rem. */
+  size: number
+  /** Vaivén (mecerse) o saltito. */
+  motion: 'sway' | 'hop'
+  /** Cuánto se mece (grados) o salta (px). */
+  amount: number
+  duration: number
+  delay: number
+  /** Retraso con que entra. */
+  enter: number
+}
+
+/**
+ * Hilera de juguetes sobre una repisa, al pie: siete dibujos parejos en la base, cada uno
+ * con su vaivén (o saltito, los que rebotan) a destiempo. Siempre alterna alto y bajo.
+ */
+export function babyShelf(seed: string): BabyShelfToy[] {
+  const rand = seededRandom(seed)
+  const start = Math.floor(rand() * BABY_ICONS.length)
+  return Array.from({ length: 7 }, (_, i) => {
+    const name = BABY_ICONS[(start + i * 3) % BABY_ICONS.length]
+    const hops = name === 'patito' || name === 'sonaja' || name === 'cubo'
+    return {
+      name,
+      size: round((i % 2 === 0 ? 3.2 : 2.7) + rand() * 0.4, 2),
+      motion: hops ? 'hop' : 'sway',
+      amount: hops ? Math.round(4 + rand() * 3) : round(2.5 + rand() * 2.5, 1),
+      duration: round(3.2 + rand() * 2.6, 1),
+      delay: round(-rand() * 5, 1),
+      enter: round(i * 0.2 + rand() * 0.1, 2),
+    }
+  })
 }

@@ -45,19 +45,24 @@ describe('tema arrullo', () => {
     const effects = (type: string) => manifest!.sections[type].effects
     // La portada no lleva panel: sin guirnalda (ya trae la suya) y con sus propios efectos.
     expect(effects('hero-envelope')).toEqual(['reveal', 'ribbon-curls', 'balloons', 'shine'])
-    expect(effects('music-player')).toEqual(['reveal-zoom', 'calligraphy', 'clouds', 'garland', 'shine'])
+    expect(effects('music-player')).toEqual(['reveal-zoom', 'calligraphy', 'clouds', 'baby-strip', 'garland', 'shine'])
     expect(effects('blessing')).toEqual(['reveal-slide', 'calligraphy', 'stork-flight', 'garland', 'shine'])
-    expect(effects('quote')).toEqual(['reveal-tilt', 'ink', 'sparkle', 'clouds', 'garland', 'shine'])
+    expect(effects('quote')).toEqual(['reveal-tilt', 'ink', 'sparkle', 'clouds', 'baby-icons', 'garland', 'shine'])
     expect(effects('save-the-date')).toEqual(['cascade', 'ink', 'balloons', 'garland', 'shine'])
     expect(effects('countdown')).toEqual(['reveal-zoom', 'ink', 'crib-mobile', 'garland', 'shine'])
     expect(effects('photo-arch')).toEqual(['reveal-slide', 'ink', 'bubbles', 'garland', 'shine'])
     expect(effects('location')).toEqual(['reveal-tilt', 'ink', 'daisies', 'garland', 'shine'])
     expect(effects('itinerary')).toEqual(['cascade', 'timeline-fill', 'ink', 'goose-walk', 'garland', 'shine'])
     expect(effects('gallery')).toEqual(['reveal-zoom', 'ink', 'sparkle', 'garland', 'shine'])
-    expect(effects('dress-code')).toEqual(['reveal-slide', 'ink', 'ribbon-curls', 'garland', 'shine'])
-    expect(effects('gifts')).toEqual(['reveal-tilt', 'ink', 'balloons', 'stork-flight', 'garland', 'shine'])
-    expect(effects('rsvp')).toEqual(['cascade', 'ink', 'daisies', 'garland', 'shine'])
-    expect(effects('dedications')).toEqual(['reveal-zoom', 'ink', 'bubbles', 'garland', 'shine'])
+    expect(effects('dress-code')).toEqual(['reveal-slide', 'ink', 'ribbon-curls', 'baby-icons', 'garland', 'shine'])
+    expect(effects('gifts')).toEqual(['reveal-tilt', 'ink', 'balloons', 'stork-flight', 'baby-strip', 'garland', 'shine'])
+    expect(effects('rsvp')).toEqual(['cascade', 'ink', 'baby-strip', 'garland', 'shine'])
+    expect(effects('dedications')).toEqual(['reveal-zoom', 'ink', 'bubbles', 'baby-icons', 'garland', 'shine'])
+    // Las secciones que solo llevaban destellos de ambiente ahora llevan cosas de bebé a los costados.
+    for (const type of ['story', 'hotels', 'faq', 'guest-album', 'no-kids', 'weather', 'spotify', 'envelope-rain', 'video', 'social-post']) {
+      expect(effects(type), type).toContain('baby-icons')
+      expect(effects(type), type).not.toContain('sparkle')
+    }
     expect(effects('trivia')).toEqual(['reveal-slide', 'ink', 'goose-walk', 'garland', 'shine'])
     expect(effects('closing')).toEqual(['reveal-tilt', 'ink', 'stork-flight', 'ribbon-curls', 'garland', 'shine'])
     // Todas las secciones con panel llevan el mismo remate, entrada, título trazado y brillo.
@@ -74,6 +79,7 @@ describe('tema arrullo', () => {
     for (const cls of [
       '.fab-balloon', '.fab-curl', '.fab-bowtie', '.fab-cloud', '.fab-mobile', '.fab-daisy',
       '.fab-bubble', '.fab-goose', '.fab-garland', '.fab-stork', '.fx-garland', '.fx-stork-flight',
+      '.fab-toy', '.fab-shelf', '.fx-baby-strip',
     ]) {
       expect(css, cls).toContain(cls)
     }
@@ -149,5 +155,16 @@ describe('tema arrullo', () => {
       expect(assets[file], file).toBeTruthy()
     }
     expect(themeAssets('arrullo')['carriola.svg']).toBeTruthy()
+  })
+
+  it('los dibujos de bebé son compartidos: cualquier tema los encuentra', () => {
+    const assets = themeAssets('marfil')
+    for (const file of [
+      'biberon.svg', 'sonaja.svg', 'chupon.svg', 'osito.svg', 'zapatitos.svg', 'cuna.svg',
+      'patito.svg', 'huellitas.svg',
+    ]) {
+      expect(assets[file], file).toBeTruthy()
+    }
+    expect(themeAssets('arrullo')['osito.svg']).toBeTruthy()
   })
 })

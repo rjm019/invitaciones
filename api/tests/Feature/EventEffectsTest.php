@@ -214,9 +214,9 @@ class EventEffectsTest extends TestCase
             'cuenta_regresiva,,visible,SI',
             'cuenta_regresiva,,efectos,"globos listones lazo nubes movil_cuna margaritas burbujas ganso"',
             'frase,,visible,SI',
-            'frase,,efectos,"lazo_se_ata movil gansito"',
+            'frase,,efectos,"lazo_se_ata movil gansito cosas_bebe"',
             'cierre,,visible,SI',
-            'cierre,,efectos,"guirnalda ciguenas"',
+            'cierre,,efectos,"guirnalda ciguenas juguetes hilera_bebe"',
         ] as $line) {
             $this->appendLine('nueva', 'invitacion.csv', $line);
         }
@@ -227,8 +227,8 @@ class EventEffectsTest extends TestCase
             ['balloons', 'ribbon-curls', 'bow-tie', 'clouds', 'crib-mobile', 'daisies', 'bubbles', 'goose-walk'],
             $sections->firstWhere('type', 'countdown')['effects'],
         );
-        $this->assertSame(['bow-tie', 'crib-mobile', 'goose-walk'], $sections->firstWhere('type', 'quote')['effects']);
-        $this->assertSame(['garland', 'stork-flight'], $sections->firstWhere('type', 'closing')['effects']);
+        $this->assertSame(['bow-tie', 'crib-mobile', 'goose-walk', 'baby-icons'], $sections->firstWhere('type', 'quote')['effects']);
+        $this->assertSame(['garland', 'stork-flight', 'baby-icons', 'baby-strip'], $sections->firstWhere('type', 'closing')['effects']);
     }
 
     public function test_encaje_section_variants_pass_through(): void

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 196 116">
+<defs>
+<g id="ar-zapatito">
+<path d="M6 86H94C94 97 86 102 76 102H24C14 102 6 97 6 86Z" fill="#fdf8f0" stroke="#e3a0ae" stroke-width="1.6" stroke-linejoin="round"/>
+<path d="M18 36H64V58C66 64 78 64 86 72C95 81 92 92 80 92H16C8 92 6 84 10 76C16 68 18 54 18 36Z" fill="#f3d3d8" stroke="#d48a9a" stroke-width="1.8" stroke-linejoin="round"/>
+<path d="M12 76C14 72 16 70 18 66" fill="none" stroke="#b9647a" stroke-opacity=".25" stroke-width="5" stroke-linecap="round"/>
+<path d="M24 48L28 52L32 48L36 52L40 48L44 52L48 48L52 52L56 48M24 60L28 64L32 60L36 64L40 60L44 64L48 60L52 64L56 60M30 72L34 76L38 72L42 76L46 72L50 76L54 72L58 76L62 72M42 84L46 88L50 84L54 88L58 84L62 88L66 84L70 88L74 84" fill="none" stroke="#d48a9a" stroke-opacity=".55" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M64 62C70 60 78 62 84 68" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2.4" stroke-linecap="round"/>
+<rect x="13" y="12" width="56" height="28" rx="9" fill="#fdf8f0" stroke="#e3a0ae" stroke-width="1.6"/>
+<path d="M22 16V36M30 16V36M38 16V36M46 16V36M54 16V36M62 16V36" stroke="#d48a9a" stroke-opacity=".35" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M18 17C24 14 34 14 40 14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+<path d="M41 44C34 36 24 38 25 45C26 52 36 50 41 45Z" fill="#d48a9a" stroke="#b9647a" stroke-width="1.4" stroke-linejoin="round"/>
+<path d="M41 44C48 36 58 38 57 45C56 52 46 50 41 45Z" fill="#d48a9a" stroke="#b9647a" stroke-width="1.4" stroke-linejoin="round"/>
+<path d="M39 48C37 55 36 60 33 64M43 48C45 55 46 60 49 64" fill="none" stroke="#b9647a" stroke-width="2" stroke-linecap="round"/>
+<circle cx="41" cy="45" r="4" fill="#e3a0ae" stroke="#b9647a" stroke-width="1.2"/>
+</g>
+</defs>
+<ellipse cx="98" cy="110" rx="86" ry="4.5" fill="#b9647a" fill-opacity=".13"/>
+<use href="#ar-zapatito" transform="translate(98 4) scale(-1 1)"/>
+<use href="#ar-zapatito" transform="translate(98 4)"/>
+</svg>

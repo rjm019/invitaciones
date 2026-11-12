@@ -16,6 +16,9 @@ import {
   ribbonCurls,
   cloudDrifts,
   daisyRow,
+  BABY_ICONS,
+  babyIcons,
+  babyShelf,
   soapBubbles,
   storkFlights,
   tulleVeils,
@@ -429,6 +432,38 @@ describe('efectos de baby shower', () => {
     expect(daisies).toHaveLength(9)
     expect(daisies[8].delay).toBeGreaterThan(daisies[0].delay)
     expect(daisies[8].left).toBeGreaterThan(daisies[0].left)
+  })
+
+  it('juguetes: seis dibujos distintos a los costados, chicos, estables por sección', () => {
+    const toys = babyIcons('vestimenta')
+    expect(toys).toEqual(babyIcons('vestimenta'))
+    expect(toys).toHaveLength(6)
+    expect(new Set(toys.map((t) => t.name)).size).toBe(6)
+    for (const t of toys) {
+      expect(BABY_ICONS).toContain(t.name)
+      expect(t.size).toBeGreaterThanOrEqual(2.2)
+      expect(t.size).toBeLessThanOrEqual(3.4)
+      expect(t.inset).toBeLessThan(0)
+      expect(t.sway).toBeLessThanOrEqual(6)
+      expect(['left', 'right']).toContain(t.side)
+    }
+    expect(toys.map((t) => t.side)).toEqual(['left', 'right', 'left', 'right', 'left', 'right'])
+    expect(toys[5].enter).toBeGreaterThan(toys[0].enter)
+    expect(babyIcons('otra').map((t) => t.name)).not.toEqual(toys.map((t) => t.name))
+  })
+
+  it('hilera de juguetes: siete, distintos, con vaivén o saltito a destiempo', () => {
+    const row = babyShelf('musica')
+    expect(row).toEqual(babyShelf('musica'))
+    expect(row).toHaveLength(7)
+    expect(new Set(row.map((t) => t.name)).size).toBe(7)
+    expect(row.map((t) => t.motion).every((m) => m === 'sway' || m === 'hop')).toBe(true)
+    for (const t of row) {
+      expect(t.size).toBeGreaterThanOrEqual(2.7)
+      expect(t.size).toBeLessThanOrEqual(3.6)
+    }
+    expect(row[6].enter).toBeGreaterThan(row[0].enter)
+    expect(new Set(row.map((t) => t.delay)).size).toBeGreaterThan(1)
   })
 
   it('burbujas: diez, suben entre 40 y 75 % del alto', () => {

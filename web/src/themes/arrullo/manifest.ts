@@ -8,7 +8,8 @@ import type { ThemeManifest } from '../types'
  *
  * Paleta, letras, panel único y globos sueltos, con los detalles de toda la página
  * (estampado de rayas, orilla de holán, botón de lazo, papel de acuarela).
- * Efectos de cada sección: listones, globos, nubes, moño, burbujas, margaritas, móvil y gansito;
+ * Efectos de cada sección: listones, globos, nubes, moño, burbujas, margaritas, móvil y gansito,
+ * y cosas de bebé a los costados (`baby-icons`) o en hilera al pie (`baby-strip`);
  * los diseños (portada, música, bendición, frase, fecha, cuenta regresiva, foto, galería, ubicación e itinerario) ya están; el resto llega en las etapas siguientes. Todo es global: cualquier tema puede usar los adornos de
  * `_shared/assets` (moño, carriola, gansito, globo, margarita, ramita, nube, luna, cubo,
  * caja de regalo, pinza y ropita).
@@ -50,14 +51,14 @@ const theme: ThemeManifest = {
     'hero-envelope': { panel: false, variant: 'lazo', effects: ['reveal', 'ribbon-curls', 'balloons', 'shine'] },
     'music-player': {
       variant: 'movil',
-      effects: ['reveal-zoom', 'calligraphy', 'clouds', 'garland', 'shine'],
+      effects: ['reveal-zoom', 'calligraphy', 'clouds', 'baby-strip', 'garland', 'shine'],
     },
     blessing: {
       desktop: 'half',
       variant: 'medallon',
       effects: ['reveal-slide', 'calligraphy', 'stork-flight', 'garland', 'shine'],
     },
-    story: { effects: ['reveal-tilt', 'ink', 'sparkle', 'garland', 'shine'] },
+    story: { effects: ['reveal-tilt', 'ink', 'baby-icons', 'garland', 'shine'] },
     'save-the-date': {
       desktop: 'half',
       variant: 'globos',
@@ -80,9 +81,9 @@ const theme: ThemeManifest = {
     'dress-code': {
       desktop: 'half',
       variant: 'lazos',
-      effects: ['reveal-slide', 'ink', 'ribbon-curls', 'garland', 'shine'],
+      effects: ['reveal-slide', 'ink', 'ribbon-curls', 'baby-icons', 'garland', 'shine'],
     },
-    hotels: { effects: ['reveal-zoom', 'ink', 'sparkle', 'garland', 'shine'] },
+    hotels: { effects: ['reveal-zoom', 'ink', 'baby-icons', 'garland', 'shine'] },
     gallery: {
       desktop: 'half',
       variant: 'medallones',
@@ -91,20 +92,20 @@ const theme: ThemeManifest = {
     gifts: {
       desktop: 'half',
       variant: 'cajas',
-      effects: ['reveal-tilt', 'ink', 'balloons', 'stork-flight', 'garland', 'shine'],
+      effects: ['reveal-tilt', 'ink', 'balloons', 'stork-flight', 'baby-strip', 'garland', 'shine'],
     },
-    faq: { desktop: 'half', effects: ['reveal-slide', 'ink', 'sparkle', 'garland', 'shine'] },
+    faq: { desktop: 'half', effects: ['reveal-slide', 'ink', 'baby-icons', 'garland', 'shine'] },
     trivia: { variant: 'juego', effects: ['reveal-slide', 'ink', 'goose-walk', 'garland', 'shine'] },
     rsvp: {
       desktop: 'half',
       variant: 'vichy',
-      effects: ['cascade', 'ink', 'daisies', 'garland', 'shine'],
+      effects: ['cascade', 'ink', 'baby-strip', 'garland', 'shine'],
     },
     dedications: {
       variant: 'deseos',
-      effects: ['reveal-zoom', 'ink', 'bubbles', 'garland', 'shine'],
+      effects: ['reveal-zoom', 'ink', 'bubbles', 'baby-icons', 'garland', 'shine'],
     },
-    'guest-album': { effects: ['reveal-tilt', 'ink', 'sparkle', 'garland', 'shine'] },
+    'guest-album': { effects: ['reveal-tilt', 'ink', 'baby-icons', 'garland', 'shine'] },
     closing: {
       variant: 'paseo',
       effects: ['reveal-tilt', 'ink', 'stork-flight', 'ribbon-curls', 'garland', 'shine'],
@@ -112,19 +113,19 @@ const theme: ThemeManifest = {
     quote: {
       desktop: 'half',
       variant: 'nube',
-      effects: ['reveal-tilt', 'ink', 'sparkle', 'clouds', 'garland', 'shine'],
+      effects: ['reveal-tilt', 'ink', 'sparkle', 'clouds', 'baby-icons', 'garland', 'shine'],
     },
     'photo-arch': {
       desktop: 'half',
       variant: 'retrato',
       effects: ['reveal-slide', 'ink', 'bubbles', 'garland', 'shine'],
     },
-    'no-kids': { effects: ['reveal-zoom', 'ink', 'sparkle', 'garland', 'shine'] },
-    weather: { effects: ['reveal-slide', 'ink', 'sparkle', 'garland', 'shine'] },
-    spotify: { effects: ['reveal-tilt', 'ink', 'sparkle', 'garland', 'shine'] },
-    'envelope-rain': { effects: ['reveal-zoom', 'ink', 'sparkle', 'garland', 'shine'] },
-    video: { effects: ['reveal-slide', 'ink', 'sparkle', 'garland', 'shine'] },
-    'social-post': { effects: ['reveal-tilt', 'ink', 'sparkle', 'garland', 'shine'] },
+    'no-kids': { effects: ['reveal-zoom', 'ink', 'baby-icons', 'garland', 'shine'] },
+    weather: { effects: ['reveal-slide', 'ink', 'baby-icons', 'garland', 'shine'] },
+    spotify: { effects: ['reveal-tilt', 'ink', 'baby-icons', 'garland', 'shine'] },
+    'envelope-rain': { effects: ['reveal-zoom', 'ink', 'baby-icons', 'garland', 'shine'] },
+    video: { effects: ['reveal-slide', 'ink', 'baby-icons', 'garland', 'shine'] },
+    'social-post': { effects: ['reveal-tilt', 'ink', 'baby-icons', 'garland', 'shine'] },
     layer: { panel: false },
   },
 }

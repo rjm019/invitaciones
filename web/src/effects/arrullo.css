@@ -1,7 +1,7 @@
 /*
  * Efectos de baby shower (globales; los pinta FabricAmbience.vue como capas detrás del
  * contenido): globos, listones rizados, moño que se ata, nubes, móvil de cuna, margaritas,
- * burbujas de jabón, el gansito que pasea, la guirnalda de listón y las cigüeñas. Reglas de siempre: solo transform, opacity y las
+ * burbujas de jabón, juguetes de bebé a los costados y en hilera, el gansito que pasea, la guirnalda de listón y las cigüeñas. Reglas de siempre: solo transform, opacity y las
  * propiedades individuales translate/rotate/scale; duraciones con --motion-scale; con "menos
  * movimiento" todo queda quieto y ya puesto (moño atado, margaritas brotadas, móvil quieto,
  * gansito parado) y globos, burbujas y nubes no se pintan; con la sección lejos de la pantalla
@@ -255,6 +255,124 @@
   padding-bottom: 4.4rem;
 }
 
+/*
+ * juguetes (baby-icons): dibujos de bebé de _shared/assets (imagen: su color es el del dibujo,
+ * no el de la paleta) a los costados, chicos y medio fuera de la orilla. Al llegar a la sección
+ * entran uno tras otro (scale + opacity) y luego se mecen a destiempo (rotate, y un flotar de
+ * translate). Solo transform y opacity.
+ */
+.fab-toy {
+  position: absolute;
+  aspect-ratio: 1;
+  opacity: 0;
+  scale: 0.6;
+}
+.fab-toy__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: 50% 85%;
+}
+.fab.is-in .fab-toy {
+  animation: fab-toy-in calc(0.7s * var(--motion-scale)) cubic-bezier(0.3, 1.4, 0.5, 1)
+    var(--fab-enter-delay, 0s) both;
+}
+.fab.is-in .fab-toy__img {
+  animation: fab-toy-sway var(--fab-sway-time, 5s) ease-in-out var(--fab-sway-delay, 0s) infinite
+    alternate;
+}
+@keyframes fab-toy-in {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@keyframes fab-toy-sway {
+  from {
+    rotate: calc(-1 * var(--fab-sway, 5deg));
+    translate: 0 0;
+  }
+  to {
+    rotate: var(--fab-sway, 5deg);
+    translate: 0 var(--fab-bob, -4px);
+  }
+}
+
+/*
+ * franja_bebe (baby-strip): una hilera de juguetes sobre una repisa, al pie del panel, a todo
+ * lo ancho y parejos en la base. Cada uno entra (scale + opacity) y luego se mece (rotate) o
+ * da un saltito (translate) a su ritmo. El contenido reserva su alto abajo.
+ */
+.fab-shelf {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  bottom: 0.9rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.2rem;
+}
+.fab-shelf__toy {
+  flex: 0 1 auto;
+  min-width: 0;
+  opacity: 0;
+  scale: 0.6;
+  transform-origin: 50% 100%;
+}
+.fab-shelf__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: 50% 100%;
+}
+.fab.is-in .fab-shelf__toy {
+  animation: fab-toy-in calc(0.7s * var(--motion-scale)) cubic-bezier(0.3, 1.4, 0.5, 1)
+    var(--fab-enter-delay, 0s) both;
+}
+.fab.is-in .fab-shelf__toy--sway .fab-shelf__img {
+  animation: fab-shelf-sway var(--fab-sway-time, 5s) ease-in-out var(--fab-sway-delay, 0s) infinite
+    alternate;
+}
+.fab.is-in .fab-shelf__toy--hop .fab-shelf__img {
+  animation: fab-shelf-hop var(--fab-sway-time, 4s) ease-in-out var(--fab-sway-delay, 0s) infinite;
+}
+@keyframes fab-shelf-sway {
+  from {
+    rotate: calc(-1 * var(--fab-amount, 3deg));
+  }
+  to {
+    rotate: var(--fab-amount, 3deg);
+  }
+}
+@keyframes fab-shelf-hop {
+  0%,
+  55%,
+  100% {
+    translate: 0 0;
+    scale: 1 1;
+  }
+  65% {
+    scale: 1.06 0.94;
+  }
+  78% {
+    translate: 0 var(--fab-amount, -5px);
+    scale: 0.97 1.04;
+  }
+  90% {
+    translate: 0 0;
+    scale: 1.04 0.96;
+  }
+}
+.fx-baby-strip > .section__content {
+  padding-bottom: 5.4rem;
+}
+
 /* burbujas (bubbles): aro fino con brillo que sube, crece un poco y se desvanece. */
 .fab-bubble {
   position: absolute;
@@ -417,6 +535,10 @@
   /* Todo quieto y ya puesto; globos, burbujas y nubes no se pintan. */
   .fab-curl,
   .fab.is-in .fab-daisy,
+  .fab.is-in .fab-toy,
+  .fab.is-in .fab-toy__img,
+  .fab.is-in .fab-shelf__toy,
+  .fab.is-in .fab-shelf__img,
   .fab-goose,
   .fab-stork,
   .fab-stork__wave {
@@ -425,6 +547,12 @@
   .fab-daisy {
     scale: 1;
     rotate: 0deg;
+  }
+  /* Los dibujos de bebé quedan quietos y a la vista. */
+  .fab-toy,
+  .fab-shelf__toy {
+    opacity: 1;
+    scale: 1;
   }
   /* El gansito queda parado cerca de una esquina; el que regresa no se pinta. */
   .fab-goose--ltr {

@@ -238,6 +238,20 @@ describe('SectionShell: efectos de fiesta mexicana', () => {
     )
   })
 
+  it('juguetes y hilera de juguetes pintan sus dibujos como imagen, detrás del contenido', () => {
+    const wrapper = render({ effects: ['baby-icons', 'baby-strip'] })
+    expect(wrapper.findAll('.fab-toy')).toHaveLength(6)
+    expect(wrapper.findAll('.fab-toy img')).toHaveLength(6)
+    expect(wrapper.findAll('.fab-shelf__toy')).toHaveLength(7)
+    expect(wrapper.findAll('.fab-shelf__toy img')).toHaveLength(7)
+    expect(wrapper.find('.fab-toy').attributes('style')).toContain('--motion-scale')
+    expect(wrapper.find('.fab-shelf__toy').attributes('style')).toContain('--motion-scale')
+    expect(wrapper.find('section').classes()).toEqual(
+      expect.arrayContaining(['fx-baby-icons', 'fx-baby-strip']),
+    )
+    for (const layer of wrapper.findAll('.fab')) expect(layer.attributes('aria-hidden')).toBe('true')
+  })
+
   it('su duración y retraso pasan por la velocidad de la invitación', () => {
     const wrapper = render({ effects: ['papel-picado', 'marigold', 'bloom', 'music-notes', 'tile-flip'] })
     for (const sel of ['.fab-flag', '.fab-marigold', '.fab-bloom', '.fab-note', '.fab-tile']) {
